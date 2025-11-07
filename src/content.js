@@ -272,12 +272,10 @@ function createAsyncPlaceholder(id, type, description = '') {
  */
 async function processAsyncTasks() {
   if (asyncTaskQueue.length === 0) {
-    console.log('No async tasks to process');
     return;
   }
   
   const totalTasks = asyncTaskQueue.length;
-  console.log(`Processing ${totalTasks} async tasks`);
   
   // Show processing indicator and set initial progress (full circle)
   showProcessingIndicator();
@@ -310,7 +308,6 @@ async function processAsyncTasks() {
   
   // Hide processing indicator when all tasks are done
   hideProcessingIndicator();
-  console.log('All async tasks completed');
 }
 
 /**
@@ -328,37 +325,15 @@ function updateProgress(completed, total) {
   const offset = circumference * (1 - progress);
   
   progressCircle.style.strokeDashoffset = offset;
-  
-  console.log(`Progress: ${completed}/${total} (${Math.round(progress * 100)}%)`);
 }
 
 /**
  * Show processing indicator in TOC header
  */
 function showProcessingIndicator() {
-  console.log('Attempting to show processing indicator...');
-  
-  // Debug: check if the elements exist
-  const tocDiv = document.getElementById('table-of-contents');
-  const tocHeader = document.querySelector('.toc-header');
   const indicator = document.getElementById('processing-indicator');
-  
-  console.log('TOC div exists:', !!tocDiv);
-  console.log('TOC header exists:', !!tocHeader);
-  console.log('Processing indicator exists:', !!indicator);
-  
-  if (tocHeader) {
-    console.log('TOC header HTML:', tocHeader.innerHTML);
-  }
-  
   if (indicator) {
-    console.log('Showing processing indicator');
     indicator.classList.remove('hidden');
-  } else {
-    console.log('Processing indicator element not found');
-    // Try to find it by class
-    const indicatorByClass = document.querySelector('.processing-indicator');
-    console.log('Indicator by class exists:', !!indicatorByClass);
   }
 }
 
@@ -368,10 +343,7 @@ function showProcessingIndicator() {
 function hideProcessingIndicator() {
   const indicator = document.getElementById('processing-indicator');
   if (indicator) {
-    console.log('Hiding processing indicator');
     indicator.classList.add('hidden');
-  } else {
-    console.log('Processing indicator element not found');
   }
 }/**
  * Remark plugin to convert Mermaid code blocks to PNG (async callback version)
@@ -673,7 +645,6 @@ setTimeout(async () => {
   // Now that all DOM is ready, process async tasks
   // Add a small delay to ensure DOM is fully rendered and visible
   setTimeout(() => {
-    console.log('Starting async task processing...');
     processAsyncTasks();
   }, 200);
 }, 100);
