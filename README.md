@@ -1,191 +1,190 @@
 # Markdown Viewer
 
-用 Markdown 写文档，一键导出完美 Word。
+Write your documents in Markdown and export a polished Word file with one click.
 
-## 💡 这个工具解决什么问题？
+## 💡 What problems does this tool solve?
 
-您是否遇到过这些困扰：
+Have you ever run into these headaches?
 
-- ✍️ **使用 Markdown 写作高效，但最终需要提交 Word 格式** - 企业协作、学术投稿、项目交付都需要 Word 文档
-- 📊 **文档中的流程图、时序图无法直接使用** - Mermaid 代码在 Word 中无法显示，只能手动截图
-- 🤯 **截图、粘贴、调整大小...工作繁琐** - 每次修改图表都需重新截图，一篇文档需要重复操作数十次
-- 😵 **复制到 Word 后格式完全错乱** - 标题层级混乱，表格样式丢失，需要花费大量时间手动调整
-- 📐 **数学公式转换困难** - LaTeX 公式粘贴到 Word 后变成纯文本，无法正常显示
+- ✍️ **Markdown is efficient to write, but Word is required for delivery** – enterprise collaboration, academic submissions, and project handoffs still demand Word documents.
+- 📊 **Flowcharts and sequence diagrams do not survive the journey** – Mermaid code does not render in Word, so you end up taking manual screenshots.
+- 🤯 **Screenshot, paste, resize… repeat forever** – every edit forces you to capture the diagram again; a single document can mean dozens of repetitive steps.
+- 😵 **Copying into Word destroys the layout** – heading hierarchy breaks, table styling disappears, and you spend ages fixing the formatting.
+- 📐 **Math formulas are painful to convert** – LaTeX pasted into Word turns into plain text and no longer displays correctly.
 
-现在，只需点击一个按钮，所有问题立即解决。
+Now you only need to press one button and all of these issues disappear.
 
-## ✨ 用这个工具，你可以
+## ✨ What you can do with this tool
 
-### 📝 专注写作，告别格式烦恼
+### 📝 Focus on writing and forget formatting troubles
 
-使用 Markdown 编写您的文档：
-- 技术方案
-- 产品需求文档  
-- 课程笔记
-- 学术论文
-- API 文档
+Write your content in Markdown:
+- Technical design documents
+- Product requirement documents
+- Course notes
+- Academic papers
+- API references
 
-完成后，点击「下载」按钮，立即获得格式完美的 Word 文档。
+When you are done, press the **Download** button and instantly receive a perfectly formatted Word file.
 
-**无需进行：**
-- ❌ 手动截图
-- ❌ 复制粘贴
-- ❌ 调整格式
-- ❌ 担心图表无法显示
+**No more:**
+- ❌ Manual screenshots
+- ❌ Copy and paste loops
+- ❌ Hand-tuning the layout
+- ❌ Worrying about diagrams not showing up
 
-**自动为您完成：**
-- ✅ 流程图、时序图转换为高清图片
-- ✅ 数学公式转换为 Word 原生公式（可编辑）
-- ✅ 标题层级、列表缩进完美保留
-- ✅ 代码着色清晰，便于技术审阅
+**Handled automatically:**
+- ✅ Flowcharts and sequence diagrams converted to high-definition images
+- ✅ Math formulas transformed into native, editable Word equations
+- ✅ Heading levels and list indentation preserved exactly
+- ✅ Syntax-highlighted code blocks ready for technical review
 
-### 🎯 真正解决实际问题
+### 🎯 Built to solve real-world problems
 
-**场景一：技术文档需要交付 Word**
+**Scenario 1: Technical documentation must be delivered in Word**
 
-您正在写一份系统架构文档，里面有十几个流程图和时序图。以前，您需要：
-1. 在 draw.io 或其他工具画图
-2. 导出图片
-3. 插入到 Word
-4. 调整大小和位置
-5. 修改后重复以上步骤
+You are preparing a system architecture document with a dozen flowcharts and sequence diagrams. In the past you had to:
+1. Draw every diagram in draw.io or another tool
+2. Export the diagram as an image
+3. Insert it into Word
+4. Adjust size and position
+5. Repeat everything after each revision
 
-现在，您只需要：
-1. 在 Markdown 中用 Mermaid 代码画图
-2. 点击下载按钮
+Now you only need to:
+1. Describe the diagrams with Mermaid code in Markdown
+2. Click the download button
 
-节省 90% 的时间。
+You save around 90% of the effort.
 
-**场景二：学术论文包含大量公式**
+**Scenario 2: Academic papers packed with formulas**
 
-您在写论文，文档中有几十个数学公式。以前，您需要：
-1. 在 Word 中用公式编辑器逐个输入
-2. 或者用 Mathpix 截图转换（还要付费）
+You are writing a paper containing dozens of equations. Previously you had to:
+1. Type every formula again in Word’s equation editor
+2. Or rely on services such as Mathpix (and pay for it)
 
-现在，您只需要：
-1. 在 Markdown 中用 LaTeX 语法写公式
-2. 点击下载，公式自动转为 Word 可编辑格式
+Now you can:
+1. Write the formulas in Markdown with standard LaTeX syntax
+2. Click download and the equations become editable Word math objects
 
-不仅更快，而且免费。
+It is faster, cleaner, and free.
 
-**场景三：团队协作需要分享文档**
+**Scenario 3: Teams collaborate in Markdown but must share Word files**
 
-您的团队习惯用 Markdown 写文档存在 Git 上，但需要定期给老板或客户发送 Word 报告。以前，您需要：
-1. 手动复制内容到 Word
-2. 重新调整格式
-3. 截图添加图表
+Your team keeps documentation in Markdown inside a Git repository, yet management or clients still expect Word reports. Previously you had to:
+1. Copy everything into Word by hand
+2. Recreate the formatting
+3. Capture screenshots for diagrams
 
-现在，您只需要：
-1. 打开 Markdown 文件
-2. 点击下载
-3. 发送给对方
+Now you just:
+1. Open the Markdown file
+2. Click download
+3. Send the generated document
 
-同样的文档，一分钟搞定。
+The very same report is ready in under a minute.
 
-### 📖 边写边预览，确保导出完美
+### 📖 Preview as you write and guarantee perfect exports
 
-打开 Markdown 文件，立即看到最终效果：
+Open any Markdown file to see the final look immediately:
 
-**大文件也能秒开**
-- 包含几十个复杂图表？依然瞬间打开
-- 文字内容立即显示，图表后台加载
-- 第二次打开同一文档，从缓存加载，更快
+**Even large files load in seconds**
+- Packed with dozens of complex diagrams? It still opens instantly.
+- Text appears right away, while diagrams render in the background.
+- Reopening the same document uses the cache and becomes even faster.
 
-**随时调整查看效果**
-- 🔍 灵活缩放（50%-400%）
-  - 近视？字太小？随时放大
-  - 屏幕小？缩小后看全局
-  - 一键恢复默认大小
-- 📐 三种布局模式，预览导出效果
-  - 正常模式（1000px）：网页阅读最佳宽度
-  - 满屏模式：演示时充分利用屏幕
-  - 窄屏模式（530px）：提前预览 Word 排版效果
-- 📑 数百页文档？侧边栏目录快速定位任何章节
-- 💾 自动记忆阅读位置，下次打开继续阅读
+**Tweak the view at any time**
+- 🔍 Flexible zoom (50%–400%)
+  - Need larger text? Zoom in without limits.
+  - Working on a small screen? Zoom out for the big picture.
+  - Reset to default with a single click.
+- 📐 Three layout modes to preview exports
+  - Normal (1000 px) for the best reading width in the browser
+  - Fullscreen for presentations and meetings
+  - Narrow (530 px) to mimic Word pagination ahead of time
+- 📑 Hundreds of pages? Use the sidebar TOC to jump to any section instantly.
+- 💾 Your reading position is remembered automatically so you resume where you left off.
 
-**越用越快**
-- 首次打开需要几秒加载渲染引擎
-- 之后打开相同文档，图表和公式瞬间显示
-- 大幅减少重复加载时间
+**The more you use it, the faster it gets**
+- The first load initializes the rendering engine in a few seconds.
+- Subsequent opens of the same document show diagrams and formulas immediately.
+- Repeated loading time drops dramatically.
 
+## 📦 Quick start
 
-## 📦 快速开始
+### Install the extension
 
-### 安装扩展
+1. Visit the Chrome Web Store and search for “Markdown Viewer”.
+2. Click **Add to Chrome**.
+3. Confirm the installation.
 
-1. 访问 Chrome Web Store 搜索 "Markdown Viewer"
-2. 点击"添加至 Chrome"
-3. 确认安装
+### View local files (important)
 
-### 查看本地文件（重要）
+To open `.md` files from your computer, grant the extension the required permission:
 
-要打开电脑上的 `.md` 文件，需要授予扩展权限：
+1. Open `chrome://extensions/`.
+2. Locate Markdown Viewer.
+3. Enable **Allow access to file URLs**.
 
-1. 打开 `chrome://extensions/`
-2. 找到 Markdown Viewer
-3. 开启"允许访问文件网址"
+After that you can:
+- Double-click local Markdown files to view them in Chrome.
+- Drag and drop files into the browser window.
+- Read documents shared by your team with ease.
 
-完成后即可：
-- 双击打开本地 Markdown 文件
-- 拖拽文件到浏览器窗口
-- 查看团队分享的文档
+### Start using it
 
-### 开始使用
+**Read documents**
+- Online files: open any `.md` or `.markdown` link directly.
+- Local files: drag into Chrome or double-click the file.
+- GitHub repositories: pages are beautified automatically.
 
-**阅读文档**
-- 在线文档：直接点击 `.md` 或 `.markdown` 链接
-- 本地文件：拖拽到浏览器或双击打开
-- GitHub 仓库：自动美化渲染
+**Export to Word**
+- Click the download button in the toolbar (or press `Ctrl/Cmd + S`).
+- Watch the real-time progress indicator.
+- The file is saved to your downloads folder automatically.
 
-**导出 Word**
-- 点击工具栏的下载按钮（或按 `Ctrl/Cmd + S`）
-- 等待处理完成（实时显示进度）
-- 文件自动保存到下载文件夹
+**Adjust the reading experience**
+- Use `-` / `+` to change font size.
+- Click the layout button to switch page widths.
+- Press `Ctrl/Cmd + B` to toggle the table of contents.
 
-**调整阅读体验**
-- 点击 `-` / `+` 调整文字大小
-- 点击布局按钮切换页面宽度
-- 按 `Ctrl/Cmd + B` 显示/隐藏目录
+## 💎 How it compares to other solutions
 
-## 💎 与其他方案对比
+**Traditional approach: Markdown → screenshots → Word**
+- ❌ Capture every diagram by hand.
+- ❌ Redo all screenshots after each edit.
+- ❌ Inconsistent image quality.
+- ❌ Time-consuming and error-prone.
 
-**传统方式：Markdown → 截图 → Word**
-- ❌ 每个图表都要手动截图
-- ❌ 修改后需要重新截图
-- ❌ 图片质量不稳定
-- ❌ 耗时长，容易出错
+**Pandoc or other command-line tools**
+- ❌ Requires installation and configuration.
+- ❌ Significant learning curve.
+- ❌ Limited diagram support.
+- ❌ No live preview.
 
-**使用 Pandoc 等命令行工具**
-- ❌ 需要安装配置环境
-- ❌ 学习成本高
-- ❌ 图表支持有限
-- ❌ 没有预览功能
+**Online conversion services**
+- ❌ Upload your documents (privacy concerns).
+- ❌ Usually paid.
+- ❌ Dependent on network connectivity.
+- ❌ Formatting support is incomplete.
 
-**使用在线转换服务**
-- ❌ 需要上传文档（隐私问题）
-- ❌ 通常需要付费
-- ❌ 依赖网络连接
-- ❌ 格式支持不完整
+**Markdown Viewer**
+- ✅ One-click export with full automation.
+- ✅ Local processing keeps your data private.
+- ✅ Completely free with no usage limits.
+- ✅ Diagrams and math are handled flawlessly.
+- ✅ Live preview gives you true WYSIWYG.
+- ✅ Formatting stays intact—no cleanup required.
 
-**使用 Markdown Viewer**
-- ✅ 一键导出，完全自动化
-- ✅ 本地处理，保护隐私
-- ✅ 完全免费，无限制使用
-- ✅ 图表、公式完美支持
-- ✅ 边写边预览，所见即所得
-- ✅ 格式完美保留，无需调整
+## 💬 What users say
 
-## 💬 用户怎么说
+"I used to spend an hour just dealing with flowcharts in technical docs. Now I finish the Mermaid blocks and export—done in five minutes."
 
-"以前写技术文档，光是处理流程图就要花一个小时。现在用 Mermaid 写完直接导出，5分钟搞定。" 
+— Alex Chen (Software Engineer)
 
-—— Alex Chen（软件工程师）
+"When I write papers, this tool keeps every equation editable in the exported Word file. It is incredibly convenient."
 
-"写论文时用这个工具处理数学公式，导出的 Word 文档可以直接编辑公式，太方便了。" 
+— Sarah Zhang (Graduate Student)
 
-—— Sarah Zhang（研究生）
+"Our team writes everything in Markdown, and now we can send Word copies to clients instantly without manual conversion."
 
-"团队文档都用 Markdown 写，现在可以直接发给客户 Word 版本，不用再手动转换。" 
-
-—— Kevin Wu（产品经理）
+— Kevin Wu (Product Manager)
 
