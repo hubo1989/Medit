@@ -31,7 +31,18 @@ const applyI18nText = () => {
       substitutions = [version];
     }
 
-    const message = translate(key, substitutions);
+    let message = translate(key, substitutions);
+    if (message && substitutions) {
+      const list = Array.isArray(substitutions) ? substitutions : [substitutions];
+      message = message.replace(/\{(\d+)\}/g, (match, index) => {
+        const idx = Number.parseInt(index, 10);
+        if (Number.isNaN(idx) || idx < 0 || idx >= list.length) {
+          return match;
+        }
+        return list[idx];
+      });
+    }
+
     if (message) {
       element.textContent = message;
     }
