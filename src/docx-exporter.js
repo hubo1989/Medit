@@ -18,6 +18,7 @@ import {
   Math as MathBlock,
   MathRun,
   TableLayoutType,
+  ExternalHyperlink,
 } from 'docx';
 import { VerticalAlign as VerticalAlignTable } from 'docx';
 import { mathJaxReady, convertLatex2Math as originalConvertLatex2Math } from '@hungknguyen/docx-math-converter';
@@ -719,14 +720,25 @@ class DocxExporter {
   /**
    * Convert link node
    */
-  convertLink(node, parentStyle) {
+  async convertLink(node, parentStyle) {
     const text = this.extractText(node);
+    const url = node.url || '';
     
-    return new TextRun({
-      text: text,
-      ...parentStyle,
-      color: '0366D6', // GitHub blue matching CSS
-      underline: {},
+    // Create hyperlink with proper styling
+    return new ExternalHyperlink({
+      children: [
+        new TextRun({
+          text: text,
+          style: 'Hyperlink',
+          color: '0366D6', // GitHub blue matching CSS
+          underline: {
+            type: 'single',
+            color: '0366D6',
+          },
+          ...parentStyle,
+        }),
+      ],
+      link: url,
     });
   }
 

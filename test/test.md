@@ -105,6 +105,20 @@ ___
 
 **自动链接：** https://github.com 和 user@example.com
 
+**引用式链接（Reference-style Links）：**
+
+[I'm a reference-style link][Arbitrary case-insensitive reference text]
+
+[You can use numbers for reference-style link definitions][1]
+
+Or leave it empty and use the [link text itself].
+
+URLs for the reference above:
+
+[arbitrary case-insensitive reference text]: https://www.mozilla.org
+[1]: http://slashdot.org
+[link text itself]: http://www.reddit.com
+
 ### 2.2 图片
 
 **网络图片：**
