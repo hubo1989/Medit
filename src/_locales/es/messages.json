@@ -111,6 +111,10 @@
     "message": "Diseño normal",
     "description": "Tooltip del botón de diseño normal"
   },
+  "toolbar_layout_title_wide": {
+    "message": "Diseño amplio",
+    "description": "Tooltip del botón de diseño amplio"
+  },
   "toolbar_layout_title_fullscreen": {
     "message": "Diseño pantalla completa",
     "description": "Tooltip del botón de diseño a pantalla completa"

@@ -111,6 +111,10 @@
     "message": "Disposition normale",
     "description": "Infobulle pour la disposition normale"
   },
+  "toolbar_layout_title_wide": {
+    "message": "Disposition large",
+    "description": "Infobulle pour la disposition large"
+  },
   "toolbar_layout_title_fullscreen": {
     "message": "Disposition plein écran",
     "description": "Infobulle pour la disposition plein écran"

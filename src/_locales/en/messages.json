@@ -111,6 +111,10 @@
     "message": "Normal layout",
     "description": "Toolbar layout toggle tooltip for normal mode"
   },
+  "toolbar_layout_title_wide": {
+    "message": "Wide layout",
+    "description": "Toolbar layout toggle tooltip for wide mode"
+  },
   "toolbar_layout_title_fullscreen": {
     "message": "Fullscreen layout",
     "description": "Toolbar layout toggle tooltip for fullscreen mode"

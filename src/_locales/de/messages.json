@@ -111,6 +111,10 @@
     "message": "Normales Layout",
     "description": "Tooltip für normales Layout"
   },
+  "toolbar_layout_title_wide": {
+    "message": "Breites Layout",
+    "description": "Tooltip für breites Layout"
+  },
   "toolbar_layout_title_fullscreen": {
     "message": "Vollbildlayout",
     "description": "Tooltip für Vollbildlayout"

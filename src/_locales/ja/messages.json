@@ -111,6 +111,10 @@
     "message": "通常レイアウト",
     "description": "通常レイアウトのツールチップ"
   },
+  "toolbar_layout_title_wide": {
+    "message": "ワイドレイアウト",
+    "description": "ワイドレイアウトのツールチップ"
+  },
   "toolbar_layout_title_fullscreen": {
     "message": "全画面レイアウト",
     "description": "全画面レイアウトのツールチップ"

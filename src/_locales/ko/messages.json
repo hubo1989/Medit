@@ -111,6 +111,10 @@
     "message": "기본 레이아웃",
     "description": "기본 레이아웃 툴팁"
   },
+  "toolbar_layout_title_wide": {
+    "message": "와이드 레이아웃",
+    "description": "와이드 레이아웃 툴팁"
+  },
   "toolbar_layout_title_fullscreen": {
     "message": "전체 화면 레이아웃",
     "description": "전체 화면 레이아웃 툴팁"

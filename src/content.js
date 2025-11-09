@@ -869,6 +869,7 @@ ${truncatedMarkup}`;
   const toolbarZoomOutTitle = translate('toolbar_zoom_out_title');
   const toolbarZoomInTitle = translate('toolbar_zoom_in_title');
   const toolbarLayoutTitleNormal = translate('toolbar_layout_title_normal');
+  const toolbarLayoutTitleWide = translate('toolbar_layout_title_wide');
   const toolbarLayoutTitleFullscreen = translate('toolbar_layout_title_fullscreen');
   const toolbarLayoutTitleNarrow = translate('toolbar_layout_title_narrow');
   const toolbarDownloadTitle = translate('toolbar_download_title');
@@ -1271,13 +1272,20 @@ ${truncatedMarkup}`;
     // Layout toggle button
     const layoutBtn = document.getElementById('layout-toggle-btn');
     const pageDiv = document.getElementById('markdown-page');
-    let currentLayout = 'normal'; // normal, fullscreen, narrow
+    let currentLayout = 'normal'; // normal, wide, fullscreen, narrow
+    const WIDE_LAYOUT_THRESHOLD = 2420;
 
     // SVG icons for different layouts
     const layoutIcons = {
       normal: `<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor">
       <rect x="3" y="4" width="14" height="12" stroke-width="2" rx="1"/>
       <line x1="3" y1="7" x2="17" y2="7" stroke-width="2"/>
+    </svg>`,
+      wide: `<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+      <rect x="2" y="4" width="16" height="12" stroke-width="2" rx="1"/>
+      <line x1="2" y1="7" x2="18" y2="7" stroke-width="2"/>
+      <line x1="6" y1="4" x2="6" y2="16" stroke-width="1.5"/>
+      <line x1="14" y1="4" x2="14" y2="16" stroke-width="1.5"/>
     </svg>`,
       fullscreen: `<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor">
       <rect x="2" y="2" width="16" height="16" stroke-width="2" rx="1"/>
@@ -1291,28 +1299,57 @@ ${truncatedMarkup}`;
 
     const layoutTitles = {
       normal: toolbarLayoutTitleNormal,
+      wide: toolbarLayoutTitleWide || toolbarLayoutTitleNormal,
       fullscreen: toolbarLayoutTitleFullscreen,
       narrow: toolbarLayoutTitleNarrow
     };
 
     if (layoutBtn && pageDiv) {
+      const layoutConfigs = {
+        normal: { maxWidth: '1060px', icon: layoutIcons.normal, title: layoutTitles.normal },
+        wide: { maxWidth: '2120px', icon: layoutIcons.wide, title: layoutTitles.wide },
+        fullscreen: { maxWidth: '100%', icon: layoutIcons.fullscreen, title: layoutTitles.fullscreen },
+        narrow: { maxWidth: '530px', icon: layoutIcons.narrow, title: layoutTitles.narrow }
+      };
+
+      const isWideLayoutAvailable = () => window.innerWidth > WIDE_LAYOUT_THRESHOLD;
+      const getLayoutSequence = () => (isWideLayoutAvailable()
+        ? ['normal', 'wide', 'fullscreen', 'narrow']
+        : ['normal', 'fullscreen', 'narrow']);
+
+      const applyLayout = (layout) => {
+        const config = layoutConfigs[layout];
+        if (!config) {
+          return;
+        }
+        currentLayout = layout;
+        pageDiv.style.maxWidth = config.maxWidth;
+        layoutBtn.innerHTML = config.icon;
+        layoutBtn.title = config.title;
+        if (isWideLayoutAvailable() && (layout === 'wide' || layout === 'fullscreen')) {
+          updateZoom(200);
+        } else if (layout === 'normal' || layout === 'narrow') {
+          updateZoom(100);
+        }
+      };
+
+      applyLayout('normal');
+
       layoutBtn.addEventListener('click', () => {
-        // Cycle through layouts: normal -> fullscreen -> narrow -> normal
-        if (currentLayout === 'normal') {
-          currentLayout = 'fullscreen';
-          pageDiv.style.maxWidth = '100%';
-          layoutBtn.innerHTML = layoutIcons.fullscreen;
-          layoutBtn.title = layoutTitles.fullscreen;
-        } else if (currentLayout === 'fullscreen') {
-          currentLayout = 'narrow';
-          pageDiv.style.maxWidth = '530px';
-          layoutBtn.innerHTML = layoutIcons.narrow;
-          layoutBtn.title = layoutTitles.narrow;
-        } else {
-          currentLayout = 'normal';
-          pageDiv.style.maxWidth = '1060px';
-          layoutBtn.innerHTML = layoutIcons.normal;
-          layoutBtn.title = layoutTitles.normal;
+        const sequence = getLayoutSequence();
+        if (!sequence.includes(currentLayout)) {
+          applyLayout(sequence[0]);
+          return;
+        }
+
+        const currentIndex = sequence.indexOf(currentLayout);
+        const nextLayout = sequence[(currentIndex + 1) % sequence.length];
+        applyLayout(nextLayout);
+      });
+
+      window.addEventListener('resize', () => {
+        if (currentLayout === 'wide' && !isWideLayoutAvailable()) {
+          applyLayout('fullscreen');
         }
       });
     }

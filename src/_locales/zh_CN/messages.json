@@ -111,6 +111,10 @@
     "message": "正常布局",
     "description": "布局按钮正常模式提示"
   },
+  "toolbar_layout_title_wide": {
+    "message": "宽屏布局",
+    "description": "布局按钮宽屏模式提示"
+  },
   "toolbar_layout_title_fullscreen": {
     "message": "满屏布局",
     "description": "布局按钮满屏模式提示"

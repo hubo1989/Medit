@@ -111,6 +111,10 @@
     "message": "Обычный макет",
     "description": "Подсказка для обычного макета"
   },
+  "toolbar_layout_title_wide": {
+    "message": "Широкий макет",
+    "description": "Подсказка для широкого макета"
+  },
   "toolbar_layout_title_fullscreen": {
     "message": "Полноэкранный макет",
     "description": "Подсказка для полноэкранного макета"
