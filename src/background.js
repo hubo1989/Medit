@@ -4,10 +4,82 @@ import ExtensionCacheManager from './cache-manager.js';
 let offscreenCreated = false;
 let globalCacheManager = null;
 
-// Store scroll positions in memory (per session)
-const scrollPositions = new Map();
+// Upload sessions in memory
 const uploadSessions = new Map();
 const DEFAULT_UPLOAD_CHUNK_SIZE = 255 * 1024;
+
+// File states storage key
+const FILE_STATES_STORAGE_KEY = 'markdownFileStates';
+const FILE_STATE_MAX_AGE_DAYS = 7; // Keep file states for 7 days
+
+// Helper functions for persistent file state management
+async function getFileState(url) {
+  try {
+    const result = await chrome.storage.local.get([FILE_STATES_STORAGE_KEY]);
+    let allStates = result[FILE_STATES_STORAGE_KEY] || {};
+    
+    // Clean up old states while we're here
+    const maxAge = FILE_STATE_MAX_AGE_DAYS * 24 * 60 * 60 * 1000;
+    const now = Date.now();
+    let needsCleanup = false;
+    
+    const cleanedStates = {};
+    for (const [stateUrl, state] of Object.entries(allStates)) {
+      const age = now - (state.lastModified || 0);
+      if (age < maxAge) {
+        cleanedStates[stateUrl] = state;
+      } else {
+        needsCleanup = true;
+      }
+    }
+    
+    // Update storage if we cleaned anything
+    if (needsCleanup) {
+      await chrome.storage.local.set({ [FILE_STATES_STORAGE_KEY]: cleanedStates });
+      allStates = cleanedStates;
+    }
+    
+    return allStates[url] || {};
+  } catch (error) {
+    console.error('[Background] Failed to get file state:', error);
+    return {};
+  }
+}
+
+async function saveFileState(url, state) {
+  try {
+    const result = await chrome.storage.local.get([FILE_STATES_STORAGE_KEY]);
+    const allStates = result[FILE_STATES_STORAGE_KEY] || {};
+    
+    // Merge with existing state
+    allStates[url] = {
+      ...(allStates[url] || {}),
+      ...state,
+      lastModified: Date.now()
+    };
+    
+    await chrome.storage.local.set({ [FILE_STATES_STORAGE_KEY]: allStates });
+    return true;
+  } catch (error) {
+    console.error('[Background] Failed to save file state:', error);
+    return false;
+  }
+}
+
+async function clearFileState(url) {
+  try {
+    const result = await chrome.storage.local.get([FILE_STATES_STORAGE_KEY]);
+    const allStates = result[FILE_STATES_STORAGE_KEY] || {};
+    
+    delete allStates[url];
+    
+    await chrome.storage.local.set({ [FILE_STATES_STORAGE_KEY]: allStates });
+    return true;
+  } catch (error) {
+    console.error('Failed to clear file state:', error);
+    return false;
+  }
+}
 
 // Initialize the global cache manager
 async function initGlobalCacheManager() {
@@ -54,23 +126,57 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true; // Keep message channel open for async response
   }
 
-  // Handle scroll position management
+  // Handle file state management
+  if (message.type === 'saveFileState') {
+    saveFileState(message.url, message.state).then(success => {
+      sendResponse({ success });
+    });
+    return true; // Keep message channel open for async response
+  }
+
+  if (message.type === 'getFileState') {
+    getFileState(message.url).then(state => {
+      sendResponse({ state });
+    });
+    return true; // Keep message channel open for async response
+  }
+
+  if (message.type === 'clearFileState') {
+    clearFileState(message.url).then(success => {
+      sendResponse({ success });
+    });
+    return true; // Keep message channel open for async response
+  }
+
+  // Legacy scroll position management (for backward compatibility)
   if (message.type === 'saveScrollPosition') {
-    scrollPositions.set(message.url, message.position);
-    sendResponse({ success: true });
-    return;
+    saveFileState(message.url, { scrollPosition: message.position }).then(success => {
+      sendResponse({ success });
+    });
+    return true; // Keep message channel open for async response
   }
 
   if (message.type === 'getScrollPosition') {
-    const position = scrollPositions.get(message.url) || 0;
-    sendResponse({ position });
-    return;
+    getFileState(message.url).then(state => {
+      const position = state.scrollPosition || 0;
+      sendResponse({ position });
+    });
+    return true; // Keep message channel open for async response
   }
 
   if (message.type === 'clearScrollPosition') {
-    scrollPositions.delete(message.url);
-    sendResponse({ success: true });
-    return;
+    getFileState(message.url).then(async (currentState) => {
+      if (currentState.scrollPosition !== undefined) {
+        delete currentState.scrollPosition;
+        if (Object.keys(currentState).length === 0) {
+          await clearFileState(message.url);
+        } else {
+          await saveFileState(message.url, currentState);
+        }
+      }
+      sendResponse({ success: true });
+    });
+    return true; // Keep message channel open for async response
   }
 
   // Handle cache operations

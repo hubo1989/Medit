@@ -15,7 +15,7 @@ import DocxExporter from './docx-exporter.js';
 import Localization, { DEFAULT_SETTING_LOCALE } from './localization.js';
 import { uploadInChunks, abortUpload } from './upload-manager.js';
 
-function initializeContentScript() {
+async function initializeContentScript() {
 
   const translate = (key, substitutions) => Localization.translate(key, substitutions);
 
@@ -172,6 +172,39 @@ function initializeContentScript() {
         performScroll();
       }
     });
+  }
+
+  /**
+   * Save file state to background script
+   * @param {Object} state - State object containing scrollPosition, tocVisible, zoom, layoutMode
+   */
+  function saveFileState(state) {
+    try {
+      chrome.runtime.sendMessage({
+        type: 'saveFileState',
+        url: document.location.href,
+        state: state
+      });
+    } catch (e) {
+      console.error('[FileState] Save error:', e);
+    }
+  }
+
+  /**
+   * Get saved file state from background script
+   * @returns {Promise<Object>} State object
+   */
+  async function getFileState() {
+    try {
+      const response = await chrome.runtime.sendMessage({
+        type: 'getFileState',
+        url: document.location.href
+      });
+      return response?.state || {};
+    } catch (e) {
+      console.error('[FileState] Get error:', e);
+      return {};
+    }
   }
 
   /**
@@ -864,6 +897,35 @@ ${truncatedMarkup}`;
   // Get the raw markdown content
   const rawMarkdown = document.body.textContent;
 
+  // Get saved state early to prevent any flashing
+  const initialState = await getFileState();
+  
+  // Layout mode configurations (same as in toolbar setup)
+  const layoutConfigs = {
+    normal: { maxWidth: '820px' },
+    wide: { maxWidth: '2120px' },
+    fullscreen: { maxWidth: '100%' },
+    narrow: { maxWidth: '530px' }
+  };
+  
+  // Determine initial layout and zoom from saved state
+  const initialLayout = (initialState.layoutMode && layoutConfigs[initialState.layoutMode]) 
+    ? initialState.layoutMode 
+    : 'normal';
+  const initialMaxWidth = layoutConfigs[initialLayout].maxWidth;
+  const initialZoom = initialState.zoom || 100;
+  
+  // Default TOC visibility based on screen width if no saved state
+  let initialTocVisible;
+  if (initialState.tocVisible !== undefined) {
+    // Use saved state
+    initialTocVisible = initialState.tocVisible;
+  } else {
+    // No saved state - use responsive default (show on wide screens, hide on narrow)
+    initialTocVisible = window.innerWidth > 1024;
+  }
+  const initialTocClass = initialTocVisible ? '' : ' hidden';
+
   const toolbarToggleTocTitle = translate('toolbar_toggle_toc_title');
   const toolbarZoomOutTitle = translate('toolbar_zoom_out_title');
   const toolbarZoomInTitle = translate('toolbar_zoom_in_title');
@@ -932,14 +994,19 @@ ${truncatedMarkup}`;
       </button>
     </div>
   </div>
-  <div id="table-of-contents"></div>
+  <div id="table-of-contents" class="${initialTocClass}"></div>
   <div id="toc-overlay" class="hidden"></div>
   <div id="markdown-wrapper">
-    <div id="markdown-page">
-      <div id="markdown-content"></div>
+    <div id="markdown-page" style="max-width: ${initialMaxWidth};">
+      <div id="markdown-content" style="zoom: ${initialZoom / 100};"></div>
     </div>
   </div>
 `;
+
+  // Set initial body class for TOC state
+  if (!initialTocVisible) {
+    document.body.classList.add('toc-hidden');
+  }
 
   // Wait a bit for DOM to be ready, then start processing
   setTimeout(async () => {
@@ -962,7 +1029,7 @@ ${truncatedMarkup}`;
     setupKeyboardShortcuts();
 
     // Setup responsive behavior
-    setupResponsiveToc();
+    await setupResponsiveToc();
 
     // Now that all DOM is ready, process async tasks
     // Add a small delay to ensure DOM is fully rendered and visible
@@ -981,10 +1048,8 @@ ${truncatedMarkup}`;
         try {
           const currentPosition = window.scrollY || window.pageYOffset;
           // Save position even when it's 0 (page top) to ensure correct restoration
-          chrome.runtime.sendMessage({
-            type: 'saveScrollPosition',
-            url: document.location.href,
-            position: currentPosition
+          saveFileState({
+            scrollPosition: currentPosition
           });
         } catch (e) {
           // Ignore errors
@@ -1042,7 +1107,7 @@ ${truncatedMarkup}`;
       }
 
       // Generate table of contents after rendering
-      generateTOC();
+      await generateTOC();
 
       // Restore scroll position immediately
       restoreScrollPosition(savedScrollPosition);
@@ -1056,7 +1121,7 @@ ${truncatedMarkup}`;
     }
   }
 
-  function generateTOC() {
+  async function generateTOC() {
     const contentDiv = document.getElementById('markdown-content');
     const tocDiv = document.getElementById('table-of-contents');
 
@@ -1087,6 +1152,39 @@ ${truncatedMarkup}`;
 
     tocHTML += '</ul>';
     tocDiv.innerHTML = tocHTML;
+    
+    // Apply saved TOC visibility state after generating TOC
+    // Note: Initial state is already set in the HTML, but we verify it here
+    const savedState = await getFileState();
+    const overlayDiv = document.getElementById('toc-overlay');
+    
+    if (overlayDiv) {
+      // Determine desired visibility: use saved state if available, otherwise use responsive default
+      let shouldBeVisible;
+      if (savedState.tocVisible !== undefined) {
+        shouldBeVisible = savedState.tocVisible;
+      } else {
+        // No saved state - use responsive default
+        shouldBeVisible = window.innerWidth > 1024;
+      }
+      
+      const currentlyVisible = !tocDiv.classList.contains('hidden');
+      
+      // Only update if state doesn't match
+      if (shouldBeVisible !== currentlyVisible) {
+        if (!shouldBeVisible) {
+          // Hide TOC
+          tocDiv.classList.add('hidden');
+          document.body.classList.add('toc-hidden');
+          overlayDiv.classList.add('hidden');
+        } else {
+          // Show TOC
+          tocDiv.classList.remove('hidden');
+          document.body.classList.remove('toc-hidden');
+          overlayDiv.classList.remove('hidden');
+        }
+      }
+    }
   }
 
   function setupTocToggle() {
@@ -1096,9 +1194,15 @@ ${truncatedMarkup}`;
     if (!tocDiv || !overlayDiv) return;
 
     const toggleToc = () => {
+      const willBeHidden = !tocDiv.classList.contains('hidden');
       tocDiv.classList.toggle('hidden');
       document.body.classList.toggle('toc-hidden');
       overlayDiv.classList.toggle('hidden');
+      
+      // Save TOC visibility state
+      saveFileState({
+        tocVisible: !willBeHidden
+      });
     };
 
     // Close TOC when clicking overlay (for mobile)
@@ -1117,9 +1221,15 @@ ${truncatedMarkup}`;
         const tocDiv = document.getElementById('table-of-contents');
         const overlayDiv = document.getElementById('toc-overlay');
         if (tocDiv && overlayDiv) {
+          const willBeHidden = !tocDiv.classList.contains('hidden');
           tocDiv.classList.toggle('hidden');
           document.body.classList.toggle('toc-hidden');
           overlayDiv.classList.toggle('hidden');
+          
+          // Save TOC visibility state
+          saveFileState({
+            tocVisible: !willBeHidden
+          });
         }
         return;
       }
@@ -1162,7 +1272,10 @@ ${truncatedMarkup}`;
     setupToolbarButtons();
   }
 
-  function setupToolbarButtons() {
+  async function setupToolbarButtons() {
+    // Get saved state first
+    const savedState = await getFileState();
+    
     // Toggle TOC button
     const toggleTocBtn = document.getElementById('toggle-toc-btn');
     const tocDiv = document.getElementById('table-of-contents');
@@ -1170,10 +1283,18 @@ ${truncatedMarkup}`;
 
     if (toggleTocBtn && tocDiv && overlayDiv) {
       toggleTocBtn.addEventListener('click', () => {
+        const willBeHidden = !tocDiv.classList.contains('hidden');
         tocDiv.classList.toggle('hidden');
         document.body.classList.toggle('toc-hidden');
         overlayDiv.classList.toggle('hidden');
+        
+        // Save TOC visibility state
+        saveFileState({
+          tocVisible: !willBeHidden
+        });
       });
+      
+      // Note: TOC visibility state is applied in generateTOC() after TOC is generated
     }
 
     // Zoom controls
@@ -1181,7 +1302,7 @@ ${truncatedMarkup}`;
     const zoomLevelSpan = document.getElementById('zoom-level');
     const contentDiv = document.getElementById('markdown-content');
 
-    const updateZoom = (newLevel) => {
+    const updateZoom = (newLevel, saveState = true) => {
       zoomLevel = Math.max(50, Math.min(400, newLevel));
       if (zoomLevelSpan) {
         zoomLevelSpan.textContent = zoomLevel + '%';
@@ -1189,6 +1310,11 @@ ${truncatedMarkup}`;
       if (contentDiv) {
         // Apply zoom using CSS zoom property (like browser zoom)
         contentDiv.style.zoom = (zoomLevel / 100);
+      }
+      
+      // Save zoom level
+      if (saveState) {
+        saveFileState({ zoom: zoomLevel });
       }
     };
 
@@ -1262,7 +1388,7 @@ ${truncatedMarkup}`;
         ? ['normal', 'wide', 'fullscreen', 'narrow']
         : ['normal', 'fullscreen', 'narrow']);
 
-      const applyLayout = (layout) => {
+      const applyLayout = (layout, saveState = true, autoZoom = true) => {
         const config = layoutConfigs[layout];
         if (!config) {
           return;
@@ -1271,14 +1397,33 @@ ${truncatedMarkup}`;
         pageDiv.style.maxWidth = config.maxWidth;
         layoutBtn.innerHTML = config.icon;
         layoutBtn.title = config.title;
-        if (isWideLayoutAvailable() && (layout === 'wide' || layout === 'fullscreen')) {
-          updateZoom(200);
-        } else if (layout === 'normal' || layout === 'narrow') {
-          updateZoom(100);
+        
+        // Prepare settings to save
+        const settingsToUpdate = { layoutMode: layout };
+        
+        // Auto-adjust zoom based on layout
+        if (autoZoom) {
+          let newZoom = null;
+          if (isWideLayoutAvailable() && (layout === 'wide' || layout === 'fullscreen')) {
+            newZoom = 200;
+          } else if (layout === 'normal' || layout === 'narrow') {
+            newZoom = 100;
+          }
+          
+          if (newZoom !== null) {
+            // Apply zoom without saving (will save together with layout)
+            updateZoom(newZoom, false);
+            settingsToUpdate.zoom = newZoom;
+          }
+        }
+        
+        // Save all settings at once
+        if (saveState) {
+          saveFileState(settingsToUpdate);
         }
       };
 
-      applyLayout('normal');
+      applyLayout('normal', false, false);
 
       layoutBtn.addEventListener('click', () => {
         const sequence = getLayoutSequence();
@@ -1297,6 +1442,19 @@ ${truncatedMarkup}`;
           applyLayout('fullscreen');
         }
       });
+      
+      // Restore layout and zoom state after toolbar setup
+      (async () => {
+        // Restore layout mode
+        if (savedState.layoutMode && layoutConfigs[savedState.layoutMode]) {
+          applyLayout(savedState.layoutMode, false, false);
+        }
+        
+        // Restore zoom level
+        if (savedState.zoom && typeof savedState.zoom === 'number') {
+          updateZoom(savedState.zoom, false);
+        }
+      })();
     }
 
     // Download button (DOCX export)
@@ -1499,27 +1657,30 @@ ${truncatedMarkup}`;
     }
   }
 
-  function setupResponsiveToc() {
+  async function setupResponsiveToc() {
     const tocDiv = document.getElementById('table-of-contents');
 
     if (!tocDiv) return;
 
-    const handleResize = () => {
+    const handleResize = async () => {
+      const savedState = await getFileState();
+      
       if (window.innerWidth <= 1024) {
-        // On smaller screens, hide TOC by default
-        tocDiv.classList.add('hidden');
-        document.body.classList.add('toc-hidden');
-      } else {
-        // On larger screens, show TOC by default
-        tocDiv.classList.remove('hidden');
-        document.body.classList.remove('toc-hidden');
+        // On smaller screens, hide TOC by default (unless user explicitly wants it shown)
+        if (savedState.tocVisible === undefined || savedState.tocVisible === false) {
+          tocDiv.classList.add('hidden');
+          document.body.classList.add('toc-hidden');
+          const overlayDiv = document.getElementById('toc-overlay');
+          if (overlayDiv) {
+            overlayDiv.classList.add('hidden');
+          }
+        }
       }
+      // On larger screens, respect user's saved preference (don't force show)
     };
 
-    // Set initial state
-    handleResize();
-
-    // Listen for window resize
+    // Don't set initial state here - it's already set by generateTOC()
+    // Only listen for window resize
     window.addEventListener('resize', handleResize);
   }
 
