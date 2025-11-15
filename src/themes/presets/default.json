@@ -1,0 +1,79 @@
+{
+  "id": "default",
+  "name": "标准文档",
+  "name_en": "Standard",
+  "description": "Times New Roman 字体，适合正式文档和论文",
+  "description_en": "Times New Roman font for formal documents and papers",
+  "author": "Markdown Viewer Extension",
+  "version": "1.0.0",
+  
+  "fontScheme": {
+    "body": {
+      "fontFamily": "Times New Roman",
+      "fontSize": "12pt",
+      "lineHeight": 1.5
+    },
+    "headings": {
+      "h1": {
+        "fontSize": "24pt",
+        "fontWeight": "bold",
+        "alignment": "center",
+        "spacing": {
+          "before": "0pt",
+          "after": "12pt"
+        }
+      },
+      "h2": {
+        "fontSize": "20pt",
+        "fontWeight": "bold",
+        "spacing": {
+          "before": "18pt",
+          "after": "8pt"
+        }
+      },
+      "h3": {
+        "fontSize": "18pt",
+        "fontWeight": "bold",
+        "spacing": {
+          "before": "15pt",
+          "after": "7pt"
+        }
+      },
+      "h4": {
+        "fontSize": "16pt",
+        "fontWeight": "bold",
+        "spacing": {
+          "before": "14pt",
+          "after": "7pt"
+        }
+      },
+      "h5": {
+        "fontSize": "14pt",
+        "fontWeight": "bold",
+        "spacing": {
+          "before": "12pt",
+          "after": "6pt"
+        }
+      },
+      "h6": {
+        "fontSize": "12pt",
+        "fontWeight": "bold",
+        "spacing": {
+          "before": "10pt",
+          "after": "5pt"
+        }
+      }
+    },
+    "code": {
+      "fontFamily": "Consolas",
+      "fontSize": "10pt",
+      "background": "#f6f8fa"
+    }
+  },
+  
+  "tableStyle": "grid",
+  
+  "codeTheme": "light-clean",
+  
+  "spacing": "standard"
+}

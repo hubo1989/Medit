@@ -1,0 +1,78 @@
+{
+  "id": "trebuchet",
+  "name": "博客文章",
+  "name_en": "Blog Post",
+  "description": "Trebuchet 字体，轻松友好的博客风格",
+  "description_en": "Trebuchet font with friendly blog style",
+  "author": "Markdown Viewer Extension",
+  "version": "1.0.0",
+  
+  "fontScheme": {
+    "body": {
+      "fontFamily": "Trebuchet MS",
+      "fontSize": "11pt",
+      "lineHeight": 1.6
+    },
+    "headings": {
+      "h1": {
+        "fontSize": "26pt",
+        "fontWeight": "bold",
+        "spacing": {
+          "before": "20pt",
+          "after": "12pt"
+        }
+      },
+      "h2": {
+        "fontSize": "22pt",
+        "fontWeight": "bold",
+        "spacing": {
+          "before": "18pt",
+          "after": "10pt"
+        }
+      },
+      "h3": {
+        "fontSize": "18pt",
+        "fontWeight": "bold",
+        "spacing": {
+          "before": "16pt",
+          "after": "9pt"
+        }
+      },
+      "h4": {
+        "fontSize": "15pt",
+        "fontWeight": "bold",
+        "spacing": {
+          "before": "14pt",
+          "after": "8pt"
+        }
+      },
+      "h5": {
+        "fontSize": "13pt",
+        "fontWeight": "bold",
+        "spacing": {
+          "before": "12pt",
+          "after": "7pt"
+        }
+      },
+      "h6": {
+        "fontSize": "11pt",
+        "fontWeight": "bold",
+        "spacing": {
+          "before": "10pt",
+          "after": "6pt"
+        }
+      }
+    },
+    "code": {
+      "fontFamily": "Consolas",
+      "fontSize": "10pt",
+      "background": "#f8f8f8"
+    }
+  },
+  
+  "tableStyle": "modern-tech",
+  
+  "codeTheme": "colorful",
+  
+  "spacing": "relaxed"
+}

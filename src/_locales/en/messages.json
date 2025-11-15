@@ -355,6 +355,18 @@
     "message": "Run \"{0}\" in the console",
     "description": "Manual cache clear step with code placeholder"
   },
+  "settings_theme_title": {
+    "message": "Theme Settings",
+    "description": "Heading for theme settings section"
+  },
+  "settings_theme_label": {
+    "message": "Select Theme:",
+    "description": "Label for theme selector"
+  },
+  "settings_theme_changed": {
+    "message": "Theme changed successfully. Please reload the page to see the changes.",
+    "description": "Message shown when theme is changed"
+  },
   "settings_general_title": {
     "message": "Extension settings",
     "description": "Heading for settings section"

@@ -39,7 +39,13 @@
         "*.woff2",
         "*.woff",
         "*.ttf",
-        "_locales/*/messages.json"
+        "_locales/*/messages.json",
+        "themes/font-config.json",
+        "themes/registry.json",
+        "themes/presets/*.json",
+        "themes/table-styles/*.json",
+        "themes/code-themes/*.json",
+        "themes/spacing-schemes/*.json"
       ],
       "matches": ["file://*", "https://*/*", "http://*/*"]
     }

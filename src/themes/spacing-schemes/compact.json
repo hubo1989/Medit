@@ -1,0 +1,23 @@
+{
+  "id": "compact",
+  "name": "紧凑间距",
+  "name_en": "Compact Spacing",
+  "description": "紧凑的间距设置，适合内容密集的文档，基于正文字体大小的相对比例",
+  "description_en": "Compact spacing for content-dense documents, based on body font size ratio",
+  
+  "paragraph": 0.5,
+  "list": 0.667,
+  "listItem": 0.167,
+  "blockquote": {
+    "before": 0,
+    "after": 0,
+    "padding": {
+      "vertical": 0.083,
+      "horizontal": 0.833
+    }
+  },
+  "horizontalRule": {
+    "before": 1.25,
+    "after": 1.25
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "id": "palatino",
+  "name": "书籍出版",
+  "name_en": "Book Publishing",
+  "description": "Palatino 字体，优雅的书籍出版风格",
+  "description_en": "Palatino font with elegant book publishing style",
+  "author": "Markdown Viewer Extension",
+  "version": "1.0.0",
+  
+  "fontScheme": {
+    "body": {
+      "fontFamily": "Palatino",
+      "fontSize": "12pt",
+      "lineHeight": 1.8
+    },
+    "headings": {
+      "h1": {
+        "fontSize": "26pt",
+        "fontWeight": "bold",
+        "spacing": {
+          "before": "24pt",
+          "after": "14pt"
+        }
+      },
+      "h2": {
+        "fontSize": "22pt",
+        "fontWeight": "bold",
+        "spacing": {
+          "before": "20pt",
+          "after": "12pt"
+        }
+      },
+      "h3": {
+        "fontSize": "18pt",
+        "fontWeight": "bold",
+        "spacing": {
+          "before": "16pt",
+          "after": "10pt"
+        }
+      },
+      "h4": {
+        "fontSize": "15pt",
+        "fontWeight": "bold",
+        "spacing": {
+          "before": "14pt",
+          "after": "8pt"
+        }
+      },
+      "h5": {
+        "fontSize": "13pt",
+        "fontWeight": "bold",
+        "spacing": {
+          "before": "12pt",
+          "after": "6pt"
+        }
+      },
+      "h6": {
+        "fontSize": "12pt",
+        "fontWeight": "bold",
+        "spacing": {
+          "before": "10pt",
+          "after": "5pt"
+        }
+      }
+    },
+    "code": {
+      "fontFamily": "Consolas",
+      "fontSize": "10pt",
+      "background": "#fafafa"
+    }
+  },
+  
+  "tableStyle": "borderless",
+  
+  "codeTheme": "warm-book",
+  
+  "spacing": "relaxed"
+}

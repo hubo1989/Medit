@@ -37,15 +37,21 @@ document.addEventListener('DOMContentLoaded', () => {
   }).catch(() => { });
 });
 
+// Store current theme configuration
+let currentThemeConfig = null;
+
 // Import Mermaid dynamically to handle potential import issues
-async function initializeMermaid() {
+async function initializeMermaid(themeConfig = null) {
   try {
+    // Use theme font or fallback to default
+    const fontFamily = themeConfig?.fontFamily || "'SimSun', 'Times New Roman', Times, serif";
+    
     mermaid.initialize({
       startOnLoad: false,
       securityLevel: 'loose',
       lineHeight: 1.6,
       themeVariables: {
-        fontFamily: "'SimSun', 'Times New Roman', Times, serif",
+        fontFamily: fontFamily,
         background: 'transparent'
       },
       flowchart: {
@@ -79,7 +85,15 @@ initializeMermaid().then(success => {
 
 // Message handler for rendering requests
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.type === 'renderMermaid') {
+  if (message.type === 'setThemeConfig') {
+    // Update theme configuration
+    currentThemeConfig = message.config;
+    // Re-initialize Mermaid with new theme
+    initializeMermaid(currentThemeConfig).then(success => {
+      sendResponse({ success });
+    });
+    return true;
+  } else if (message.type === 'renderMermaid') {
     renderMermaidToPng(message.mermaid).then(result => {
       sendResponse(result);
     }).catch(error => {
@@ -107,7 +121,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 async function renderMermaidToPng(code) {
   try {
     if (!mermaidReady || !mermaid) {
-      const initSuccess = await initializeMermaid();
+      const initSuccess = await initializeMermaid(currentThemeConfig);
       if (!initSuccess || !mermaid) {
         throw new Error('Mermaid initialization failed. Library may not be loaded correctly.');
       }
@@ -132,8 +146,17 @@ async function renderMermaidToPng(code) {
       throw new Error('Generated content is not valid SVG');
     }
 
-    // Apply 10/16 scaling to achieve 10px font-size effect
-    const result = await renderSvgToPng(processedSvg, 10 / 16);
+    // Calculate scale based on theme font size
+    // Default: 12pt body → 10pt mermaid (10/12 ratio)
+    // Mermaid default is 16pt, so we need: (themeFontSize * 10/12) / 16
+    const baseFontSize = 12; // pt - base body font size
+    const themeFontSize = currentThemeConfig?.fontSize || baseFontSize;
+    const mermaidFontSize = themeFontSize * 10 / 12; // mermaid is 10/12 of body
+    const mermaidDefaultSize = 16; // pt - mermaid's default font size
+    const scale = mermaidFontSize / mermaidDefaultSize;
+    
+    // Apply calculated scaling to achieve theme font-size effect
+    const result = await renderSvgToPng(processedSvg, scale);
     return result;
   } catch (error) {
     return { error: error.message };
@@ -147,9 +170,12 @@ async function renderHtmlToPng(htmlContent, targetWidth = 1200) {
       throw new Error('html2canvas not loaded');
     }
 
-  const container = document.getElementById('html-container');
-  const normalizedTargetWidth = Number.isFinite(targetWidth) && targetWidth > 0 ? targetWidth : null;
-  container.style.cssText = 'display: inline-block; position: relative; background: transparent; padding: 0; margin: 0; width: auto;';
+    const container = document.getElementById('html-container');
+    const normalizedTargetWidth = Number.isFinite(targetWidth) && targetWidth > 0 ? targetWidth : null;
+    
+    // Apply theme font-family to HTML container
+    const fontFamily = currentThemeConfig?.fontFamily || "'SimSun', 'Times New Roman', Times, serif";
+    container.style.cssText = `display: inline-block; position: relative; background: transparent; padding: 0; margin: 0; width: auto; font-family: ${fontFamily};`;
     container.innerHTML = htmlContent;
 
     // Give the layout engine a tick in the offscreen document context

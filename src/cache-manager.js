@@ -321,9 +321,20 @@ class ExtensionCacheManager {
 
   /**
    * Generate cache key for content and type
+   * @param {string} content - Content to cache
+   * @param {string} type - Cache type identifier
+   * @param {Object} themeConfig - Optional theme configuration (fontFamily, fontSize)
+   * @returns {Promise<string>} Cache key
    */
-  async generateKey(content, type) {
-    const hash = await this.calculateHash(content);
+  async generateKey(content, type, themeConfig = null) {
+    let keyContent = content;
+    
+    // Include theme config in cache key if provided
+    if (themeConfig && themeConfig.fontFamily && themeConfig.fontSize) {
+      keyContent = `${content}_font:${themeConfig.fontFamily}_size:${themeConfig.fontSize}`;
+    }
+    
+    const hash = await this.calculateHash(keyContent);
     return `${hash}_${type}`;
   }
 

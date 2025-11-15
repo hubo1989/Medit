@@ -1,0 +1,78 @@
+{
+  "id": "water",
+  "name": "水墨诗意",
+  "name_en": "Ink Poetry",
+  "description": "仿宋字体，中国传统水墨美学",
+  "description_en": "FangSong font with traditional Chinese ink aesthetics",
+  "author": "Markdown Viewer Extension",
+  "version": "1.0.0",
+  
+  "fontScheme": {
+    "body": {
+      "fontFamily": "FangSong",
+      "fontSize": "13pt",
+      "lineHeight": 1.8
+    },
+    "headings": {
+      "h1": {
+        "fontSize": "28pt",
+        "fontWeight": "bold",
+        "spacing": {
+          "before": "22pt",
+          "after": "12pt"
+        }
+      },
+      "h2": {
+        "fontSize": "24pt",
+        "fontWeight": "bold",
+        "spacing": {
+          "before": "20pt",
+          "after": "11pt"
+        }
+      },
+      "h3": {
+        "fontSize": "20pt",
+        "fontWeight": "bold",
+        "spacing": {
+          "before": "18pt",
+          "after": "10pt"
+        }
+      },
+      "h4": {
+        "fontSize": "16pt",
+        "fontWeight": "bold",
+        "spacing": {
+          "before": "16pt",
+          "after": "9pt"
+        }
+      },
+      "h5": {
+        "fontSize": "14pt",
+        "fontWeight": "bold",
+        "spacing": {
+          "before": "14pt",
+          "after": "8pt"
+        }
+      },
+      "h6": {
+        "fontSize": "12pt",
+        "fontWeight": "bold",
+        "spacing": {
+          "before": "12pt",
+          "after": "7pt"
+        }
+      }
+    },
+    "code": {
+      "fontFamily": "Courier New",
+      "fontSize": "11pt",
+      "background": "#fafafa"
+    }
+  },
+  
+  "tableStyle": "borderless",
+  
+  "codeTheme": "warm-book",
+  
+  "spacing": "relaxed"
+}

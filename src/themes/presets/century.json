@@ -1,0 +1,78 @@
+{
+  "id": "century",
+  "name": "演示文稿",
+  "name_en": "Presentation",
+  "description": "Century Gothic 字体，简洁的演示风格",
+  "description_en": "Century Gothic font with clean presentation style",
+  "author": "Markdown Viewer Extension",
+  "version": "1.0.0",
+  
+  "fontScheme": {
+    "body": {
+      "fontFamily": "Century Gothic",
+      "fontSize": "12pt",
+      "lineHeight": 1.6
+    },
+    "headings": {
+      "h1": {
+        "fontSize": "32pt",
+        "fontWeight": "bold",
+        "spacing": {
+          "before": "20pt",
+          "after": "14pt"
+        }
+      },
+      "h2": {
+        "fontSize": "28pt",
+        "fontWeight": "bold",
+        "spacing": {
+          "before": "16pt",
+          "after": "12pt"
+        }
+      },
+      "h3": {
+        "fontSize": "22pt",
+        "fontWeight": "bold",
+        "spacing": {
+          "before": "14pt",
+          "after": "10pt"
+        }
+      },
+      "h4": {
+        "fontSize": "18pt",
+        "fontWeight": "bold",
+        "spacing": {
+          "before": "12pt",
+          "after": "8pt"
+        }
+      },
+      "h5": {
+        "fontSize": "14pt",
+        "fontWeight": "bold",
+        "spacing": {
+          "before": "10pt",
+          "after": "6pt"
+        }
+      },
+      "h6": {
+        "fontSize": "12pt",
+        "fontWeight": "bold",
+        "spacing": {
+          "before": "8pt",
+          "after": "5pt"
+        }
+      }
+    },
+    "code": {
+      "fontFamily": "Consolas",
+      "fontSize": "10pt",
+      "background": "#f5f5f5"
+    }
+  },
+  
+  "tableStyle": "professional",
+  
+  "codeTheme": "business-contrast",
+  
+  "spacing": "relaxed"
+}

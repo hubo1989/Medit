@@ -1,0 +1,41 @@
+{
+  "id": "professional",
+  "name": "专业风格",
+  "name_en": "Professional",
+  "description": "粗表头边框 + 细分隔线",
+  "description_en": "Thick header border + thin separators",
+  
+  "borderMode": "horizontal-only",
+  
+  "border": {
+    "headerTop": {
+      "color": "#000000",
+      "width": "2pt",
+      "style": "single"
+    },
+    "headerBottom": {
+      "color": "#000000",
+      "width": "2pt",
+      "style": "single"
+    },
+    "rowBottom": {
+      "color": "#e0e0e0",
+      "width": "1pt",
+      "style": "single"
+    },
+    "lastRowBottom": {
+      "color": "#000000",
+      "width": "2pt",
+      "style": "single"
+    }
+  },
+  "header": {
+    "fontWeight": "bold"
+  },
+  "cell": {
+    "padding": "8pt"
+  },
+  "zebra": {
+    "enabled": false
+  }
+}

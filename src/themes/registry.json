@@ -1,0 +1,179 @@
+{
+  "version": "1.0.0",
+  "themes": [
+    {
+      "id": "default",
+      "file": "default.json",
+      "category": "professional",
+      "featured": true,
+      "order": 1
+    },
+    {
+      "id": "academic",
+      "file": "academic.json",
+      "category": "academic",
+      "featured": true,
+      "order": 2
+    },
+    {
+      "id": "business",
+      "file": "business.json",
+      "category": "professional",
+      "featured": true,
+      "order": 3
+    },
+    {
+      "id": "minimal",
+      "file": "minimal.json",
+      "category": "sans-serif",
+      "featured": true,
+      "order": 4
+    },
+    {
+      "id": "elegant",
+      "file": "elegant.json",
+      "category": "serif",
+      "featured": true,
+      "order": 5
+    },
+    {
+      "id": "typewriter",
+      "file": "typewriter.json",
+      "category": "creative",
+      "featured": true,
+      "order": 6
+    },
+    {
+      "id": "songti",
+      "file": "songti.json",
+      "category": "chinese",
+      "featured": false,
+      "order": 7
+    },
+    {
+      "id": "heiti",
+      "file": "heiti.json",
+      "category": "chinese",
+      "featured": false,
+      "order": 8
+    },
+    {
+      "id": "mixed",
+      "file": "mixed.json",
+      "category": "chinese",
+      "featured": false,
+      "order": 9
+    },
+    {
+      "id": "sakura",
+      "file": "sakura.json",
+      "category": "creative",
+      "featured": false,
+      "order": 10
+    },
+    {
+      "id": "water",
+      "file": "water.json",
+      "category": "creative",
+      "featured": false,
+      "order": 11
+    },
+    {
+      "id": "palatino",
+      "file": "palatino.json",
+      "category": "serif",
+      "featured": true,
+      "order": 12
+    },
+    {
+      "id": "garamond",
+      "file": "garamond.json",
+      "category": "serif",
+      "featured": true,
+      "order": 13
+    },
+    {
+      "id": "cambria",
+      "file": "cambria.json",
+      "category": "serif",
+      "featured": true,
+      "order": 14
+    },
+    {
+      "id": "verdana",
+      "file": "verdana.json",
+      "category": "sans-serif",
+      "featured": true,
+      "order": 15
+    },
+    {
+      "id": "trebuchet",
+      "file": "trebuchet.json",
+      "category": "sans-serif",
+      "featured": true,
+      "order": 16
+    },
+    {
+      "id": "century",
+      "file": "century.json",
+      "category": "sans-serif",
+      "featured": true,
+      "order": 17
+    }
+  ],
+  "categories": {
+    "professional": {
+      "name": "专业",
+      "name_en": "Professional",
+      "description": "适合商务报告和正式文档",
+      "description_en": "For business reports and formal documents",
+      "order": 1
+    },
+    "academic": {
+      "name": "学术",
+      "name_en": "Academic",
+      "description": "适合学术论文和研究文档",
+      "description_en": "For academic papers and research documents",
+      "order": 2
+    },
+    "serif": {
+      "name": "衬线体",
+      "name_en": "Serif Fonts",
+      "description": "优雅的衬线字体，适合长文阅读",
+      "description_en": "Elegant serif fonts for long-form reading",
+      "order": 3
+    },
+    "sans-serif": {
+      "name": "无衬线",
+      "name_en": "Sans-serif Fonts",
+      "description": "简洁的无衬线字体，现代感强",
+      "description_en": "Clean sans-serif fonts with modern feel",
+      "order": 4
+    },
+    "chinese": {
+      "name": "中文字体",
+      "name_en": "Chinese Fonts",
+      "description": "传统中文字体排版",
+      "description_en": "Traditional Chinese font typography",
+      "order": 5
+    },
+    "creative": {
+      "name": "创意",
+      "name_en": "Creative",
+      "description": "富有创意和个性的风格",
+      "description_en": "Creative and unique styles",
+      "order": 6
+    }
+  },
+  "recommendations": {
+    "default": "default",
+    "academic": "academic",
+    "business": "business",
+    "reading": "garamond",
+    "book": "palatino",
+    "modern": "cambria",
+    "screen": "verdana",
+    "technical": "minimal",
+    "creative": "typewriter"
+  }
+}

@@ -455,6 +455,19 @@
       <!-- Settings tab -->
       <div class="tab-panel" id="settings">
         <div class="info-section">
+          <h3 data-i18n="settings_theme_title">Theme Settings</h3>
+          <div style="margin: 10px 0;">
+            <label for="theme-selector" style="display: block; margin-bottom: 5px; font-size: 12px;"
+              data-i18n="settings_theme_label">Select Theme</label>
+            <select id="theme-selector"
+              style="width: 100%; padding: 5px; border-radius: 4px; border: 1px solid #d1d9e6; background: #ffffff; color: #1f2933;">
+              <option value="default">Loading themes...</option>
+            </select>
+            <div id="theme-description" style="font-size: 11px; margin-top: 4px; color: #6b7280;"></div>
+          </div>
+        </div>
+
+        <div class="info-section">
           <h3 data-i18n="settings_general_title"></h3>
           <div style="margin: 10px 0;">
             <label style="display: block; margin-bottom: 5px; font-size: 12px;"

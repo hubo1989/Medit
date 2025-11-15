@@ -14,6 +14,8 @@ import ExtensionRenderer from './renderer.js';
 import DocxExporter from './docx-exporter.js';
 import Localization, { DEFAULT_SETTING_LOCALE } from './localization.js';
 import { uploadInChunks, abortUpload } from './upload-manager.js';
+import themeManager from './theme-manager.js';
+import { loadAndApplyTheme } from './theme-to-css.js';
 
 async function initializeContentScript() {
 
@@ -112,8 +114,15 @@ async function initializeContentScript() {
       return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
     }
 
-    async generateKey(content, type) {
-      const hash = await this.calculateHash(content);
+    async generateKey(content, type, themeConfig = null) {
+      let keyContent = content;
+      
+      // Include theme config in cache key if provided
+      if (themeConfig && themeConfig.fontFamily && themeConfig.fontSize) {
+        keyContent = `${content}_font:${themeConfig.fontFamily}_size:${themeConfig.fontSize}`;
+      }
+      
+      const hash = await this.calculateHash(keyContent);
       return `${hash}_${type}`;
     }
   }
@@ -1189,6 +1198,26 @@ ${truncatedMarkup}`;
       return;
     }
 
+    // Load and apply theme
+    try {
+      const themeId = await themeManager.loadSelectedTheme();
+      const theme = await themeManager.loadTheme(themeId);
+      await loadAndApplyTheme(themeId);
+      
+      // Set theme configuration for renderer (HTML and Mermaid)
+      if (theme && theme.fontScheme && theme.fontScheme.body) {
+        const fontFamily = themeManager.buildFontFamily(theme.fontScheme.body.fontFamily);
+        // fontSize should be a number in pt for renderer (Mermaid scaling)
+        const fontSize = parseFloat(theme.fontScheme.body.fontSize);
+        await renderer.setThemeConfig({
+          fontFamily: fontFamily,
+          fontSize: fontSize
+        });
+      }
+    } catch (error) {
+      console.error('Failed to load theme, using defaults:', error);
+    }
+
     // Pre-process markdown to normalize math blocks and list markers
     let normalizedMarkdown = normalizeMathBlocks(markdown);
 
@@ -1813,20 +1842,25 @@ ${truncatedMarkup}`;
 }
 
 chrome.runtime.onMessage.addListener((message) => {
-  if (!message || message.type !== 'localeChanged') {
+  if (!message) {
     return;
   }
+  
+  if (message.type === 'localeChanged') {
+    const locale = message.locale || DEFAULT_SETTING_LOCALE;
 
-  const locale = message.locale || DEFAULT_SETTING_LOCALE;
-
-  Localization.setPreferredLocale(locale)
-    .catch((error) => {
-      console.error('Failed to update locale in content script:', error);
-    })
-    .finally(() => {
-      // Reload to re-render UI with new locale
-      window.location.reload();
-    });
+    Localization.setPreferredLocale(locale)
+      .catch((error) => {
+        console.error('Failed to update locale in content script:', error);
+      })
+      .finally(() => {
+        // Reload to re-render UI with new locale
+        window.location.reload();
+      });
+  } else if (message.type === 'themeChanged') {
+    // Reload page to apply new theme
+    window.location.reload();
+  }
 });
 
 Localization.init().catch((error) => {

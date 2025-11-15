@@ -1,0 +1,78 @@
+{
+  "id": "verdana",
+  "name": "网页显示",
+  "name_en": "Web Display",
+  "description": "Verdana 字体，屏幕显示清晰锐利",
+  "description_en": "Verdana font with clear and sharp screen display",
+  "author": "Markdown Viewer Extension",
+  "version": "1.0.0",
+  
+  "fontScheme": {
+    "body": {
+      "fontFamily": "Verdana",
+      "fontSize": "10pt",
+      "lineHeight": 1.6
+    },
+    "headings": {
+      "h1": {
+        "fontSize": "22pt",
+        "fontWeight": "bold",
+        "spacing": {
+          "before": "18pt",
+          "after": "10pt"
+        }
+      },
+      "h2": {
+        "fontSize": "18pt",
+        "fontWeight": "bold",
+        "spacing": {
+          "before": "16pt",
+          "after": "9pt"
+        }
+      },
+      "h3": {
+        "fontSize": "15pt",
+        "fontWeight": "bold",
+        "spacing": {
+          "before": "14pt",
+          "after": "8pt"
+        }
+      },
+      "h4": {
+        "fontSize": "13pt",
+        "fontWeight": "bold",
+        "spacing": {
+          "before": "12pt",
+          "after": "7pt"
+        }
+      },
+      "h5": {
+        "fontSize": "11pt",
+        "fontWeight": "bold",
+        "spacing": {
+          "before": "10pt",
+          "after": "6pt"
+        }
+      },
+      "h6": {
+        "fontSize": "10pt",
+        "fontWeight": "bold",
+        "spacing": {
+          "before": "8pt",
+          "after": "5pt"
+        }
+      }
+    },
+    "code": {
+      "fontFamily": "Consolas",
+      "fontSize": "10pt",
+      "background": "#f5f5f5"
+    }
+  },
+  
+  "tableStyle": "compact",
+  
+  "codeTheme": "light-clean",
+  
+  "spacing": "compact"
+}

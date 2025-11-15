@@ -30,32 +30,8 @@ import remarkMath from 'remark-math';
 import { visit } from 'unist-util-visit';
 import { uploadInChunks, abortUpload } from './upload-manager.js';
 import hljs from 'highlight.js/lib/common';
-
-const DOCX_HIGHLIGHT_COLOR_MAP = {
-  keyword: 'D73A49',
-  built_in: '6F42C1',
-  literal: '005CC5',
-  number: '005CC5',
-  string: '032F62',
-  title: '6F42C1',
-  attr: '6F42C1',
-  comment: '6A737D',
-  meta: '005CC5',
-  params: '24292E',
-  symbol: 'E36209',
-  type: '6F42C1',
-  addition: '22863A',
-  deletion: 'B31D28',
-  quote: '22863A',
-  regexp: '032F62',
-  selector_tag: '22863A',
-  selector_id: '005CC5',
-  selector_class: '6F42C1',
-  variable: 'E36209',
-  property: '005CC5',
-};
-
-const DOCX_DEFAULT_CODE_COLOR = '24292E';
+import { loadThemeForDOCX } from './theme-to-docx.js';
+import themeManager from './theme-manager.js';
 
 /**
  * Main class for exporting Markdown to DOCX
@@ -68,21 +44,8 @@ class DocxExporter {
     this.mathJaxInitialized = false; // Track MathJax initialization
     this.baseUrl = null; // Base URL for resolving relative paths
     this.pendingBlockSpacing = 0; // Spacing to apply before the next block-level element
-  }
-
-  /**
-   * Create font configuration
-   * @param {string} mainFont - Main font name (e.g., 'Times New Roman')
-   * @param {string} eastAsiaFont - East Asian font name (e.g., 'SimSun')
-   * @returns {Object} Font configuration object
-   */
-  createFontConfig(mainFont = 'Times New Roman', eastAsiaFont = 'SimSun') {
-    return {
-      ascii: mainFont,
-      eastAsia: eastAsiaFont,
-      hAnsi: mainFont,
-      cs: mainFont
-    };
+    this.themeStyles = null; // Theme configuration for DOCX styles
+    this.spacingScheme = null; // Spacing scheme from theme
   }
 
   getHighlightColor(classList) {
@@ -107,9 +70,11 @@ class DocxExporter {
       }
 
       const normalized = token.replace(/-/g, '_');
-      const color = DOCX_HIGHLIGHT_COLOR_MAP[normalized];
-      if (color) {
-        return color;
+      
+      // Use theme color
+      const themeColor = this.themeStyles.codeColors.colors[normalized];
+      if (themeColor) {
+        return themeColor.replace('#', '');
       }
     }
 
@@ -123,14 +88,20 @@ class DocxExporter {
 
     const segments = text.split('\n');
     const lastIndex = segments.length - 1;
-    const appliedColor = color || DOCX_DEFAULT_CODE_COLOR;
+    const defaultColor = this.themeStyles.codeColors.foreground;
+    const appliedColor = color || defaultColor;
+    
+    // Use theme code font and size (already converted to half-points in theme-to-docx.js)
+    const codeStyle = this.themeStyles.characterStyles.code;
+    const codeFont = codeStyle.font;
+    const codeSize = codeStyle.size;
 
     segments.forEach((segment, index) => {
       if (segment.length > 0) {
         runs.push(new TextRun({
           text: segment,
-          font: 'Consolas',
-          size: 20,
+          font: codeFont,
+          size: codeSize,
           preserve: true,
           color: appliedColor,
         }));
@@ -142,7 +113,10 @@ class DocxExporter {
     });
   }
 
-  collectHighlightedRuns(node, runs, inheritedColor = DOCX_DEFAULT_CODE_COLOR) {
+  collectHighlightedRuns(node, runs, inheritedColor = null) {
+    if (inheritedColor === null) {
+      inheritedColor = this.themeStyles.codeColors.foreground;
+    }
     if (!node) {
       return;
     }
@@ -168,12 +142,18 @@ class DocxExporter {
     const runs = [];
 
     if (!code) {
+      // Use theme code font and size (already converted to half-points in theme-to-docx.js)
+      const codeStyle = this.themeStyles.characterStyles.code;
+      const codeFont = codeStyle.font;
+      const codeSize = codeStyle.size;
+      const defaultColor = this.themeStyles.codeColors.foreground;
+      
       runs.push(new TextRun({
         text: '',
-        font: 'Consolas',
-        size: 20,
+        font: codeFont,
+        size: codeSize,
         preserve: true,
-        color: DOCX_DEFAULT_CODE_COLOR,
+        color: defaultColor,
       }));
       return runs;
     }
@@ -187,20 +167,23 @@ class DocxExporter {
           ignoreIllegals: true,
         });
       } else {
-        highlightResult = hljs.highlightAuto(code);
+        // No language specified - don't highlight (consistent with Web behavior)
+        highlightResult = null;
       }
     } catch (error) {
       console.warn('Highlight error:', error);
     }
 
+    const defaultColor = this.themeStyles.codeColors.foreground;
+    
     if (highlightResult && highlightResult.value) {
       const container = document.createElement('div');
       container.innerHTML = highlightResult.value;
-      this.collectHighlightedRuns(container, runs, DOCX_DEFAULT_CODE_COLOR);
+      this.collectHighlightedRuns(container, runs, defaultColor);
     }
 
     if (runs.length === 0) {
-      this.appendCodeTextRuns(code, runs, DOCX_DEFAULT_CODE_COLOR);
+      this.appendCodeTextRuns(code, runs, defaultColor);
     }
 
     return runs;
@@ -233,6 +216,14 @@ class DocxExporter {
     try {
       // Set base URL for resolving relative image paths
       this.setBaseUrl(window.location.href);
+
+      // Load theme configuration - use currently selected theme
+      const selectedThemeId = await themeManager.loadSelectedTheme();
+      const themeStyles = await loadThemeForDOCX(selectedThemeId);
+      this.themeStyles = themeStyles;
+      this.spacingScheme = null; // Not used directly, accessed via themeStyles
+      
+      console.log('[DOCX Exporter] Theme loaded:', selectedThemeId, themeStyles);
 
       // Initialize progress tracking
       this.progressCallback = onProgress;
@@ -395,103 +386,13 @@ class DocxExporter {
         },
         styles: {
           default: {
-            document: {
-              run: {
-                font: this.createFontConfig('Times New Roman', 'SimSun'),
-                size: 24, // 12pt in half-points
-              },
-              paragraph: {
-                spacing: {
-                  line: 360, // 1.5 line spacing
-                  after: 200, // 13px ≈ 200 twips
-                },
-              },
-            },
-            heading1: {
-              run: {
-                size: 48, // 24pt in half-points
-                bold: true,
-                font: this.createFontConfig('Times New Roman', 'SimSun'),
-              },
-              paragraph: {
-                spacing: {
-                  before: 0,
-                  after: 150, // 10px
-                  line: 360,
-                },
-                alignment: AlignmentType.CENTER,
-              },
-            },
-            heading2: {
-              run: {
-                size: 40, // 20pt
-                bold: true,
-                font: this.createFontConfig('Times New Roman', 'SimSun'),
-              },
-              paragraph: {
-                spacing: {
-                  before: 270, // 18px
-                  after: 120, // 8px
-                  line: 360,
-                },
-              },
-            },
-            heading3: {
-              run: {
-                size: 36, // 18pt
-                bold: true,
-                font: this.createFontConfig('Times New Roman', 'SimSun'),
-              },
-              paragraph: {
-                spacing: {
-                  before: 225, // 15px
-                  after: 105, // 7px
-                  line: 360,
-                },
-              },
-            },
-            heading4: {
-              run: {
-                size: 32, // 16pt
-                bold: true,
-                font: this.createFontConfig('Times New Roman', 'SimSun'),
-              },
-              paragraph: {
-                spacing: {
-                  before: 210, // 14px
-                  after: 105, // 7px
-                  line: 360,
-                },
-              },
-            },
-            heading5: {
-              run: {
-                size: 28, // 14pt
-                bold: true,
-                font: this.createFontConfig('Times New Roman', 'SimSun'),
-              },
-              paragraph: {
-                spacing: {
-                  before: 180, // 12px
-                  after: 90, // 6px
-                  line: 360,
-                },
-              },
-            },
-            heading6: {
-              run: {
-                size: 24, // 12pt
-                bold: true,
-                font: this.createFontConfig('Times New Roman', 'SimSun'),
-              },
-              paragraph: {
-                spacing: {
-                  before: 150, // 10px
-                  after: 75, // 5px
-                  line: 360,
-                },
-              },
-            },
+            document: this.themeStyles.default,
+            heading1: this.themeStyles.paragraphStyles.heading1,
+            heading2: this.themeStyles.paragraphStyles.heading2,
+            heading3: this.themeStyles.paragraphStyles.heading3,
+            heading4: this.themeStyles.paragraphStyles.heading4,
+            heading5: this.themeStyles.paragraphStyles.heading5,
+            heading6: this.themeStyles.paragraphStyles.heading6,
           },
         },
         sections: [{
@@ -703,10 +604,16 @@ class DocxExporter {
     const level = this.getHeadingLevel(node.depth);
     const text = this.extractText(node);
 
-    // Calculate spacing in twips (1/20 of a point)
-    // H1: larger spacing, H2-H6: smaller spacing
-    const spacingBefore = node.depth === 1 ? 240 : 240; // 12pt before
-    const spacingAfter = 120; // 6pt after
+    // Get heading style from theme
+    const headingStyleKey = `heading${node.depth}`;
+    const headingStyle = this.themeStyles?.paragraphStyles?.[headingStyleKey];
+    
+    // Use theme spacing if available, otherwise use defaults
+    const defaultSpacingBefore = node.depth === 1 ? 240 : 240; // 12pt before
+    const defaultSpacingAfter = 120; // 6pt after
+    
+    const spacingBefore = headingStyle?.paragraph?.spacing?.before || defaultSpacingBefore;
+    const spacingAfter = headingStyle?.paragraph?.spacing?.after || defaultSpacingAfter;
 
     const paragraphConfig = {
       text: text,
@@ -718,9 +625,11 @@ class DocxExporter {
       }),
     };
 
-    // H1 should be centered and larger
-    if (node.depth === 1) {
-      paragraphConfig.alignment = AlignmentType.CENTER;
+    // Use alignment from theme style if available
+    if (headingStyle?.paragraph?.alignment) {
+      paragraphConfig.alignment = headingStyle.paragraph.alignment === 'center' 
+        ? AlignmentType.CENTER 
+        : AlignmentType.LEFT;
     }
 
     return new Paragraph(paragraphConfig);
@@ -759,11 +668,16 @@ class DocxExporter {
   async convertParagraph(node, parentStyle = {}) {
     const children = await this.convertInlineNodes(node.children, parentStyle);
 
+    // Get spacing from theme
+    const paragraphSpacing = this.themeStyles.default.paragraph.spacing;
+    const defaultLineSpacing = paragraphSpacing.line;
+    const defaultAfterSpacing = paragraphSpacing.after;
+
     if (children.length === 0) {
       // Empty paragraph
       const spacing = this.applyPendingSpacing({
-        after: 200, // 13px
-        line: 360,
+        after: defaultAfterSpacing,
+        line: defaultLineSpacing,
       });
 
       return new Paragraph({
@@ -774,8 +688,8 @@ class DocxExporter {
     }
 
     const spacing = this.applyPendingSpacing({
-      after: 200, // 13px
-      line: 360,
+      after: defaultAfterSpacing,
+      line: defaultLineSpacing,
     });
 
     return new Paragraph({
@@ -791,11 +705,13 @@ class DocxExporter {
   async convertInlineNodes(nodes, parentStyle = {}) {
     const runs = [];
 
-    // Default font settings matching CSS: 12px = 24 half-points
-    // Use SimSun for better Chinese character support and emoji
+    // Get font and size from theme
+    const bodyFont = this.themeStyles.default.run.font;
+    const bodySize = this.themeStyles.default.run.size;
+    
     const defaultStyle = {
-      font: this.createFontConfig('Times New Roman', 'SimSun'),
-      size: 24, // 12pt (half-points)
+      font: bodyFont,
+      size: bodySize,
       ...parentStyle,
     };
 
@@ -834,14 +750,15 @@ class DocxExporter {
         return await this.convertInlineNodes(node.children, { ...parentStyle, strike: true });
 
       case 'inlineCode':
+        const codeStyle = this.themeStyles.characterStyles.code;
         return new TextRun({
-          text: node.value,
-          font: 'Consolas', // Monospace font matching CSS
-          size: 20, // 10pt = 20 half-points
-          shading: {
-            fill: 'F6F8FA', // Light gray background matching CSS
-          },
           ...parentStyle,
+          text: node.value,
+          font: codeStyle.font,
+          size: codeStyle.size, // Already converted to half-points in theme-to-docx.js
+          shading: {
+            fill: codeStyle.background,
+          },
         });
 
       case 'link':
@@ -1279,18 +1196,23 @@ class DocxExporter {
         // For task lists, prepend checkbox symbol
         if (isTaskList) {
           const checkboxSymbol = node.checked ? '▣' : '☐';  // ▣ for checked, ☐ for unchecked
+          const bodyFont = this.themeStyles.default.run.font;
+          const bodySize = this.themeStyles.default.run.size;
           children.unshift(new TextRun({
             text: checkboxSymbol + ' ',
-            font: this.createFontConfig('Times New Roman', 'SimSun'),
-            size: 24,
+            font: bodyFont,
+            size: bodySize,
           }));
         }
 
+        // Get spacing from theme
+        const defaultLineSpacing = this.themeStyles.default.paragraph.spacing.line;
+        
         const paragraphConfig = {
           children: children,
           spacing: this.applyPendingSpacing({
-            after: 45,  // 3px spacing between items
-            line: 360,  // 1.5 line spacing
+            after: 45,  // 3px spacing between items (hardcoded for now)
+            line: defaultLineSpacing,
           }),
           alignment: AlignmentType.LEFT, // Explicitly set left alignment for list items
         };
@@ -1332,17 +1254,19 @@ class DocxExporter {
 
     const runs = this.getHighlightedRunsForCode(node.value ?? '', node.lang);
 
+    const codeBackground = this.themeStyles.characterStyles.code.background;
+    
     return new Paragraph({
       children: runs,
       wordWrap: true, // 启用自动换行，支持长行代码在 DOCX 中换行
       alignment: AlignmentType.LEFT, // Explicitly set left alignment for code blocks
       spacing: this.applyPendingSpacing({
-        before: 200, // 13px
-        after: 200,  // 13px
-        line: 348,   // 1.45 line height for code blocks
+        before: 200, // 13px (hardcoded for now)
+        after: 200,  // 13px (hardcoded for now)
+        line: 276,   // 1.15 line height for code blocks to match HTML visual appearance
       }),
       shading: {
-        fill: 'F6F8FA', // Light gray background matching CSS
+        fill: codeBackground,
       },
       border: {
         top: { color: 'E1E4E8', space: 10, value: BorderStyle.SINGLE, size: 6 }, // space: 10pt ≈ 13px padding
@@ -1380,12 +1304,14 @@ class DocxExporter {
     for (const child of node.children) {
       if (child.type === 'paragraph') {
         const children = await this.convertInlineNodes(child.children, { color: '6A737D' }); // Gray text
+        const defaultLineSpacing = this.themeStyles.default.paragraph.spacing.line;
+        
         paragraphs.push(new Paragraph({
           children: children,
           spacing: this.applyPendingSpacing({
             before: 0,
             after: 0,
-            line: 360,
+            line: defaultLineSpacing,
           }),
           alignment: AlignmentType.LEFT, // Explicitly set left alignment for blockquote
           indent: {
@@ -1440,10 +1366,16 @@ class DocxExporter {
     const alignments = node.align || [];
     const tableRows = node.children.filter((row) => row.type === 'tableRow');
     const rowCount = tableRows.length;
+    
+    // Get table styles from theme
+    const tableStyles = this.themeStyles.tableStyles;
 
+    // Process rows
     for (let rowIndex = 0; rowIndex < rowCount; rowIndex++) {
       const row = tableRows[rowIndex];
       const isHeaderRow = rowIndex === 0;
+      const isLastRow = rowIndex === rowCount - 1;
+      
       if (row.type === 'tableRow') {
         const cells = [];
 
@@ -1451,56 +1383,106 @@ class DocxExporter {
           const cell = row.children[colIndex];
 
           if (cell.type === 'tableCell') {
-            // For header row, make text bold
-            const children = isHeaderRow
+            // For header row, apply header style
+            const isBold = isHeaderRow && tableStyles.header.bold;
+            const children = isBold
               ? await this.convertInlineNodes(cell.children, { bold: true, size: 20 })
               : await this.convertInlineNodes(cell.children, { size: 20 });
-
-            // Get cell alignment from table definition
+            
             const cellAlignment = alignments[colIndex];
-            let paragraphAlignment;
-
-            // Header row: always center horizontally
-            // Data rows: use table alignment
+            let paragraphAlignment = AlignmentType.LEFT;
             if (isHeaderRow) {
               paragraphAlignment = AlignmentType.CENTER;
-            } else {
-              if (cellAlignment === 'left') {
-                paragraphAlignment = AlignmentType.LEFT;
-              } else if (cellAlignment === 'right') {
-                paragraphAlignment = AlignmentType.RIGHT;
-              } else if (cellAlignment === 'center') {
-                paragraphAlignment = AlignmentType.CENTER;
-              } else {
-                paragraphAlignment = AlignmentType.LEFT; // Default
-              }
+            } else if (cellAlignment === 'center') {
+              paragraphAlignment = AlignmentType.CENTER;
+            } else if (cellAlignment === 'right') {
+              paragraphAlignment = AlignmentType.RIGHT;
             }
 
             const cellConfig = {
               children: [new Paragraph({
                 children: children,
-                alignment: paragraphAlignment, // Apply cell alignment to paragraph
-                spacing: {
-                  before: 60,
-                  after: 60,
-                  line: 240,
-                },
+                alignment: paragraphAlignment,
+                spacing: { before: 60, after: 60, line: 240 },
               })],
-              verticalAlign: VerticalAlignTable.CENTER, // Vertical center all cells
-              margins: {
-                top: convertInchesToTwip(0.083),    // 8px ≈ 6pt ≈ 0.083 inch
-                bottom: convertInchesToTwip(0.083), // 8px ≈ 6pt ≈ 0.083 inch
-                left: convertInchesToTwip(0.083),   // 8px ≈ 6pt ≈ 0.083 inch
-                right: convertInchesToTwip(0.083),  // 8px ≈ 6pt ≈ 0.083 inch
-              },
+              verticalAlign: VerticalAlignTable.CENTER,
+              margins: tableStyles.cell.margins,
             };
 
-            // Header row gets gray background
-            if (isHeaderRow) {
-              cellConfig.shading = { fill: 'F6F8FA' };
-            } else if ((rowIndex % 2) === 0) {
-              // Apply alternating background color to even-numbered data rows
-              cellConfig.shading = { fill: 'F6F8FA' };
+            // Apply cell borders based on borderMode
+            // Different strategies for hiding borders:
+            // - Left border: SINGLE size:0 (prevents artifacts at leftmost edge)
+            // - Inside vertical borders: NONE (cleaner for internal columns)
+            // - Horizontal borders: SINGLE size:0 (consistent hiding)
+            const whiteLeftBorder = { style: BorderStyle.SINGLE, size: 0, color: 'FFFFFF' };
+            const whiteInsideVerticalBorder = { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' };
+            const whiteHorizontalBorder = { style: BorderStyle.SINGLE, size: 0, color: 'FFFFFF' };
+            
+            const borderMode = tableStyles.borderMode || 'full-borders';
+            const isFirstColumn = colIndex === 0;
+            
+            // Step 1: Set base borders according to borderMode
+            cellConfig.borders = {};
+            
+            if (borderMode === 'no-borders') {
+              // No borders: hide all borders
+              cellConfig.borders = {
+                top: whiteHorizontalBorder,
+                bottom: whiteHorizontalBorder,
+                left: isFirstColumn ? whiteLeftBorder : whiteInsideVerticalBorder,
+                right: whiteInsideVerticalBorder
+              };
+            } else if (borderMode === 'horizontal-only') {
+              // Horizontal-only: hide vertical borders, show horizontal
+              cellConfig.borders = {
+                top: whiteHorizontalBorder,
+                bottom: whiteHorizontalBorder,
+                left: isFirstColumn ? whiteLeftBorder : whiteInsideVerticalBorder,
+                right: whiteInsideVerticalBorder
+              };
+            } else {
+              // Full borders: apply all borders from config
+              if (tableStyles.borders.top) {
+                cellConfig.borders.top = tableStyles.borders.top;
+              }
+              if (tableStyles.borders.bottom) {
+                cellConfig.borders.bottom = tableStyles.borders.bottom;
+              }
+              if (tableStyles.borders.left) {
+                cellConfig.borders.left = tableStyles.borders.left;
+              }
+              if (tableStyles.borders.right) {
+                cellConfig.borders.right = tableStyles.borders.right;
+              }
+            }
+            
+            // Step 2: Apply special borders (override base borders for all modes)
+            if (isHeaderRow && tableStyles.borders.headerTop && tableStyles.borders.headerTop.style !== BorderStyle.NONE) {
+              cellConfig.borders.top = tableStyles.borders.headerTop;
+            }
+            if (isHeaderRow && tableStyles.borders.headerBottom && tableStyles.borders.headerBottom.style !== BorderStyle.NONE) {
+              cellConfig.borders.bottom = tableStyles.borders.headerBottom;
+            }
+            // For data rows: lastRowBottom takes precedence over insideHorizontal
+            if (!isHeaderRow) {
+              if (isLastRow && tableStyles.borders.lastRowBottom && tableStyles.borders.lastRowBottom.style !== BorderStyle.NONE) {
+                cellConfig.borders.bottom = tableStyles.borders.lastRowBottom;
+              } else if (tableStyles.borders.insideHorizontal && tableStyles.borders.insideHorizontal.style !== BorderStyle.NONE) {
+                // insideHorizontal applies to all data rows (including last row if no lastRowBottom)
+                cellConfig.borders.bottom = tableStyles.borders.insideHorizontal;
+              }
+            }
+            
+            // Apply shading
+            if (isHeaderRow && tableStyles.header.shading) {
+              cellConfig.shading = tableStyles.header.shading;
+            } else if (tableStyles.zebra && rowIndex > 0) {
+              // Invert zebra stripe logic: odd rows (1st, 3rd, 5th data row) use even color
+              const isOddDataRow = ((rowIndex - 1) % 2) === 0;
+              const background = isOddDataRow ? tableStyles.zebra.odd : tableStyles.zebra.even;
+              if (background !== 'ffffff' && background !== 'FFFFFF') {
+                cellConfig.shading = { fill: background };
+              }
             }
 
             cells.push(new TableCell(cellConfig));
@@ -1509,23 +1491,16 @@ class DocxExporter {
 
         rows.push(new TableRow({
           children: cells,
-          tableHeader: isHeaderRow, // Mark first row as header
+          tableHeader: isHeaderRow,
         }));
       }
     }
 
+    // Create table with no table-level borders at all
     const table = new Table({
       rows: rows,
-      layout: TableLayoutType.AUTOFIT, // Auto-fit to content
-      borders: {
-        top: { style: BorderStyle.SINGLE, size: 4, color: 'DFE2E5' },
-        bottom: { style: BorderStyle.SINGLE, size: 4, color: 'DFE2E5' },
-        left: { style: BorderStyle.SINGLE, size: 4, color: 'DFE2E5' },
-        right: { style: BorderStyle.SINGLE, size: 4, color: 'DFE2E5' },
-        insideHorizontal: { style: BorderStyle.SINGLE, size: 4, color: 'DFE2E5' },
-        insideVertical: { style: BorderStyle.SINGLE, size: 4, color: 'DFE2E5' },
-      },
-      alignment: AlignmentType.CENTER, // Center table like in CSS
+      layout: TableLayoutType.AUTOFIT,
+      alignment: AlignmentType.CENTER,
     });
 
     return table;
@@ -1602,13 +1577,14 @@ class DocxExporter {
       });
     } catch (error) {
       console.warn('Math conversion error:', error);
-      // Fallback: display as monospace text
+      // Fallback: display as code text
+      const codeStyle = this.themeStyles.characterStyles.code;
       return new Paragraph({
         children: [
           new TextRun({
             text: node.value,
-            font: 'Consolas',
-            size: 24, // 12pt
+            font: codeStyle.font,
+            size: codeStyle.size,
           }),
         ],
         alignment: AlignmentType.LEFT, // Explicitly set left alignment for error fallback
@@ -1627,11 +1603,12 @@ class DocxExporter {
       return math;
     } catch (error) {
       console.warn('Inline math conversion error:', error);
-      // Fallback: display as monospace text
+      // Fallback: display as code text
+      const codeStyle = this.themeStyles.characterStyles.code;
       return new TextRun({
         text: node.value,
-        font: 'Consolas',
-        size: 24,
+        font: codeStyle.font,
+        size: codeStyle.size,
         ...parentStyle,
       });
     }

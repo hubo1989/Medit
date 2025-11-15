@@ -126,6 +126,8 @@ class PopupManager {
   constructor() {
     this.cacheManager = null;
     this.currentTab = 'overview';
+    this.themes = [];
+    this.currentTheme = 'default';
     this.settings = {
       maxCacheItems: 1000,
       preferredLocale: DEFAULT_SETTING_LOCALE
@@ -597,6 +599,10 @@ class PopupManager {
       if (result.markdownViewerSettings) {
         this.settings = { ...this.settings, ...result.markdownViewerSettings };
       }
+      
+      // Load selected theme
+      const themeResult = await chrome.storage.sync.get(['selectedTheme']);
+      this.currentTheme = themeResult.selectedTheme || 'default';
     } catch (error) {
       console.error('Failed to load settings:', error);
     }
@@ -611,6 +617,134 @@ class PopupManager {
     const localeSelect = document.getElementById('interface-language');
     if (localeSelect) {
       localeSelect.value = this.settings.preferredLocale || DEFAULT_SETTING_LOCALE;
+    }
+    
+    // Load themes
+    this.loadThemes();
+  }
+  
+  async loadThemes() {
+    try {
+      // Load theme registry
+      const registryResponse = await fetch(chrome.runtime.getURL('themes/registry.json'));
+      const registry = await registryResponse.json();
+      
+      // Load all theme metadata
+      const themePromises = registry.themes.map(async (themeInfo) => {
+        try {
+          const response = await fetch(chrome.runtime.getURL(`themes/presets/${themeInfo.file}`));
+          const theme = await response.json();
+          
+          return {
+            id: theme.id,
+            name: theme.name,
+            name_en: theme.name_en,
+            description: theme.description,
+            description_en: theme.description_en,
+            category: themeInfo.category,
+            featured: themeInfo.featured || false
+          };
+        } catch (error) {
+          console.error(`Failed to load theme ${themeInfo.id}:`, error);
+          return null;
+        }
+      });
+      
+      this.themes = (await Promise.all(themePromises)).filter(t => t !== null);
+      this.registry = registry;
+      
+      // Populate theme selector with categories
+      const themeSelector = document.getElementById('theme-selector');
+      if (themeSelector) {
+        themeSelector.innerHTML = '';
+        
+        // Get current locale to determine which name to use
+        const locale = getUiLocale();
+        const useEnglish = !locale.startsWith('zh');
+        
+        // Group themes by category
+        const themesByCategory = {};
+        this.themes.forEach(theme => {
+          if (!themesByCategory[theme.category]) {
+            themesByCategory[theme.category] = [];
+          }
+          themesByCategory[theme.category].push(theme);
+        });
+        
+        // Add themes grouped by category
+        Object.keys(themesByCategory).forEach(categoryId => {
+          const categoryInfo = registry.categories[categoryId];
+          if (!categoryInfo) return;
+          
+          const categoryThemes = themesByCategory[categoryId];
+          if (categoryThemes.length === 0) return;
+          
+          const categoryGroup = document.createElement('optgroup');
+          categoryGroup.label = useEnglish ? categoryInfo.name_en : categoryInfo.name;
+          
+          categoryThemes.forEach(theme => {
+            const option = document.createElement('option');
+            option.value = theme.id;
+            option.textContent = useEnglish ? theme.name_en : theme.name;
+            
+            if (theme.id === this.currentTheme) {
+              option.selected = true;
+            }
+            
+            categoryGroup.appendChild(option);
+          });
+          
+          themeSelector.appendChild(categoryGroup);
+        });
+        
+        // Update description
+        this.updateThemeDescription(this.currentTheme);
+        
+        // Add change listener
+        themeSelector.addEventListener('change', (event) => {
+          this.switchTheme(event.target.value);
+        });
+      }
+    } catch (error) {
+      console.error('Failed to load themes:', error);
+    }
+  }
+  
+  updateThemeDescription(themeId) {
+    const theme = this.themes.find(t => t.id === themeId);
+    const descEl = document.getElementById('theme-description');
+    
+    if (descEl && theme) {
+      const locale = getUiLocale();
+      const useEnglish = !locale.startsWith('zh');
+      descEl.textContent = useEnglish ? theme.description_en : theme.description;
+    }
+  }
+  
+  async switchTheme(themeId) {
+    try {
+      // Save theme selection
+      await chrome.storage.sync.set({ selectedTheme: themeId });
+      this.currentTheme = themeId;
+      
+      // Update description
+      this.updateThemeDescription(themeId);
+      
+      // Notify all tabs to reload theme
+      const tabs = await chrome.tabs.query({});
+      tabs.forEach(tab => {
+        chrome.tabs.sendMessage(tab.id, {
+          type: 'themeChanged',
+          themeId: themeId
+        }).catch(() => {
+          // Ignore errors for non-markdown tabs
+        });
+      });
+      
+      this.showMessage(translate('settings_theme_changed'), 'success');
+    } catch (error) {
+      console.error('Failed to switch theme:', error);
+      this.showMessage('Failed to switch theme', 'error');
     }
   }
 

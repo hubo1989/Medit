@@ -355,6 +355,18 @@
     "message": "缓存项目（最近访问的 20 项）",
     "description": "缓存列表标题"
   },
+  "settings_theme_title": {
+    "message": "主题设置",
+    "description": "主题设置部分的标题"
+  },
+  "settings_theme_label": {
+    "message": "选择主题：",
+    "description": "主题选择器标签"
+  },
+  "settings_theme_changed": {
+    "message": "主题已成功切换，请刷新页面查看变化。",
+    "description": "主题切换成功时显示的消息"
+  },
   "settings_general_title": {
     "message": "扩展设置",
     "description": "设置区标题"

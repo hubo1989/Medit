@@ -7,6 +7,7 @@ class ExtensionRenderer {
     this.cache = cacheManager || new ExtensionCacheManager();
     this.offscreenCreated = false;
     this.initPromise = null;
+    this.themeConfig = null; // Store current theme config for cache key generation
   }
 
   /**
@@ -20,6 +21,26 @@ class ExtensionRenderer {
       }
     } catch (error) {
       throw error;
+    }
+  }
+
+  /**
+   * Set theme configuration for rendering
+   * @param {Object} themeConfig - Theme configuration object
+   * @param {string} themeConfig.fontFamily - Font family for text rendering
+   * @param {number} themeConfig.fontSize - Font size in pt for scaling calculations
+   */
+  async setThemeConfig(themeConfig) {
+    // Store theme config for cache key generation
+    this.themeConfig = themeConfig;
+    
+    try {
+      await this._sendMessage({
+        type: 'setThemeConfig',
+        config: themeConfig
+      });
+    } catch (error) {
+      console.error('Failed to set theme config:', error);
     }
   }
 
@@ -63,7 +84,7 @@ class ExtensionRenderer {
    * Render Mermaid diagram to PNG base64
    */
   async renderMermaidToPng(code) {
-    const cacheKey = await this.cache.generateKey(code, 'MERMAID_PNG');
+    const cacheKey = await this.cache.generateKey(code, 'MERMAID_PNG', this.themeConfig);
 
     // Check cache first
     const cached = await this.cache.get(cacheKey);
@@ -95,7 +116,7 @@ class ExtensionRenderer {
    */
   async renderHtmlToPng(html, width = 1200) {
     const contentKey = html + width;
-    const cacheKey = await this.cache.generateKey(contentKey, 'HTML_PNG');
+    const cacheKey = await this.cache.generateKey(contentKey, 'HTML_PNG', this.themeConfig);
 
     // Check cache first
     const cached = await this.cache.get(cacheKey);
@@ -127,7 +148,7 @@ class ExtensionRenderer {
    * Render SVG to PNG base64
    */
   async renderSvgToPng(svg) {
-    const cacheKey = await this.cache.generateKey(svg, 'SVG_PNG');
+    const cacheKey = await this.cache.generateKey(svg, 'SVG_PNG', this.themeConfig);
 
     // Check cache first
     const cached = await this.cache.get(cacheKey);

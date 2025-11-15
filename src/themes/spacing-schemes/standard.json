@@ -1,0 +1,23 @@
+{
+  "id": "standard",
+  "name": "标准间距",
+  "name_en": "Standard Spacing",
+  "description": "适合一般阅读的标准间距，基于正文字体大小的相对比例",
+  "description_en": "Standard spacing for general reading, based on body font size ratio",
+  
+  "paragraph": 0.833,
+  "list": 1.083,
+  "listItem": 0.25,
+  "blockquote": {
+    "before": 0,
+    "after": 0,
+    "padding": {
+      "vertical": 0.083,
+      "horizontal": 1.083
+    }
+  },
+  "horizontalRule": {
+    "before": 1.667,
+    "after": 1.667
+  }
+}

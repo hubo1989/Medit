@@ -97,6 +97,7 @@ export const createBuildConfig = () => {
 
               fileCopies.push(...copyDirectory('icons', 'dist/icons'));
               fileCopies.push(...copyDirectory('src/_locales', 'dist/_locales'));
+              fileCopies.push(...copyDirectory('src/themes', 'dist/themes'));
 
               fileCopies.forEach(({ src, dest, log }) => copyFileIfExists(src, dest, log));
 

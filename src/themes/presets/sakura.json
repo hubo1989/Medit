@@ -1,0 +1,78 @@
+{
+  "id": "sakura",
+  "name": "樱花清新",
+  "name_en": "Sakura Fresh",
+  "description": "极简清新的樱花风格",
+  "description_en": "Minimal and fresh sakura style",
+  "author": "Sakura.css (Adapted)",
+  "version": "1.0.0",
+  
+  "fontScheme": {
+    "body": {
+      "fontFamily": "Georgia",
+      "fontSize": "13.5pt",
+      "lineHeight": 1.618
+    },
+    "headings": {
+      "h1": {
+        "fontSize": "31.73pt",
+        "fontWeight": "bold",
+        "spacing": {
+          "before": "22.5pt",
+          "after": "11.25pt"
+        }
+      },
+      "h2": {
+        "fontSize": "27pt",
+        "fontWeight": "bold",
+        "spacing": {
+          "before": "22.5pt",
+          "after": "11.25pt"
+        }
+      },
+      "h3": {
+        "fontSize": "23.63pt",
+        "fontWeight": "bold",
+        "spacing": {
+          "before": "22.5pt",
+          "after": "11.25pt"
+        }
+      },
+      "h4": {
+        "fontSize": "20.25pt",
+        "fontWeight": "bold",
+        "spacing": {
+          "before": "22.5pt",
+          "after": "11.25pt"
+        }
+      },
+      "h5": {
+        "fontSize": "16.88pt",
+        "fontWeight": "bold",
+        "spacing": {
+          "before": "22.5pt",
+          "after": "11.25pt"
+        }
+      },
+      "h6": {
+        "fontSize": "13.5pt",
+        "fontWeight": "bold",
+        "spacing": {
+          "before": "22.5pt",
+          "after": "11.25pt"
+        }
+      }
+    },
+    "code": {
+      "fontFamily": "Consolas",
+      "fontSize": "10pt",
+      "background": "#f1f1f1"
+    }
+  },
+  
+  "tableStyle": "zebra",
+  
+  "codeTheme": "colorful",
+  
+  "spacing": "relaxed"
+}
