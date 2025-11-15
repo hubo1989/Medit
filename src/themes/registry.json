@@ -23,9 +23,9 @@
       "order": 3
     },
     {
-      "id": "minimal",
-      "file": "minimal.json",
-      "category": "sans-serif",
+      "id": "technical",
+      "file": "technical.json",
+      "category": "professional",
       "featured": true,
       "order": 4
     },
@@ -169,11 +169,11 @@
     "default": "default",
     "academic": "academic",
     "business": "business",
+    "technical": "technical",
     "reading": "garamond",
     "book": "palatino",
     "modern": "cambria",
     "screen": "verdana",
-    "technical": "minimal",
     "creative": "typewriter"
   }
 }
