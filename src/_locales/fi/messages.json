@@ -1,170 +1,170 @@
 {
   "async_processing_error": {
-    "message": "{0} error: {1}",
+    "message": "{0} virhe: {1}",
     "description": "Generic error message with type and detail"
   },
   "async_processing_message": {
-    "message": "Processing {0}{1}...",
+    "message": "Käsitellään {0}{1}...",
     "description": "Async placeholder processing text"
   },
   "async_task_processing_error": {
-    "message": "Task processing error: {0}",
+    "message": "Tehtävän käsittelyvirhe: {0}",
     "description": "Error when async task fails"
   },
   "async_unknown_error": {
-    "message": "Unknown error",
+    "message": "Tuntematon virhe",
     "description": "Fallback when error message missing"
   },
   "cache_clear": {
-    "message": "Clear cache",
+    "message": "Tyhjennä välimuisti",
     "description": "Clear cache button"
   },
   "cache_clear_confirm": {
-    "message": "Clear all cached data? This action cannot be undone.",
+    "message": "Tyhjennä kaikki välimuistissa oleva data? Tätä toimintoa ei voi peruuttaa.",
     "description": "Confirmation text for clearing cache"
   },
   "cache_clear_failed": {
-    "message": "Failed to clear cache",
+    "message": "Välimuistin tyhjentäminen epäonnistui",
     "description": "Toast when cache clear fails"
   },
   "cache_clear_success": {
-    "message": "Cache cleared",
+    "message": "Välimuisti tyhjennetty",
     "description": "Toast when cache clear succeeds"
   },
   "cache_error_message": {
-    "message": "Cache communication failed — open a Markdown file first",
+    "message": "Välimuistin viestintä epäonnistui — avaa ensin Markdown-tiedosto",
     "description": "Shown when cache cannot be reached"
   },
   "cache_hint_details": {
-    "message": "Caching runs automatically while Markdown pages are open",
+    "message": "Välimuisti toimii automaattisesti kun Markdown-sivut ovat auki",
     "description": "Additional hint when cache is empty"
   },
   "cache_item_accessed_label": {
-    "message": "Last accessed",
+    "message": "Viimeksi käytetty",
     "description": "Label for cache item last access time"
   },
   "cache_item_created_label": {
-    "message": "Created",
+    "message": "Luotu",
     "description": "Label for cache item created time"
   },
   "cache_item_size_label": {
-    "message": "Size",
+    "message": "Koko",
     "description": "Label for cache item size"
   },
   "cache_item_type_label": {
-    "message": "Type",
+    "message": "Tyyppi",
     "description": "Label for cache item type"
   },
   "cache_item_type_unknown": {
-    "message": "unknown",
+    "message": "tuntematon",
     "description": "Fallback label when cache type is missing"
   },
   "cache_items_empty": {
-    "message": "No cached items yet",
+    "message": "Ei vielä välimuistissa olevia kohteita",
     "description": "Shown when the cache list is empty"
   },
   "cache_items_title": {
-    "message": "Cached items (latest 20)",
+    "message": "Välimuistissa olevat kohteet (viimeisimmät 20)",
     "description": "Heading for cache items list"
   },
   "cache_loading_failed": {
-    "message": "Failed to load cache: {0}",
+    "message": "Välimuistin lataaminen epäonnistui: {0}",
     "description": "Displayed when cache loading throws an error"
   },
   "cache_manager_init_failed": {
-    "message": "Cache manager initialization failed",
+    "message": "Välimuistin hallinnan alustus epäonnistui",
     "description": "Error string used when cache manager cannot initialize"
   },
   "cache_manual_clear_intro": {
-    "message": "To clear cache manually:",
+    "message": "Välimuistin tyhjentäminen manuaalisesti:",
     "description": "Manual cache clear intro"
   },
   "cache_manual_clear_step_1": {
-    "message": "Open any Markdown file",
+    "message": "Avaa mikä tahansa Markdown-tiedosto",
     "description": "Manual cache clear step"
   },
   "cache_manual_clear_step_2": {
-    "message": "Press F12 to open DevTools",
+    "message": "Paina F12 avataksesi DevToolsin",
     "description": "Manual cache clear step"
   },
   "cache_manual_clear_step_3": {
-    "message": "Run \"{0}\" in the console",
+    "message": "Suorita \"{0}\" konsolissa",
     "description": "Manual cache clear step with code placeholder"
   },
   "cache_manual_clear_title": {
-    "message": "🧹 Clear cache manually",
+    "message": "🧹 Tyhjennä välimuisti manuaalisesti",
     "description": "Manual cache clear title"
   },
   "cache_manual_limit_desc_1": {
-    "message": "For security reasons the popup cannot access IndexedDB directly.",
+    "message": "Turvallisuussyistä popup ei voi käyttää IndexedDB:tä suoraan.",
     "description": "Manual cache info description"
   },
   "cache_manual_limit_desc_2": {
-    "message": "Caching still works while rendering Markdown pages, but the popup cannot display the details.",
+    "message": "Välimuisti toimii silti Markdown-sivujen renderöinnin aikana, mutta popup ei voi näyttää yksityiskohtia.",
     "description": "Manual cache info description"
   },
   "cache_manual_limit_title": {
-    "message": "⚠️ Cache access limits",
+    "message": "⚠️ Välimuistin käyttörajoitukset",
     "description": "Manual cache info section title"
   },
   "cache_manual_status_intro": {
-    "message": "To make sure caching works:",
+    "message": "Varmistaaksesi että välimuisti toimii:",
     "description": "Manual cache status intro"
   },
   "cache_manual_status_step_console": {
-    "message": "Check for \"⚡ Using cached\" logs in DevTools",
+    "message": "Tarkista \"⚡ Using cached\" lokit DevToolsista",
     "description": "Manual cache status checklist"
   },
   "cache_manual_status_step_open": {
-    "message": "Open a Markdown file",
+    "message": "Avaa Markdown-tiedosto",
     "description": "Manual cache status checklist"
   },
   "cache_manual_status_step_speed": {
-    "message": "Notice faster renders when cache is warm",
+    "message": "Huomaa nopeampi renderöinti kun välimuisti on lämmin",
     "description": "Manual cache status checklist"
   },
   "cache_manual_status_title": {
-    "message": "📊 Check cache status",
+    "message": "📊 Tarkista välimuistin tila",
     "description": "Manual cache status section title"
   },
   "cache_refresh": {
-    "message": "Refresh",
+    "message": "Päivitä",
     "description": "Refresh cache button"
   },
   "cache_stat_capacity_label": {
-    "message": "Max capacity",
+    "message": "Maksimi kapasiteetti",
     "description": "Label for max cache entries"
   },
   "cache_stat_item_label": {
-    "message": "Cached items",
+    "message": "Välimuistissa olevat kohteet",
     "description": "Label for number of cached items"
   },
   "cache_stat_size_label": {
-    "message": "Space used",
+    "message": "Käytetty tila",
     "description": "Label for cache size"
   },
   "cache_stat_usage_label": {
-    "message": "Capacity used",
+    "message": "Käytetty kapasiteetti",
     "description": "Label for usage percentage"
   },
   "cache_system_unavailable": {
-    "message": "Cache system unavailable — open a Markdown file first",
+    "message": "Välimuistijärjestelmä ei ole käytettävissä — avaa ensin Markdown-tiedosto",
     "description": "Shown when cache manager cannot be reached"
   },
   "demo_open_failed": {
-    "message": "Failed to open demo document",
+    "message": "Demodokumentin avaaminen epäonnistui",
     "description": "Toast when demo link open fails"
   },
   "docx_export_failed_alert": {
-    "message": "Export failed{0}",
+    "message": "Vienti epäonnistui{0}",
     "description": "Alert shown when DOCX export fails"
   },
   "docx_export_failed_default": {
-    "message": "Export failed",
+    "message": "Vienti epäonnistui",
     "description": "Fallback message when DOCX export fails"
   },
   "extensionDescription": {
-    "message": "View Markdown files with syntax highlighting and smart export tools",
+    "message": "Katso Markdown-tiedostoja syntaksikorostuksella ja älykkäillä vientityökaluilla",
     "description": "Extension description shown in Chrome Web Store"
   },
   "extensionName": {
@@ -172,80 +172,80 @@
     "description": "Extension name"
   },
   "file_access_disabled": {
-    "message": "Disabled",
+    "message": "Poistettu käytöstä",
     "description": "Status text when file access is disabled"
   },
   "file_access_disabled_desc_short": {
-    "message": "To view local files, visit",
+    "message": "Katso paikallisia tiedostoja, käy",
     "description": "Short description prefix for file access warning"
   },
   "file_access_disabled_suffix": {
-    "message": "and enable 'Allow access to file URLs'",
+    "message": "ja ota käyttöön 'Salli pääsy tiedosto-URL-osoitteisiin'",
     "description": "Suffix for file access warning"
   },
   "file_access_settings_link": {
-    "message": "extension settings page",
+    "message": "laajennuksen asetussivulle",
     "description": "Link text to extension settings"
   },
   "history_clear": {
-    "message": "Clear history",
+    "message": "Tyhjennä historia",
     "description": "Clear history button"
   },
   "history_clear_confirm": {
-    "message": "Clear all history? This action cannot be undone.",
+    "message": "Tyhjennä koko historia? Tätä toimintoa ei voi peruuttaa.",
     "description": "Clear history confirmation message"
   },
   "history_clear_failed": {
-    "message": "Failed to clear history",
+    "message": "Historian tyhjentäminen epäonnistui",
     "description": "Clear history failed message"
   },
   "history_clear_success": {
-    "message": "History cleared",
+    "message": "Historia tyhjennetty",
     "description": "Clear history success message"
   },
   "history_description": {
-    "message": "Shows recently opened Markdown documents, click to reopen",
+    "message": "Näyttää äskettäin avatut Markdown-dokumentit, klikkaa avataksesi uudelleen",
     "description": "History documents description"
   },
   "history_items_empty": {
-    "message": "No history yet",
+    "message": "Ei vielä historiaa",
     "description": "Empty history list message"
   },
   "history_loading_failed": {
-    "message": "Failed to load history",
+    "message": "Historian lataaminen epäonnistui",
     "description": "Load history failed message"
   },
   "history_open_failed": {
-    "message": "Failed to open document",
+    "message": "Dokumentin avaaminen epäonnistui",
     "description": "Open history document failed message"
   },
   "history_refresh": {
-    "message": "Refresh",
+    "message": "Päivitä",
     "description": "Refresh history button"
   },
   "history_title": {
-    "message": "Recent documents",
-    "description": "History documents title"
+    "message": "Äskettäin avatut tiedostot",
+    "description": "Header for recent files in history tab"
   },
   "popup_title": {
     "message": "Markdown Viewer",
     "description": "Popup title"
   },
   "popup_version_label": {
-    "message": "Version {0}",
+    "message": "Versio {0}",
     "description": "Shows the extension version in the header"
   },
   "settings_general_title": {
-    "message": "Extension settings",
+    "message": "Laajennuksen asetukset",
     "description": "Heading for settings section"
   },
   "settings_invalid_max_cache": {
-    "message": "Enter a valid cache size between {0} and {1}",
+    "message": "Syötä kelvollinen välimuistin koko väliltä {0} - {1}",
     "description": "Shown when max cache input is invalid"
   },
   "settings_language_auto": {
-    "message": "Match Chrome language",
-    "description": "Option for automatic locale"
+    "message": "Automaattinen (selaimen kieli)",
+    "description": "Option for auto-detect language"
   },
   "settings_language_da": {
     "message": "Dansk",
@@ -292,8 +292,8 @@
     "description": "Option for Korean locale"
   },
   "settings_language_label": {
-    "message": "Interface language:",
-    "description": "Label for language selector"
+    "message": "Käyttöliittymän kieli",
+    "description": "Settings label for interface language"
   },
   "settings_language_nl": {
     "message": "Nederlands",
@@ -304,8 +304,8 @@
     "description": "Option for Norwegian locale"
   },
   "settings_language_note": {
-    "message": "Changing this overrides Chrome's UI language for the extension.",
-    "description": "Helper note for language selector"
+    "message": "Huomaa: Kielenvaihto tulee voimaan välittömästi ja tallennetaan automaattisesti",
+    "description": "Note explaining language changes take effect immediately"
   },
   "settings_language_pl": {
     "message": "Polski",
@@ -341,102 +341,102 @@
   },
   "settings_language_zh_cn": {
     "message": "简体中文",
-    "description": "Option for Simplified Chinese locale"
+    "description": "Option for Chinese locale"
   },
   "settings_max_cache_label": {
-    "message": "Maximum cached items:",
+    "message": "Maksimi välimuistissa olevat kohteet:",
     "description": "Label for max cache input"
   },
   "settings_reset_btn": {
-    "message": "Reset to default",
+    "message": "Palauta oletusarvot",
     "description": "Reset button"
   },
   "settings_reset_confirm": {
-    "message": "Reset all settings to default values?",
+    "message": "Palauta kaikki asetukset oletusarvoihin?",
     "description": "Confirmation text for resetting settings"
   },
   "settings_reset_failed": {
-    "message": "Failed to reset settings",
+    "message": "Asetusten palauttaminen epäonnistui",
     "description": "Toast when resetting settings fails"
   },
   "settings_reset_success": {
-    "message": "Settings reset",
+    "message": "Asetukset palautettu",
     "description": "Toast when settings reset succeeds"
   },
   "settings_save_btn": {
-    "message": "Save settings",
+    "message": "Tallenna asetukset",
     "description": "Save button"
   },
   "settings_save_failed": {
-    "message": "Failed to save settings",
+    "message": "Asetusten tallentaminen epäonnistui",
     "description": "Toast when saving settings fails"
   },
   "settings_save_success": {
-    "message": "Settings saved",
+    "message": "Asetukset tallennettu",
     "description": "Toast when settings saved"
   },
   "settings_theme_changed": {
-    "message": "Theme changed successfully. Please reload the page to see the changes.",
+    "message": "Teema vaihdettu onnistuneesti. Päivitä sivu nähdäksesi muutokset.",
     "description": "Message shown when theme is changed"
   },
   "settings_theme_label": {
-    "message": "Select Theme:",
-    "description": "Label for theme selector"
+    "message": "Teema",
+    "description": "Settings label for theme selection"
   },
   "settings_theme_title": {
-    "message": "Theme Settings",
+    "message": "Teema-asetukset",
     "description": "Heading for theme settings section"
   },
   "tab_cache": {
-    "message": "Cache",
+    "message": "Välimuisti",
     "description": "Label for cache tab"
   },
   "tab_history": {
-    "message": "History",
+    "message": "Historia",
     "description": "Label for history tab"
   },
   "tab_settings": {
-    "message": "Settings",
+    "message": "Asetukset",
     "description": "Label for settings tab"
   },
   "toolbar_download_title": {
-    "message": "Download",
+    "message": "Lataa",
     "description": "Toolbar download tooltip"
   },
   "toolbar_layout_title_fullscreen": {
-    "message": "Fullscreen layout",
+    "message": "Koko näytön asettelu",
     "description": "Toolbar layout toggle tooltip for fullscreen mode"
   },
   "toolbar_layout_title_narrow": {
-    "message": "Narrow layout",
+    "message": "Kapea asettelu",
     "description": "Toolbar layout toggle tooltip for narrow mode"
   },
   "toolbar_layout_title_normal": {
-    "message": "Normal layout",
+    "message": "Normaali asettelu",
     "description": "Toolbar layout toggle tooltip for normal mode"
   },
   "toolbar_layout_title_wide": {
-    "message": "Wide layout",
+    "message": "Leveä asettelu",
     "description": "Toolbar layout toggle tooltip for wide mode"
   },
   "toolbar_print_disabled_title": {
-    "message": "Print is only available for local files",
+    "message": "Tulostus on käytettävissä vain paikallisille tiedostoille",
     "description": "Tooltip when print button is disabled for remote files"
   },
   "toolbar_print_title": {
-    "message": "Print",
+    "message": "Tulosta",
     "description": "Toolbar print tooltip"
   },
   "toolbar_toggle_toc_title": {
-    "message": "Show or hide table of contents",
+    "message": "Näytä tai piilota sisällysluettelo",
     "description": "Toolbar button title for toggling TOC"
   },
   "toolbar_zoom_in_title": {
-    "message": "Zoom in",
+    "message": "Lähennä",
     "description": "Toolbar zoom in tooltip"
   },
   "toolbar_zoom_out_title": {
-    "message": "Zoom out",
+    "message": "Loitonna",
     "description": "Toolbar zoom out tooltip"
   }
 }

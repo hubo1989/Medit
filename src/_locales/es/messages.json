@@ -1,243 +1,79 @@
 {
-  "extensionName": {
-    "message": "Visor de Markdown",
-    "description": "Nombre de la extensión"
-  },
-  "extensionDescription": {
-    "message": "Visualiza archivos Markdown con resaltado de sintaxis y herramientas de exportación inteligentes",
-    "description": "Descripción de la extensión mostrada en la Chrome Web Store"
-  },
-  "tab_history": {
-    "message": "Historial",
-    "description": "Etiqueta para la pestaña de historial"
-  },
-  "tab_cache": {
-    "message": "Caché",
-    "description": "Etiqueta para la pestaña de caché"
-  },
-  "tab_settings": {
-    "message": "Opciones",
-    "description": "Etiqueta para la pestaña de configuración"
-  },
-  "popup_title": {
-    "message": "Visor de Markdown",
-    "description": "Título del popup"
-  },
-  "popup_version_label": {
-    "message": "Versión {0}",
-    "description": "Muestra la versión de la extensión en el encabezado"
-  },
-  "toolbar_toggle_toc_title": {
-    "message": "Mostrar u ocultar la tabla de contenidos",
-    "description": "Tooltip del botón de TOC"
-  },
-  "toolbar_zoom_out_title": {
-    "message": "Alejar",
-    "description": "Tooltip del botón de alejar"
-  },
-  "toolbar_zoom_in_title": {
-    "message": "Acercar",
-    "description": "Tooltip del botón de acercar"
-  },
-  "toolbar_layout_title_normal": {
-    "message": "Diseño normal",
-    "description": "Tooltip del botón de diseño normal"
-  },
-  "toolbar_layout_title_wide": {
-    "message": "Diseño amplio",
-    "description": "Tooltip del botón de diseño amplio"
-  },
-  "toolbar_layout_title_fullscreen": {
-    "message": "Diseño pantalla completa",
-    "description": "Tooltip del botón de diseño a pantalla completa"
-  },
-  "toolbar_layout_title_narrow": {
-    "message": "Diseño estrecho",
-    "description": "Tooltip del botón de diseño estrecho"
-  },
-  "toolbar_download_title": {
-    "message": "Descargar",
-    "description": "Tooltip del botón de descarga"
-  },
-  "toolbar_print_title": {
-    "message": "Imprimir",
-    "description": "Tooltip del botón de impresión"
-  },
-  "toolbar_print_disabled_title": {
-    "message": "La impresión solo está disponible para archivos locales",
-    "description": "Tooltip cuando el botón de impresión está deshabilitado para archivos remotos"
+  "async_processing_error": {
+    "message": "Error de {0}: {1}",
+    "description": "Generic error message with type and detail"
   },
   "async_processing_message": {
     "message": "Procesando {0}{1}...",
     "description": "Texto durante el procesamiento asíncrono"
   },
-  "async_unknown_error": {
-    "message": "Error desconocido",
-    "description": "Texto de error sin detalles"
-  },
-  "async_processing_error": {
-    "message": "Error de {0}: {1}",
-    "description": "Generic error message with type and detail"
-  },
   "async_task_processing_error": {
     "message": "Error en la tarea: {0}",
     "description": "Error cuando falla una tarea asíncrona"
   },
-  "docx_export_failed_default": {
-    "message": "Error al exportar",
-    "description": "Mensaje de respaldo cuando falla la exportación"
-  },
-  "docx_export_failed_alert": {
-    "message": "Error al exportar{0}",
-    "description": "Alerta al fallar la exportación"
-  },
-  "cache_error_message": {
-    "message": "Fallo en la comunicación con la caché — abre primero un archivo Markdown",
-    "description": "Mensaje cuando no se puede acceder a la caché"
-  },
-  "cache_loading_failed": {
-    "message": "No se pudo cargar la caché: {0}",
-    "description": "Mensaje cuando ocurre un error al cargar la caché"
-  },
-  "cache_hint_details": {
-    "message": "La caché se ejecuta automáticamente mientras las páginas Markdown están abiertas",
-    "description": "Pista adicional cuando la caché está vacía"
-  },
-  "cache_system_unavailable": {
-    "message": "Sistema de caché no disponible — abre primero un archivo Markdown",
-    "description": "Mensaje cuando no se puede acceder a la caché"
-  },
-  "cache_manager_init_failed": {
-    "message": "Error al iniciar el gestor de caché",
-    "description": "Error cuando la caché no puede inicializarse"
-  },
-  "cache_stat_item_label": {
-    "message": "Elementos en caché",
-    "description": "Etiqueta para número de elementos"
-  },
-  "cache_stat_size_label": {
-    "message": "Espacio usado",
-    "description": "Etiqueta para tamaño de la caché"
-  },
-  "cache_stat_usage_label": {
-    "message": "Porcentaje usado",
-    "description": "Etiqueta para porcentaje de uso"
-  },
-  "cache_stat_capacity_label": {
-    "message": "Capacidad máxima",
-    "description": "Etiqueta para capacidad"
-  },
-  "cache_refresh": {
-    "message": "Actualizar",
-    "description": "Botón para actualizar la caché"
+  "async_unknown_error": {
+    "message": "Error desconocido",
+    "description": "Texto de error sin detalles"
   },
   "cache_clear": {
     "message": "Vaciar caché",
     "description": "Botón para limpiar la caché"
   },
-  "cache_items_title": {
-    "message": "Elementos en caché (últimos 20)",
-    "description": "Encabezado de la lista de elementos"
-  },
-  "cache_items_empty": {
-    "message": "Todavía no hay elementos en caché",
-    "description": "Mensaje cuando no hay elementos"
-  },
-  "cache_item_type_label": {
-    "message": "Tipo",
-    "description": "Etiqueta para el tipo del elemento"
-  },
-  "cache_item_size_label": {
-    "message": "Tamaño",
-    "description": "Etiqueta para el tamaño del elemento"
-  },
-  "cache_item_created_label": {
-    "message": "Creado",
-    "description": "Etiqueta para la fecha de creación"
-  },
-  "cache_item_accessed_label": {
-    "message": "Último acceso",
-    "description": "Etiqueta para la fecha de último acceso"
-  },
-  "cache_item_type_unknown": {
-    "message": "desconocido",
-    "description": "Etiqueta cuando falta el tipo"
-  },
   "cache_clear_confirm": {
     "message": "¿Vaciar todos los datos en caché? Esta acción no se puede deshacer.",
     "description": "Confirmación para vaciar la caché"
-  },
-  "cache_clear_success": {
-    "message": "Caché vaciada",
-    "description": "Toast cuando se limpia la caché"
   },
   "cache_clear_failed": {
     "message": "No se pudo vaciar la caché",
     "description": "Toast cuando falla la limpieza"
   },
-  "settings_invalid_max_cache": {
-    "message": "Introduce un tamaño válido entre {0} y {1}",
-    "description": "Mensaje cuando el tamaño no es válido"
+  "cache_clear_success": {
+    "message": "Caché vaciada",
+    "description": "Toast cuando se limpia la caché"
   },
-  "settings_save_success": {
-    "message": "Ajustes guardados",
-    "description": "Toast cuando se guardan los ajustes"
+  "cache_error_message": {
+    "message": "Fallo en la comunicación con la caché — abre primero un archivo Markdown",
+    "description": "Mensaje cuando no se puede acceder a la caché"
   },
-  "settings_save_failed": {
-    "message": "No se pudieron guardar los ajustes",
-    "description": "Toast cuando falla el guardado"
+  "cache_hint_details": {
+    "message": "La caché se ejecuta automáticamente mientras las páginas Markdown están abiertas",
+    "description": "Pista adicional cuando la caché está vacía"
   },
-  "settings_reset_confirm": {
-    "message": "¿Restablecer todos los ajustes a sus valores predeterminados?",
-    "description": "Confirmación para restablecer"
+  "cache_item_accessed_label": {
+    "message": "Último acceso",
+    "description": "Etiqueta para la fecha de último acceso"
   },
-  "settings_reset_success": {
-    "message": "Ajustes restablecidos",
-    "description": "Toast cuando se restablece"
+  "cache_item_created_label": {
+    "message": "Creado",
+    "description": "Etiqueta para la fecha de creación"
   },
-  "settings_reset_failed": {
-    "message": "No se pudieron restablecer los ajustes",
-    "description": "Toast cuando falla el restablecimiento"
+  "cache_item_size_label": {
+    "message": "Tamaño",
+    "description": "Etiqueta para el tamaño del elemento"
   },
-  "demo_open_failed": {
-    "message": "No se pudo abrir el documento de demostración",
-    "description": "Toast cuando falla la demo"
+  "cache_item_type_label": {
+    "message": "Tipo",
+    "description": "Etiqueta para el tipo del elemento"
   },
-  "cache_manual_limit_title": {
-    "message": "⚠️ Límites de acceso a la caché",
-    "description": "Título de la sección informativa"
+  "cache_item_type_unknown": {
+    "message": "desconocido",
+    "description": "Etiqueta cuando falta el tipo"
   },
-  "cache_manual_limit_desc_1": {
-    "message": "Por motivos de seguridad, el popup no puede acceder directamente a IndexedDB.",
-    "description": "Descripción informativa"
+  "cache_items_empty": {
+    "message": "Todavía no hay elementos en caché",
+    "description": "Mensaje cuando no hay elementos"
   },
-  "cache_manual_limit_desc_2": {
-    "message": "La caché sigue funcionando al renderizar páginas Markdown, pero el popup no puede mostrar los detalles.",
-    "description": "Descripción informativa"
+  "cache_items_title": {
+    "message": "Elementos en caché (últimos 20)",
+    "description": "Encabezado de la lista de elementos"
   },
-  "cache_manual_status_title": {
-    "message": "📊 Verificar estado de la caché",
-    "description": "Título de la sección de estado"
+  "cache_loading_failed": {
+    "message": "No se pudo cargar la caché: {0}",
+    "description": "Mensaje cuando ocurre un error al cargar la caché"
   },
-  "cache_manual_status_intro": {
-    "message": "Para asegurarte de que la caché funciona:",
-    "description": "Introducción de la sección de estado"
-  },
-  "cache_manual_status_step_open": {
-    "message": "Abre un archivo Markdown",
-    "description": "Paso de verificación"
-  },
-  "cache_manual_status_step_speed": {
-    "message": "Observa un renderizado más rápido cuando la caché está caliente",
-    "description": "Paso de verificación"
-  },
-  "cache_manual_status_step_console": {
-    "message": "Busca registros \"⚡ Using cached\" en DevTools",
-    "description": "Paso de verificación"
-  },
-  "cache_manual_clear_title": {
-    "message": "🧹 Vaciar caché manualmente",
-    "description": "Título de la sección para limpiar"
+  "cache_manager_init_failed": {
+    "message": "Error al iniciar el gestor de caché",
+    "description": "Error cuando la caché no puede inicializarse"
   },
   "cache_manual_clear_intro": {
     "message": "Para vaciar la caché manualmente:",
@@ -255,109 +91,125 @@
     "message": "Ejecuta \"{0}\" en la consola",
     "description": "Paso de limpieza"
   },
-  "settings_theme_title": {
-    "message": "Configuración de tema",
-    "description": "Título de la sección de tema"
+  "cache_manual_clear_title": {
+    "message": "🧹 Vaciar caché manualmente",
+    "description": "Título de la sección para limpiar"
   },
-  "settings_theme_label": {
-    "message": "Seleccionar tema:",
-    "description": "Etiqueta para el selector de tema"
+  "cache_manual_limit_desc_1": {
+    "message": "Por motivos de seguridad, el popup no puede acceder directamente a IndexedDB.",
+    "description": "Descripción informativa"
   },
-  "settings_theme_changed": {
-    "message": "Tema cambiado con éxito. Por favor, recargue la página para ver los cambios.",
-    "description": "Mensaje cuando se cambia el tema"
+  "cache_manual_limit_desc_2": {
+    "message": "La caché sigue funcionando al renderizar páginas Markdown, pero el popup no puede mostrar los detalles.",
+    "description": "Descripción informativa"
   },
-  "settings_general_title": {
-    "message": "Ajustes de la extensión",
-    "description": "Encabezado de la sección de ajustes"
+  "cache_manual_limit_title": {
+    "message": "⚠️ Límites de acceso a la caché",
+    "description": "Título de la sección informativa"
   },
-  "settings_max_cache_label": {
-    "message": "Máximo de elementos en caché:",
-    "description": "Etiqueta para el campo de caché"
+  "cache_manual_status_intro": {
+    "message": "Para asegurarte de que la caché funciona:",
+    "description": "Introducción de la sección de estado"
   },
-  "settings_language_label": {
-    "message": "Idioma de la interfaz:",
-    "description": "Etiqueta para el selector de idioma"
+  "cache_manual_status_step_console": {
+    "message": "Busca registros \"⚡ Using cached\" en DevTools",
+    "description": "Paso de verificación"
   },
-  "settings_language_auto": {
-    "message": "Coincidir con el idioma de Chrome",
-    "description": "Opción de idioma automático"
+  "cache_manual_status_step_open": {
+    "message": "Abre un archivo Markdown",
+    "description": "Paso de verificación"
   },
-  "settings_language_en": {
-    "message": "English",
-    "description": "Opción para inglés"
+  "cache_manual_status_step_speed": {
+    "message": "Observa un renderizado más rápido cuando la caché está caliente",
+    "description": "Paso de verificación"
   },
-  "settings_language_zh_cn": {
-    "message": "简体中文",
-    "description": "Opción para chino simplificado"
+  "cache_manual_status_title": {
+    "message": "📊 Verificar estado de la caché",
+    "description": "Título de la sección de estado"
   },
-  "settings_language_es": {
-    "message": "Español",
-    "description": "Opción para español"
-  },
-  "settings_language_fr": {
-    "message": "Français",
-    "description": "Opción para francés"
-  },
-  "settings_language_de": {
-    "message": "Deutsch",
-    "description": "Opción para alemán"
-  },
-  "settings_language_ru": {
-    "message": "Русский",
-    "description": "Opción para ruso"
-  },
-  "settings_language_ja": {
-    "message": "日本語",
-    "description": "Opción para japonés"
-  },
-  "settings_language_ko": {
-    "message": "한국어",
-    "description": "Opción para coreano"
-  },
-  "settings_language_note": {
-    "message": "Al cambiarlo se anula el idioma de Chrome solo para la interfaz de la extensión.",
-    "description": "Nota de ayuda para el selector"
-  },
-  "settings_save_btn": {
-    "message": "Guardar ajustes",
-    "description": "Botón guardar"
-  },
-  "settings_reset_btn": {
-    "message": "Restablecer",
-    "description": "Botón restablecer"
-  },
-  "history_title": {
-    "message": "Documentos recientes",
-    "description": "Título de documentos de historial"
-  },
-  "history_description": {
-    "message": "Muestra documentos Markdown abiertos recientemente, haga clic para volver a abrir",
-    "description": "Descripción de documentos de historial"
-  },
-  "history_refresh": {
+  "cache_refresh": {
     "message": "Actualizar",
-    "description": "Botón actualizar historial"
+    "description": "Botón para actualizar la caché"
+  },
+  "cache_stat_capacity_label": {
+    "message": "Capacidad máxima",
+    "description": "Etiqueta para capacidad"
+  },
+  "cache_stat_item_label": {
+    "message": "Elementos en caché",
+    "description": "Etiqueta para número de elementos"
+  },
+  "cache_stat_size_label": {
+    "message": "Espacio usado",
+    "description": "Etiqueta para tamaño de la caché"
+  },
+  "cache_stat_usage_label": {
+    "message": "Porcentaje usado",
+    "description": "Etiqueta para porcentaje de uso"
+  },
+  "cache_system_unavailable": {
+    "message": "Sistema de caché no disponible — abre primero un archivo Markdown",
+    "description": "Mensaje cuando no se puede acceder a la caché"
+  },
+  "demo_open_failed": {
+    "message": "No se pudo abrir el documento de demostración",
+    "description": "Toast cuando falla la demo"
+  },
+  "docx_export_failed_alert": {
+    "message": "Error al exportar{0}",
+    "description": "Alerta al fallar la exportación"
+  },
+  "docx_export_failed_default": {
+    "message": "Error al exportar",
+    "description": "Mensaje de respaldo cuando falla la exportación"
+  },
+  "extensionDescription": {
+    "message": "Visualiza archivos Markdown con resaltado de sintaxis y herramientas de exportación inteligentes",
+    "description": "Descripción de la extensión mostrada en la Chrome Web Store"
+  },
+  "extensionName": {
+    "message": "Visor de Markdown",
+    "description": "Nombre de la extensión"
+  },
+  "file_access_disabled": {
+    "message": "Deshabilitado",
+    "description": "Status text when file access is disabled"
+  },
+  "file_access_disabled_desc_short": {
+    "message": "Para ver archivos locales, visite",
+    "description": "Short description prefix for file access warning"
+  },
+  "file_access_disabled_suffix": {
+    "message": "y habilite 'Permitir acceso a URL de archivos'",
+    "description": "Suffix for file access warning"
+  },
+  "file_access_settings_link": {
+    "message": "página de configuración de la extensión",
+    "description": "Link text to extension settings"
   },
   "history_clear": {
     "message": "Borrar historial",
     "description": "Botón borrar historial"
   },
-  "history_items_empty": {
-    "message": "No hay historial todavía",
-    "description": "Mensaje de lista de historial vacía"
-  },
   "history_clear_confirm": {
     "message": "¿Borrar todo el historial? Esta acción no se puede deshacer.",
     "description": "Mensaje de confirmación de borrar historial"
+  },
+  "history_clear_failed": {
+    "message": "Error al borrar el historial",
+    "description": "Mensaje de error de borrar historial"
   },
   "history_clear_success": {
     "message": "Historial borrado",
     "description": "Mensaje de éxito de borrar historial"
   },
-  "history_clear_failed": {
-    "message": "Error al borrar el historial",
-    "description": "Mensaje de error de borrar historial"
+  "history_description": {
+    "message": "Muestra documentos Markdown abiertos recientemente, haga clic para volver a abrir",
+    "description": "Descripción de documentos de historial"
+  },
+  "history_items_empty": {
+    "message": "No hay historial todavía",
+    "description": "Mensaje de lista de historial vacía"
   },
   "history_loading_failed": {
     "message": "Error al cargar el historial",
@@ -367,20 +219,224 @@
     "message": "Error al abrir el documento",
     "description": "Mensaje de error de abrir documento del historial"
   },
-  "file_access_disabled": {
-    "message": "Disabled",
-    "description": "Status text when file access is disabled"
+  "history_refresh": {
+    "message": "Actualizar",
+    "description": "Botón actualizar historial"
   },
-  "file_access_disabled_desc_short": {
-    "message": "To view local files, visit",
-    "description": "Short description prefix for file access warning"
+  "history_title": {
+    "message": "Documentos recientes",
+    "description": "Título de documentos de historial"
   },
-  "file_access_settings_link": {
-    "message": "extension settings page",
-    "description": "Link text to extension settings"
+  "popup_title": {
+    "message": "Visor de Markdown",
+    "description": "Título del popup"
   },
-  "file_access_disabled_suffix": {
-    "message": "and enable 'Allow access to file URLs'",
-    "description": "Suffix for file access warning"
+  "popup_version_label": {
+    "message": "Versión {0}",
+    "description": "Muestra la versión de la extensión en el encabezado"
+  },
+  "settings_general_title": {
+    "message": "Ajustes de la extensión",
+    "description": "Encabezado de la sección de ajustes"
+  },
+  "settings_invalid_max_cache": {
+    "message": "Introduce un tamaño válido entre {0} y {1}",
+    "description": "Mensaje cuando el tamaño no es válido"
+  },
+  "settings_language_auto": {
+    "message": "Coincidir con el idioma de Chrome",
+    "description": "Opción de idioma automático"
+  },
+  "settings_language_da": {
+    "message": "Dansk",
+    "description": "Option for Danish locale"
+  },
+  "settings_language_de": {
+    "message": "Deutsch",
+    "description": "Opción para alemán"
+  },
+  "settings_language_en": {
+    "message": "English",
+    "description": "Opción para inglés"
+  },
+  "settings_language_es": {
+    "message": "Español",
+    "description": "Opción para español"
+  },
+  "settings_language_fi": {
+    "message": "Suomi",
+    "description": "Option for Finnish locale"
+  },
+  "settings_language_fr": {
+    "message": "Français",
+    "description": "Opción para francés"
+  },
+  "settings_language_hi": {
+    "message": "हिन्दी",
+    "description": "Option for Hindi locale"
+  },
+  "settings_language_id": {
+    "message": "Bahasa Indonesia",
+    "description": "Option for Indonesian locale"
+  },
+  "settings_language_it": {
+    "message": "Italiano",
+    "description": "Option for Italian locale"
+  },
+  "settings_language_ja": {
+    "message": "日本語",
+    "description": "Opción para japonés"
+  },
+  "settings_language_ko": {
+    "message": "한국어",
+    "description": "Option for Korean locale"
+  },
+  "settings_language_label": {
+    "message": "Idioma de la interfaz:",
+    "description": "Etiqueta para el selector de idioma"
+  },
+  "settings_language_nl": {
+    "message": "Nederlands",
+    "description": "Option for Dutch locale"
+  },
+  "settings_language_no": {
+    "message": "Norsk",
+    "description": "Option for Norwegian locale"
+  },
+  "settings_language_note": {
+    "message": "Al cambiarlo se anula el idioma de Chrome solo para la interfaz de la extensión.",
+    "description": "Nota de ayuda para el selector"
+  },
+  "settings_language_pl": {
+    "message": "Polski",
+    "description": "Option for Polish locale"
+  },
+  "settings_language_pt_br": {
+    "message": "Português (Brasil)",
+    "description": "Option for Brazilian Portuguese locale"
+  },
+  "settings_language_pt_pt": {
+    "message": "Português (Portugal)",
+    "description": "Option for Portuguese locale"
+  },
+  "settings_language_ru": {
+    "message": "Русский",
+    "description": "Opción para ruso"
+  },
+  "settings_language_sv": {
+    "message": "Svenska",
+    "description": "Option for Swedish locale"
+  },
+  "settings_language_th": {
+    "message": "ไทย",
+    "description": "Option for Thai locale"
+  },
+  "settings_language_tr": {
+    "message": "Türkçe",
+    "description": "Option for Turkish locale"
+  },
+  "settings_language_vi": {
+    "message": "Tiếng Việt",
+    "description": "Option for Vietnamese locale"
+  },
+  "settings_language_zh_cn": {
+    "message": "简体中文",
+    "description": "Opción para chino simplificado"
+  },
+  "settings_max_cache_label": {
+    "message": "Máximo de elementos en caché:",
+    "description": "Etiqueta para el campo de caché"
+  },
+  "settings_reset_btn": {
+    "message": "Restablecer",
+    "description": "Botón restablecer"
+  },
+  "settings_reset_confirm": {
+    "message": "¿Restablecer todos los ajustes a sus valores predeterminados?",
+    "description": "Confirmación para restablecer"
+  },
+  "settings_reset_failed": {
+    "message": "No se pudieron restablecer los ajustes",
+    "description": "Toast cuando falla el restablecimiento"
+  },
+  "settings_reset_success": {
+    "message": "Ajustes restablecidos",
+    "description": "Toast cuando se restablece"
+  },
+  "settings_save_btn": {
+    "message": "Guardar ajustes",
+    "description": "Botón guardar"
+  },
+  "settings_save_failed": {
+    "message": "No se pudieron guardar los ajustes",
+    "description": "Toast cuando falla el guardado"
+  },
+  "settings_save_success": {
+    "message": "Ajustes guardados",
+    "description": "Toast cuando se guardan los ajustes"
+  },
+  "settings_theme_changed": {
+    "message": "Tema cambiado con éxito. Por favor, recargue la página para ver los cambios.",
+    "description": "Mensaje cuando se cambia el tema"
+  },
+  "settings_theme_label": {
+    "message": "Seleccionar tema:",
+    "description": "Etiqueta para el selector de tema"
+  },
+  "settings_theme_title": {
+    "message": "Configuración de tema",
+    "description": "Título de la sección de tema"
+  },
+  "tab_cache": {
+    "message": "Caché",
+    "description": "Etiqueta para la pestaña de caché"
+  },
+  "tab_history": {
+    "message": "Historial",
+    "description": "Etiqueta para la pestaña de historial"
+  },
+  "tab_settings": {
+    "message": "Opciones",
+    "description": "Etiqueta para la pestaña de configuración"
+  },
+  "toolbar_download_title": {
+    "message": "Descargar",
+    "description": "Tooltip del botón de descarga"
+  },
+  "toolbar_layout_title_fullscreen": {
+    "message": "Diseño pantalla completa",
+    "description": "Tooltip del botón de diseño a pantalla completa"
+  },
+  "toolbar_layout_title_narrow": {
+    "message": "Diseño estrecho",
+    "description": "Tooltip del botón de diseño estrecho"
+  },
+  "toolbar_layout_title_normal": {
+    "message": "Diseño normal",
+    "description": "Tooltip del botón de diseño normal"
+  },
+  "toolbar_layout_title_wide": {
+    "message": "Diseño amplio",
+    "description": "Tooltip del botón de diseño amplio"
+  },
+  "toolbar_print_disabled_title": {
+    "message": "La impresión solo está disponible para archivos locales",
+    "description": "Tooltip cuando el botón de impresión está deshabilitado para archivos remotos"
+  },
+  "toolbar_print_title": {
+    "message": "Imprimir",
+    "description": "Tooltip del botón de impresión"
+  },
+  "toolbar_toggle_toc_title": {
+    "message": "Mostrar u ocultar la tabla de contenidos",
+    "description": "Tooltip del botón de TOC"
+  },
+  "toolbar_zoom_in_title": {
+    "message": "Acercar",
+    "description": "Tooltip del botón de acercar"
+  },
+  "toolbar_zoom_out_title": {
+    "message": "Alejar",
+    "description": "Tooltip del botón de alejar"
   }
 }

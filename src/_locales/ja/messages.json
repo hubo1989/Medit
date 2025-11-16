@@ -1,243 +1,79 @@
 {
-  "extensionName": {
-    "message": "Markdown ビューア",
-    "description": "拡張機能の名称"
-  },
-  "extensionDescription": {
-    "message": "Markdown ファイルをシンタックスハイライト付きで表示し、スマートな書き出しツールを提供します",
-    "description": "Chrome ウェブストアに表示される説明"
-  },
-  "tab_history": {
-    "message": "履歴",
-    "description": "履歴タブのラベル"
-  },
-  "tab_cache": {
-    "message": "保存",
-    "description": "キャッシュタブのラベル"
-  },
-  "tab_settings": {
-    "message": "設定",
-    "description": "設定タブのラベル"
-  },
-  "popup_title": {
-    "message": "Markdown ビューア",
-    "description": "ポップアップのタイトル"
-  },
-  "popup_version_label": {
-    "message": "バージョン {0}",
-    "description": "ヘッダーに拡張機能のバージョンを表示"
-  },
-  "toolbar_toggle_toc_title": {
-    "message": "目次の表示/非表示を切り替え",
-    "description": "TOC ボタンのツールチップ"
-  },
-  "toolbar_zoom_out_title": {
-    "message": "ズームアウト",
-    "description": "ズームアウトボタンのツールチップ"
-  },
-  "toolbar_zoom_in_title": {
-    "message": "ズームイン",
-    "description": "ズームインボタンのツールチップ"
-  },
-  "toolbar_layout_title_normal": {
-    "message": "通常レイアウト",
-    "description": "通常レイアウトのツールチップ"
-  },
-  "toolbar_layout_title_wide": {
-    "message": "ワイドレイアウト",
-    "description": "ワイドレイアウトのツールチップ"
-  },
-  "toolbar_layout_title_fullscreen": {
-    "message": "全画面レイアウト",
-    "description": "全画面レイアウトのツールチップ"
-  },
-  "toolbar_layout_title_narrow": {
-    "message": "ナローレイアウト",
-    "description": "ナローレイアウトのツールチップ"
-  },
-  "toolbar_download_title": {
-    "message": "ダウンロード",
-    "description": "ダウンロードボタンのツールチップ"
-  },
-  "toolbar_print_title": {
-    "message": "印刷",
-    "description": "印刷ボタンのツールチップ"
-  },
-  "toolbar_print_disabled_title": {
-    "message": "印刷はローカルファイルでのみ利用可能です",
-    "description": "リモートファイルで印刷ボタンが無効な時のツールチップ"
+  "async_processing_error": {
+    "message": "{0}エラー：{1}",
+    "description": "Generic error message with type and detail"
   },
   "async_processing_message": {
     "message": "{0}{1} を処理中...",
     "description": "非同期処理中に表示されるテキスト"
   },
-  "async_unknown_error": {
-    "message": "不明なエラー",
-    "description": "詳細がない場合の文言"
-  },
-  "async_processing_error": {
-    "message": "{0}エラー：{1}",
-    "description": "Generic error message with type and detail"
-  },
   "async_task_processing_error": {
     "message": "タスクエラー: {0}",
     "description": "タスク失敗時のエラー"
   },
-  "docx_export_failed_default": {
-    "message": "エクスポートに失敗しました",
-    "description": "エクスポート失敗時のデフォルトメッセージ"
-  },
-  "docx_export_failed_alert": {
-    "message": "エクスポートに失敗しました{0}",
-    "description": "エクスポート失敗時の警告"
-  },
-  "cache_error_message": {
-    "message": "キャッシュにアクセスできません。先に Markdown ファイルを開いてください",
-    "description": "キャッシュアクセス失敗時のメッセージ"
-  },
-  "cache_loading_failed": {
-    "message": "キャッシュを読み込めませんでした: {0}",
-    "description": "キャッシュ読み込みエラー"
-  },
-  "cache_hint_details": {
-    "message": "Markdown ページを開いている間はキャッシュが自動的に動作します",
-    "description": "キャッシュに関する補足"
-  },
-  "cache_system_unavailable": {
-    "message": "キャッシュシステムを利用できません。先に Markdown ファイルを開いてください",
-    "description": "キャッシュ利用不可時のメッセージ"
-  },
-  "cache_manager_init_failed": {
-    "message": "キャッシュマネージャーの初期化に失敗しました",
-    "description": "初期化エラー"
-  },
-  "cache_stat_item_label": {
-    "message": "キャッシュ件数",
-    "description": "件数ラベル"
-  },
-  "cache_stat_size_label": {
-    "message": "使用容量",
-    "description": "容量ラベル"
-  },
-  "cache_stat_usage_label": {
-    "message": "使用率",
-    "description": "割合ラベル"
-  },
-  "cache_stat_capacity_label": {
-    "message": "最大件数",
-    "description": "キャパシティラベル"
-  },
-  "cache_refresh": {
-    "message": "更新",
-    "description": "キャッシュ更新ボタン"
+  "async_unknown_error": {
+    "message": "不明なエラー",
+    "description": "詳細がない場合の文言"
   },
   "cache_clear": {
     "message": "キャッシュをクリア",
     "description": "キャッシュクリアボタン"
   },
-  "cache_items_title": {
-    "message": "キャッシュ項目 (最新 20 件)",
-    "description": "リストの見出し"
-  },
-  "cache_items_empty": {
-    "message": "キャッシュ項目はありません",
-    "description": "リストが空の時のメッセージ"
-  },
-  "cache_item_type_label": {
-    "message": "種類",
-    "description": "種類ラベル"
-  },
-  "cache_item_size_label": {
-    "message": "サイズ",
-    "description": "サイズラベル"
-  },
-  "cache_item_created_label": {
-    "message": "作成日時",
-    "description": "作成日時ラベル"
-  },
-  "cache_item_accessed_label": {
-    "message": "最終アクセス",
-    "description": "最終アクセスラベル"
-  },
-  "cache_item_type_unknown": {
-    "message": "不明",
-    "description": "種類不明時のラベル"
-  },
   "cache_clear_confirm": {
     "message": "キャッシュされたデータをすべて削除しますか？ この操作は元に戻せません。",
     "description": "キャッシュ削除の確認"
-  },
-  "cache_clear_success": {
-    "message": "キャッシュを削除しました",
-    "description": "成功時の通知"
   },
   "cache_clear_failed": {
     "message": "キャッシュを削除できませんでした",
     "description": "失敗時の通知"
   },
-  "settings_invalid_max_cache": {
-    "message": "{0} から {1} の範囲で有効な値を入力してください",
-    "description": "不正な値のメッセージ"
+  "cache_clear_success": {
+    "message": "キャッシュを削除しました",
+    "description": "成功時の通知"
   },
-  "settings_save_success": {
-    "message": "設定を保存しました",
-    "description": "保存成功の通知"
+  "cache_error_message": {
+    "message": "キャッシュにアクセスできません。先に Markdown ファイルを開いてください",
+    "description": "キャッシュアクセス失敗時のメッセージ"
   },
-  "settings_save_failed": {
-    "message": "設定を保存できませんでした",
-    "description": "保存失敗の通知"
+  "cache_hint_details": {
+    "message": "Markdown ページを開いている間はキャッシュが自動的に動作します",
+    "description": "キャッシュに関する補足"
   },
-  "settings_reset_confirm": {
-    "message": "すべての設定を初期値にリセットしますか？",
-    "description": "リセット確認"
+  "cache_item_accessed_label": {
+    "message": "最終アクセス",
+    "description": "最終アクセスラベル"
   },
-  "settings_reset_success": {
-    "message": "設定をリセットしました",
-    "description": "リセット成功の通知"
+  "cache_item_created_label": {
+    "message": "作成日時",
+    "description": "作成日時ラベル"
   },
-  "settings_reset_failed": {
-    "message": "設定をリセットできませんでした",
-    "description": "リセット失敗の通知"
+  "cache_item_size_label": {
+    "message": "サイズ",
+    "description": "サイズラベル"
   },
-  "demo_open_failed": {
-    "message": "デモドキュメントを開けませんでした",
-    "description": "デモ失敗時の通知"
+  "cache_item_type_label": {
+    "message": "種類",
+    "description": "種類ラベル"
   },
-  "cache_manual_limit_title": {
-    "message": "⚠️ キャッシュアクセスの制限",
-    "description": "案内セクションの見出し"
+  "cache_item_type_unknown": {
+    "message": "不明",
+    "description": "種類不明時のラベル"
   },
-  "cache_manual_limit_desc_1": {
-    "message": "セキュリティ上の理由から、ポップアップは IndexedDB に直接アクセスできません。",
-    "description": "案内テキスト"
+  "cache_items_empty": {
+    "message": "キャッシュ項目はありません",
+    "description": "リストが空の時のメッセージ"
   },
-  "cache_manual_limit_desc_2": {
-    "message": "Markdown ページのレンダリング中はキャッシュが機能しますが、ポップアップでは詳細を表示できません。",
-    "description": "案内テキスト"
+  "cache_items_title": {
+    "message": "キャッシュ項目 (最新 20 件)",
+    "description": "リストの見出し"
   },
-  "cache_manual_status_title": {
-    "message": "📊 キャッシュの状態を確認",
-    "description": "状態セクションの見出し"
+  "cache_loading_failed": {
+    "message": "キャッシュを読み込めませんでした: {0}",
+    "description": "キャッシュ読み込みエラー"
   },
-  "cache_manual_status_intro": {
-    "message": "キャッシュが機能しているか確認するには:",
-    "description": "状態セクションの導入"
-  },
-  "cache_manual_status_step_open": {
-    "message": "Markdown ファイルを開く",
-    "description": "確認ステップ"
-  },
-  "cache_manual_status_step_speed": {
-    "message": "キャッシュが温まるとレンダリングが速くなることを確認",
-    "description": "確認ステップ"
-  },
-  "cache_manual_status_step_console": {
-    "message": "DevTools で \"⚡ Using cached\" ログを探す",
-    "description": "確認ステップ"
-  },
-  "cache_manual_clear_title": {
-    "message": "🧹 キャッシュを手動で削除",
-    "description": "クリアセクションの見出し"
+  "cache_manager_init_failed": {
+    "message": "キャッシュマネージャーの初期化に失敗しました",
+    "description": "初期化エラー"
   },
   "cache_manual_clear_intro": {
     "message": "手動で削除する手順:",
@@ -255,109 +91,125 @@
     "message": "コンソールで \"{0}\" を実行",
     "description": "削除ステップ"
   },
-  "settings_theme_title": {
-    "message": "テーマ設定",
-    "description": "テーマ設定セクションの見出し"
+  "cache_manual_clear_title": {
+    "message": "🧹 キャッシュを手動で削除",
+    "description": "クリアセクションの見出し"
   },
-  "settings_theme_label": {
-    "message": "テーマを選択：",
-    "description": "テーマ選択のラベル"
+  "cache_manual_limit_desc_1": {
+    "message": "セキュリティ上の理由から、ポップアップは IndexedDB に直接アクセスできません。",
+    "description": "案内テキスト"
   },
-  "settings_theme_changed": {
-    "message": "テーマが正常に変更されました。変更を確認するにはページを再読み込みしてください。",
-    "description": "テーマ変更時のメッセージ"
+  "cache_manual_limit_desc_2": {
+    "message": "Markdown ページのレンダリング中はキャッシュが機能しますが、ポップアップでは詳細を表示できません。",
+    "description": "案内テキスト"
   },
-  "settings_general_title": {
-    "message": "拡張機能の設定",
-    "description": "設定セクションの見出し"
+  "cache_manual_limit_title": {
+    "message": "⚠️ キャッシュアクセスの制限",
+    "description": "案内セクションの見出し"
   },
-  "settings_max_cache_label": {
-    "message": "キャッシュ最大件数:",
-    "description": "キャッシュ項目数のラベル"
+  "cache_manual_status_intro": {
+    "message": "キャッシュが機能しているか確認するには:",
+    "description": "状態セクションの導入"
   },
-  "settings_language_label": {
-    "message": "インターフェイス言語:",
-    "description": "言語選択のラベル"
+  "cache_manual_status_step_console": {
+    "message": "DevTools で \"⚡ Using cached\" ログを探す",
+    "description": "確認ステップ"
   },
-  "settings_language_auto": {
-    "message": "Chrome の言語に合わせる",
-    "description": "自動言語のオプション"
+  "cache_manual_status_step_open": {
+    "message": "Markdown ファイルを開く",
+    "description": "確認ステップ"
   },
-  "settings_language_en": {
-    "message": "English",
-    "description": "英語のオプション"
+  "cache_manual_status_step_speed": {
+    "message": "キャッシュが温まるとレンダリングが速くなることを確認",
+    "description": "確認ステップ"
   },
-  "settings_language_zh_cn": {
-    "message": "简体中文",
-    "description": "簡体字中国語のオプション"
+  "cache_manual_status_title": {
+    "message": "📊 キャッシュの状態を確認",
+    "description": "状態セクションの見出し"
   },
-  "settings_language_es": {
-    "message": "Español",
-    "description": "スペイン語のオプション"
-  },
-  "settings_language_fr": {
-    "message": "Français",
-    "description": "フランス語のオプション"
-  },
-  "settings_language_de": {
-    "message": "Deutsch",
-    "description": "ドイツ語のオプション"
-  },
-  "settings_language_ru": {
-    "message": "Русский",
-    "description": "ロシア語のオプション"
-  },
-  "settings_language_ja": {
-    "message": "日本語",
-    "description": "日本語のオプション"
-  },
-  "settings_language_ko": {
-    "message": "한국어",
-    "description": "韓国語のオプション"
-  },
-  "settings_language_note": {
-    "message": "ここでの変更は拡張機能の UI にのみ適用され、Chrome 本体の言語は変わりません。",
-    "description": "言語選択の補足"
-  },
-  "settings_save_btn": {
-    "message": "設定を保存",
-    "description": "保存ボタン"
-  },
-  "settings_reset_btn": {
-    "message": "リセット",
-    "description": "リセットボタン"
-  },
-  "history_title": {
-    "message": "最近開いたドキュメント",
-    "description": "履歴ドキュメントタイトル"
-  },
-  "history_description": {
-    "message": "最近開いたMarkdownドキュメントを表示、クリックして再度開く",
-    "description": "履歴ドキュメントの説明"
-  },
-  "history_refresh": {
+  "cache_refresh": {
     "message": "更新",
-    "description": "履歴更新ボタン"
+    "description": "キャッシュ更新ボタン"
+  },
+  "cache_stat_capacity_label": {
+    "message": "最大件数",
+    "description": "キャパシティラベル"
+  },
+  "cache_stat_item_label": {
+    "message": "キャッシュ件数",
+    "description": "件数ラベル"
+  },
+  "cache_stat_size_label": {
+    "message": "使用容量",
+    "description": "容量ラベル"
+  },
+  "cache_stat_usage_label": {
+    "message": "使用率",
+    "description": "割合ラベル"
+  },
+  "cache_system_unavailable": {
+    "message": "キャッシュシステムを利用できません。先に Markdown ファイルを開いてください",
+    "description": "キャッシュ利用不可時のメッセージ"
+  },
+  "demo_open_failed": {
+    "message": "デモドキュメントを開けませんでした",
+    "description": "デモ失敗時の通知"
+  },
+  "docx_export_failed_alert": {
+    "message": "エクスポートに失敗しました{0}",
+    "description": "エクスポート失敗時の警告"
+  },
+  "docx_export_failed_default": {
+    "message": "エクスポートに失敗しました",
+    "description": "エクスポート失敗時のデフォルトメッセージ"
+  },
+  "extensionDescription": {
+    "message": "Markdown ファイルをシンタックスハイライト付きで表示し、スマートな書き出しツールを提供します",
+    "description": "Chrome ウェブストアに表示される説明"
+  },
+  "extensionName": {
+    "message": "Markdown ビューア",
+    "description": "拡張機能の名称"
+  },
+  "file_access_disabled": {
+    "message": "無効",
+    "description": "Status text when file access is disabled"
+  },
+  "file_access_disabled_desc_short": {
+    "message": "ローカルファイルを表示するには、",
+    "description": "Short description prefix for file access warning"
+  },
+  "file_access_disabled_suffix": {
+    "message": "にアクセスして「ファイルの URL へのアクセスを許可する」を有効にしてください",
+    "description": "Suffix for file access warning"
+  },
+  "file_access_settings_link": {
+    "message": "拡張機能の設定ページ",
+    "description": "Link text to extension settings"
   },
   "history_clear": {
     "message": "履歴をクリア",
     "description": "履歴クリアボタン"
   },
-  "history_items_empty": {
-    "message": "履歴はまだありません",
-    "description": "空の履歴リストメッセージ"
-  },
   "history_clear_confirm": {
     "message": "すべての履歴をクリアしますか？この操作は元に戻せません。",
     "description": "履歴クリア確認メッセージ"
+  },
+  "history_clear_failed": {
+    "message": "履歴のクリアに失敗しました",
+    "description": "履歴クリア失敗メッセージ"
   },
   "history_clear_success": {
     "message": "履歴をクリアしました",
     "description": "履歴クリア成功メッセージ"
   },
-  "history_clear_failed": {
-    "message": "履歴のクリアに失敗しました",
-    "description": "履歴クリア失敗メッセージ"
+  "history_description": {
+    "message": "最近開いたMarkdownドキュメントを表示、クリックして再度開く",
+    "description": "履歴ドキュメントの説明"
+  },
+  "history_items_empty": {
+    "message": "履歴はまだありません",
+    "description": "空の履歴リストメッセージ"
   },
   "history_loading_failed": {
     "message": "履歴の読み込みに失敗しました",
@@ -367,20 +219,224 @@
     "message": "ドキュメントを開けませんでした",
     "description": "履歴ドキュメントを開く失敗メッセージ"
   },
-  "file_access_disabled": {
-    "message": "Disabled",
-    "description": "Status text when file access is disabled"
+  "history_refresh": {
+    "message": "更新",
+    "description": "履歴更新ボタン"
   },
-  "file_access_disabled_desc_short": {
-    "message": "To view local files, visit",
-    "description": "Short description prefix for file access warning"
+  "history_title": {
+    "message": "最近開いたドキュメント",
+    "description": "履歴ドキュメントタイトル"
   },
-  "file_access_settings_link": {
-    "message": "extension settings page",
-    "description": "Link text to extension settings"
+  "popup_title": {
+    "message": "Markdown ビューア",
+    "description": "ポップアップのタイトル"
   },
-  "file_access_disabled_suffix": {
-    "message": "and enable 'Allow access to file URLs'",
-    "description": "Suffix for file access warning"
+  "popup_version_label": {
+    "message": "バージョン {0}",
+    "description": "ヘッダーに拡張機能のバージョンを表示"
+  },
+  "settings_general_title": {
+    "message": "拡張機能の設定",
+    "description": "設定セクションの見出し"
+  },
+  "settings_invalid_max_cache": {
+    "message": "{0} から {1} の範囲で有効な値を入力してください",
+    "description": "不正な値のメッセージ"
+  },
+  "settings_language_auto": {
+    "message": "Chrome の言語に合わせる",
+    "description": "自動言語のオプション"
+  },
+  "settings_language_da": {
+    "message": "Dansk",
+    "description": "Option for Danish locale"
+  },
+  "settings_language_de": {
+    "message": "Deutsch",
+    "description": "ドイツ語のオプション"
+  },
+  "settings_language_en": {
+    "message": "English",
+    "description": "英語のオプション"
+  },
+  "settings_language_es": {
+    "message": "Español",
+    "description": "スペイン語のオプション"
+  },
+  "settings_language_fi": {
+    "message": "Suomi",
+    "description": "Option for Finnish locale"
+  },
+  "settings_language_fr": {
+    "message": "Français",
+    "description": "フランス語のオプション"
+  },
+  "settings_language_hi": {
+    "message": "हिन्दी",
+    "description": "Option for Hindi locale"
+  },
+  "settings_language_id": {
+    "message": "Bahasa Indonesia",
+    "description": "Option for Indonesian locale"
+  },
+  "settings_language_it": {
+    "message": "Italiano",
+    "description": "Option for Italian locale"
+  },
+  "settings_language_ja": {
+    "message": "日本語",
+    "description": "日本語のオプション"
+  },
+  "settings_language_ko": {
+    "message": "한국어",
+    "description": "韓国語のオプション"
+  },
+  "settings_language_label": {
+    "message": "インターフェイス言語:",
+    "description": "言語選択のラベル"
+  },
+  "settings_language_nl": {
+    "message": "Nederlands",
+    "description": "Option for Dutch locale"
+  },
+  "settings_language_no": {
+    "message": "Norsk",
+    "description": "Option for Norwegian locale"
+  },
+  "settings_language_note": {
+    "message": "ここでの変更は拡張機能の UI にのみ適用され、Chrome 本体の言語は変わりません。",
+    "description": "言語選択の補足"
+  },
+  "settings_language_pl": {
+    "message": "Polski",
+    "description": "Option for Polish locale"
+  },
+  "settings_language_pt_br": {
+    "message": "Português (Brasil)",
+    "description": "Option for Brazilian Portuguese locale"
+  },
+  "settings_language_pt_pt": {
+    "message": "Português (Portugal)",
+    "description": "Option for Portuguese locale"
+  },
+  "settings_language_ru": {
+    "message": "Русский",
+    "description": "ロシア語のオプション"
+  },
+  "settings_language_sv": {
+    "message": "Svenska",
+    "description": "Option for Swedish locale"
+  },
+  "settings_language_th": {
+    "message": "ไทย",
+    "description": "Option for Thai locale"
+  },
+  "settings_language_tr": {
+    "message": "Türkçe",
+    "description": "Option for Turkish locale"
+  },
+  "settings_language_vi": {
+    "message": "Tiếng Việt",
+    "description": "Option for Vietnamese locale"
+  },
+  "settings_language_zh_cn": {
+    "message": "简体中文",
+    "description": "簡体字中国語のオプション"
+  },
+  "settings_max_cache_label": {
+    "message": "キャッシュ最大件数:",
+    "description": "キャッシュ項目数のラベル"
+  },
+  "settings_reset_btn": {
+    "message": "リセット",
+    "description": "リセットボタン"
+  },
+  "settings_reset_confirm": {
+    "message": "すべての設定を初期値にリセットしますか？",
+    "description": "リセット確認"
+  },
+  "settings_reset_failed": {
+    "message": "設定をリセットできませんでした",
+    "description": "リセット失敗の通知"
+  },
+  "settings_reset_success": {
+    "message": "設定をリセットしました",
+    "description": "リセット成功の通知"
+  },
+  "settings_save_btn": {
+    "message": "設定を保存",
+    "description": "保存ボタン"
+  },
+  "settings_save_failed": {
+    "message": "設定を保存できませんでした",
+    "description": "保存失敗の通知"
+  },
+  "settings_save_success": {
+    "message": "設定を保存しました",
+    "description": "保存成功の通知"
+  },
+  "settings_theme_changed": {
+    "message": "テーマが正常に変更されました。変更を確認するにはページを再読み込みしてください。",
+    "description": "テーマ変更時のメッセージ"
+  },
+  "settings_theme_label": {
+    "message": "テーマを選択：",
+    "description": "テーマ選択のラベル"
+  },
+  "settings_theme_title": {
+    "message": "テーマ設定",
+    "description": "テーマ設定セクションの見出し"
+  },
+  "tab_cache": {
+    "message": "キャッシュ",
+    "description": "キャッシュタブのラベル"
+  },
+  "tab_history": {
+    "message": "履歴",
+    "description": "履歴タブのラベル"
+  },
+  "tab_settings": {
+    "message": "設定",
+    "description": "設定タブのラベル"
+  },
+  "toolbar_download_title": {
+    "message": "ダウンロード",
+    "description": "ダウンロードボタンのツールチップ"
+  },
+  "toolbar_layout_title_fullscreen": {
+    "message": "全画面レイアウト",
+    "description": "全画面レイアウトのツールチップ"
+  },
+  "toolbar_layout_title_narrow": {
+    "message": "ナローレイアウト",
+    "description": "ナローレイアウトのツールチップ"
+  },
+  "toolbar_layout_title_normal": {
+    "message": "通常レイアウト",
+    "description": "通常レイアウトのツールチップ"
+  },
+  "toolbar_layout_title_wide": {
+    "message": "ワイドレイアウト",
+    "description": "ワイドレイアウトのツールチップ"
+  },
+  "toolbar_print_disabled_title": {
+    "message": "印刷はローカルファイルでのみ利用可能です",
+    "description": "リモートファイルで印刷ボタンが無効な時のツールチップ"
+  },
+  "toolbar_print_title": {
+    "message": "印刷",
+    "description": "印刷ボタンのツールチップ"
+  },
+  "toolbar_toggle_toc_title": {
+    "message": "目次の表示/非表示を切り替え",
+    "description": "TOC ボタンのツールチップ"
+  },
+  "toolbar_zoom_in_title": {
+    "message": "ズームイン",
+    "description": "ズームインボタンのツールチップ"
+  },
+  "toolbar_zoom_out_title": {
+    "message": "ズームアウト",
+    "description": "ズームアウトボタンのツールチップ"
   }
 }

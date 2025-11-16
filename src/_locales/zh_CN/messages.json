@@ -1,247 +1,79 @@
 {
-  "extensionName": {
-    "message": "Markdown Viewer",
-    "description": "扩展名称"
-  },
-  "extensionDescription": {
-    "message": "查看 Markdown 文件并支持智能导出",
-    "description": "扩展简介"
-  },
-  "tab_history": {
-    "message": "历史",
-    "description": "历史标签"
-  },
-  "tab_cache": {
-    "message": "缓存",
-    "description": "缓存标签"
-  },
-  "tab_settings": {
-    "message": "设置",
-    "description": "设置标签"
-  },
-  "popup_title": {
-    "message": "Markdown Viewer",
-    "description": "弹窗标题"
-  },
-  "popup_version_label": {
-    "message": "版本 {0}",
-    "description": "弹窗中的版本文字"
-  },
-  "toolbar_toggle_toc_title": {
-    "message": "显示/隐藏目录",
-    "description": "目录按钮提示"
-  },
-  "toolbar_zoom_out_title": {
-    "message": "缩小",
-    "description": "缩小按钮提示"
-  },
-  "toolbar_zoom_in_title": {
-    "message": "放大",
-    "description": "放大按钮提示"
-  },
-  "toolbar_layout_title_normal": {
-    "message": "正常布局",
-    "description": "布局按钮正常模式提示"
-  },
-  "toolbar_layout_title_wide": {
-    "message": "宽屏布局",
-    "description": "布局按钮宽屏模式提示"
-  },
-  "toolbar_layout_title_fullscreen": {
-    "message": "满屏布局",
-    "description": "布局按钮满屏模式提示"
-  },
-  "toolbar_layout_title_narrow": {
-    "message": "窄屏布局",
-    "description": "布局按钮窄屏模式提示"
-  },
-  "toolbar_download_title": {
-    "message": "下载",
-    "description": "下载按钮提示"
-  },
-  "toolbar_print_title": {
-    "message": "打印",
-    "description": "打印按钮提示"
-  },
-  "toolbar_print_disabled_title": {
-    "message": "打印功能仅适用于本地文件",
-    "description": "远程文件时打印按钮禁用提示"
+  "async_processing_error": {
+    "message": "{0} 错误：{1}",
+    "description": "Generic error message with type and detail"
   },
   "async_processing_message": {
     "message": "正在处理 {0}{1}...",
     "description": "异步占位加载提示"
   },
-  "async_unknown_error": {
-    "message": "未知错误",
-    "description": "错误信息缺失时的提示"
-  },
-  "async_processing_error": {
-    "message": "{0} 错误：{1}",
-    "description": "Generic error message with type and detail"
-  },
   "async_task_processing_error": {
     "message": "任务处理错误: {0}",
     "description": "异步任务失败提示"
   },
-  "docx_export_failed_default": {
-    "message": "导出失败",
-    "description": "DOCX 导出失败的默认提示"
+  "async_unknown_error": {
+    "message": "未知错误",
+    "description": "错误信息缺失时的提示"
   },
-  "docx_export_failed_alert": {
-    "message": "导出失败{0}",
-    "description": "DOCX 导出失败警告"
-  },
-  "cache_error_message": {
-    "message": "缓存通信失败，请先打开 Markdown 文件",
-    "description": "缓存错误提示"
-  },
-  "cache_loading_failed": {
-    "message": "加载缓存信息失败: {0}",
-    "description": "缓存加载异常提示"
-  },
-  "cache_hint_details": {
-    "message": "缓存功能会在打开 Markdown 页面时自动运行",
-    "description": "缓存提示补充"
-  },
-  "cache_system_unavailable": {
-    "message": "缓存系统不可用，请先打开 Markdown 文件",
-    "description": "缓存系统不可用提示"
-  },
-  "cache_manager_init_failed": {
-    "message": "缓存初始化失败",
-    "description": "缓存初始化错误信息"
-  },
-  "cache_stat_item_label": {
-    "message": "缓存项目",
-    "description": "缓存统计标签"
-  },
-  "cache_stat_size_label": {
-    "message": "占用空间",
-    "description": "缓存统计标签"
-  },
-  "cache_stat_usage_label": {
-    "message": "容量使用",
-    "description": "缓存统计标签"
-  },
-  "cache_stat_capacity_label": {
-    "message": "最大容量",
-    "description": "缓存统计标签"
-  },
-  "cache_items_empty": {
-    "message": "暂无缓存项目",
-    "description": "缓存列表为空提示"
-  },
-  "cache_item_type_label": {
-    "message": "类型",
-    "description": "缓存条目类型标签"
-  },
-  "cache_item_size_label": {
-    "message": "大小",
-    "description": "缓存条目大小标签"
-  },
-  "cache_item_created_label": {
-    "message": "创建",
-    "description": "缓存条目创建时间标签"
-  },
-  "cache_item_accessed_label": {
-    "message": "访问",
-    "description": "缓存条目访问时间标签"
-  },
-  "cache_item_type_unknown": {
-    "message": "未知",
-    "description": "缓存条目类型未知时的提示"
+  "cache_clear": {
+    "message": "清空缓存",
+    "description": "清空按钮"
   },
   "cache_clear_confirm": {
     "message": "确定要清空所有缓存吗？该操作不可撤销。",
     "description": "清空缓存确认提示"
   },
-  "cache_clear_success": {
-    "message": "缓存已清空",
-    "description": "清空缓存成功提示"
-  },
   "cache_clear_failed": {
     "message": "清空缓存失败",
     "description": "清空缓存失败提示"
   },
-  "settings_invalid_max_cache": {
-    "message": "请输入 {0}-{1} 之间的有效缓存数量",
-    "description": "最大缓存输入无效提示"
+  "cache_clear_success": {
+    "message": "缓存已清空",
+    "description": "清空缓存成功提示"
   },
-  "settings_save_success": {
-    "message": "设置已保存",
-    "description": "保存设置成功提示"
+  "cache_error_message": {
+    "message": "缓存通信失败，请先打开 Markdown 文件",
+    "description": "缓存错误提示"
   },
-  "settings_save_failed": {
-    "message": "保存设置失败",
-    "description": "保存设置失败提示"
+  "cache_hint_details": {
+    "message": "缓存功能会在打开 Markdown 页面时自动运行",
+    "description": "缓存提示补充"
   },
-  "settings_reset_confirm": {
-    "message": "确定要重置所有设置为默认值吗？",
-    "description": "重置设置确认提示"
+  "cache_item_accessed_label": {
+    "message": "访问",
+    "description": "缓存条目访问时间标签"
   },
-  "settings_reset_success": {
-    "message": "设置已重置",
-    "description": "设置重置成功提示"
+  "cache_item_created_label": {
+    "message": "创建",
+    "description": "缓存条目创建时间标签"
   },
-  "settings_reset_failed": {
-    "message": "重置设置失败",
-    "description": "设置重置失败提示"
+  "cache_item_size_label": {
+    "message": "大小",
+    "description": "缓存条目大小标签"
   },
-  "demo_open_failed": {
-    "message": "打开演示失败",
-    "description": "Toast when demo link open fails"
+  "cache_item_type_label": {
+    "message": "类型",
+    "description": "缓存条目类型标签"
   },
-  "file_access_disabled": {
-    "message": "未启用",
-    "description": "Status text when file access is disabled"
+  "cache_item_type_unknown": {
+    "message": "未知",
+    "description": "缓存条目类型未知时的提示"
   },
-  "file_access_disabled_desc_short": {
-    "message": "要查看本地文件，请访问",
-    "description": "Short description prefix for file access warning"
+  "cache_items_empty": {
+    "message": "暂无缓存项目",
+    "description": "缓存列表为空提示"
   },
-  "file_access_settings_link": {
-    "message": "扩展设置页面",
-    "description": "Link text to extension settings"
+  "cache_items_title": {
+    "message": "缓存项目（最近访问的 20 项）",
+    "description": "缓存列表标题"
   },
-  "file_access_disabled_suffix": {
-    "message": "并启用「允许访问文件网址」选项",
-    "description": "Suffix for file access warning"
+  "cache_loading_failed": {
+    "message": "加载缓存信息失败: {0}",
+    "description": "缓存加载异常提示"
   },
-  "cache_manual_limit_title": {
-    "message": "⚠️ 缓存访问限制",
-    "description": "Manual cache info section title"
-  },
-  "cache_manual_limit_desc_1": {
-    "message": "出于安全限制，popup 无法直接访问 IndexedDB。",
-    "description": "缓存手动说明内容"
-  },
-  "cache_manual_limit_desc_2": {
-    "message": "缓存功能在 Markdown 页面中正常运行，但在此无法显示详情。",
-    "description": "缓存手动说明内容"
-  },
-  "cache_manual_status_title": {
-    "message": "📊 缓存状态检查",
-    "description": "缓存状态章节标题"
-  },
-  "cache_manual_status_intro": {
-    "message": "确认缓存工作情况：",
-    "description": "缓存状态章节引导"
-  },
-  "cache_manual_status_step_open": {
-    "message": "打开一个 Markdown 文件",
-    "description": "缓存状态检查步骤"
-  },
-  "cache_manual_status_step_speed": {
-    "message": "观察渲染速度（有缓存时更快）",
-    "description": "缓存状态检查步骤"
-  },
-  "cache_manual_status_step_console": {
-    "message": "在开发者工具中查看 \"⚡ Using cached\" 日志",
-    "description": "缓存状态检查步骤"
-  },
-  "cache_manual_clear_title": {
-    "message": "🧹 手动清空缓存",
-    "description": "手动清空缓存标题"
+  "cache_manager_init_failed": {
+    "message": "缓存初始化失败",
+    "description": "缓存初始化错误信息"
   },
   "cache_manual_clear_intro": {
     "message": "如需手动清空：",
@@ -259,121 +91,125 @@
     "message": "在控制台执行 \"{0}\"",
     "description": "手动清空缓存步骤"
   },
+  "cache_manual_clear_title": {
+    "message": "🧹 手动清空缓存",
+    "description": "手动清空缓存标题"
+  },
+  "cache_manual_limit_desc_1": {
+    "message": "出于安全限制，popup 无法直接访问 IndexedDB。",
+    "description": "缓存手动说明内容"
+  },
+  "cache_manual_limit_desc_2": {
+    "message": "缓存功能在 Markdown 页面中正常运行，但在此无法显示详情。",
+    "description": "缓存手动说明内容"
+  },
+  "cache_manual_limit_title": {
+    "message": "⚠️ 缓存访问限制",
+    "description": "Manual cache info section title"
+  },
+  "cache_manual_status_intro": {
+    "message": "确认缓存工作情况：",
+    "description": "缓存状态章节引导"
+  },
+  "cache_manual_status_step_console": {
+    "message": "在开发者工具中查看 \"⚡ Using cached\" 日志",
+    "description": "缓存状态检查步骤"
+  },
+  "cache_manual_status_step_open": {
+    "message": "打开一个 Markdown 文件",
+    "description": "缓存状态检查步骤"
+  },
+  "cache_manual_status_step_speed": {
+    "message": "观察渲染速度（有缓存时更快）",
+    "description": "缓存状态检查步骤"
+  },
+  "cache_manual_status_title": {
+    "message": "📊 缓存状态检查",
+    "description": "缓存状态章节标题"
+  },
   "cache_refresh": {
     "message": "刷新",
     "description": "刷新按钮"
   },
-  "cache_clear": {
-    "message": "清空缓存",
-    "description": "清空按钮"
+  "cache_stat_capacity_label": {
+    "message": "最大容量",
+    "description": "缓存统计标签"
   },
-  "cache_items_title": {
-    "message": "缓存项目（最近访问的 20 项）",
-    "description": "缓存列表标题"
+  "cache_stat_item_label": {
+    "message": "缓存项目",
+    "description": "缓存统计标签"
   },
-  "settings_theme_title": {
-    "message": "主题设置",
-    "description": "主题设置部分的标题"
+  "cache_stat_size_label": {
+    "message": "占用空间",
+    "description": "缓存统计标签"
   },
-  "settings_theme_label": {
-    "message": "选择主题：",
-    "description": "主题选择器标签"
+  "cache_stat_usage_label": {
+    "message": "容量使用",
+    "description": "缓存统计标签"
   },
-  "settings_theme_changed": {
-    "message": "主题已成功切换，请刷新页面查看变化。",
-    "description": "主题切换成功时显示的消息"
+  "cache_system_unavailable": {
+    "message": "缓存系统不可用，请先打开 Markdown 文件",
+    "description": "缓存系统不可用提示"
   },
-  "settings_general_title": {
-    "message": "扩展设置",
-    "description": "设置区标题"
+  "demo_open_failed": {
+    "message": "打开演示失败",
+    "description": "Toast when demo link open fails"
   },
-  "settings_max_cache_label": {
-    "message": "最大缓存项目数:",
-    "description": "最大缓存标签"
+  "docx_export_failed_alert": {
+    "message": "导出失败{0}",
+    "description": "DOCX 导出失败警告"
   },
-  "settings_language_label": {
-    "message": "界面语言:",
-    "description": "语言选择标签"
+  "docx_export_failed_default": {
+    "message": "导出失败",
+    "description": "DOCX 导出失败的默认提示"
   },
-  "settings_language_auto": {
-    "message": "跟随 Chrome 语言",
-    "description": "自动语言选项"
+  "extensionDescription": {
+    "message": "查看 Markdown 文件并支持智能导出",
+    "description": "扩展简介"
   },
-  "settings_language_en": {
-    "message": "English",
-    "description": "英文选项"
+  "extensionName": {
+    "message": "Markdown Viewer",
+    "description": "扩展名称"
   },
-  "settings_language_zh_cn": {
-    "message": "简体中文",
-    "description": "中文选项"
+  "file_access_disabled": {
+    "message": "未启用",
+    "description": "Status text when file access is disabled"
   },
-  "settings_language_es": {
-    "message": "西班牙语",
-    "description": "西班牙语选项"
+  "file_access_disabled_desc_short": {
+    "message": "要查看本地文件，请访问",
+    "description": "Short description prefix for file access warning"
   },
-  "settings_language_fr": {
-    "message": "法语",
-    "description": "法语选项"
+  "file_access_disabled_suffix": {
+    "message": "并启用「允许访问文件网址」选项",
+    "description": "Suffix for file access warning"
   },
-  "settings_language_de": {
-    "message": "德语",
-    "description": "德语选项"
-  },
-  "settings_language_ru": {
-    "message": "俄语",
-    "description": "俄语选项"
-  },
-  "settings_language_ja": {
-    "message": "日语",
-    "description": "日语选项"
-  },
-  "settings_language_ko": {
-    "message": "韩语",
-    "description": "韩语选项"
-  },
-  "settings_language_note": {
-    "message": "设置后将覆盖浏览器界面语言，仅影响扩展界面。",
-    "description": "语言选择说明"
-  },
-  "settings_save_btn": {
-    "message": "保存设置",
-    "description": "保存按钮"
-  },
-  "settings_reset_btn": {
-    "message": "重置为默认",
-    "description": "重置按钮"
-  },
-  "history_title": {
-    "message": "最近访问的文档",
-    "description": "历史文档标题"
-  },
-  "history_description": {
-    "message": "显示最近打开过的 Markdown 文档，点击可以重新打开",
-    "description": "历史文档描述"
-  },
-  "history_refresh": {
-    "message": "刷新",
-    "description": "刷新历史按钮"
+  "file_access_settings_link": {
+    "message": "扩展设置页面",
+    "description": "Link text to extension settings"
   },
   "history_clear": {
     "message": "清空历史",
     "description": "清空历史按钮"
   },
-  "history_items_empty": {
-    "message": "暂无历史记录",
-    "description": "历史列表为空提示"
-  },
   "history_clear_confirm": {
     "message": "确定要清空所有历史记录吗？该操作不可撤销。",
     "description": "清空历史确认提示"
+  },
+  "history_clear_failed": {
+    "message": "清空历史记录失败",
+    "description": "清空历史失败提示"
   },
   "history_clear_success": {
     "message": "历史记录已清空",
     "description": "清空历史成功提示"
   },
-  "history_clear_failed": {
-    "message": "清空历史记录失败",
-    "description": "清空历史失败提示"
+  "history_description": {
+    "message": "显示最近打开过的 Markdown 文档，点击可以重新打开",
+    "description": "历史文档描述"
+  },
+  "history_items_empty": {
+    "message": "暂无历史记录",
+    "description": "历史列表为空提示"
   },
   "history_loading_failed": {
     "message": "加载历史记录失败",
@@ -382,5 +218,225 @@
   "history_open_failed": {
     "message": "打开文档失败",
     "description": "打开历史文档失败提示"
+  },
+  "history_refresh": {
+    "message": "刷新",
+    "description": "刷新历史按钮"
+  },
+  "history_title": {
+    "message": "最近访问的文档",
+    "description": "历史文档标题"
+  },
+  "popup_title": {
+    "message": "Markdown Viewer",
+    "description": "弹窗标题"
+  },
+  "popup_version_label": {
+    "message": "版本 {0}",
+    "description": "弹窗中的版本文字"
+  },
+  "settings_general_title": {
+    "message": "扩展设置",
+    "description": "设置区标题"
+  },
+  "settings_invalid_max_cache": {
+    "message": "请输入 {0}-{1} 之间的有效缓存数量",
+    "description": "最大缓存输入无效提示"
+  },
+  "settings_language_auto": {
+    "message": "跟随 Chrome 语言",
+    "description": "自动语言选项"
+  },
+  "settings_language_da": {
+    "message": "Dansk",
+    "description": "Option for Danish locale"
+  },
+  "settings_language_de": {
+    "message": "德语",
+    "description": "德语选项"
+  },
+  "settings_language_en": {
+    "message": "English",
+    "description": "英文选项"
+  },
+  "settings_language_es": {
+    "message": "西班牙语",
+    "description": "西班牙语选项"
+  },
+  "settings_language_fi": {
+    "message": "Suomi",
+    "description": "Option for Finnish locale"
+  },
+  "settings_language_fr": {
+    "message": "法语",
+    "description": "法语选项"
+  },
+  "settings_language_hi": {
+    "message": "हिन्दी",
+    "description": "Option for Hindi locale"
+  },
+  "settings_language_id": {
+    "message": "Bahasa Indonesia",
+    "description": "Option for Indonesian locale"
+  },
+  "settings_language_it": {
+    "message": "Italiano",
+    "description": "Option for Italian locale"
+  },
+  "settings_language_ja": {
+    "message": "日语",
+    "description": "日语选项"
+  },
+  "settings_language_ko": {
+    "message": "한국어",
+    "description": "Option for Korean locale"
+  },
+  "settings_language_label": {
+    "message": "界面语言:",
+    "description": "语言选择标签"
+  },
+  "settings_language_nl": {
+    "message": "Nederlands",
+    "description": "Option for Dutch locale"
+  },
+  "settings_language_no": {
+    "message": "Norsk",
+    "description": "Option for Norwegian locale"
+  },
+  "settings_language_note": {
+    "message": "设置后将覆盖浏览器界面语言，仅影响扩展界面。",
+    "description": "语言选择说明"
+  },
+  "settings_language_pl": {
+    "message": "Polski",
+    "description": "Option for Polish locale"
+  },
+  "settings_language_pt_br": {
+    "message": "Português (Brasil)",
+    "description": "Option for Brazilian Portuguese locale"
+  },
+  "settings_language_pt_pt": {
+    "message": "Português (Portugal)",
+    "description": "Option for Portuguese locale"
+  },
+  "settings_language_ru": {
+    "message": "俄语",
+    "description": "俄语选项"
+  },
+  "settings_language_sv": {
+    "message": "Svenska",
+    "description": "Option for Swedish locale"
+  },
+  "settings_language_th": {
+    "message": "ไทย",
+    "description": "Option for Thai locale"
+  },
+  "settings_language_tr": {
+    "message": "Türkçe",
+    "description": "Option for Turkish locale"
+  },
+  "settings_language_vi": {
+    "message": "Tiếng Việt",
+    "description": "Option for Vietnamese locale"
+  },
+  "settings_language_zh_cn": {
+    "message": "简体中文",
+    "description": "中文选项"
+  },
+  "settings_max_cache_label": {
+    "message": "最大缓存项目数:",
+    "description": "最大缓存标签"
+  },
+  "settings_reset_btn": {
+    "message": "重置为默认",
+    "description": "重置按钮"
+  },
+  "settings_reset_confirm": {
+    "message": "确定要重置所有设置为默认值吗？",
+    "description": "重置设置确认提示"
+  },
+  "settings_reset_failed": {
+    "message": "重置设置失败",
+    "description": "设置重置失败提示"
+  },
+  "settings_reset_success": {
+    "message": "设置已重置",
+    "description": "设置重置成功提示"
+  },
+  "settings_save_btn": {
+    "message": "保存设置",
+    "description": "保存按钮"
+  },
+  "settings_save_failed": {
+    "message": "保存设置失败",
+    "description": "保存设置失败提示"
+  },
+  "settings_save_success": {
+    "message": "设置已保存",
+    "description": "保存设置成功提示"
+  },
+  "settings_theme_changed": {
+    "message": "主题已成功切换，请刷新页面查看变化。",
+    "description": "主题切换成功时显示的消息"
+  },
+  "settings_theme_label": {
+    "message": "选择主题：",
+    "description": "主题选择器标签"
+  },
+  "settings_theme_title": {
+    "message": "主题设置",
+    "description": "主题设置部分的标题"
+  },
+  "tab_cache": {
+    "message": "缓存",
+    "description": "缓存标签"
+  },
+  "tab_history": {
+    "message": "历史",
+    "description": "历史标签"
+  },
+  "tab_settings": {
+    "message": "设置",
+    "description": "设置标签"
+  },
+  "toolbar_download_title": {
+    "message": "下载",
+    "description": "下载按钮提示"
+  },
+  "toolbar_layout_title_fullscreen": {
+    "message": "满屏布局",
+    "description": "布局按钮满屏模式提示"
+  },
+  "toolbar_layout_title_narrow": {
+    "message": "窄屏布局",
+    "description": "布局按钮窄屏模式提示"
+  },
+  "toolbar_layout_title_normal": {
+    "message": "正常布局",
+    "description": "布局按钮正常模式提示"
+  },
+  "toolbar_layout_title_wide": {
+    "message": "宽屏布局",
+    "description": "布局按钮宽屏模式提示"
+  },
+  "toolbar_print_disabled_title": {
+    "message": "打印功能仅适用于本地文件",
+    "description": "远程文件时打印按钮禁用提示"
+  },
+  "toolbar_print_title": {
+    "message": "打印",
+    "description": "打印按钮提示"
+  },
+  "toolbar_toggle_toc_title": {
+    "message": "显示/隐藏目录",
+    "description": "目录按钮提示"
+  },
+  "toolbar_zoom_in_title": {
+    "message": "放大",
+    "description": "放大按钮提示"
+  },
+  "toolbar_zoom_out_title": {
+    "message": "缩小",
+    "description": "缩小按钮提示"
   }
 }

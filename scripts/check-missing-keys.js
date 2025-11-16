@@ -188,16 +188,27 @@ function main() {
     console.log('❌ Missing Keys (by message key):');
     console.log('─'.repeat(80));
     
-    const missingTable = {};
-    missingKeysMap.forEach((localesSet, key) => {
-      const row = { Key: key };
-      locales.forEach(locale => {
-        row[locale] = localesSet.has(locale) ? '❌' : '✅';
-      });
-      missingTable[key] = row;
+    // Only show locales that have missing keys
+    const localesWithMissingKeys = new Set();
+    missingKeysMap.forEach((localesSet) => {
+      localesSet.forEach(locale => localesWithMissingKeys.add(locale));
     });
     
-    console.table(Object.values(missingTable));
+    const relevantLocales = Array.from(localesWithMissingKeys).sort();
+    
+    if (relevantLocales.length > 0) {
+      const missingTable = {};
+      missingKeysMap.forEach((localesSet, key) => {
+        const row = { Key: key };
+        relevantLocales.forEach(locale => {
+          row[locale] = localesSet.has(locale) ? '❌' : '✅';
+        });
+        missingTable[key] = row;
+      });
+      
+      console.table(Object.values(missingTable));
+      console.log(`\nShowing ${relevantLocales.length} locale(s) with missing keys: ${relevantLocales.join(', ')}`);
+    }
   }
   
   if (missingKeysMap.size === 0) {
@@ -293,10 +304,36 @@ function main() {
   if (trulyUnusedKeys.length > 0) {
     console.log('⚠️  Keys defined in messages.json but NOT used in code:');
     console.log('─'.repeat(80));
+    
+    // Build table showing which locales have these unused keys
+    // Only show locales that have at least one of these keys
+    const localesWithUnusedKeys = new Set();
     trulyUnusedKeys.forEach(key => {
-      console.log(`  ❌ ${key}`);
+      locales.forEach(locale => {
+        const keys = localeData.get(locale);
+        if (keys && keys.has(key)) {
+          localesWithUnusedKeys.add(locale);
+        }
+      });
     });
-    console.log(`\nTotal unused keys: ${trulyUnusedKeys.length}\n`);
+    
+    const relevantLocales = Array.from(localesWithUnusedKeys).sort();
+    
+    if (relevantLocales.length > 0) {
+      const unusedTable = {};
+      trulyUnusedKeys.forEach(key => {
+        const row = { Key: key };
+        relevantLocales.forEach(locale => {
+          const keys = localeData.get(locale);
+          row[locale] = keys && keys.has(key) ? '✅' : '❌';
+        });
+        unusedTable[key] = row;
+      });
+      
+      console.table(Object.values(unusedTable));
+      console.log(`\nShowing ${relevantLocales.length} locale(s) with unused keys: ${relevantLocales.join(', ')}`);
+    }
+    console.log(`Total unused keys: ${trulyUnusedKeys.length}\n`);
   } else if (unusedKeys.length === 0) {
     console.log('✅ All defined keys are used in code.\n');
   } else {
