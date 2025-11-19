@@ -22,13 +22,11 @@ const getUiLocale = () => {
 const applyI18nText = () => {
   const elements = document.querySelectorAll('[data-i18n]');
   elements.forEach((element) => {
-    const { i18n: key, version, i18nArgs } = element.dataset;
+    const { i18n: key, i18nArgs } = element.dataset;
     let substitutions;
 
     if (i18nArgs) {
       substitutions = i18nArgs.split('|');
-    } else if (version) {
-      substitutions = [version];
     }
 
     let message = translate(key, substitutions);
@@ -1028,6 +1026,14 @@ ${manualClearIntro}
 document.addEventListener('DOMContentLoaded', async () => {
   try {
     await Localization.init();
+
+    // Set version from manifest
+    const manifest = chrome.runtime.getManifest();
+    const versionEl = document.getElementById('version-text');
+    if (versionEl && manifest.version) {
+      versionEl.dataset.i18nArgs = manifest.version;
+    }
+
     applyI18nText();
     const popupManager = new PopupManager();
 
