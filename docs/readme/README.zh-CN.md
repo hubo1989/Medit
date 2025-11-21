@@ -300,8 +300,9 @@ A: 在 Markdown 中使用 ````vega-lite` 代码块，内容为 JSON 格式的图
 
 1. 访问 Chrome Web Store → 搜索 "Markdown Viewer"
 2. 点击「添加至 Chrome」
-3. 拖拽 `.md` 文件到浏览器
-4. ✅ 开始使用
+3. 点击「管理扩展」，启用「允许访问文件网址」
+4. 拖拽 `.md` 文件到浏览器
+5. ✅ 开始使用
 
 **您将获得：** Markdown → Word 一键转换 · Mermaid 自动转图 · LaTeX 可编辑公式 · 100+ 语言代码高亮 · 18+ 主题 · 智能缓存 · 完全免费
 

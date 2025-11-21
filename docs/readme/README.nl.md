@@ -300,8 +300,9 @@ A: Gebruik ````vega-lite` codeblok in Markdown met JSON-formaat grafiekspecifica
 
 1. Bezoek Chrome Web Store → Zoek "Markdown Viewer"
 2. Klik "Toevoegen aan Chrome"
-3. Sleep `.md`-bestanden naar browser
-4. ✅ Begin met gebruiken
+3. Klik "Extensies beheren", schakel "Toegang tot bestands-URL's toestaan" in
+4. Sleep `.md`-bestanden naar browser
+5. ✅ Begin met gebruiken
 
 **U krijgt:** Markdown → Word één klik conversie · Mermaid automatische conversie · LaTeX bewerkbare formules · 100+ talen syntaxisaccentuering · 18+ thema's · Slimme cache · Volledig gratis
 

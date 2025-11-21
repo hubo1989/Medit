@@ -300,8 +300,9 @@ R: Usa bloque de código ````vega-lite` en Markdown con especificación de gráf
 
 1. Visita Chrome Web Store → Busca "Markdown Viewer"
 2. Haz clic en "Añadir a Chrome"
-3. Arrastra archivos `.md` al navegador
-4. ✅ Comienza a usar
+3. Haz clic en "Administrar extensiones", activa "Permitir acceso a URL de archivos"
+4. Arrastra archivos `.md` al navegador
+5. ✅ Comienza a usar
 
 **Obtendrás:** Conversión Markdown → Word con un clic · Auto-conversión Mermaid · Fórmulas LaTeX editables · Resaltado de sintaxis de 100+ lenguajes · 18+ temas · Caché inteligente · Completamente gratis
 

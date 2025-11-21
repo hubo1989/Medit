@@ -300,8 +300,9 @@ C: Markdown'da ````vega-lite` kod bloğunu JSON biçimli grafik spesifikasyonu i
 
 1. Chrome Web Store'u ziyaret edin → "Markdown Viewer" araması yapın
 2. "Chrome'a Ekle"ye tıklayın
-3. `.md` dosyalarını tarayıcıya sürükleyin
-4. ✅ Kullanmaya başlayın
+3. "Uzantıları yönet"e tıklayın, "Dosya URL'lerine erişime izin ver"i etkinleştirin
+4. `.md` dosyalarını tarayıcıya sürükleyin
+5. ✅ Kullanmaya başlayın
 
 **Elde edecekleriniz:** Markdown → Word tek tık dönüştürme · Mermaid otomatik dönüştürme · LaTeX düzenlenebilir formüller · 100+ dil sözdizimi vurgulama · 18+ tema · Akıllı önbellek · Tamamen ücretsiz
 

@@ -300,8 +300,9 @@ R: Usa blocchi di codice ````vega-lite` in Markdown, con contenuto in formato JS
 
 1. Visita Chrome Web Store → Cerca "Markdown Viewer"
 2. Clicca「Aggiungi a Chrome」
-3. Trascina file `.md` nel browser
-4. ✅ Inizia a usare
+3. Clicca「Gestisci estensioni」, attiva「Consenti l'accesso agli URL dei file」
+4. Trascina file `.md` nel browser
+5. ✅ Inizia a usare
 
 **Otterrai:** Conversione Markdown → Word con un clic · Conversione automatica Mermaid in immagini · Formule LaTeX modificabili · Evidenziazione codice 100+ linguaggi · 18+ temi · Cache intelligente · Completamente gratuito
 

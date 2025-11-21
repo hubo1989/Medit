@@ -300,8 +300,9 @@ J: Gunakan blok kode ````vega-lite` dalam Markdown dengan spesifikasi grafik for
 
 1. Kunjungi Chrome Web Store → Cari "Markdown Viewer"
 2. Klik "Tambahkan ke Chrome"
-3. Seret file `.md` ke browser
-4. ✅ Mulai gunakan
+3. Klik "Kelola ekstensi", aktifkan "Izinkan akses ke URL file"
+4. Seret file `.md` ke browser
+5. ✅ Mulai gunakan
 
 **Anda akan mendapatkan:** Konversi Markdown → Word satu klik · Konversi Mermaid otomatis · Rumus LaTeX yang dapat diedit · Penyorotan sintaks 100+ bahasa · 18+ tema · Cache cerdas · Sepenuhnya gratis
 

@@ -300,8 +300,9 @@ O: Użyj bloków kodu ````vega-lite` w Markdown, z zawartością w formacie JSON
 
 1. Odwiedź Chrome Web Store → Wyszukaj "Markdown Viewer"
 2. Kliknij「Dodaj do Chrome」
-3. Przeciągnij plik `.md` do przeglądarki
-4. ✅ Zacznij używać
+3. Kliknij「Zarządzaj rozszerzeniami」, włącz「Zezwalaj na dostęp do adresów URL plików」
+4. Przeciągnij plik `.md` do przeglądarki
+5. ✅ Zacznij używać
 
 **Otrzymasz:** Konwersję Markdown → Word jednym kliknięciem · Automatyczną konwersję Mermaid na obrazy · Edytowalne formuły LaTeX · Podświetlanie kodu 100+ języków · 18+ motywów · Inteligentną pamięć podręczną · Całkowicie za darmo
 

@@ -300,8 +300,9 @@ Tiếng Trung Giản thể · Tiếng Trung Phồn thể · English · Deutsch �
 
 1. Truy cập Chrome Web Store → Tìm kiếm "Markdown Viewer"
 2. Nhấp "Thêm vào Chrome"
-3. Kéo tệp `.md` vào trình duyệt
-4. ✅ Bắt đầu sử dụng
+3. Nhấp "Quản lý tiện ích mở rộng", bật "Cho phép truy cập URL tệp"
+4. Kéo tệp `.md` vào trình duyệt
+5. ✅ Bắt đầu sử dụng
 
 **Bạn sẽ nhận được:** Chuyển đổi Markdown → Word một cú nhấp chuột · Chuyển đổi Mermaid tự động · Công thức LaTeX có thể chỉnh sửa · Làm nổi bật cú pháp 100+ ngôn ngữ · 18+ chủ đề · Bộ nhớ cache thông minh · Hoàn toàn miễn phí
 

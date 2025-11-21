@@ -300,8 +300,9 @@ A: Utilisez un bloc de code ````vega-lite` dans Markdown avec spécification de 
 
 1. Visitez Chrome Web Store → Recherchez "Markdown Viewer"
 2. Cliquez sur "Ajouter à Chrome"
-3. Faites glisser les fichiers `.md` vers le navigateur
-4. ✅ Commencez à utiliser
+3. Cliquez sur "Gérer les extensions", activez "Autoriser l'accès aux URL de fichier"
+4. Faites glisser les fichiers `.md` vers le navigateur
+5. ✅ Commencez à utiliser
 
 **Vous obtiendrez:** Conversion Markdown → Word en un clic · Auto-conversion Mermaid · Formules LaTeX éditables · Coloration syntaxique de 100+ langages · 18+ thèmes · Cache intelligent · Entièrement gratuit
 

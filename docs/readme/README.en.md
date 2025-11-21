@@ -300,8 +300,9 @@ A: Use ````vega-lite` code block in Markdown with JSON format chart specificatio
 
 1. Visit Chrome Web Store → Search "Markdown Viewer"
 2. Click "Add to Chrome"
-3. Drag `.md` files to browser
-4. ✅ Start using
+3. Click "Manage Extensions" , Enable "Allow access to file URLs"
+4. Drag `.md` files to browser
+5. ✅ Start using
 
 **You'll get:** Markdown → Word one-click conversion · Mermaid auto-convert · LaTeX editable formulas · 100+ languages syntax highlighting · 18+ themes · Smart cache · Completely free
 

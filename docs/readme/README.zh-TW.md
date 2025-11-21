@@ -300,8 +300,9 @@ A: A: 在 Markdown 中使用 ````vega-lite` 程式碼區塊，內容為 JSON 格
 
 1. 造訪 Chrome Web Store → 搜尋 "Markdown Viewer"
 2. 點擊「加到 Chrome」
-3. 拖曳 `.md` 檔案到瀏覽器
-4. ✅ 開始使用
+3. 點擊「管理擴充功能」，啟用「允許存取檔案網址」
+4. 拖曳 `.md` 檔案到瀏覽器
+5. ✅ 開始使用
 
 **您將獲得：** Markdown → Word 一鍵轉換 · Mermaid 自動轉圖 · LaTeX 可編輯公式 · 100+ 語言程式碼高亮 · 18+ 主題 · 智慧快取 · 完全免費
 

@@ -300,8 +300,9 @@ A: Käytä ````vega-lite` koodilohkoa Markdownissa JSON-muotoisella kaaviomäär
 
 1. Vieraile Chrome Web Storessa → Hae "Markdown Viewer"
 2. Klikkaa "Lisää Chromeen"
-3. Vedä `.md`-tiedostot selaimeen
-4. ✅ Aloita käyttö
+3. Klikkaa "Hallinnoi laajennuksia", ota käyttöön "Salli pääsy tiedosto-URL-osoitteisiin"
+4. Vedä `.md`-tiedostot selaimeen
+5. ✅ Aloita käyttö
 
 **Saat:** Markdown → Word yhden klikkauksen muunnos · Mermaid automaattimuunnos · LaTeX muokattavat kaavat · 100+ kielen syntaksikorostus · 18+ teemaa · Älykäs välimuisti · Täysin ilmainen
 

@@ -300,8 +300,9 @@ Sv: Brug ````vega-lite` kodeblok i Markdown med JSON-format diagramspecifikation
 
 1. Besøg Chrome Web Store → Søg "Markdown Viewer"
 2. Klik "Tilføj til Chrome"
-3. Træk `.md`-filer til browser
-4. ✅ Begynd at bruge
+3. Klik "Administrer udvidelser", aktiver "Tillad adgang til fil-URL'er"
+4. Træk `.md`-filer til browser
+5. ✅ Begynd at bruge
 
 **Du får:** Markdown → Word ét-klik konvertering · Mermaid auto-konvertering · LaTeX redigerbare formler · 100+ sprog syntaksfremhævning · 18+ temaer · Smart cache · Fuldstændig gratis
 
