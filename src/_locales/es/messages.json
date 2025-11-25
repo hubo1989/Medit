@@ -419,10 +419,6 @@
     "message": "Diseño normal",
     "description": "Tooltip del botón de diseño normal"
   },
-  "toolbar_layout_title_wide": {
-    "message": "Diseño amplio",
-    "description": "Tooltip del botón de diseño amplio"
-  },
   "toolbar_print_disabled_title": {
     "message": "La impresión solo está disponible para archivos locales",
     "description": "Tooltip cuando el botón de impresión está deshabilitado para archivos remotos"

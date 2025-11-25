@@ -419,10 +419,6 @@
     "message": "기본 레이아웃",
     "description": "기본 레이아웃 툴팁"
   },
-  "toolbar_layout_title_wide": {
-    "message": "와이드 레이아웃",
-    "description": "와이드 레이아웃 툴팁"
-  },
   "toolbar_print_disabled_title": {
     "message": "인쇄는 로컬 파일에서만 사용할 수 있습니다",
     "description": "원격 파일에서 인쇄 버튼이 비활성화될 때의 툴팁"

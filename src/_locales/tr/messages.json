@@ -419,10 +419,6 @@
     "message": "Normal düzen",
     "description": "Toolbar layout toggle tooltip for normal mode"
   },
-  "toolbar_layout_title_wide": {
-    "message": "Geniş düzen",
-    "description": "Toolbar layout toggle tooltip for wide mode"
-  },
   "toolbar_print_disabled_title": {
     "message": "Yazdırma yalnızca yerel dosyalar için kullanılabilir",
     "description": "Tooltip when print button is disabled for remote files"

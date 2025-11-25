@@ -419,10 +419,6 @@
     "message": "正常布局",
     "description": "布局按钮正常模式提示"
   },
-  "toolbar_layout_title_wide": {
-    "message": "宽屏布局",
-    "description": "布局按钮宽屏模式提示"
-  },
   "toolbar_print_disabled_title": {
     "message": "打印功能仅适用于本地文件",
     "description": "远程文件时打印按钮禁用提示"

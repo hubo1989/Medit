@@ -419,10 +419,6 @@
     "message": "Normales Layout",
     "description": "Tooltip für normales Layout"
   },
-  "toolbar_layout_title_wide": {
-    "message": "Breites Layout",
-    "description": "Tooltip für breites Layout"
-  },
   "toolbar_print_disabled_title": {
     "message": "Drucken ist nur für lokale Dateien verfügbar",
     "description": "Tooltip wenn Drucken-Button für Remote-Dateien deaktiviert ist"
