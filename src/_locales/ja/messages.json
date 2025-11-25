@@ -419,10 +419,6 @@
     "message": "通常レイアウト",
     "description": "通常レイアウトのツールチップ"
   },
-  "toolbar_layout_title_wide": {
-    "message": "ワイドレイアウト",
-    "description": "ワイドレイアウトのツールチップ"
-  },
   "toolbar_print_disabled_title": {
     "message": "印刷はローカルファイルでのみ利用可能です",
     "description": "リモートファイルで印刷ボタンが無効な時のツールチップ"

@@ -419,10 +419,6 @@
     "message": "Normalny układ",
     "description": "Toolbar layout toggle tooltip for normal mode"
   },
-  "toolbar_layout_title_wide": {
-    "message": "Szeroki układ",
-    "description": "Toolbar layout toggle tooltip for wide mode"
-  },
   "toolbar_print_disabled_title": {
     "message": "Drukowanie dostępne tylko dla plików lokalnych",
     "description": "Tooltip when print button is disabled for remote files"

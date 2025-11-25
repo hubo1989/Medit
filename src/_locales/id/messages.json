@@ -419,10 +419,6 @@
     "message": "Tata letak normal",
     "description": "Toolbar layout toggle tooltip for normal mode"
   },
-  "toolbar_layout_title_wide": {
-    "message": "Tata letak lebar",
-    "description": "Toolbar layout toggle tooltip for wide mode"
-  },
   "toolbar_print_disabled_title": {
     "message": "Cetak hanya tersedia untuk file lokal",
     "description": "Tooltip when print button is disabled for remote files"

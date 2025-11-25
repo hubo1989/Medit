@@ -419,10 +419,6 @@
     "message": "Disposition normale",
     "description": "Infobulle pour la disposition normale"
   },
-  "toolbar_layout_title_wide": {
-    "message": "Disposition large",
-    "description": "Infobulle pour la disposition large"
-  },
   "toolbar_print_disabled_title": {
     "message": "L'impression n'est disponible que pour les fichiers locaux",
     "description": "Infobulle quand le bouton d'impression est désactivé pour les fichiers distants"

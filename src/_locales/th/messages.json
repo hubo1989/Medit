@@ -419,10 +419,6 @@
     "message": "เค้าโครงปกติ",
     "description": "Toolbar layout toggle tooltip for normal mode"
   },
-  "toolbar_layout_title_wide": {
-    "message": "เค้าโครงกว้าง",
-    "description": "Toolbar layout toggle tooltip for wide mode"
-  },
   "toolbar_print_disabled_title": {
     "message": "การพิมพ์ใช้ได้เฉพาะไฟล์ภายในเครื่องเท่านั้น",
     "description": "Tooltip when print button is disabled for remote files"

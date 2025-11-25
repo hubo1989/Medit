@@ -529,8 +529,6 @@ body.toc-hidden #markdown-wrapper {
 
   /* Optimize content area for printing */
   #markdown-page {
-    max-width: 530px !important;
-    width: 530px !important;
     margin: 0 auto !important;
   }
 
@@ -538,8 +536,6 @@ body.toc-hidden #markdown-wrapper {
     box-shadow: none !important;
     margin: 0 auto !important;
     padding: 20px !important;
-    max-width: 530px !important;
-    width: 530px !important;
     zoom: 1 !important;
     background: white !important;
   }

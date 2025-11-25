@@ -681,13 +681,39 @@ ${truncatedMarkup}`;
 
   // Get saved state early to prevent any flashing
   const initialState = await getFileState();
+
+  // SVG icons for different layouts
+  const layoutIcons = {
+    normal: `<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+    <rect x="3" y="4" width="14" height="12" stroke-width="2" rx="1"/>
+    <line x1="3" y1="7" x2="17" y2="7" stroke-width="2"/>
+  </svg>`,
+    fullscreen: `<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+    <rect x="2" y="2" width="16" height="16" stroke-width="2" rx="1"/>
+    <line x1="2" y1="6" x2="18" y2="6" stroke-width="2"/>
+  </svg>`,
+    narrow: `<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor">
+    <rect x="6" y="3" width="8" height="14" stroke-width="2" rx="1"/>
+    <line x1="6" y1="6" x2="14" y2="6" stroke-width="2"/>
+  </svg>`
+  };
+
+  const toolbarLayoutTitleNormal = translate('toolbar_layout_title_normal');
+  const toolbarLayoutTitleFullscreen = translate('toolbar_layout_title_fullscreen');
+  const toolbarLayoutTitleNarrow = translate('toolbar_layout_title_narrow');
+  const layoutTitleAttr = escapeHtml(toolbarLayoutTitleNormal);
+
+  const layoutTitles = {
+    normal: toolbarLayoutTitleNormal,
+    fullscreen: toolbarLayoutTitleFullscreen,
+    narrow: toolbarLayoutTitleNarrow
+  };
   
   // Layout mode configurations (same as in toolbar setup)
   const layoutConfigs = {
-    normal: { maxWidth: '820px' },
-    wide: { maxWidth: '2120px' },
-    fullscreen: { maxWidth: '100%' },
-    narrow: { maxWidth: '530px' }
+    normal: { maxWidth: '1360px', icon: layoutIcons.normal, title: layoutTitles.normal },
+    fullscreen: { maxWidth: '100%', icon: layoutIcons.fullscreen, title: layoutTitles.fullscreen },
+    narrow: { maxWidth: '680px', icon: layoutIcons.narrow, title: layoutTitles.narrow }
   };
   
   // Determine initial layout and zoom from saved state
@@ -751,10 +777,6 @@ ${truncatedMarkup}`;
   const toolbarToggleTocTitle = translate('toolbar_toggle_toc_title');
   const toolbarZoomOutTitle = translate('toolbar_zoom_out_title');
   const toolbarZoomInTitle = translate('toolbar_zoom_in_title');
-  const toolbarLayoutTitleNormal = translate('toolbar_layout_title_normal');
-  const toolbarLayoutTitleWide = translate('toolbar_layout_title_wide');
-  const toolbarLayoutTitleFullscreen = translate('toolbar_layout_title_fullscreen');
-  const toolbarLayoutTitleNarrow = translate('toolbar_layout_title_narrow');
   const toolbarDownloadTitle = translate('toolbar_download_title');
   const toolbarPrintTitle = translate('toolbar_print_title');
   const toolbarPrintDisabledTitle = translate('toolbar_print_disabled_title');
@@ -762,7 +784,7 @@ ${truncatedMarkup}`;
   const toggleTocTitleAttr = escapeHtml(toolbarToggleTocTitle);
   const zoomOutTitleAttr = escapeHtml(toolbarZoomOutTitle);
   const zoomInTitleAttr = escapeHtml(toolbarZoomInTitle);
-  const layoutTitleAttr = escapeHtml(toolbarLayoutTitleNormal);
+
   const downloadTitleAttr = escapeHtml(toolbarDownloadTitle);
   const printTitleAttr = escapeHtml(toolbarPrintTitle);
 
@@ -1272,52 +1294,11 @@ ${truncatedMarkup}`;
     // Layout toggle button
     const layoutBtn = document.getElementById('layout-toggle-btn');
     const pageDiv = document.getElementById('markdown-page');
-    let currentLayout = 'normal'; // normal, wide, fullscreen, narrow
-    const WIDE_LAYOUT_THRESHOLD = 2420;
-
-    // SVG icons for different layouts
-    const layoutIcons = {
-      normal: `<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor">
-      <rect x="3" y="4" width="14" height="12" stroke-width="2" rx="1"/>
-      <line x1="3" y1="7" x2="17" y2="7" stroke-width="2"/>
-    </svg>`,
-      wide: `<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor">
-      <rect x="2" y="4" width="16" height="12" stroke-width="2" rx="1"/>
-      <line x1="2" y1="7" x2="18" y2="7" stroke-width="2"/>
-      <line x1="6" y1="4" x2="6" y2="16" stroke-width="1.5"/>
-      <line x1="14" y1="4" x2="14" y2="16" stroke-width="1.5"/>
-    </svg>`,
-      fullscreen: `<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor">
-      <rect x="2" y="2" width="16" height="16" stroke-width="2" rx="1"/>
-      <line x1="2" y1="6" x2="18" y2="6" stroke-width="2"/>
-    </svg>`,
-      narrow: `<svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor">
-      <rect x="6" y="3" width="8" height="14" stroke-width="2" rx="1"/>
-      <line x1="6" y1="6" x2="14" y2="6" stroke-width="2"/>
-    </svg>`
-    };
-
-    const layoutTitles = {
-      normal: toolbarLayoutTitleNormal,
-      wide: toolbarLayoutTitleWide || toolbarLayoutTitleNormal,
-      fullscreen: toolbarLayoutTitleFullscreen,
-      narrow: toolbarLayoutTitleNarrow
-    };
+    let currentLayout = 'normal'; // normal, fullscreen, narrow
+    const layoutSequence = ['normal', 'fullscreen', 'narrow'];
 
     if (layoutBtn && pageDiv) {
-      const layoutConfigs = {
-        normal: { maxWidth: '1060px', icon: layoutIcons.normal, title: layoutTitles.normal },
-        wide: { maxWidth: '2120px', icon: layoutIcons.wide, title: layoutTitles.wide },
-        fullscreen: { maxWidth: '100%', icon: layoutIcons.fullscreen, title: layoutTitles.fullscreen },
-        narrow: { maxWidth: '530px', icon: layoutIcons.narrow, title: layoutTitles.narrow }
-      };
-
-      const isWideLayoutAvailable = () => window.innerWidth > WIDE_LAYOUT_THRESHOLD;
-      const getLayoutSequence = () => (isWideLayoutAvailable()
-        ? ['normal', 'wide', 'fullscreen', 'narrow']
-        : ['normal', 'fullscreen', 'narrow']);
-
-      const applyLayout = (layout, saveState = true, autoZoom = true) => {
+      const applyLayout = (layout, saveState = true) => {
         const config = layoutConfigs[layout];
         if (!config) {
           return;
@@ -1327,56 +1308,30 @@ ${truncatedMarkup}`;
         layoutBtn.innerHTML = config.icon;
         layoutBtn.title = config.title;
         
-        // Prepare settings to save
-        const settingsToUpdate = { layoutMode: layout };
-        
-        // Auto-adjust zoom based on layout
-        if (autoZoom) {
-          let newZoom = null;
-          if (isWideLayoutAvailable() && (layout === 'wide' || layout === 'fullscreen')) {
-            newZoom = 200;
-          } else if (layout === 'normal' || layout === 'narrow') {
-            newZoom = 100;
-          }
-          
-          if (newZoom !== null) {
-            // Apply zoom without saving (will save together with layout)
-            applyZoom(newZoom, false);
-            settingsToUpdate.zoom = newZoom;
-          }
-        }
-        
-        // Save all settings at once
+        // Save layout mode
         if (saveState) {
-          saveFileState(settingsToUpdate);
+          saveFileState({ layoutMode: layout });
         }
       };
 
-      applyLayout('normal', false, false);
+      applyLayout('normal', false);
 
       layoutBtn.addEventListener('click', () => {
-        const sequence = getLayoutSequence();
-        if (!sequence.includes(currentLayout)) {
-          applyLayout(sequence[0]);
+        if (!layoutSequence.includes(currentLayout)) {
+          applyLayout(layoutSequence[0]);
           return;
         }
 
-        const currentIndex = sequence.indexOf(currentLayout);
-        const nextLayout = sequence[(currentIndex + 1) % sequence.length];
+        const currentIndex = layoutSequence.indexOf(currentLayout);
+        const nextLayout = layoutSequence[(currentIndex + 1) % layoutSequence.length];
         applyLayout(nextLayout);
-      });
-
-      window.addEventListener('resize', () => {
-        if (currentLayout === 'wide' && !isWideLayoutAvailable()) {
-          applyLayout('fullscreen');
-        }
       });
       
       // Restore layout and zoom state after toolbar setup
       (async () => {
         // Restore layout mode
         if (savedState.layoutMode && layoutConfigs[savedState.layoutMode]) {
-          applyLayout(savedState.layoutMode, false, false);
+          applyLayout(savedState.layoutMode, false);
         }
         
         // Restore zoom level

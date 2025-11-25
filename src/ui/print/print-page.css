@@ -5,8 +5,6 @@ body {
 
 
 .print-root {
-  max-width: 530px;
-  width: 530px;
   margin: 0 auto;
   padding: 40px;
 }
@@ -34,8 +32,6 @@ body {
 
   .print-root {
     margin: 0 auto;
-    max-width: 530px;
-    width: 530px;
     padding: 20px;
   }
 }
