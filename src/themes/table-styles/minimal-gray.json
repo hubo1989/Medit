@@ -5,8 +5,6 @@
   "description": "仅横向边框 + 灰色调 + 简洁美观",
   "description_en": "Horizontal borders only + gray tones + clean look",
   
-  "borderMode": "horizontal-only",
-  
   "border": {
     "headerBottom": {
       "color": "#9e9e9e",

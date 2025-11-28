@@ -153,43 +153,22 @@ function generateTableStyles(tableStyle) {
     borders: {},
     header: {},
     cell: {},
-    zebra: tableStyle.zebra?.enabled || false,
-    borderMode: tableStyle.borderMode || 'full-borders' // default to full borders
+    zebra: tableStyle.zebra?.enabled || false
   };
 
   // Convert borders based on what's defined in the border object
   const border = tableStyle.border || {};
-  
-  // Initialize default borders
-  const noBorder = { style: BorderStyle.NONE, size: 0, color: '000000' };
-  docxTableStyle.borders = {
-    top: noBorder,
-    bottom: noBorder,
-    left: noBorder,
-    right: noBorder,
-    insideHorizontal: noBorder,
-    insideVertical: noBorder
-  };
 
   // If border.all is defined, apply to all borders
   if (border.all) {
-    const borderConfig = {
+    docxTableStyle.borders.all = {
       style: convertBorderStyle(border.all.style),
       size: parseBorderWidth(border.all.width, border.all.style),
       color: border.all.color.replace('#', '')
     };
-    docxTableStyle.borders = {
-      top: borderConfig,
-      bottom: borderConfig,
-      left: borderConfig,
-      right: borderConfig,
-      insideHorizontal: borderConfig,
-      insideVertical: borderConfig
-    };
   }
-  
+
   // Override with specific borders if defined
-  // These work for all borderModes: full-borders, horizontal-only, and no-borders
   if (border.headerTop) {
     docxTableStyle.borders.headerTop = {
       style: convertBorderStyle(border.headerTop.style),

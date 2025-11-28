@@ -128,7 +128,6 @@ function generateTableCSS(tableStyle) {
 
   // Border styles
   const border = tableStyle.border || {};
-  const borderMode = tableStyle.borderMode || 'full-borders';
   
   // Convert pt to px for border width
   const convertBorderWidth = (width) => {
@@ -173,8 +172,7 @@ function generateTableCSS(tableStyle) {
   padding: ${tableStyle.cell.padding};
 }`);
 
-  // Apply borders based on borderMode
-  if (borderMode === 'full-borders' && border.all) {
+  if (border.all) {
     // Full borders mode (grid, simple-border)
     const borderWidth = calculateCssBorderWidth(border.all.width, border.all.style);
     const borderStyle = convertBorderStyle(border.all.style);
@@ -183,7 +181,7 @@ function generateTableCSS(tableStyle) {
 #markdown-content table td {
   border: ${borderValue};
 }`);
-  } else if (borderMode === 'horizontal-only') {
+  } else {
     // Horizontal-only mode (professional, borderless)
     css.push(`#markdown-content table th,
 #markdown-content table td {
@@ -215,37 +213,6 @@ function generateTableCSS(tableStyle) {
 }`);
     }
 
-    if (border.lastRowBottom) {
-      const width = calculateCssBorderWidth(border.lastRowBottom.width, border.lastRowBottom.style);
-      const style = convertBorderStyle(border.lastRowBottom.style);
-      css.push(`#markdown-content table tr:last-child td {
-  border-bottom: ${width} ${style} ${border.lastRowBottom.color};
-}`);
-    }
-  } else if (borderMode === 'no-borders') {
-    // No borders mode (zebra, borderless with special borders)
-    css.push(`#markdown-content table th,
-#markdown-content table td {
-  border: none;
-}`);
-    
-    // Allow special borders to override
-    if (border.headerTop) {
-      const width = calculateCssBorderWidth(border.headerTop.width, border.headerTop.style);
-      const style = convertBorderStyle(border.headerTop.style);
-      css.push(`#markdown-content table th {
-  border-top: ${width} ${style} ${border.headerTop.color};
-}`);
-    }
-    
-    if (border.headerBottom) {
-      const width = calculateCssBorderWidth(border.headerBottom.width, border.headerBottom.style);
-      const style = convertBorderStyle(border.headerBottom.style);
-      css.push(`#markdown-content table th {
-  border-bottom: ${width} ${style} ${border.headerBottom.color};
-}`);
-    }
-    
     if (border.lastRowBottom) {
       const width = calculateCssBorderWidth(border.lastRowBottom.width, border.lastRowBottom.style);
       const style = convertBorderStyle(border.lastRowBottom.style);
