@@ -5,8 +5,6 @@
   "description": "黑白高对比 + 粗边框，适合打印和可访问性需求",
   "description_en": "Black & white high contrast with thick borders, ideal for printing and accessibility",
   
-  "borderMode": "full-borders",
-  
   "border": {
     "all": {
       "color": "#000000",

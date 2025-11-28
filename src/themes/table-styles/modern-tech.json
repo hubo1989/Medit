@@ -5,8 +5,6 @@
   "description": "蓝色主题 + 圆角边框，适合技术文档和产品说明",
   "description_en": "Blue theme with rounded borders, ideal for tech docs and product guides",
   
-  "borderMode": "horizontal-only",
-  
   "border": {
     "headerTop": {
       "color": "#2196F3",

@@ -56,10 +56,10 @@ function calculateImageDimensions(originalWidth, originalHeight) {
   // Calculate scaling ratios for both dimensions
   const widthRatio = maxWidthPixels / originalWidth;
   const heightRatio = maxHeightPixels / originalHeight;
-  
+
   // Use the smaller ratio to ensure the image fits within both constraints
   const ratio = Math.min(widthRatio, heightRatio);
-  
+
   return {
     width: Math.round(originalWidth * ratio),
     height: Math.round(originalHeight * ratio)
@@ -78,7 +78,7 @@ export function convertPluginResultToDOCX(renderResult, pluginType = 'diagram') 
       children: [],
     });
   }
-  
+
   if (renderResult.type === 'error') {
     const inline = renderResult.display.inline;
     if (inline) {
@@ -100,11 +100,11 @@ export function convertPluginResultToDOCX(renderResult, pluginType = 'diagram') 
       spacing: { before: 240, after: 240 },
     });
   }
-  
+
   if (renderResult.type === 'image') {
     const { data, width, height } = renderResult.content;
     const { inline, alignment } = renderResult.display;
-    
+
     // Calculate display size (1/4 of original PNG size)
     const scaledWidth = Math.round(width / 4);
     const scaledHeight = Math.round(height / 4);
@@ -143,7 +143,7 @@ export function convertPluginResultToDOCX(renderResult, pluginType = 'diagram') 
       spacing: { before: 240, after: 240 },
     });
   }
-  
+
   // Fallback for unknown types
   return new Paragraph({
     children: [],
@@ -186,7 +186,7 @@ class DocxExporter {
       }
 
       const normalized = token.replace(/-/g, '_');
-      
+
       // Use theme color
       const themeColor = this.themeStyles.codeColors.colors[normalized];
       if (themeColor) {
@@ -206,7 +206,7 @@ class DocxExporter {
     const lastIndex = segments.length - 1;
     const defaultColor = this.themeStyles.codeColors.foreground;
     const appliedColor = color || defaultColor;
-    
+
     // Use theme code font and size (already converted to half-points in theme-to-docx.js)
     const codeStyle = this.themeStyles.characterStyles.code;
     const codeFont = codeStyle.font;
@@ -263,7 +263,7 @@ class DocxExporter {
       const codeFont = codeStyle.font;
       const codeSize = codeStyle.size;
       const defaultColor = this.themeStyles.codeColors.foreground;
-      
+
       runs.push(new TextRun({
         text: '',
         font: codeFont,
@@ -291,7 +291,7 @@ class DocxExporter {
     }
 
     const defaultColor = this.themeStyles.codeColors.foreground;
-    
+
     if (highlightResult && highlightResult.value) {
       const container = document.createElement('div');
       container.innerHTML = highlightResult.value;
@@ -338,8 +338,6 @@ class DocxExporter {
       const themeStyles = await loadThemeForDOCX(selectedThemeId);
       this.themeStyles = themeStyles;
       this.spacingScheme = null; // Not used directly, accessed via themeStyles
-      
-      console.log('[DOCX Exporter] Theme loaded:', selectedThemeId, themeStyles);
 
       // Initialize progress tracking
       this.progressCallback = onProgress;
@@ -685,14 +683,14 @@ class DocxExporter {
       convertInchesToTwip,
       themeStyles: this.themeStyles
     };
-    
+
     const pluginResult = await convertNodeToDOCX(
-      node, 
-      this.renderer, 
-      docxHelpers, 
+      node,
+      this.renderer,
+      docxHelpers,
       () => this.reportResourceProgress()
     );
-    
+
     if (pluginResult) {
       return pluginResult;
     }
@@ -752,8 +750,8 @@ class DocxExporter {
 
     // Use alignment from theme style if available
     if (headingStyle?.paragraph?.alignment) {
-      paragraphConfig.alignment = headingStyle.paragraph.alignment === 'center' 
-        ? AlignmentType.CENTER 
+      paragraphConfig.alignment = headingStyle.paragraph.alignment === 'center'
+        ? AlignmentType.CENTER
         : AlignmentType.LEFT;
     }
 
@@ -823,7 +821,7 @@ class DocxExporter {
     // Get font and size from theme
     const bodyFont = this.themeStyles.default.run.font;
     const bodySize = this.themeStyles.default.run.size;
-    
+
     const defaultStyle = {
       font: bodyFont,
       size: bodySize,
@@ -857,14 +855,14 @@ class DocxExporter {
       convertInchesToTwip,
       themeStyles: this.themeStyles
     };
-    
+
     const pluginResult = await convertNodeToDOCX(
-      node, 
-      this.renderer, 
-      docxHelpers, 
+      node,
+      this.renderer,
+      docxHelpers,
       () => this.reportResourceProgress()
     );
-    
+
     if (pluginResult) {
       return pluginResult;
     }
@@ -1229,7 +1227,7 @@ class DocxExporter {
     const runs = this.getHighlightedRunsForCode(node.value ?? '', node.lang);
 
     const codeBackground = this.themeStyles.characterStyles.code.background;
-    
+
     return new Paragraph({
       children: runs,
       wordWrap: true, // Enable word wrap for long code lines
@@ -1315,7 +1313,7 @@ class DocxExporter {
 
         // Get spacing from theme
         const defaultLineSpacing = this.themeStyles.default.paragraph.spacing.line;
-        
+
         const paragraphConfig = {
           children: children,
           spacing: {
@@ -1381,7 +1379,7 @@ class DocxExporter {
     // Formula: 240 + (defaultLineSpacing - 240) / 4
     // Example: 180% (432) -> 120% (288), 150% (360) -> 112.5% (270)
     const compressedLineSpacing = Math.round(240 + (defaultLineSpacing - 240) / 4);
-    
+
     // Calculate inter-paragraph spacing within blockquote
     // Use the same calculation as normal paragraphs, but compensate for compressed line spacing
     const lineSpacingExtra = compressedLineSpacing - 240;
@@ -1442,11 +1440,11 @@ class DocxExporter {
     for (const child of node.children) {
       if (child.type === 'paragraph') {
         const children = await this.convertInlineNodes(child.children, { color: '6A737D' });
-        
+
         // Only top-level blockquote (nestLevel === 0) gets outer spacing
         const isFirst = (childIndex === 0);
         const isLast = (childIndex === childCount - 1);
-        
+
         // First paragraph gets outer before spacing (only at top level)
         let spacingBefore = 0;
         if (isFirst && nestLevel === 0) {
@@ -1456,10 +1454,10 @@ class DocxExporter {
           // Use calculated spacing that compensates for blockquote's compressed line height
           spacingBefore = blockquoteInterParagraphSpacing;
         }
-        
+
         // Last paragraph gets outer after spacing (only at top level)
         const spacingAfter = (isLast && nestLevel === 0) ? 300 : 0;  // 15pt
-        
+
         paragraphs.push(new Paragraph(buildParagraphConfig(children, spacingBefore, spacingAfter)));
         childIndex++;
       } else if (child.type === 'blockquote') {
@@ -1481,7 +1479,7 @@ class DocxExporter {
     const alignments = node.align || [];
     const tableRows = node.children.filter((row) => row.type === 'tableRow');
     const rowCount = tableRows.length;
-    
+
     // Get table styles from theme
     const tableStyles = this.themeStyles.tableStyles;
 
@@ -1490,7 +1488,7 @@ class DocxExporter {
       const row = tableRows[rowIndex];
       const isHeaderRow = rowIndex === 0;
       const isLastRow = rowIndex === rowCount - 1;
-      
+
       if (row.type === 'tableRow') {
         const cells = [];
 
@@ -1503,7 +1501,7 @@ class DocxExporter {
             const children = isBold
               ? await this.convertInlineNodes(cell.children, { bold: true, size: 20 })
               : await this.convertInlineNodes(cell.children, { size: 20 });
-            
+
             const cellAlignment = alignments[colIndex];
             let paragraphAlignment = AlignmentType.LEFT;
             if (isHeaderRow) {
@@ -1524,53 +1522,26 @@ class DocxExporter {
               margins: tableStyles.cell.margins,
             };
 
-            // Apply cell borders based on borderMode
-            // Different strategies for hiding borders:
-            // - Left border: SINGLE size:0 (prevents artifacts at leftmost edge)
-            // - Inside vertical borders: NONE (cleaner for internal columns)
-            // - Horizontal borders: SINGLE size:0 (consistent hiding)
-            const whiteLeftBorder = { style: BorderStyle.SINGLE, size: 0, color: 'FFFFFF' };
-            const whiteInsideVerticalBorder = { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' };
-            const whiteHorizontalBorder = { style: BorderStyle.SINGLE, size: 0, color: 'FFFFFF' };
-            
-            const borderMode = tableStyles.borderMode || 'full-borders';
+            const whiteBorder = { style: BorderStyle.SINGLE, size: 0, color: 'FFFFFF' };
+            const noneBorder = { style: BorderStyle.NONE, size: 0, color: 'FFFFFF' };
+
             const isFirstColumn = colIndex === 0;
-            
-            // Step 1: Set base borders according to borderMode
-            cellConfig.borders = {};
-            
-            if (borderMode === 'no-borders') {
-              // No borders: hide all borders
+
+            if (tableStyles.borders.all)
               cellConfig.borders = {
-                top: whiteHorizontalBorder,
-                bottom: whiteHorizontalBorder,
-                left: isFirstColumn ? whiteLeftBorder : whiteInsideVerticalBorder,
-                right: whiteInsideVerticalBorder
+                top: tableStyles.borders.all,
+                bottom: tableStyles.borders.all,
+                left: tableStyles.borders.all,
+                right: tableStyles.borders.all
               };
-            } else if (borderMode === 'horizontal-only') {
-              // Horizontal-only: hide vertical borders, show horizontal
+            else
               cellConfig.borders = {
-                top: whiteHorizontalBorder,
-                bottom: whiteHorizontalBorder,
-                left: isFirstColumn ? whiteLeftBorder : whiteInsideVerticalBorder,
-                right: whiteInsideVerticalBorder
+                top: whiteBorder,
+                bottom: whiteBorder,
+                left: isFirstColumn ? whiteBorder : noneBorder,
+                right: noneBorder
               };
-            } else {
-              // Full borders: apply all borders from config
-              if (tableStyles.borders.top) {
-                cellConfig.borders.top = tableStyles.borders.top;
-              }
-              if (tableStyles.borders.bottom) {
-                cellConfig.borders.bottom = tableStyles.borders.bottom;
-              }
-              if (tableStyles.borders.left) {
-                cellConfig.borders.left = tableStyles.borders.left;
-              }
-              if (tableStyles.borders.right) {
-                cellConfig.borders.right = tableStyles.borders.right;
-              }
-            }
-            
+
             // Step 2: Apply special borders (override base borders for all modes)
             if (isHeaderRow && tableStyles.borders.headerTop && tableStyles.borders.headerTop.style !== BorderStyle.NONE) {
               cellConfig.borders.top = tableStyles.borders.headerTop;
@@ -1587,7 +1558,7 @@ class DocxExporter {
                 cellConfig.borders.bottom = tableStyles.borders.insideHorizontal;
               }
             }
-            
+
             // Apply shading
             if (isHeaderRow && tableStyles.header.shading) {
               cellConfig.shading = tableStyles.header.shading;

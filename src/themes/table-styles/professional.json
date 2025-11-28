@@ -5,8 +5,6 @@
   "description": "粗表头边框 + 细分隔线",
   "description_en": "Thick header border + thin separators",
   
-  "borderMode": "horizontal-only",
-  
   "border": {
     "headerTop": {
       "color": "#000000",

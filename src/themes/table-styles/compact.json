@@ -5,8 +5,6 @@
   "description": "小间距 + 细边框，适合数据密集型表格",
   "description_en": "Small padding + thin borders, ideal for data-heavy tables",
   
-  "borderMode": "full-borders",
-  
   "border": {
     "all": {
       "color": "#cccccc",

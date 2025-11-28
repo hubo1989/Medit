@@ -5,8 +5,6 @@
   "description": "仅表头有下边框",
   "description_en": "Only header has bottom border",
   
-  "borderMode": "no-borders",
-  
   "border": {
     "headerBottom": {
       "color": "#000000",

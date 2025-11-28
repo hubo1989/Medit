@@ -5,8 +5,6 @@
   "description": "双线表头 + 单线分隔，适合论文和学术文档",
   "description_en": "Double-line header + single-line separators, ideal for papers and academic documents",
   
-  "borderMode": "no-borders",
-  
   "border": {
     "headerTop": {
       "color": "#000000",

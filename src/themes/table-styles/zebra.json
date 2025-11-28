@@ -5,8 +5,6 @@
   "description": "奇偶行不同背景色，无边框",
   "description_en": "Alternating row colors, no borders",
   
-  "borderMode": "no-borders",
-
   "border": {
     "headerBottom": {
       "color": "#e0e0e0",
