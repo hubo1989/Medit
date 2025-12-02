@@ -227,6 +227,10 @@
     "message": "Просмотрщик Markdown",
     "description": "Заголовок всплывающего окна"
   },
+  "popup_review_link": {
+    "message": "Оценить",
+    "description": "Текст ссылки для оценки расширения"
+  },
   "popup_version_label": {
     "message": "Версия {0}",
     "description": "Отображает версию расширения"

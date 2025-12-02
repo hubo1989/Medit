@@ -227,6 +227,10 @@
     "message": "Markdown Viewer",
     "description": "弹窗标题"
   },
+  "popup_review_link": {
+    "message": "评分",
+    "description": "评价扩展的链接文字"
+  },
   "popup_version_label": {
     "message": "版本 {0}",
     "description": "弹窗中的版本文字"

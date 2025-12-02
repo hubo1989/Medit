@@ -227,6 +227,10 @@
     "message": "Markdown Viewer",
     "description": "Popup title"
   },
+  "popup_review_link": {
+    "message": "Oceń",
+    "description": "Link text to rate and review the extension"
+  },
   "popup_version_label": {
     "message": "Wersja {0}",
     "description": "Shows the extension version in the header"

@@ -212,6 +212,27 @@ class PopupManager {
   }
 
   setupEventListeners() {
+    // Add click handler for extension title
+    const extensionTitle = document.getElementById('extension-title');
+    if (extensionTitle) {
+      extensionTitle.addEventListener('click', () => {
+        chrome.tabs.create({
+          url: 'https://chromewebstore.google.com/detail/markdown-viewer/jekhhoflgcfoikceikgeenibinpojaoi'
+        });
+      });
+    }
+
+    // Add click handler for review link
+    const reviewLink = document.getElementById('review-link');
+    if (reviewLink) {
+      reviewLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        chrome.tabs.create({
+          url: 'https://chromewebstore.google.com/detail/markdown-viewer/jekhhoflgcfoikceikgeenibinpojaoi/reviews'
+        });
+      });
+    }
+
     document.querySelectorAll('.tab').forEach((tab) => {
       tab.addEventListener('click', (event) => {
         const tabName = event.currentTarget.dataset.tab;

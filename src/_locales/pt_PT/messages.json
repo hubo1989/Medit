@@ -227,6 +227,10 @@
     "message": "Markdown Viewer",
     "description": "Popup title"
   },
+  "popup_review_link": {
+    "message": "Avaliar",
+    "description": "Texto do link para avaliar a extensão"
+  },
   "popup_version_label": {
     "message": "Versão {0}",
     "description": "Shows the extension version in the header"

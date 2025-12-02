@@ -224,8 +224,12 @@
     "description": "履歴ドキュメントタイトル"
   },
   "popup_title": {
-    "message": "Markdown ビューア",
-    "description": "ポップアップのタイトル"
+    "message": "Markdown Viewer",
+    "description": "ポップアップタイトル"
+  },
+  "popup_review_link": {
+    "message": "評価",
+    "description": "拡張機能を評価するリンクテキスト"
   },
   "popup_version_label": {
     "message": "バージョン {0}",

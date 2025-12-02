@@ -227,6 +227,10 @@
     "message": "Markdown-Viewer",
     "description": "Titel des Popups"
   },
+  "popup_review_link": {
+    "message": "Bewerten",
+    "description": "Linktext zur Bewertung der Erweiterung"
+  },
   "popup_version_label": {
     "message": "Version {0}",
     "description": "Zeigt die Erweiterungsversion im Header"

@@ -224,8 +224,12 @@
     "description": "기록 문서 제목"
   },
   "popup_title": {
-    "message": "Markdown 뷰어",
+    "message": "Markdown Viewer",
     "description": "팝업 제목"
+  },
+  "popup_review_link": {
+    "message": "평가",
+    "description": "확장 프로그램 평가 링크 텍스트"
   },
   "popup_version_label": {
     "message": "버전 {0}",

@@ -227,6 +227,10 @@
     "message": "Markdown Viewer",
     "description": "彈出視窗標題"
   },
+  "popup_review_link": {
+    "message": "評分",
+    "description": "評價擴充功能的連結文字"
+  },
   "popup_version_label": {
     "message": "版本 {0}",
     "description": "彈出視窗中的版本文字"

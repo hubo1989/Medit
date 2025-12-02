@@ -227,6 +227,10 @@
     "message": "Visionneuse Markdown",
     "description": "Titre de la fenêtre contextuelle"
   },
+  "popup_review_link": {
+    "message": "Noter",
+    "description": "Texte du lien pour noter l'extension"
+  },
   "popup_version_label": {
     "message": "Version {0}",
     "description": "Affiche la version de l'extension dans l'en-tête"

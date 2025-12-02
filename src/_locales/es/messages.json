@@ -227,6 +227,10 @@
     "message": "Visor de Markdown",
     "description": "Título del popup"
   },
+  "popup_review_link": {
+    "message": "Valorar",
+    "description": "Texto del enlace para valorar la extensión"
+  },
   "popup_version_label": {
     "message": "Versión {0}",
     "description": "Muestra la versión de la extensión en el encabezado"
