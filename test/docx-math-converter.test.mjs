@@ -458,4 +458,198 @@ describe('docx-math-converter', () => {
       assert.ok(omml.includes('<m:mcJc m:val="center"/>'), 'Matrix columns should be center-aligned');
     });
   });
+
+  describe('convertMathMl2Omml - delimiter handling for matrices', () => {
+    it('should convert pmatrix to m:d with parentheses', () => {
+      const mathMl = latex2MathMl('\\begin{pmatrix} a & b \\\\ c & d \\end{pmatrix}');
+      const omml = convertMathMl2Omml(mathMl);
+      assert.ok(omml.includes('<m:d>'), 'Should contain m:d delimiter element');
+      assert.ok(omml.includes('<m:begChr m:val="("/>'), 'Should have opening parenthesis');
+      assert.ok(omml.includes('<m:endChr m:val=")"/>'), 'Should have closing parenthesis');
+    });
+
+    it('should convert bmatrix to m:d with square brackets', () => {
+      const mathMl = latex2MathMl('\\begin{bmatrix} a & b \\\\ c & d \\end{bmatrix}');
+      const omml = convertMathMl2Omml(mathMl);
+      assert.ok(omml.includes('<m:d>'), 'Should contain m:d delimiter element');
+      assert.ok(omml.includes('<m:begChr m:val="["/>'), 'Should have opening bracket');
+      assert.ok(omml.includes('<m:endChr m:val="]"/>'), 'Should have closing bracket');
+    });
+
+    it('should convert vmatrix to m:d with vertical bars', () => {
+      const mathMl = latex2MathMl('\\begin{vmatrix} a & b \\\\ c & d \\end{vmatrix}');
+      const omml = convertMathMl2Omml(mathMl);
+      assert.ok(omml.includes('<m:d>'), 'Should contain m:d delimiter element');
+      assert.ok(omml.includes('<m:begChr m:val="|"/>'), 'Should have opening bar');
+      assert.ok(omml.includes('<m:endChr m:val="|"/>'), 'Should have closing bar');
+    });
+
+    it('should convert Vmatrix to m:d with double vertical bars', () => {
+      const mathMl = latex2MathMl('\\begin{Vmatrix} a & b \\\\ c & d \\end{Vmatrix}');
+      const omml = convertMathMl2Omml(mathMl);
+      assert.ok(omml.includes('<m:d>'), 'Should contain m:d delimiter element');
+      // Double vertical bar is ‖ (U+2016)
+      assert.ok(omml.includes('<m:begChr m:val="‖"/>'), 'Should have opening double bar');
+      assert.ok(omml.includes('<m:endChr m:val="‖"/>'), 'Should have closing double bar');
+    });
+
+    it('should convert Bmatrix to m:d with curly braces', () => {
+      const mathMl = latex2MathMl('\\begin{Bmatrix} a & b \\\\ c & d \\end{Bmatrix}');
+      const omml = convertMathMl2Omml(mathMl);
+      assert.ok(omml.includes('<m:d>'), 'Should contain m:d delimiter element');
+      assert.ok(omml.includes('<m:begChr m:val="{"/>'), 'Should have opening brace');
+      assert.ok(omml.includes('<m:endChr m:val="}"/>'), 'Should have closing brace');
+    });
+
+    it('should convert \\left(\\right) with fraction to m:d', () => {
+      const mathMl = latex2MathMl('\\left( \\frac{a}{b} \\right)');
+      const omml = convertMathMl2Omml(mathMl);
+      assert.ok(omml.includes('<m:d>'), 'Should contain m:d delimiter element');
+      assert.ok(omml.includes('<m:begChr m:val="("/>'), 'Should have opening parenthesis');
+      assert.ok(omml.includes('<m:endChr m:val=")"/>'), 'Should have closing parenthesis');
+      assert.ok(omml.includes('<m:f>'), 'Should contain fraction element');
+    });
+
+    it('should convert \\left[\\right] to m:d with square brackets', () => {
+      const mathMl = latex2MathMl('\\left[ x + y \\right]');
+      const omml = convertMathMl2Omml(mathMl);
+      assert.ok(omml.includes('<m:d>'), 'Should contain m:d delimiter element');
+      assert.ok(omml.includes('<m:begChr m:val="["/>'), 'Should have opening bracket');
+      assert.ok(omml.includes('<m:endChr m:val="]"/>'), 'Should have closing bracket');
+    });
+
+    it('should wrap matrix content in m:e inside m:d', () => {
+      const mathMl = latex2MathMl('\\begin{pmatrix} a & b \\\\ c & d \\end{pmatrix}');
+      const omml = convertMathMl2Omml(mathMl);
+      // The m:m (matrix) should be inside m:e which is inside m:d
+      assert.ok(omml.includes('<m:e><m:m>'), 'Matrix should be wrapped in m:e element');
+    });
+
+    it('should handle nested delimiters', () => {
+      const mathMl = latex2MathMl('\\left( a + \\left( b + c \\right) \\right)');
+      const omml = convertMathMl2Omml(mathMl);
+      // Should have two m:d elements for nested parens
+      const delimCount = (omml.match(/<m:d>/g) || []).length;
+      assert.strictEqual(delimCount, 2, 'Should have 2 delimiter elements for nested parens');
+    });
+  });
+
+  describe('convertMathMl2Omml - over/under decorations', () => {
+    // Single-character accents (should use m:acc)
+    it('should convert \\hat{a} to m:acc with combining circumflex', () => {
+      const mathMl = latex2MathMl('\\hat{a}');
+      const omml = convertMathMl2Omml(mathMl);
+      assert.ok(omml.includes('<m:acc>'), 'Should contain m:acc element');
+      assert.ok(omml.includes('<m:chr m:val="\u0302"/>'), 'Should have combining circumflex accent');
+    });
+
+    it('should convert \\tilde{a} to m:acc with combining tilde', () => {
+      const mathMl = latex2MathMl('\\tilde{a}');
+      const omml = convertMathMl2Omml(mathMl);
+      assert.ok(omml.includes('<m:acc>'), 'Should contain m:acc element');
+      assert.ok(omml.includes('<m:chr m:val="\u0303"/>'), 'Should have combining tilde');
+    });
+
+    it('should convert \\dot{a} to m:acc with combining dot above', () => {
+      const mathMl = latex2MathMl('\\dot{a}');
+      const omml = convertMathMl2Omml(mathMl);
+      assert.ok(omml.includes('<m:acc>'), 'Should contain m:acc element');
+      assert.ok(omml.includes('<m:chr m:val="\u0307"/>'), 'Should have combining dot above');
+    });
+
+    it('should convert \\ddot{a} to m:acc with combining diaeresis', () => {
+      const mathMl = latex2MathMl('\\ddot{a}');
+      const omml = convertMathMl2Omml(mathMl);
+      assert.ok(omml.includes('<m:acc>'), 'Should contain m:acc element');
+      assert.ok(omml.includes('<m:chr m:val="\u0308"/>'), 'Should have combining diaeresis');
+    });
+
+    it('should convert \\dddot{a} to m:acc with combining three dots above', () => {
+      const mathMl = latex2MathMl('\\dddot{a}');
+      const omml = convertMathMl2Omml(mathMl);
+      assert.ok(omml.includes('<m:acc>'), 'Should contain m:acc element');
+      assert.ok(omml.includes('<m:chr m:val="\u20DB"/>'), 'Should have combining three dots above');
+    });
+
+    it('should convert \\mathring{a} to m:acc with combining ring above', () => {
+      const mathMl = latex2MathMl('\\mathring{a}');
+      const omml = convertMathMl2Omml(mathMl);
+      assert.ok(omml.includes('<m:acc>'), 'Should contain m:acc element');
+      assert.ok(omml.includes('<m:chr m:val="\u030A"/>'), 'Should have combining ring above');
+    });
+
+    it('should convert \\vec{v} to m:acc with combining right arrow', () => {
+      const mathMl = latex2MathMl('\\vec{v}');
+      const omml = convertMathMl2Omml(mathMl);
+      assert.ok(omml.includes('<m:acc>'), 'Should contain m:acc element');
+      assert.ok(omml.includes('<m:chr m:val="\u20D7"/>'), 'Should have combining right arrow above');
+    });
+
+    // Wide accents for multi-character base (should also use m:acc)
+    it('should convert \\widehat{abc} to m:acc', () => {
+      const mathMl = latex2MathMl('\\widehat{abc}');
+      const omml = convertMathMl2Omml(mathMl);
+      assert.ok(omml.includes('<m:acc>'), 'Should contain m:acc element');
+      assert.ok(omml.includes('<m:chr m:val="\u0302"/>'), 'Should have combining circumflex');
+      assert.ok(omml.includes('abc'), 'Should contain the base text');
+    });
+
+    it('should convert \\widetilde{abc} to m:acc', () => {
+      const mathMl = latex2MathMl('\\widetilde{abc}');
+      const omml = convertMathMl2Omml(mathMl);
+      assert.ok(omml.includes('<m:acc>'), 'Should contain m:acc element');
+      assert.ok(omml.includes('<m:chr m:val="\u0303"/>'), 'Should have combining tilde');
+      assert.ok(omml.includes('abc'), 'Should contain the base text');
+    });
+
+    // Overline/underline (should use m:bar)
+    it('should convert \\overline{abc} to m:bar with pos=top', () => {
+      const mathMl = latex2MathMl('\\overline{abc}');
+      const omml = convertMathMl2Omml(mathMl);
+      assert.ok(omml.includes('<m:bar>'), 'Should contain m:bar element');
+      assert.ok(omml.includes('<m:pos m:val="top"/>'), 'Should have pos=top for overline');
+    });
+
+    it('should convert \\underline{abc} to m:bar with pos=bot', () => {
+      const mathMl = latex2MathMl('\\underline{abc}');
+      const omml = convertMathMl2Omml(mathMl);
+      assert.ok(omml.includes('<m:bar>'), 'Should contain m:bar element');
+      assert.ok(omml.includes('<m:pos m:val="bot"/>'), 'Should have pos=bot for underline');
+    });
+
+    // Group characters (overbrace, underbrace, arrows - should use m:groupChr)
+    it('should convert \\overbrace to m:groupChr with top position', () => {
+      const mathMl = latex2MathMl('\\overbrace{a+b+c}');
+      const omml = convertMathMl2Omml(mathMl);
+      assert.ok(omml.includes('<m:groupChr>'), 'Should contain m:groupChr element');
+      assert.ok(omml.includes('<m:chr m:val="\u23DE"/>'), 'Should have top curly bracket character');
+      assert.ok(omml.includes('<m:pos m:val="top"/>'), 'Should have pos=top');
+      assert.ok(omml.includes('<m:vertJc m:val="bot"/>'), 'Should have vertJc=bot for baseline alignment');
+    });
+
+    it('should convert \\underbrace to m:groupChr with bot position', () => {
+      const mathMl = latex2MathMl('\\underbrace{a+b+c}');
+      const omml = convertMathMl2Omml(mathMl);
+      assert.ok(omml.includes('<m:groupChr>'), 'Should contain m:groupChr element');
+      assert.ok(omml.includes('<m:chr m:val="\u23DF"/>'), 'Should have bottom curly bracket character');
+      assert.ok(omml.includes('<m:pos m:val="bot"/>'), 'Should have pos=bot');
+      assert.ok(omml.includes('<m:vertJc m:val="top"/>'), 'Should have vertJc=top for baseline alignment');
+    });
+
+    it('should convert \\overrightarrow{AB} to m:acc with combining arrow', () => {
+      const mathMl = latex2MathMl('\\overrightarrow{AB}');
+      const omml = convertMathMl2Omml(mathMl);
+      assert.ok(omml.includes('<m:acc>'), 'Should contain m:acc element');
+      assert.ok(omml.includes('<m:chr m:val="\u20D7"/>'), 'Should have combining right arrow above');
+      assert.ok(omml.includes('AB'), 'Should contain the base text');
+    });
+
+    it('should convert \\overleftarrow{AB} to m:acc with combining arrow', () => {
+      const mathMl = latex2MathMl('\\overleftarrow{AB}');
+      const omml = convertMathMl2Omml(mathMl);
+      assert.ok(omml.includes('<m:acc>'), 'Should contain m:acc element');
+      assert.ok(omml.includes('<m:chr m:val="\u20D6"/>'), 'Should have combining left arrow above');
+      assert.ok(omml.includes('AB'), 'Should contain the base text');
+    });
+  });
 });
