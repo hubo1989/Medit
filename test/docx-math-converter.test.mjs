@@ -56,45 +56,47 @@ describe('docx-math-converter', () => {
     });
 
     it('should convert fraction', () => {
-      const result = convertLatex2Math('\\frac{a}{b}');
-      assert.ok(result);
-      assert.strictEqual(result.rootKey, 'm:oMath');
+      const omml = convertMathMl2Omml(latex2MathMl('\\frac{a}{b}'));
+      assert.ok(omml.includes('<m:f>'), 'Should contain fraction element');
+      assert.ok(omml.includes('<m:num>'), 'Should contain numerator');
+      assert.ok(omml.includes('<m:den>'), 'Should contain denominator');
     });
 
     it('should convert square root', () => {
-      const result = convertLatex2Math('\\sqrt{x}');
-      assert.ok(result);
-      assert.strictEqual(result.rootKey, 'm:oMath');
+      const omml = convertMathMl2Omml(latex2MathMl('\\sqrt{x}'));
+      assert.ok(omml.includes('<m:rad>'), 'Should contain radical element');
+      assert.ok(omml.includes('<m:degHide'), 'Should hide degree for square root');
     });
 
     it('should convert nth root', () => {
-      const result = convertLatex2Math('\\sqrt[3]{x}');
-      assert.ok(result);
-      assert.strictEqual(result.rootKey, 'm:oMath');
+      const omml = convertMathMl2Omml(latex2MathMl('\\sqrt[3]{x}'));
+      assert.ok(omml.includes('<m:rad>'), 'Should contain radical element');
+      assert.ok(omml.includes('<m:deg>'), 'Should contain degree element');
+      assert.ok(omml.includes('3'), 'Should contain the degree value');
     });
 
     it('should convert sum with limits', () => {
-      const result = convertLatex2Math('\\sum_{i=1}^{n} i');
-      assert.ok(result);
-      assert.strictEqual(result.rootKey, 'm:oMath');
+      const omml = convertMathMl2Omml(latex2MathMl('\\sum_{i=1}^{n} i'));
+      assert.ok(omml.includes('∑') || omml.includes('&#x2211;'), 'Should contain summation symbol');
     });
 
     it('should convert integral', () => {
-      const result = convertLatex2Math('\\int_0^1 f(x) dx');
-      assert.ok(result);
-      assert.strictEqual(result.rootKey, 'm:oMath');
+      const omml = convertMathMl2Omml(latex2MathMl('\\int_0^1 f(x) dx'));
+      assert.ok(omml.includes('∫') || omml.includes('&#x222B;'), 'Should contain integral symbol');
     });
 
     it('should convert matrix', () => {
-      const result = convertLatex2Math('\\begin{pmatrix} a & b \\\\ c & d \\end{pmatrix}');
-      assert.ok(result);
-      assert.strictEqual(result.rootKey, 'm:oMath');
+      const omml = convertMathMl2Omml(latex2MathMl('\\begin{pmatrix} a & b \\\\ c & d \\end{pmatrix}'));
+      assert.ok(omml.includes('<m:m>'), 'Should contain matrix element');
+      assert.ok(omml.includes('<m:mr>'), 'Should contain matrix rows');
+      assert.ok(omml.includes('<m:d>'), 'Should contain delimiter for parentheses');
     });
 
     it('should convert Greek letters', () => {
-      const result = convertLatex2Math('\\alpha + \\beta = \\gamma');
-      assert.ok(result);
-      assert.strictEqual(result.rootKey, 'm:oMath');
+      const omml = convertMathMl2Omml(latex2MathMl('\\alpha + \\beta = \\gamma'));
+      assert.ok(omml.includes('α') || omml.includes('&#x3B1;'), 'Should contain alpha');
+      assert.ok(omml.includes('β') || omml.includes('&#x3B2;'), 'Should contain beta');
+      assert.ok(omml.includes('γ') || omml.includes('&#x3B3;'), 'Should contain gamma');
     });
 
     it('should convert unsupported esint commands like oiint', () => {
@@ -337,9 +339,10 @@ describe('docx-math-converter', () => {
     });
 
     it('should handle complex nested expressions', () => {
-      const result = convertLatex2Math('\\frac{\\sqrt{x^2 + y^2}}{\\sum_{i=1}^{n} i^2}');
-      assert.ok(result);
-      assert.strictEqual(result.rootKey, 'm:oMath');
+      const omml = convertMathMl2Omml(latex2MathMl('\\frac{\\sqrt{x^2 + y^2}}{\\sum_{i=1}^{n} i^2}'));
+      assert.ok(omml.includes('<m:f>'), 'Should contain fraction element');
+      assert.ok(omml.includes('<m:rad>'), 'Should contain radical element');
+      assert.ok(omml.includes('<m:sSup>'), 'Should contain superscript elements');
     });
 
     it('should handle multiple operators', () => {
@@ -349,27 +352,48 @@ describe('docx-math-converter', () => {
     });
 
     it('should handle text within math', () => {
-      const result = convertLatex2Math('x \\text{ is positive}');
-      assert.ok(result);
-      assert.strictEqual(result.rootKey, 'm:oMath');
+      const omml = convertMathMl2Omml(latex2MathMl('x \\text{ is positive}'));
+      assert.ok(omml.includes('is positive'), 'Should contain the text content');
     });
 
     it('should handle limits', () => {
-      const result = convertLatex2Math('\\lim_{x \\to \\infty} f(x)');
-      assert.ok(result);
-      assert.strictEqual(result.rootKey, 'm:oMath');
+      const omml = convertMathMl2Omml(latex2MathMl('\\lim_{x \\to \\infty} f(x)'));
+      assert.ok(omml.includes('lim'), 'Should contain lim text');
+      assert.ok(omml.includes('∞') || omml.includes('&#x221E;'), 'Should contain infinity symbol');
     });
 
     it('should handle binomial coefficient', () => {
-      const result = convertLatex2Math('\\binom{n}{k}');
-      assert.ok(result);
-      assert.strictEqual(result.rootKey, 'm:oMath');
+      const omml = convertMathMl2Omml(latex2MathMl('\\binom{n}{k}'));
+      assert.ok(omml.includes('<m:d>'), 'Should use m:d delimiter element for scaling parentheses');
+      assert.ok(omml.includes('<m:begChr m:val="("/>'), 'Should have opening parenthesis');
+      assert.ok(omml.includes('<m:endChr m:val=")"/>'), 'Should have closing parenthesis');
+      assert.ok(omml.includes('<m:f>'), 'Should contain fraction element');
+      assert.ok(omml.includes('<m:type m:val="noBar"/>'), 'Fraction should have no bar for binomial');
+    });
+
+    it('should handle binomial theorem formula', () => {
+      const omml = convertMathMl2Omml(latex2MathMl('(x+y)^n = \\sum_{k=0}^{n} \\binom{n}{k} x^{n-k} y^k'));
+      assert.ok(omml.includes('<m:d>'), 'Should use m:d for binomial coefficient brackets');
+      assert.ok(omml.includes('<m:type m:val="noBar"/>'), 'Binomial should use noBar fraction');
+      assert.ok(omml.includes('<m:sSup>'), 'Should contain superscript elements');
+    });
+
+    it('should handle Catalan number formula', () => {
+      const omml = convertMathMl2Omml(latex2MathMl('C_n = \\frac{1}{n+1}\\binom{2n}{n} = \\binom{2n}{n} - \\binom{2n}{n+1}'));
+      // Should have 3 binomial coefficients, each using m:d
+      const delimCount = (omml.match(/<m:d>/g) || []).length;
+      assert.strictEqual(delimCount, 3, 'Should have 3 delimiter elements for 3 binomial coefficients');
+      assert.ok(omml.includes('<m:type m:val="bar"/>'), 'Should have regular fraction with bar');
+      assert.ok(omml.includes('<m:type m:val="noBar"/>'), 'Should have noBar fractions for binomials');
     });
 
     it('should handle cases environment', () => {
-      const result = convertLatex2Math('f(x) = \\begin{cases} 1 & x > 0 \\\\ 0 & x = 0 \\\\ -1 & x < 0 \\end{cases}');
-      assert.ok(result);
-      assert.strictEqual(result.rootKey, 'm:oMath');
+      const omml = convertMathMl2Omml(latex2MathMl('f(x) = \\begin{cases} 1 & x > 0 \\\\ 0 & x = 0 \\\\ -1 & x < 0 \\end{cases}'));
+      assert.ok(omml.includes('<m:m>'), 'Should contain matrix element for cases');
+      assert.ok(omml.includes('<m:mr>'), 'Should contain matrix rows');
+      // Cases should have 3 rows
+      const rowCount = (omml.match(/<m:mr>/g) || []).length;
+      assert.strictEqual(rowCount, 3, 'Should have 3 rows for 3 cases');
     });
 
     it('should handle empty groups in prescripts', () => {

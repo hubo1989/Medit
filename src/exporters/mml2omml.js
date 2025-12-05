@@ -1308,6 +1308,95 @@ function mrow(element, targetParent, previousSibling, nextSibling, ancestors) {
     }
   }
 
+  // Check if this is a binomial coefficient pattern (ORD class with nested OPEN/CLOSE mrow elements)
+  // MathJax generates for \binom{n}{k}:
+  // <mrow data-mjx-texclass="ORD">
+  //   <mrow data-mjx-texclass="OPEN"><mo minsize="1.2em" maxsize="1.2em">(</mo></mrow>
+  //   <mfrac linethickness="0">...</mfrac>
+  //   <mrow data-mjx-texclass="CLOSE"><mo minsize="1.2em" maxsize="1.2em">)</mo></mrow>
+  // </mrow>
+  if (texclass === 'ORD' && element.children?.length >= 3) {
+    const firstChild = element.children[0]
+    const lastChild = element.children[element.children.length - 1]
+
+    // Check if first child is mrow with OPEN class containing mo
+    const isOpenWrapper =
+      firstChild.name === 'mrow' &&
+      firstChild.attribs?.['data-mjx-texclass'] === 'OPEN' &&
+      firstChild.children?.length === 1 &&
+      firstChild.children[0]?.name === 'mo'
+
+    // Check if last child is mrow with CLOSE class containing mo
+    const isCloseWrapper =
+      lastChild.name === 'mrow' &&
+      lastChild.attribs?.['data-mjx-texclass'] === 'CLOSE' &&
+      lastChild.children?.length === 1 &&
+      lastChild.children[0]?.name === 'mo'
+
+    if (isOpenWrapper && isCloseWrapper) {
+      // Extract delimiter characters from the nested mo elements
+      const openChar = decodeHtmlEntities(getTextContent(firstChild.children[0]))
+      const closeChar = decodeHtmlEntities(getTextContent(lastChild.children[0]))
+
+      // Create m:d delimiter structure
+      const contentTarget = {
+        name: 'm:e',
+        type: 'tag',
+        attribs: {},
+        children: []
+      }
+
+      const delimElement = {
+        name: 'm:d',
+        type: 'tag',
+        attribs: {},
+        children: [
+          {
+            name: 'm:dPr',
+            type: 'tag',
+            attribs: {},
+            children: [
+              {
+                name: 'm:begChr',
+                type: 'tag',
+                attribs: { 'm:val': openChar },
+                children: []
+              },
+              {
+                name: 'm:endChr',
+                type: 'tag',
+                attribs: { 'm:val': closeChar },
+                children: []
+              }
+            ]
+          },
+          contentTarget
+        ]
+      }
+
+      targetParent.children.push(delimElement)
+
+      // Process inner children (skip first and last which are the delimiter wrappers)
+      const innerChildren = element.children.slice(1, -1)
+      if (innerChildren.length > 0) {
+        ancestors = [...ancestors]
+        ancestors.unshift(element)
+        for (let i = 0; i < innerChildren.length; i++) {
+          walker(
+            innerChildren[i],
+            contentTarget,
+            innerChildren[i - 1],
+            innerChildren[i + 1],
+            ancestors
+          )
+        }
+      }
+
+      // Return null to prevent default child processing
+      return null
+    }
+  }
+
   // Check for empty mrow - fill with zero-width space to avoid empty <m:e/>
   if (!element.children || element.children.length === 0) {
     targetParent.children.push({
