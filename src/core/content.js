@@ -128,11 +128,24 @@ async function initializeContentScript() {
     }
   }
 
+  // Flag to stop scroll position restoration when user interacts
+  let stopScrollRestore = false;
+
+  /**
+   * Stop the automatic scroll position restoration
+   */
+  function cancelScrollRestore() {
+    stopScrollRestore = true;
+  }
+
   /**
    * Restore scroll position after rendering
    * @param {number} scrollPosition - The saved scroll position to restore
    */
   function restoreScrollPosition(scrollPosition) {
+    // Reset flag for new restoration
+    stopScrollRestore = false;
+
     if (scrollPosition === 0) {
       // For position 0, just scroll to top immediately
       window.scrollTo(0, 0);
@@ -154,8 +167,31 @@ async function initializeContentScript() {
     const adjustmentTimeout = 5000; // Stop adjusting after 5 seconds
     const startTime = Date.now();
 
+    // Listen for user scroll to stop restoration
+    const onUserScroll = () => {
+      stopScrollRestore = true;
+      window.removeEventListener('wheel', onUserScroll);
+      window.removeEventListener('keydown', onUserKeydown);
+      window.removeEventListener('touchmove', onUserScroll);
+    };
+
+    const onUserKeydown = (e) => {
+      // Stop on navigation keys
+      if (['ArrowUp', 'ArrowDown', 'PageUp', 'PageDown', 'Home', 'End', ' '].includes(e.key)) {
+        onUserScroll();
+      }
+    };
+
+    window.addEventListener('wheel', onUserScroll, { passive: true });
+    window.addEventListener('keydown', onUserKeydown);
+    window.addEventListener('touchmove', onUserScroll, { passive: true });
+
     const adjustScroll = () => {
-      if (Date.now() - startTime > adjustmentTimeout) {
+      if (stopScrollRestore || Date.now() - startTime > adjustmentTimeout) {
+        // Cleanup listeners when stopping
+        window.removeEventListener('wheel', onUserScroll);
+        window.removeEventListener('keydown', onUserKeydown);
+        window.removeEventListener('touchmove', onUserScroll);
         return;
       }
 
@@ -166,7 +202,9 @@ async function initializeContentScript() {
 
       // Schedule scroll after 100ms of no changes
       scrollTimer = setTimeout(() => {
-        window.scrollTo(0, scrollPosition);
+        if (!stopScrollRestore) {
+          window.scrollTo(0, scrollPosition);
+        }
       }, 100);
     };
 
@@ -195,6 +233,9 @@ async function initializeContentScript() {
     // Stop observing after timeout
     setTimeout(() => {
       observer.disconnect();
+      window.removeEventListener('wheel', onUserScroll);
+      window.removeEventListener('keydown', onUserKeydown);
+      window.removeEventListener('touchmove', onUserScroll);
       if (scrollTimer) {
         clearTimeout(scrollTimer);
       }
@@ -1230,6 +1271,12 @@ ${truncatedMarkup}`;
     if (fileNameSpan) {
       const fileName = getFilenameFromURL();
       fileNameSpan.textContent = fileName;
+      
+      // Click file name to scroll to top
+      fileNameSpan.addEventListener('click', () => {
+        cancelScrollRestore();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
     }
 
     // Setup toolbar button handlers
