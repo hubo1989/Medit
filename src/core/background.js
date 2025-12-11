@@ -2,6 +2,9 @@
 import ExtensionCacheManager from '../utils/cache-manager.js';
 
 let offscreenCreated = false;
+let offscreenReady = false;
+let offscreenReadyPromise = null;
+let offscreenReadyResolve = null;
 let globalCacheManager = null;
 
 // Upload sessions in memory
@@ -106,6 +109,9 @@ chrome.runtime.onConnect.addListener((port) => {
     port.onDisconnect.addListener(() => {
       // Reset state when offscreen document disconnects
       offscreenCreated = false;
+      offscreenReady = false;
+      offscreenReadyPromise = null;
+      offscreenReadyResolve = null;
     });
   }
 });
@@ -114,6 +120,12 @@ chrome.runtime.onConnect.addListener((port) => {
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === 'offscreenReady') {
     offscreenCreated = true;
+    offscreenReady = true;
+    // Resolve the ready promise if it exists
+    if (offscreenReadyResolve) {
+      offscreenReadyResolve();
+      offscreenReadyResolve = null;
+    }
     return;
   }
 
@@ -373,17 +385,19 @@ async function handleFileRead(message, sendResponse) {
 
 async function handleRenderingRequest(message, sendResponse) {
   try {
-    // Ensure offscreen document exists
+    // Ensure offscreen document exists and is ready
     await ensureOffscreenDocument();
     
     // Send message to offscreen document and wait for response
     const response = await new Promise((resolve, reject) => {
       chrome.runtime.sendMessage(message, (response) => {
         if (chrome.runtime.lastError) {
-          // Don't immediately reset on communication failure - it might be temporary
-          // Only reset if the error suggests the document is gone
+          // Reset all offscreen state on communication failure
           if (chrome.runtime.lastError.message.includes('receiving end does not exist')) {
             offscreenCreated = false;
+            offscreenReady = false;
+            offscreenReadyPromise = null;
+            offscreenReadyResolve = null;
           }
           reject(new Error(`Offscreen communication failed: ${chrome.runtime.lastError.message}`));
         } else if (!response) {
@@ -402,13 +416,23 @@ async function handleRenderingRequest(message, sendResponse) {
 }
 
 async function ensureOffscreenDocument() {
-  // If already created, return immediately
-  if (offscreenCreated) {
+  // If already ready, return immediately
+  if (offscreenReady) {
     return;
   }
 
+  // If there's already a pending ready promise, wait for it
+  if (offscreenReadyPromise) {
+    await offscreenReadyPromise;
+    return;
+  }
+
+  // Create a promise that will resolve when offscreen is ready
+  offscreenReadyPromise = new Promise((resolve) => {
+    offscreenReadyResolve = resolve;
+  });
+
   // Try to create offscreen document
-  // Multiple concurrent requests might try to create, but that's OK
   try {
     const offscreenUrl = chrome.runtime.getURL('ui/offscreen.html');
 
@@ -424,11 +448,41 @@ async function ensureOffscreenDocument() {
     // If error is about document already existing, that's fine
     if (error.message.includes('already exists') || error.message.includes('Only a single offscreen')) {
       offscreenCreated = true;
+      // Document exists but we're not sure if it's ready, wait a bit
+      if (!offscreenReady) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+        // If still not ready after waiting, assume it's ready
+        if (!offscreenReady) {
+          offscreenReady = true;
+          if (offscreenReadyResolve) {
+            offscreenReadyResolve();
+            offscreenReadyResolve = null;
+          }
+        }
+      }
       return;
     }
 
-    // For other errors, throw them
+    // For other errors, clean up and throw
+    offscreenReadyPromise = null;
+    offscreenReadyResolve = null;
     throw new Error(`Failed to create offscreen document: ${error.message}`);
+  }
+
+  // Wait for the offscreen document to signal it's ready (max 5 seconds)
+  const timeoutPromise = new Promise((_, reject) => {
+    setTimeout(() => {
+      if (!offscreenReady) {
+        reject(new Error('Offscreen document initialization timeout'));
+      }
+    }, 5000);
+  });
+
+  try {
+    await Promise.race([offscreenReadyPromise, timeoutPromise]);
+  } catch (error) {
+    // On timeout, assume it's ready anyway (the message might have been missed)
+    offscreenReady = true;
   }
 }
 

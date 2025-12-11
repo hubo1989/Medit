@@ -19,6 +19,8 @@ import { registerRemarkPlugins, getPluginByType } from '../plugins/index.js';
 import { createPlaceholderElement } from '../plugins/plugin-content-utils.js';
 
 async function initializeContentScript() {
+  // Record page load start time for performance measurement
+  const pageLoadStartTime = performance.now();
 
   const translate = (key, substitutions) => Localization.translate(key, substitutions);
 
@@ -536,15 +538,18 @@ ${truncatedMarkup}`;
   }
 
   /**
-   * Process all async tasks with prioritized handling
-   * Priority: ready > error > fetching (wait for fetching tasks)
+   * Process all async tasks in parallel
    */
   async function processAsyncTasks() {
     if (asyncTaskQueue.length === 0) {
+      // Log render completion time even when no async tasks
+      const renderCompleteTime = performance.now();
+      console.log(`[Markdown Viewer] All resources rendered in ${(renderCompleteTime - pageLoadStartTime).toFixed(2)}ms (no async tasks)`);
       return;
     }
 
     const totalTasks = asyncTaskQueue.length;
+    const tasks = asyncTaskQueue.splice(0, asyncTaskQueue.length); // Take all tasks
 
     // Show processing indicator and set initial progress
     showProcessingIndicator();
@@ -552,64 +557,56 @@ ${truncatedMarkup}`;
 
     let completedTasks = 0;
 
-    // Process tasks with priority: ready/error first, then wait for fetching
-    while (asyncTaskQueue.length > 0) {
-      // Find tasks that are ready to process (ready or error status)
-      let readyTaskIndex = asyncTaskQueue.findIndex(task =>
-        task.status === 'ready' || task.status === 'error'
-      );
+    // Wait for all fetching tasks to be ready first
+    const waitForReady = async (task) => {
+      while (task.status === 'fetching') {
+        await new Promise(resolve => setTimeout(resolve, 50));
+      }
+    };
 
-      if (readyTaskIndex !== -1) {
-        // Process ready/error task
-        const task = asyncTaskQueue.splice(readyTaskIndex, 1)[0];
+    // Process all tasks in parallel
+    const processTask = async (task) => {
+      try {
+        // Wait if task is still fetching
+        await waitForReady(task);
 
-        try {
-          if (task.status === 'error') {
-            // Handle error case - update placeholder with error message
-            const placeholder = document.getElementById(task.id);
-            if (placeholder) {
-              const unknownError = translate('async_unknown_error');
-              const errorDetail = escapeHtml((task.error ? task.error.message : '') || unknownError);
-              const localizedError = translate('async_processing_error', [errorDetail]);
-              placeholder.outerHTML = `<pre style="background: #fee; border-left: 4px solid #f00; padding: 10px; font-size: 12px;">${localizedError}</pre>`;
-            }
-          } else {
-            // Process ready task normally
-            await Promise.resolve().then(() => task.callback(task.data));
-          }
-
-          completedTasks++;
-          updateProgress(completedTasks, totalTasks);
-
-        } catch (error) {
-          console.error('Async task processing error:', error);
-          // Update placeholder with error message
+        if (task.status === 'error') {
+          // Handle error case - update placeholder with error message
           const placeholder = document.getElementById(task.id);
           if (placeholder) {
-            const errorDetail = escapeHtml(error.message || '');
-            const localizedError = translate('async_task_processing_error', [errorDetail]);
+            const unknownError = translate('async_unknown_error');
+            const errorDetail = escapeHtml((task.error ? task.error.message : '') || unknownError);
+            const localizedError = translate('async_processing_error', [errorDetail]);
             placeholder.outerHTML = `<pre style="background: #fee; border-left: 4px solid #f00; padding: 10px; font-size: 12px;">${localizedError}</pre>`;
           }
-
-          completedTasks++;
-          updateProgress(completedTasks, totalTasks);
+        } else {
+          // Process ready task normally
+          await task.callback(task.data);
         }
-      } else {
-        // All remaining tasks are fetching, wait a bit and check again
-        const fetchingTasks = asyncTaskQueue.filter(task => task.status === 'fetching');
-
-        if (fetchingTasks.length === 0) {
-          // No more tasks to process (shouldn't happen), break the loop
-          break;
+      } catch (error) {
+        console.error('Async task processing error:', error);
+        // Update placeholder with error message
+        const placeholder = document.getElementById(task.id);
+        if (placeholder) {
+          const errorDetail = escapeHtml(error.message || '');
+          const localizedError = translate('async_task_processing_error', [errorDetail]);
+          placeholder.outerHTML = `<pre style="background: #fee; border-left: 4px solid #f00; padding: 10px; font-size: 12px;">${localizedError}</pre>`;
         }
-
-        // Wait 100ms before checking again
-        await new Promise(resolve => setTimeout(resolve, 100));
+      } finally {
+        completedTasks++;
+        updateProgress(completedTasks, totalTasks);
       }
-    }
+    };
+
+    // Run all tasks in parallel
+    await Promise.all(tasks.map(processTask));
 
     // Hide processing indicator when all tasks are done
     hideProcessingIndicator();
+
+    // Log render completion time
+    const renderCompleteTime = performance.now();
+    console.log(`[Markdown Viewer] All resources rendered in ${(renderCompleteTime - pageLoadStartTime).toFixed(2)}ms`);
   }
 
   /**

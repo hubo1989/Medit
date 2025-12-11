@@ -139,11 +139,9 @@ export class VegaRenderer extends BaseRenderer {
     // Get font family from theme config
     const fontFamily = themeConfig?.fontFamily || "'SimSun', 'Times New Roman', Times, serif";
     
-    // Use shared container (safe because processAsyncTasks ensures serial execution)
-    const container = this.getContainer();
-    
-    container.innerHTML = '';
-    container.style.cssText = 'display: inline-block; background: transparent; padding: 0; margin: 0;';
+    // Create container for this render
+    const container = this.createContainer();
+    container.style.cssText = 'position: absolute; left: -9999px; top: -9999px; display: inline-block; background: transparent; padding: 0; margin: 0;';
 
     // Prepare embed options with canvas renderer for direct rendering
     const embedOptions = {
@@ -192,25 +190,13 @@ export class VegaRenderer extends BaseRenderer {
     const pngDataUrl = sourceCanvas.toDataURL('image/png', 1.0);
     const base64Data = pngDataUrl.replace(/^data:image\/png;base64,/, '');
 
-    // Cleanup
-    container.innerHTML = '';
+    // Cleanup container
+    this.removeContainer(container);
 
     return {
       base64: base64Data,
       width: sourceCanvas.width,
       height: sourceCanvas.height
     };
-  }
-
-  /**
-   * Cleanup on error
-   */
-  cleanup() {
-    try {
-      const container = this.getContainer();
-      container.innerHTML = '';
-    } catch (e) {
-      // Container might not exist, ignore
-    }
   }
 }
