@@ -199,6 +199,9 @@ export class AsyncTaskManager {
     this.idCounter = 0;
     this.translate = translate;
     this.aborted = false;
+    // Create a unique context object for this manager instance
+    // Tasks will reference this context to check cancellation
+    this.context = { cancelled: false };
   }
 
   /**
@@ -207,6 +210,8 @@ export class AsyncTaskManager {
    */
   abort() {
     this.aborted = true;
+    // Mark current context as cancelled so running callbacks can check
+    this.context.cancelled = true;
     this.queue = [];
   }
 
@@ -217,6 +222,8 @@ export class AsyncTaskManager {
     this.aborted = false;
     this.queue = [];
     this.idCounter = 0;
+    // Create new context for new render cycle
+    this.context = { cancelled: false };
   }
 
   /**
@@ -224,6 +231,13 @@ export class AsyncTaskManager {
    */
   isAborted() {
     return this.aborted;
+  }
+
+  /**
+   * Get current context for callbacks to reference
+   */
+  getContext() {
+    return this.context;
   }
 
   /**
@@ -244,6 +258,8 @@ export class AsyncTaskManager {
   createTask(callback, data = {}, plugin = null, initialStatus = 'ready') {
     const placeholderId = this.generateId();
     const type = plugin?.type || 'unknown';
+    // Capture current context reference for this task
+    const taskContext = this.context;
 
     const task = {
       id: placeholderId,
@@ -252,6 +268,7 @@ export class AsyncTaskManager {
       type,
       status: initialStatus,
       error: null,
+      context: taskContext, // Bind task to its creation context
       setReady: () => { task.status = 'ready'; },
       setError: (error) => { task.status = 'error'; task.error = error; }
     };
@@ -285,26 +302,29 @@ export class AsyncTaskManager {
     let completedTasks = 0;
 
     const waitForReady = async (task) => {
-      while (task.status === 'fetching' && !this.aborted) {
+      // Check task's own context instead of global aborted flag
+      while (task.status === 'fetching' && !task.context.cancelled) {
         await new Promise(resolve => setTimeout(resolve, 50));
       }
     };
 
     const processTask = async (task) => {
-      // Check if aborted before processing
-      if (this.aborted) {
+      // Check task's own context - if cancelled, skip this task
+      if (task.context.cancelled) {
         return;
       }
 
       try {
         await waitForReady(task);
 
-        // Check again after waiting
-        if (this.aborted) {
+        // Check again after waiting (using task's context)
+        if (task.context.cancelled) {
           return;
         }
 
         if (task.status === 'error') {
+          // Check context before DOM update
+          if (task.context.cancelled) return;
           const placeholder = document.getElementById(task.id);
           if (placeholder) {
             const errorDetail = escapeHtml(task.error?.message || this.translate('async_unknown_error'));
@@ -312,11 +332,11 @@ export class AsyncTaskManager {
             placeholder.outerHTML = `<pre style="background: #fee; border-left: 4px solid #f00; padding: 10px; font-size: 12px;">${localizedError}</pre>`;
           }
         } else {
-          await task.callback(task.data);
+          await task.callback(task.data, task.context);
         }
       } catch (error) {
-        // Ignore errors if aborted
-        if (this.aborted) {
+        // Ignore errors if task's context was cancelled
+        if (task.context.cancelled) {
           return;
         }
         console.error('Async task processing error:', error);
@@ -328,7 +348,8 @@ export class AsyncTaskManager {
         }
         if (onError) onError(error, task);
       } finally {
-        if (!this.aborted) {
+        // Only update progress if task's context is still valid
+        if (!task.context.cancelled) {
           completedTasks++;
           if (onProgress) onProgress(completedTasks, totalTasks);
         }

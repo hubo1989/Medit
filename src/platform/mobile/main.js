@@ -92,6 +92,11 @@ function setupMessageHandlers() {
  * Handle loading Markdown content
  */
 async function handleLoadMarkdown({ content, filename, themeDataJson }) {
+  // Cancel any pending renderer requests from previous render
+  if (platform.renderer.cancelPending) {
+    platform.renderer.cancelPending();
+  }
+  
   // Abort any pending async tasks from previous render
   if (currentTaskManager) {
     currentTaskManager.abort();
@@ -117,6 +122,10 @@ async function handleLoadMarkdown({ content, filename, themeDataJson }) {
       }
     }
 
+    // Capture theme data at the start of this render cycle
+    // This ensures we use the correct theme even if it changes during async operations
+    const renderThemeData = currentThemeData;
+
     // Create task manager for async rendering and store reference for potential cancellation
     const taskManager = new AsyncTaskManager((key, subs) => Localization.translate(key, subs));
     currentTaskManager = taskManager;
@@ -140,8 +149,9 @@ async function handleLoadMarkdown({ content, filename, themeDataJson }) {
       container.innerHTML = ''; // Clear previous content
       
       // Now apply theme CSS (container is empty, no flicker)
-      if (currentThemeData) {
-        const { fontConfig, theme, tableStyle, codeTheme, spacing } = currentThemeData;
+      // Use captured renderThemeData instead of currentThemeData
+      if (renderThemeData) {
+        const { fontConfig, theme, tableStyle, codeTheme, spacing } = renderThemeData;
         applyThemeFromData(theme, tableStyle, codeTheme, spacing, fontConfig);
         
         // Also set renderer theme config for diagrams

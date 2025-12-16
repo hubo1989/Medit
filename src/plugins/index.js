@@ -63,14 +63,17 @@ export function registerRemarkPlugins(processor, renderer, asyncTask, translate,
             const initialStatus = plugin.isUrl(content) ? 'fetching' : 'ready';
 
             const result = asyncTask(
-              async (data) => {
+              async (data, context) => {
                 const { id, code } = data;
                 try {
                   const extraParams = plugin.getRenderParams();
                   // Use SVG format for browser display (fonts render correctly)
                   // Exception: HTML plugin uses PNG format (doesn't support SVG)
                   extraParams.outputFormat = plugin.type === 'html' ? 'png' : 'svg';
-                  const renderResult = await renderer.render(plugin.type, code, extraParams);
+                  // Pass context to renderer for cancellation support
+                  // On mobile, renderer.render() accepts context as 4th param
+                  const renderContext = context && renderer.getQueueContext ? renderer.getQueueContext() : null;
+                  const renderResult = await renderer.render(plugin.type, code, extraParams, renderContext);
                   if (renderResult) {
                     replacePlaceholderWithImage(id, renderResult, plugin.type, plugin.isInline());
                   } else {
@@ -80,6 +83,10 @@ export function registerRemarkPlugins(processor, renderer, asyncTask, translate,
                     }
                   }
                 } catch (error) {
+                  // Ignore cancellation errors silently
+                  if (error.message === 'Render cancelled' || error.message === 'Request cancelled') {
+                    return;
+                  }
                   const placeholder = document.getElementById(id);
                   if (placeholder) {
                     const errorDetail = escapeHtml(error.message || '');

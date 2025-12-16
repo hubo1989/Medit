@@ -343,6 +343,28 @@ class MobileRendererService extends BaseRendererService {
     this.requestId = 0;
     this.readyPromise = null;
     this.requestQueue = Promise.resolve(); // Serial request queue
+    // Queue context for cancellation - each render cycle gets a new context
+    this.queueContext = { cancelled: false, id: 0 };
+  }
+
+  /**
+   * Cancel all pending requests and create new queue context
+   * Called when starting a new render to cancel previous requests
+   */
+  cancelPending() {
+    // Mark current context as cancelled
+    this.queueContext.cancelled = true;
+    // Create new context for new render cycle
+    this.queueContext = { cancelled: false, id: this.queueContext.id + 1 };
+    // Reset queue - pending requests will be rejected when they check context
+    this.requestQueue = Promise.resolve();
+  }
+
+  /**
+   * Get current queue context for requests to reference
+   */
+  getQueueContext() {
+    return this.queueContext;
   }
 
   /**
@@ -399,10 +421,28 @@ class MobileRendererService extends BaseRendererService {
    * Send message to iframe and wait for response
    * Requests are serialized: wait for previous request to complete before sending next
    * Each request has its own timeout
+   * @param {string} type - Message type
+   * @param {object} payload - Message payload
+   * @param {number} timeout - Request timeout in ms
+   * @param {object} context - Queue context for cancellation check (optional)
    */
-  sendRequest(type, payload = {}, timeout = 60000) {
+  sendRequest(type, payload = {}, timeout = 60000, context = null) {
+    // Capture context at request creation time
+    const requestContext = context || this.queueContext;
+    
+    // Check immediately - if already cancelled, reject right away
+    if (requestContext.cancelled) {
+      return Promise.reject(new Error('Request cancelled'));
+    }
+    
     // Chain this request after previous one completes
-    const request = this.requestQueue.then(() => this._doSendRequest(type, payload, timeout));
+    const request = this.requestQueue.then(() => {
+      // Check if context was cancelled while waiting in queue
+      if (requestContext.cancelled) {
+        return Promise.reject(new Error('Request cancelled'));
+      }
+      return this._doSendRequest(type, payload, timeout, requestContext);
+    });
     
     // Update queue (don't let errors break the chain)
     this.requestQueue = request.catch(() => {});
@@ -413,8 +453,14 @@ class MobileRendererService extends BaseRendererService {
   /**
    * Actually send the request and wait for response
    */
-  _doSendRequest(type, payload, timeout) {
+  _doSendRequest(type, payload, timeout, context) {
     return new Promise((resolve, reject) => {
+      // Check context before sending
+      if (context && context.cancelled) {
+        reject(new Error('Request cancelled'));
+        return;
+      }
+      
       if (!this.iframe || !this.isReady) {
         reject(new Error('Render frame not ready'));
         return;
@@ -433,12 +479,14 @@ class MobileRendererService extends BaseRendererService {
       this.pendingRequests.set(id, { 
         resolve: (result) => {
           clearTimeout(timeoutTimer);
+          // Check context before resolving - if cancelled, still resolve but caller will ignore
           resolve(result);
         }, 
         reject: (error) => {
           clearTimeout(timeoutTimer);
           reject(error);
-        }
+        },
+        context // Store context reference for potential external cancellation
       });
 
       this.iframe.contentWindow.postMessage({
@@ -469,9 +517,18 @@ class MobileRendererService extends BaseRendererService {
    * @param {string} type - Renderer type (mermaid, vega, vega-lite, svg, html)
    * @param {string|object} input - Content to render
    * @param {object} extraParams - Extra parameters for the renderer (including outputFormat)
+   * @param {object} context - Optional queue context for cancellation check
    * @returns {Promise<{base64?: string, svg?: string, width: number, height: number, format: string}>}
    */
-  async render(type, input, extraParams = {}) {
+  async render(type, input, extraParams = {}, context = null) {
+    // Use provided context or current queue context
+    const renderContext = context || this.queueContext;
+    
+    // Check if already cancelled before doing any work
+    if (renderContext.cancelled) {
+      throw new Error('Render cancelled');
+    }
+    
     // Generate cache key - access cache via platform singleton (set up later)
     const cache = window.__mobilePlatformCache;
     if (cache) {
@@ -488,15 +545,20 @@ class MobileRendererService extends BaseRendererService {
       if (cached) {
         return cached;
       }
+      
+      // Check again after cache lookup
+      if (renderContext.cancelled) {
+        throw new Error('Render cancelled');
+      }
 
-      // Render via iframe
+      // Render via iframe - pass context for queue cancellation check
       await this.ensureIframe();
       const result = await this.sendRequest('RENDER_DIAGRAM', {
         renderType: type,
         input,
         themeConfig: this.themeConfig,
         extraParams
-      });
+      }, 60000, renderContext);
 
       // Cache the result asynchronously (don't wait)
       cache.set(cacheKey, result, cacheType).catch(() => {});
@@ -504,6 +566,11 @@ class MobileRendererService extends BaseRendererService {
       return result;
     }
 
+    // Check before sending request
+    if (renderContext.cancelled) {
+      throw new Error('Render cancelled');
+    }
+    
     // Fallback: no cache available
     await this.ensureIframe();
     return this.sendRequest('RENDER_DIAGRAM', {
@@ -511,7 +578,7 @@ class MobileRendererService extends BaseRendererService {
       input,
       themeConfig: this.themeConfig,
       extraParams
-    });
+    }, 60000, renderContext);
   }
 
   async cleanup() {

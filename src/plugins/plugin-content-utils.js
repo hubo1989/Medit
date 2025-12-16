@@ -70,14 +70,23 @@ export function createRemarkPlugin(plugin, renderer, asyncTask, translate, escap
           const initialStatus = plugin.isUrl(content) ? 'fetching' : 'ready';
 
           const result = asyncTask(
-            async (data) => {
+            async (data, context) => {
               const { id, code } = data;
               try {
+                // Check context before starting render
+                if (context?.cancelled) return;
+                
                 const extraParams = plugin.getRenderParams();
                 // Use SVG format for browser display (fonts render correctly)
                 // Exception: HTML plugin uses PNG format (doesn't support SVG)
                 extraParams.outputFormat = plugin.type === 'html' ? 'png' : 'svg';
-                const renderResult = await renderer.render(plugin.type, code, extraParams);
+                // Pass renderer's queue context for cancellation support on mobile
+                const renderContext = renderer.getQueueContext ? renderer.getQueueContext() : null;
+                const renderResult = await renderer.render(plugin.type, code, extraParams, renderContext);
+                
+                // Check context after render completes - skip DOM update if cancelled
+                if (context?.cancelled) return;
+                
                 // If renderer returns null (e.g., empty content), skip rendering
                 if (renderResult) {
                   // Dynamically import HTML utils to replace placeholder
@@ -91,6 +100,12 @@ export function createRemarkPlugin(plugin, renderer, asyncTask, translate, escap
                   }
                 }
               } catch (error) {
+                // Skip error display if context was cancelled or render was cancelled
+                if (context?.cancelled) return;
+                if (error.message === 'Render cancelled' || error.message === 'Request cancelled') {
+                  return;
+                }
+                
                 // Show error
                 const placeholder = document.getElementById(id);
                 if (placeholder) {
