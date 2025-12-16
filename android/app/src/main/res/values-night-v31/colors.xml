@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <!-- Material 3 surface color with blue seed (dark theme) -->
-    <color name="launch_background">#141218</color>
-</resources>
