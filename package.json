@@ -75,5 +75,10 @@
     "vega-interpreter": "^2.2.1",
     "vega-lite": "^6.4.1",
     "xml-js": "^1.6.11"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.1.32",
+    "@types/node": "^25.0.3",
+    "typescript": "^5.9.3"
   }
 }

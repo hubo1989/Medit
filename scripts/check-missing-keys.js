@@ -139,7 +139,7 @@ function findKeysInCode() {
         } else if (stat.isFile()) {
           const ext = path.extname(file);
           if (extensions.includes(ext)) {
-            if (ext === '.js') {
+            if (ext === '.js' || ext === '.ts') {
               scanJSFile(fullPath);
             } else if (ext === '.html') {
               scanHTMLFile(fullPath);
@@ -157,7 +157,7 @@ function findKeysInCode() {
   }
   
   // Scan all source files
-  scanDirectory(SRC_DIR, ['.js', '.html']);
+  scanDirectory(SRC_DIR, ['.js', '.ts', '.html']);
   
   // Scan Flutter source files
   if (fs.existsSync(FLUTTER_DIR)) {

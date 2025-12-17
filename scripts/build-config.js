@@ -49,7 +49,7 @@ const copyFileIfExists = (sourcePath, targetPath, logMessage) => {
 export const createBuildConfig = () => {
   const config = {
     entryPoints: {
-      'core/content-detector': 'src/core/content-detector.js',
+      'core/content-detector': 'src/core/content-detector.ts',
       'core/content': 'src/core/content.js',
       'core/background': 'src/core/background.js',
       'core/offscreen': 'src/platform/chrome/render-worker.js',

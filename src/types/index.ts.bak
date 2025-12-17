@@ -1,0 +1,557 @@
+/**
+ * Unified Type Definitions
+ * All shared types should be imported from this file
+ */
+
+// =============================================================================
+// Translation Types
+// =============================================================================
+
+/**
+ * Translation function type - supports both single string and array substitutions
+ */
+export type TranslateFunction = (key: string, substitutions?: string | string[]) => string;
+
+/**
+ * HTML escape function type
+ */
+export type EscapeHtmlFunction = (str: string) => string;
+
+// =============================================================================
+// File State Types
+// =============================================================================
+
+/**
+ * File state - stores per-file UI state
+ */
+export interface FileState {
+  scrollPosition?: number;
+  tocVisible?: boolean;
+  zoom?: number;
+  layoutMode?: string;
+  lastModified?: number;
+  [key: string]: unknown;
+}
+
+/**
+ * All file states storage - keyed by URL
+ */
+export interface AllFileStates {
+  [url: string]: FileState;
+}
+
+/**
+ * History entry for recently viewed files
+ */
+export interface HistoryEntry {
+  url: string;
+  title: string;
+  lastAccess: string;
+}
+
+/**
+ * File state manager interface
+ */
+export interface FileStateManager {
+  saveFileState(state: FileState): void;
+  getFileState(): Promise<FileState>;
+}
+
+// =============================================================================
+// Cache Types
+// =============================================================================
+
+/**
+ * Individual cache item
+ */
+export interface CacheItem<T = unknown> {
+  key: string;
+  value: T;
+  type: string;
+  size: number;
+  timestamp: number;
+  accessTime: number;
+}
+
+/**
+ * Memory cache item with metadata
+ */
+export interface MemoryCacheItem<T = unknown> {
+  value: T;
+  metadata: Record<string, unknown>;
+  accessTime: number;
+}
+
+/**
+ * Memory cache statistics
+ */
+export interface MemoryCacheStats {
+  itemCount: number;
+  maxItems: number;
+  totalSize: number;
+  totalSizeMB: string;
+  items: Array<{
+    key: string;
+    size: number;
+    accessTime: string;
+    metadata: Record<string, unknown>;
+  }>;
+}
+
+/**
+ * IndexedDB cache statistics
+ */
+export interface IndexedDBCacheStats {
+  itemCount: number;
+  maxItems: number;
+  totalSize: number;
+  totalSizeMB: string;
+  items: Array<{
+    key: string;
+    type: string;
+    size: number;
+    sizeMB: string;
+    created: string;
+    lastAccess: string;
+    inMemory: boolean;
+  }>;
+}
+
+/**
+ * Combined cache statistics
+ */
+export interface CacheStats {
+  memoryCache: MemoryCacheStats;
+  indexedDBCache: IndexedDBCacheStats;
+  combined: {
+    totalItems: number;
+    totalSizeMB: string;
+    memoryHitRatio: string;
+    hitRate: {
+      memoryHits: number;
+      indexedDBHits: number;
+      misses: number;
+    };
+  };
+  databaseInfo: {
+    dbName: string;
+    storeName: string;
+    version: number;
+  };
+}
+
+/**
+ * Simple cache stats for background/popup communication
+ */
+export interface SimpleCacheStats {
+  itemCount: number;
+  maxItems: number;
+  totalSize: number;
+  totalSizeMB: string;
+  items: unknown[];
+  message?: string;
+}
+
+/**
+ * Cache manager interface
+ */
+export interface ICacheManager {
+  get(key: string): Promise<unknown>;
+  set(key: string, value: unknown, type?: string): Promise<void>;
+  delete(key: string): Promise<boolean>;
+  clear(): Promise<void>;
+  getStats(): Promise<CacheStats | SimpleCacheStats | null>;
+  ensureDB(): Promise<void>;
+}
+
+// =============================================================================
+// Theme Types
+// =============================================================================
+
+/**
+ * Heading configuration
+ */
+export interface HeadingConfig {
+  fontSize: string;
+  fontWeight: string;
+  marginTop: string;
+  marginBottom: string;
+}
+
+/**
+ * Font scheme configuration
+ */
+export interface FontScheme {
+  body: {
+    fontFamily: string;
+    fontSize: string;
+    lineHeight?: number;
+  };
+  headings?: Record<string, HeadingConfig>;
+  code?: {
+    fontFamily: string;
+    fontSize: string;
+    background?: string;
+  };
+}
+
+/**
+ * Theme configuration - full version for rendering
+ */
+export interface ThemeConfig {
+  id?: string;
+  name?: string;
+  fontSize?: number | string;
+  fontFamily?: string;
+  fontScheme?: FontScheme;
+  tableStyle?: string;
+  codeTheme?: string;
+  spacing?: string;
+  [key: string]: unknown;
+}
+
+/**
+ * Theme definition from registry
+ */
+export interface ThemeDefinition {
+  id: string;
+  name: string;
+  name_en: string;
+  description?: string;
+  description_en?: string;
+  category: string;
+  featured?: boolean;
+}
+
+/**
+ * Theme category info
+ */
+export interface ThemeCategoryInfo {
+  name: string;
+  name_en: string;
+  order?: number;
+}
+
+/**
+ * Theme registry structure
+ */
+export interface ThemeRegistry {
+  categories: Record<string, ThemeCategoryInfo>;
+  themes: Array<{
+    id: string;
+    file: string;
+    category: string;
+    featured?: boolean;
+  }>;
+}
+
+// =============================================================================
+// Async Task Types
+// =============================================================================
+
+/**
+ * Task status
+ */
+export type TaskStatus = 'ready' | 'fetching' | 'error' | 'completed';
+
+/**
+ * Task data
+ */
+export interface TaskData {
+  id: string;
+  code?: string;
+  [key: string]: unknown;
+}
+
+/**
+ * Async task object
+ */
+export interface AsyncTaskObject {
+  id: string;
+  callback: (data: TaskData) => Promise<void>;
+  data: TaskData;
+  type: string;
+  status: TaskStatus;
+  error: Error | null;
+  setReady: () => void;
+  setError: (error: Error) => void;
+}
+
+/**
+ * Placeholder result
+ */
+export interface PlaceholderResult {
+  type: 'html';
+  value: string;
+}
+
+/**
+ * Async task registration result
+ */
+export interface AsyncTaskResult {
+  task: AsyncTaskObject;
+  placeholder: PlaceholderResult;
+}
+
+/**
+ * Plugin interface for async tasks
+ */
+export interface AsyncTaskPlugin {
+  type: string;
+  isInline: () => boolean;
+}
+
+/**
+ * Async task queue manager interface
+ */
+export interface AsyncTaskQueueManager {
+  asyncTask: (
+    callback: (data: TaskData) => Promise<void>,
+    data?: Record<string, unknown>,
+    plugin?: AsyncTaskPlugin | null,
+    translate?: TranslateFunction | null,
+    initialStatus?: TaskStatus
+  ) => AsyncTaskResult;
+  processAsyncTasks: (
+    translate: TranslateFunction,
+    showProcessingIndicator: () => void,
+    hideProcessingIndicator: () => void,
+    updateProgress: (completed: number, total: number) => void
+  ) => Promise<void>;
+  getQueueLength: () => number;
+}
+
+// =============================================================================
+// Renderer Types
+// =============================================================================
+
+/**
+ * Render result from renderers
+ */
+export interface RenderResult {
+  base64?: string;
+  svg?: string;
+  width: number;
+  height: number;
+  format: string;
+  success?: boolean;
+  error?: string;
+}
+
+/**
+ * Render options
+ */
+export interface RenderOptions {
+  [key: string]: unknown;
+}
+
+// =============================================================================
+// Plugin Types
+// =============================================================================
+
+/**
+ * Plugin interface
+ */
+export interface IPlugin {
+  type: string;
+  match(node: unknown): boolean;
+  transform(node: unknown, context: unknown): string;
+  render?(data: unknown): Promise<string>;
+  isInline?(): boolean;
+  createTaskData?(content: string): TaskData;
+}
+
+/**
+ * Plugin render result
+ */
+export interface UnifiedRenderResult {
+  type: 'image' | 'svg' | 'text' | 'error' | 'empty';
+  data?: string;
+  width?: number;
+  height?: number;
+  error?: string;
+}
+
+// =============================================================================
+// Platform Types
+// =============================================================================
+
+/**
+ * Platform message API
+ */
+export interface PlatformMessageAPI {
+  send(message: Record<string, unknown>): Promise<unknown>;
+  addListener(handler: (message: unknown) => void): void;
+}
+
+/**
+ * Platform storage API
+ */
+export interface PlatformStorageAPI {
+  get(keys: string[]): Promise<Record<string, unknown>>;
+  set(items: Record<string, unknown>): Promise<void>;
+}
+
+/**
+ * Platform resource API
+ */
+export interface PlatformResourceAPI {
+  fetch(path: string): Promise<string>;
+  getURL(path: string): string;
+}
+
+/**
+ * Platform API interface
+ */
+export interface PlatformAPI {
+  platform: string;
+  message: PlatformMessageAPI;
+  storage: PlatformStorageAPI;
+  resource: PlatformResourceAPI;
+}
+
+// =============================================================================
+// Message Types
+// =============================================================================
+
+/**
+ * Background message types
+ */
+export interface BackgroundMessage {
+  type?: string;
+  action?: string;
+  url?: string;
+  state?: FileState;
+  position?: number;
+  operation?: string;
+  key?: string;
+  value?: unknown;
+  dataType?: string;
+  limit?: number;
+  renderType?: string;
+  input?: string | object;
+  themeConfig?: unknown;
+  extraParams?: unknown;
+  filePath?: string;
+  binary?: boolean;
+  payload?: {
+    purpose?: string;
+    encoding?: string;
+    metadata?: Record<string, unknown>;
+    expectedSize?: number;
+    chunkSize?: number;
+  };
+  token?: string;
+  chunk?: string;
+}
+
+/**
+ * Content message types
+ */
+export interface ContentMessage {
+  type: string;
+  themeId?: string;
+  locale?: string;
+  [key: string]: unknown;
+}
+
+/**
+ * Message handler type
+ */
+export type MessageHandler = (message: unknown) => void;
+
+// =============================================================================
+// DOCX Exporter Types
+// =============================================================================
+
+/**
+ * DOCX exporter interface
+ */
+export interface DocxExporter {
+  exportToDocx: (
+    markdown: string,
+    filename: string,
+    progressCallback?: (completed: number, total: number) => void
+  ) => Promise<{ success: boolean; error?: string }>;
+}
+
+/**
+ * Link definition for markdown references
+ */
+export interface LinkDefinition {
+  url: string;
+  title?: string;
+}
+
+// =============================================================================
+// Toolbar Types
+// =============================================================================
+
+/**
+ * Layout configuration
+ */
+export interface LayoutConfig {
+  maxWidth: string;
+  icon: string;
+  title: string;
+}
+
+/**
+ * Toolbar manager options
+ */
+export interface ToolbarManagerOptions {
+  translate: TranslateFunction;
+  escapeHtml: EscapeHtmlFunction;
+  saveFileState: (state: FileState) => void;
+  getFileState: () => Promise<FileState>;
+  rawMarkdown: string;
+  docxExporter: DocxExporter;
+  cancelScrollRestore: () => void;
+  updateActiveTocItem: () => void;
+  toolbarPrintDisabledTitle: string;
+}
+
+/**
+ * Generate toolbar HTML options
+ */
+export interface GenerateToolbarHTMLOptions {
+  translate: TranslateFunction;
+  escapeHtml: EscapeHtmlFunction;
+  toolbarPrintDisabledTitle: string;
+}
+
+/**
+ * Toolbar manager instance interface
+ */
+export interface ToolbarManagerInstance {
+  layoutIcons: Record<string, string>;
+  layoutConfigs: Record<string, LayoutConfig>;
+  applyZoom: (newLevel: number, saveState?: boolean) => void;
+  getZoomLevel: () => number;
+  setInitialZoom: (level: number) => void;
+  initializeToolbar: () => void;
+  setupToolbarButtons: () => Promise<void>;
+  setupKeyboardShortcuts: () => void;
+}
+
+// =============================================================================
+// Upload Types
+// =============================================================================
+
+/**
+ * Upload session
+ */
+export interface UploadSession {
+  purpose: string;
+  encoding: 'text' | 'base64';
+  metadata: Record<string, unknown>;
+  expectedSize: number | null;
+  chunkSize: number;
+  chunks: string[];
+  receivedBytes: number;
+  createdAt: number;
+  completed: boolean;
+  data?: string;
+  lastChunkTime?: number;
+  completedAt?: number;
+}
