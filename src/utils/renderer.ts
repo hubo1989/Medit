@@ -14,17 +14,18 @@ import type {
   RendererThemeConfig,
 } from '../types/index';
 
-/**
- * Render message to send to offscreen document
- */
-interface RenderMessage {
-  action?: string;
-  type?: string;
-  renderType?: string;
-  input?: string | object;
-  themeConfig?: RendererThemeConfig | null;
-  extraParams?: RenderOptions;
-  config?: RendererThemeConfig;
+type ResponseEnvelopeLike = {
+  type: 'RESPONSE';
+  requestId: string;
+  ok: boolean;
+  data?: unknown;
+  error?: { message?: string };
+};
+
+function isResponseEnvelopeLike(message: unknown): message is ResponseEnvelopeLike {
+  if (!message || typeof message !== 'object') return false;
+  const obj = message as Record<string, unknown>;
+  return obj.type === 'RESPONSE' && typeof obj.requestId === 'string' && typeof obj.ok === 'boolean';
 }
 
 /**
@@ -40,6 +41,7 @@ class ExtensionRenderer {
   private offscreenCreated: boolean = false;
   private initPromise: Promise<void> | null = null;
   private themeConfig: RendererThemeConfig | null = null;
+  private requestCounter = 0;
 
   constructor(cacheManager: RendererCacheManager | null = null) {
     // Use provided cache manager or create a new one
@@ -68,30 +70,40 @@ class ExtensionRenderer {
   async setThemeConfig(themeConfig: RendererThemeConfig): Promise<void> {
     // Store theme config for cache key generation
     this.themeConfig = themeConfig;
-    
-    try {
-      await this._sendMessage({
-        type: 'setThemeConfig',
-        config: themeConfig
-      });
-    } catch (error) {
-      console.error('Failed to set theme config:', error);
-    }
+
+    await this._sendEnvelope('SET_THEME_CONFIG', { config: themeConfig });
+  }
+
+  private createRequestId(): string {
+    this.requestCounter += 1;
+    return `${Date.now()}-${this.requestCounter}`;
   }
 
   /**
-   * Send message to offscreen document via background script
+   * Send a unified RequestEnvelope to background.
    */
-  async _sendMessage(message: RenderMessage): Promise<RenderResult> {
-    try {
-      const platform = getPlatform();
-      if (!platform) {
-        throw new Error('Platform not available');
-      }
-      return (await platform.message.send(message as Record<string, unknown>)) as RenderResult;
-    } catch (error) {
-      throw error;
+  private async _sendEnvelope(type: string, payload: unknown): Promise<unknown> {
+    const platform = getPlatform();
+    if (!platform) {
+      throw new Error('Platform not available');
     }
+
+    const response = await platform.message.send({
+      id: this.createRequestId(),
+      type,
+      payload,
+      timestamp: Date.now(),
+      source: 'content-renderer',
+    });
+
+    if (isResponseEnvelopeLike(response)) {
+      if (response.ok) {
+        return response.data;
+      }
+      throw new Error(response.error?.message || 'Request failed');
+    }
+
+    throw new Error('Unexpected response shape (expected ResponseEnvelope)');
   }
 
   /**
@@ -120,15 +132,12 @@ class ExtensionRenderer {
       return cached;
     }
 
-    // Send unified message
-    const message: RenderMessage = {
-      action: 'RENDER_DIAGRAM',
+    const response = (await this._sendEnvelope('RENDER_DIAGRAM', {
       renderType,
       input,
       themeConfig: this.themeConfig,
-      extraParams
-    };
-    const response = await this._sendMessage(message);
+      extraParams,
+    })) as RenderResult;
 
     if (response.error) {
       throw new Error(response.error);

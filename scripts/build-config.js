@@ -54,8 +54,6 @@ export const createBuildConfig = () => {
       'core/background': 'src/core/background.js',
       'core/offscreen': 'src/platform/chrome/render-worker.js',
       'ui/popup/popup': 'src/ui/popup/popup.js',
-      'ui/print/print': 'src/ui/print/print.js',
-      'ui/print/print-page': 'src/ui/print/print-page.css',
       'ui/styles': 'src/ui/styles.css'
     },
     bundle: true,
@@ -92,7 +90,6 @@ export const createBuildConfig = () => {
                 { src: 'src/ui/popup/popup.html', dest: 'dist/chrome/ui/popup/popup.html' },
                 { src: 'src/ui/popup/popup.css', dest: 'dist/chrome/ui/popup/popup.css' },
                 { src: 'src/platform/chrome/render-worker.html', dest: 'dist/chrome/ui/offscreen.html' },
-                { src: 'src/ui/print/print.html', dest: 'dist/chrome/ui/print/print.html' },
                 { src: 'node_modules/html2canvas/dist/html2canvas.min.js', dest: 'dist/chrome/html2canvas.min.js', log: '📄 Copied html2canvas library' }
               ];
 

@@ -1,5 +1,42 @@
 const DEFAULT_UPLOAD_CHUNK_SIZE = 255 * 1024;
 
+type ResponseEnvelope = {
+  type: 'RESPONSE';
+  requestId: string;
+  ok: boolean;
+  data?: unknown;
+  error?: { message: string };
+};
+
+function isResponseEnvelope(message: unknown): message is ResponseEnvelope {
+  if (!message || typeof message !== 'object') return false;
+  const obj = message as Record<string, unknown>;
+  return obj.type === 'RESPONSE' && typeof obj.requestId === 'string' && typeof obj.ok === 'boolean';
+}
+
+let requestCounter = 0;
+function nextRequestId(): string {
+  requestCounter += 1;
+  return `${Date.now()}-${requestCounter}`;
+}
+
+async function sendUploadOperation(sendMessage: (message: Record<string, any>) => Promise<any>, payload: Record<string, unknown>): Promise<unknown> {
+  const response = await sendMessage({
+    id: nextRequestId(),
+    type: 'UPLOAD_OPERATION',
+    payload,
+    timestamp: Date.now(),
+    source: 'upload-manager',
+  });
+
+  if (isResponseEnvelope(response)) {
+    if (response.ok) return response.data;
+    throw new Error(response.error?.message || 'Upload operation failed');
+  }
+
+  throw new Error('Unexpected response shape (expected ResponseEnvelope)');
+}
+
 interface UploadOptions {
   sendMessage: (message: Record<string, any>) => Promise<any>;
   purpose: string;
@@ -15,18 +52,6 @@ interface UploadResponse {
   token: string;
   chunkSize: number;
   finalize: Record<string, any>;
-}
-
-interface InitResponse {
-  success: boolean;
-  error?: string;
-  token?: string;
-  chunkSize?: number;
-}
-
-interface ChunkResponse {
-  success: boolean;
-  error?: string;
 }
 
 /**
@@ -58,24 +83,27 @@ export async function uploadInChunks(options: UploadOptions): Promise<UploadResp
     throw new Error('getChunk function is required');
   }
 
-  const initResponse = (await sendMessage({
-    type: 'UPLOAD_INIT',
-    payload: {
-      purpose,
-      encoding,
-      expectedSize: totalSize,
-      metadata,
-      chunkSize: requestedChunkSize
-    }
-  })) as InitResponse;
+  const initData = (await sendUploadOperation(sendMessage, {
+    operation: 'init',
+    purpose,
+    encoding,
+    expectedSize: totalSize,
+    metadata,
+    chunkSize: requestedChunkSize,
+  })) as unknown;
 
-  if (!initResponse || !initResponse.success || !initResponse.token) {
-    throw new Error(initResponse?.error || 'Upload initialization failed');
+  if (!initData || typeof initData !== 'object') {
+    throw new Error('Upload initialization failed');
   }
 
-  const token = initResponse.token;
-  let chunkSize = typeof initResponse.chunkSize === 'number' && initResponse.chunkSize > 0
-    ? initResponse.chunkSize
+  const initObj = initData as Record<string, unknown>;
+  const token = typeof initObj.token === 'string' ? initObj.token : '';
+  if (!token) {
+    throw new Error('Upload initialization failed');
+  }
+
+  let chunkSize = typeof initObj.chunkSize === 'number' && initObj.chunkSize > 0
+    ? initObj.chunkSize
     : (typeof requestedChunkSize === 'number' && requestedChunkSize > 0 ? requestedChunkSize : DEFAULT_UPLOAD_CHUNK_SIZE);
 
   if (encoding === 'base64') {
@@ -91,15 +119,12 @@ export async function uploadInChunks(options: UploadOptions): Promise<UploadResp
   let uploaded = 0;
   for (let offset = 0; offset < totalSize; offset += chunkSize) {
     const chunk = getChunk(offset, chunkSize);
-    const chunkResponse = (await sendMessage({
-      type: 'UPLOAD_CHUNK',
-      token,
-      chunk
-    })) as ChunkResponse;
 
-    if (!chunkResponse || !chunkResponse.success) {
-      throw new Error(chunkResponse?.error || 'Upload chunk failed');
-    }
+    await sendUploadOperation(sendMessage, {
+      operation: 'chunk',
+      token,
+      chunk,
+    });
 
     uploaded = Math.min(totalSize, offset + chunkSize);
     if (typeof onProgress === 'function') {
@@ -111,19 +136,19 @@ export async function uploadInChunks(options: UploadOptions): Promise<UploadResp
     }
   }
 
-  const finalizeResponse = (await sendMessage({
-    type: 'UPLOAD_FINALIZE',
-    token
-  })) as ChunkResponse & { finalize?: Record<string, any> };
+  const finalizeData = (await sendUploadOperation(sendMessage, {
+    operation: 'finalize',
+    token,
+  })) as unknown;
 
-  if (!finalizeResponse || !finalizeResponse.success) {
-    throw new Error(finalizeResponse?.error || 'Upload finalize failed');
-  }
+  const finalize = finalizeData && typeof finalizeData === 'object'
+    ? (finalizeData as Record<string, any>)
+    : {};
 
   return {
     token,
     chunkSize,
-    finalize: finalizeResponse.finalize || {}
+    finalize
   };
 }
 
@@ -136,5 +161,12 @@ export function abortUpload(sendMessage: (message: Record<string, any>) => Promi
   if (typeof sendMessage !== 'function' || !token) {
     return Promise.resolve();
   }
-  return sendMessage({ type: 'UPLOAD_ABORT', token }).catch(() => {});
+
+  return sendMessage({
+    id: `${Date.now()}-abort`,
+    type: 'UPLOAD_OPERATION',
+    payload: { operation: 'abort', token },
+    timestamp: Date.now(),
+    source: 'upload-manager',
+  }).catch(() => {});
 }

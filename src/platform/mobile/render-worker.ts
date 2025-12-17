@@ -1,6 +1,9 @@
 // Mobile Iframe Render Worker Adapter
 // Bridges iframe postMessage with shared render-worker-core
 
+import { RenderChannel } from '../../messaging/channels/render-channel';
+import { WindowPostMessageTransport } from '../../messaging/transports/window-postmessage-transport';
+
 import {
   handleRender,
   setThemeConfig,
@@ -16,26 +19,10 @@ let readyAcknowledged = false;
 let readyInterval: ReturnType<typeof setInterval> | null = null;
 
 /**
- * Message from parent window
+ * Debug log message to parent window
  */
-interface ParentMessage {
-  type?: string;
-  requestId?: string;
-  renderType?: string;
-  input?: string;
-  themeConfig?: RendererThemeConfig;
-  extraParams?: Record<string, unknown>;
-  config?: RendererThemeConfig;
-}
-
-/**
- * Response message to parent
- */
-interface ResponseMessage {
+interface LogMessage {
   type: string;
-  requestId?: string;
-  result?: unknown;
-  error?: string;
   args?: string[];
 }
 
@@ -48,87 +35,52 @@ function logToParent(...args: unknown[]): void {
       window.parent.postMessage({
         type: 'RENDER_FRAME_LOG',
         args: args.map(a => typeof a === 'object' ? JSON.stringify(a) : String(a))
-      }, '*');
+      } satisfies LogMessage, '*');
     }
   } catch (e) {
     // Ignore
   }
 }
 
-/**
- * Send message to parent window
- */
-function sendToParent(message: ResponseMessage): void {
-  try {
-    if (window.parent && window.parent !== window) {
-      window.parent.postMessage(message, '*');
-    } else {
-      console.warn('[RenderWorker] No parent window');
-    }
-  } catch (e) {
-    console.error('[RenderWorker] postMessage failed:', e);
+const renderChannel = new RenderChannel(
+  new WindowPostMessageTransport(window.parent, {
+    targetOrigin: '*',
+    acceptSource: window.parent,
+  }),
+  {
+    source: 'mobile-render-frame',
+    timeoutMs: 60_000,
   }
-}
+);
 
-/**
- * Send response to parent
- */
-function sendResponse(requestId: string | undefined, result: unknown = null, error: string | null = null): void {
-  const response: ResponseMessage = {
-    type: MessageTypes.RESPONSE,
-    requestId
+renderChannel.handle('SET_THEME_CONFIG', (payload) => {
+  const data = payload as { config?: RendererThemeConfig } | null;
+  if (data?.config) {
+    setThemeConfig(data.config);
+  }
+  return {};
+});
+
+renderChannel.handle('RENDER_DIAGRAM', async (payload) => {
+  const data = payload as {
+    renderType?: string;
+    input?: string | object;
+    themeConfig?: RendererThemeConfig;
+    extraParams?: Record<string, unknown>;
   };
-  
-  if (error) {
-    response.error = error;
-  } else {
-    response.result = result;
-  }
-  
-  sendToParent(response);
-}
 
-/**
- * Handle incoming messages from parent
- */
-window.addEventListener('message', async (event: MessageEvent<ParentMessage>) => {
-  const message = event.data;
-  if (!message || typeof message !== 'object') return;
+  const request: RenderRequest = {
+    renderType: data.renderType || '',
+    input: data.input || '',
+    themeConfig: data.themeConfig,
+    extraParams: data.extraParams,
+  };
 
-  const { type, requestId } = message;
+  return handleRender(request);
+});
 
-  // Handle theme config update
-  if (type === MessageTypes.SET_THEME_CONFIG || type === 'SET_THEME_CONFIG') {
-    if (message.config) {
-      setThemeConfig(message.config);
-    }
-    sendResponse(requestId, { success: true });
-    return;
-  }
-
-  // Handle render request
-  if (type === MessageTypes.RENDER_DIAGRAM || type === 'RENDER_DIAGRAM') {
-    try {
-      const request: RenderRequest = {
-        renderType: message.renderType || '',
-        input: message.input || '',
-        themeConfig: message.themeConfig,
-        extraParams: message.extraParams
-      };
-      const result = await handleRender(request);
-      sendResponse(requestId, result);
-    } catch (error) {
-      console.error('[RenderWorker] Render error:', error);
-      sendResponse(requestId, null, (error as Error).message);
-    }
-    return;
-  }
-
-  // Handle ping (check if ready)
-  if (type === MessageTypes.PING || type === 'PING') {
-    sendResponse(requestId, { ready: isReady });
-    return;
-  }
+renderChannel.handle('PING', () => {
+  return { ready: isReady };
 });
 
 /**
@@ -164,7 +116,13 @@ function initialize(): void {
   // This handles the case where parent's listener isn't set up yet
   const sendReady = (): void => {
     if (!readyAcknowledged) {
-      sendToParent({ type: 'RENDER_FRAME_READY' });
+      try {
+        if (window.parent && window.parent !== window) {
+          window.parent.postMessage({ type: 'RENDER_FRAME_READY' }, '*');
+        }
+      } catch {
+        // Ignore
+      }
     }
   };
   

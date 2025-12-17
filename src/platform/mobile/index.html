@@ -56,7 +56,6 @@
     // Global state for render frame communication
     window.__renderFrameReady = false;
     window.__renderFrameReadyCallbacks = [];
-    window.__renderFramePendingRequests = new Map();
     
     // Listen for messages from render frame
     window.addEventListener('message', function(event) {
@@ -85,19 +84,6 @@
       if (message.type === 'RENDER_FRAME_LOG') {
         console.log.apply(console, ['[RenderFrame]'].concat(message.args || []));
         return;
-      }
-      
-      // Handle responses to pending requests
-      if (message.type === 'RESPONSE' && message.requestId !== undefined) {
-        var pending = window.__renderFramePendingRequests.get(message.requestId);
-        if (pending) {
-          window.__renderFramePendingRequests.delete(message.requestId);
-          if (message.error) {
-            pending.reject(new Error(message.error));
-          } else {
-            pending.resolve(message.result);
-          }
-        }
       }
     });
   </script>

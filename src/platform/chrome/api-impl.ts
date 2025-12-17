@@ -48,43 +48,18 @@ type MessageHandler = (
   sender: chrome.runtime.MessageSender
 ) => void | Promise<unknown>;
 
-/**
- * Cache operation message types
- */
-interface CacheOperationMessage {
-  type: 'cacheOperation';
-  operation: 'get' | 'set' | 'clear' | 'getStats';
-  key?: string;
-  value?: unknown;
-  dataType?: string;
-}
+type ResponseEnvelopeLike = {
+  type: 'RESPONSE';
+  requestId: string;
+  ok: boolean;
+  data?: unknown;
+  error?: { message?: string };
+};
 
-/**
- * Theme config message
- */
-interface ThemeConfigMessage {
-  type: 'setThemeConfig';
-  config: RendererThemeConfig;
-}
-
-/**
- * Render diagram message
- */
-interface RenderDiagramMessage {
-  action: 'RENDER_DIAGRAM';
-  renderType: string;
-  input: string | object;
-  themeConfig: RendererThemeConfig | null;
-  extraParams?: RenderOptions;
-}
-
-/**
- * Response with result
- */
-interface MessageResponse<T = unknown> {
-  result?: T;
-  success?: boolean;
-  error?: string;
+function isResponseEnvelopeLike(message: unknown): message is ResponseEnvelopeLike {
+  if (!message || typeof message !== 'object') return false;
+  const obj = message as Record<string, unknown>;
+  return obj.type === 'RESPONSE' && typeof obj.requestId === 'string' && typeof obj.ok === 'boolean';
 }
 
 // ============================================================================
@@ -166,13 +141,20 @@ export class ChromeResourceService {
 // ============================================================================
 
 export class ChromeMessageService {
-  send<T = unknown>(message: unknown, timeout: number = 300000): Promise<MessageResponse<T>> {
+  private requestCounter = 0;
+
+  private createRequestId(): string {
+    this.requestCounter += 1;
+    return `${Date.now()}-${this.requestCounter}`;
+  }
+
+  send(message: unknown, timeout: number = 300000): Promise<ResponseEnvelopeLike> {
     return new Promise((resolve, reject) => {
       const timeoutTimer = setTimeout(() => {
         reject(new Error('Message timeout after 5 minutes'));
       }, timeout);
 
-      chrome.runtime.sendMessage(message, (response: MessageResponse<T> | undefined) => {
+      chrome.runtime.sendMessage(message, (response: unknown) => {
         clearTimeout(timeoutTimer);
 
         if (chrome.runtime.lastError) {
@@ -180,30 +162,42 @@ export class ChromeMessageService {
           return;
         }
 
-        if (!response) {
+        if (response === undefined) {
           reject(new Error('No response received from background script'));
           return;
         }
 
-        if (response.error) {
-          reject(new Error(response.error));
+        // Envelope-only: background must respond with ResponseEnvelope.
+        if (isResponseEnvelopeLike(response)) {
+          resolve(response);
           return;
         }
 
-        resolve(response);
+        reject(new Error('Unexpected response type (expected ResponseEnvelope)'));
       });
     });
   }
 
-  addListener(handler: MessageHandler): void {
-    chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-      const result = handler(message, sender);
-      if (result instanceof Promise) {
-        result.then(sendResponse).catch((err: Error) => {
-          sendResponse({ error: err.message });
-        });
-        return true; // Keep channel open for async response
-      }
+  /**
+   * Preferred: send a unified RequestEnvelope.
+   */
+  sendEnvelope(type: string, payload: unknown, timeout: number = 300000, source = 'chrome-platform'): Promise<ResponseEnvelopeLike> {
+    return this.send(
+      {
+        id: this.createRequestId(),
+        type,
+        payload,
+        timestamp: Date.now(),
+        source,
+      },
+      timeout
+    );
+  }
+
+  addListener(handler: (message: unknown) => void): void {
+    chrome.runtime.onMessage.addListener((message) => {
+      // Event-only listener: envelope RPC is handled via send/sendEnvelope.
+      handler(message);
       return false;
     });
   }
@@ -232,12 +226,14 @@ export class ChromeCacheService extends BaseCacheService {
 
   async get(key: string): Promise<unknown> {
     try {
-      const response = await this.messageService.send<unknown>({
-        type: 'cacheOperation',
+      const response = await this.messageService.sendEnvelope('CACHE_OPERATION', {
         operation: 'get',
-        key: key
-      } as CacheOperationMessage);
-      return response.result || null;
+        key,
+      });
+      if (!response.ok) {
+        return null;
+      }
+      return response.data ?? null;
     } catch {
       return null;
     }
@@ -245,14 +241,18 @@ export class ChromeCacheService extends BaseCacheService {
 
   async set(key: string, value: unknown, type: string = 'unknown'): Promise<boolean> {
     try {
-      const response = await this.messageService.send({
-        type: 'cacheOperation',
+      const response = await this.messageService.sendEnvelope('CACHE_OPERATION', {
         operation: 'set',
-        key: key,
-        value: value,
-        dataType: type
-      } as CacheOperationMessage);
-      return response.success || false;
+        key,
+        value,
+        dataType: type,
+      });
+      if (!response.ok) return false;
+      const data = response.data;
+      if (data && typeof data === 'object' && (data as { success?: unknown }).success === false) {
+        return false;
+      }
+      return true;
     } catch {
       return false;
     }
@@ -260,11 +260,15 @@ export class ChromeCacheService extends BaseCacheService {
 
   async clear(): Promise<boolean> {
     try {
-      const response = await this.messageService.send({
-        type: 'cacheOperation',
-        operation: 'clear'
-      } as CacheOperationMessage);
-      return response.success || false;
+      const response = await this.messageService.sendEnvelope('CACHE_OPERATION', {
+        operation: 'clear',
+      });
+      if (!response.ok) return false;
+      const data = response.data;
+      if (data && typeof data === 'object' && (data as { success?: unknown }).success === false) {
+        return false;
+      }
+      return true;
     } catch {
       return false;
     }
@@ -272,11 +276,11 @@ export class ChromeCacheService extends BaseCacheService {
 
   async getStats(): Promise<CacheStats | SimpleCacheStats | null> {
     try {
-      const response = await this.messageService.send({
-        type: 'cacheOperation',
-        operation: 'getStats'
-      } as CacheOperationMessage);
-      return (response.result as CacheStats | SimpleCacheStats) || null;
+      const response = await this.messageService.sendEnvelope('CACHE_OPERATION', {
+        operation: 'getStats',
+      });
+      if (!response.ok) return null;
+      return (response.data as CacheStats | SimpleCacheStats) || null;
     } catch {
       return null;
     }
@@ -304,13 +308,9 @@ export class ChromeRendererService extends BaseRendererService {
 
   async setThemeConfig(config: RendererThemeConfig): Promise<void> {
     this.themeConfig = config;
-    try {
-      await this.messageService.send({
-        type: 'setThemeConfig',
-        config: config
-      } as ThemeConfigMessage);
-    } catch (error) {
-      console.error('Failed to set theme config:', error);
+    const response = await this.messageService.sendEnvelope('SET_THEME_CONFIG', { config }, 300000, 'chrome-renderer');
+    if (!response.ok) {
+      throw new Error(response.error?.message || 'SET_THEME_CONFIG failed');
     }
   }
 
@@ -327,25 +327,28 @@ export class ChromeRendererService extends BaseRendererService {
       return cached as RenderResult;
     }
 
-    // Send render request to background
-    const message: RenderDiagramMessage = {
-      action: 'RENDER_DIAGRAM',
-      renderType: type,
-      input: content,
-      themeConfig: this.themeConfig,
-      extraParams: options
-    };
+    const response = await this.messageService.sendEnvelope(
+      'RENDER_DIAGRAM',
+      {
+        renderType: type,
+        input: content,
+        themeConfig: this.themeConfig,
+        extraParams: options,
+      },
+      300000,
+      'chrome-renderer'
+    );
 
-    const response = await this.messageService.send<RenderResult>(message);
-
-    if (response.error) {
-      throw new Error(response.error);
+    if (!response.ok) {
+      throw new Error(response.error?.message || 'Render failed');
     }
 
-    // Cache the result asynchronously (don't wait)
-    this.cache.set(cacheKey, response, cacheType).catch(() => {});
+    const result = response.data as RenderResult;
 
-    return response as RenderResult;
+    // Cache the result asynchronously (don't wait)
+    this.cache.set(cacheKey, result, cacheType).catch(() => {});
+
+    return result;
   }
 }
 

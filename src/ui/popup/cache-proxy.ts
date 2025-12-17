@@ -22,9 +22,56 @@ interface ClearResult {
 export class BackgroundCacheProxy {
   private maxItems: number | null;
 
+  private requestCounter = 0;
+
   constructor() {
     // Don't hardcode maxItems, get it from actual stats
     this.maxItems = null;
+  }
+
+  private createRequestId(): string {
+    this.requestCounter += 1;
+    return `${Date.now()}-${this.requestCounter}`;
+  }
+
+  private isResponseEnvelopeLike(value: unknown): value is {
+    ok?: unknown;
+    data?: unknown;
+    error?: { message?: unknown };
+  } {
+    return !!value && typeof value === 'object' && 'ok' in value;
+  }
+
+  private async sendCacheOperation(payload: Record<string, unknown>): Promise<unknown> {
+    const request = {
+      id: this.createRequestId(),
+      type: 'CACHE_OPERATION',
+      payload,
+      timestamp: Date.now(),
+      source: 'popup-cache-proxy',
+    };
+
+    const platform = (globalThis as unknown as { platform?: { message?: { send?: (req: unknown) => Promise<unknown> } } }).platform;
+    if (!platform?.message?.send) {
+      throw new Error('Platform messaging not available');
+    }
+
+    const response = (await platform.message.send(request)) as unknown;
+
+    if (!response || typeof response !== 'object') {
+      throw new Error('No response received from background script');
+    }
+
+    if (this.isResponseEnvelopeLike(response)) {
+      if (response.ok === true) {
+        return response.data;
+      }
+
+      const errorMessage = response.error?.message;
+      throw new Error(typeof errorMessage === 'string' ? errorMessage : 'Unknown cache error');
+    }
+
+    throw new Error('Unexpected response shape (expected ResponseEnvelope)');
   }
 
   /**
@@ -33,15 +80,12 @@ export class BackgroundCacheProxy {
    */
   async getStats(): Promise<SimpleCacheStats> {
     try {
-      const response = await chrome.runtime.sendMessage({
-        action: 'getCacheStats'
-      }) as unknown;
+      const stats = await this.sendCacheOperation({
+        operation: 'getStats',
+        limit: 50,
+      });
 
-      if (response && typeof response === 'object' && 'error' in (response as Record<string, unknown>)) {
-        throw new Error(String((response as { error?: unknown }).error || 'Unknown error'));
-      }
-
-      if (!response) {
+      if (!stats) {
         return {
           itemCount: 0,
           maxItems: 1000,
@@ -51,7 +95,7 @@ export class BackgroundCacheProxy {
         };
       }
 
-      const normalized = toSimpleCacheStats(response, this.maxItems || 1000);
+      const normalized = toSimpleCacheStats(stats, this.maxItems || 1000);
       this.maxItems = normalized.maxItems;
       return normalized;
     } catch (error) {
@@ -73,9 +117,10 @@ export class BackgroundCacheProxy {
    */
   async clear(): Promise<ClearResult> {
     try {
-      return await chrome.runtime.sendMessage({
-        action: 'clearCache'
-      }) as ClearResult;
+      await this.sendCacheOperation({
+        operation: 'clear',
+      });
+      return { success: true };
     } catch (error) {
       console.error('Failed to clear cache via background:', error);
       throw error;

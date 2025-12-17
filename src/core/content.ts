@@ -348,6 +348,8 @@ async function initializeContentScript(): Promise<void> {
 interface ContentMessage {
   type?: string;
   locale?: string;
+  payload?: unknown;
+  themeId?: string;
 }
 
 platform.message.addListener((message: unknown) => {
@@ -357,9 +359,7 @@ platform.message.addListener((message: unknown) => {
   
   const msg = message as ContentMessage;
   
-  if (msg.type === 'localeChanged') {
-    const locale = msg.locale || DEFAULT_SETTING_LOCALE;
-
+  const nextLocale = (locale: string) => {
     Localization.setPreferredLocale(locale)
       .catch((error) => {
         console.error('Failed to update locale in content script:', error);
@@ -367,8 +367,22 @@ platform.message.addListener((message: unknown) => {
       .finally(() => {
         window.location.reload();
       });
-  } else if (msg.type === 'themeChanged') {
+  };
+
+  // New envelope message
+  if (msg.type === 'LOCALE_CHANGED') {
+    const payload = (msg.payload && typeof msg.payload === 'object') ? (msg.payload as Record<string, unknown>) : null;
+    const locale = (payload && typeof payload.locale === 'string' && payload.locale.length > 0) ? payload.locale : DEFAULT_SETTING_LOCALE;
+    nextLocale(locale);
+    return;
+  }
+
+  // New envelope message
+  if (msg.type === 'THEME_CHANGED') {
+    // themeId is currently only used for potential future optimizations.
+    // Keep behavior unchanged: reload to apply new theme.
     window.location.reload();
+    return;
   }
 });
 

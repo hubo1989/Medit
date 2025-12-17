@@ -19,70 +19,72 @@ export class BackgroundCacheManagerProxy implements RendererCacheManager {
   storeName = 'cache';
   dbVersion = 1;
 
+  private requestCounter = 0;
+
   constructor(platform: PlatformAPI) {
     this.platform = platform;
   }
 
+  private createRequestId(): string {
+    this.requestCounter += 1;
+    return `${Date.now()}-${this.requestCounter}`;
+  }
+
+  private async sendCacheOperation(payload: Record<string, unknown>): Promise<unknown> {
+    const response = await this.platform.message.send({
+      id: this.createRequestId(),
+      type: 'CACHE_OPERATION',
+      payload,
+      timestamp: Date.now(),
+      source: 'content-cache-proxy',
+    });
+
+    if (!response || typeof response !== 'object') {
+      throw new Error('No response received from background script');
+    }
+
+    const ok = (response as { ok?: unknown }).ok;
+    if (ok === true) {
+      return (response as { data?: unknown }).data;
+    }
+
+    const errorMessage = (response as { error?: { message?: unknown } }).error?.message;
+    throw new Error(typeof errorMessage === 'string' ? errorMessage : 'Unknown cache error');
+  }
+
   async get(key: string): Promise<unknown> {
     try {
-      const response = await this.platform.message.send({
-        type: 'cacheOperation',
+      return (await this.sendCacheOperation({
         operation: 'get',
-        key: key
-      });
-
-      const error = (response as { error?: unknown } | null | undefined)?.error;
-      if (typeof error === 'string' && error) {
-        throw new Error(error);
-      }
-
-      return (response as { result?: unknown } | null | undefined)?.result ?? null;
+        key,
+      })) ?? null;
     } catch (error) {
       return null;
     }
   }
 
   async set(key: string, value: unknown, type = 'unknown'): Promise<void> {
-    const response = await this.platform.message.send({
-      type: 'cacheOperation',
+    await this.sendCacheOperation({
       operation: 'set',
-      key: key,
-      value: value,
-      dataType: type
+      key,
+      value,
+      dataType: type,
     });
-
-    const error = (response as { error?: unknown } | null | undefined)?.error;
-    if (typeof error === 'string' && error) {
-      throw new Error(error);
-    }
   }
 
   async clear(): Promise<void> {
-    const response = await this.platform.message.send({
-      type: 'cacheOperation',
-      operation: 'clear'
+    await this.sendCacheOperation({
+      operation: 'clear',
     });
-
-    const error = (response as { error?: unknown } | null | undefined)?.error;
-    if (typeof error === 'string' && error) {
-      throw new Error(error);
-    }
   }
 
   async delete(key: string): Promise<boolean> {
     try {
-      const response = await this.platform.message.send({
-        type: 'cacheOperation',
+      await this.sendCacheOperation({
         operation: 'delete',
-        key: key
+        key,
       });
-
-      const error = (response as { error?: unknown } | null | undefined)?.error;
-      if (typeof error === 'string' && error) {
-        throw new Error(error);
-      }
-
-      return Boolean((response as { success?: unknown } | null | undefined)?.success);
+      return true;
     } catch (error) {
       return false;
     }
@@ -90,17 +92,9 @@ export class BackgroundCacheManagerProxy implements RendererCacheManager {
 
   async getStats(): Promise<CacheStats | SimpleCacheStats | null> {
     try {
-      const response = await this.platform.message.send({
-        type: 'cacheOperation',
-        operation: 'getStats'
-      });
-
-      const error = (response as { error?: unknown } | null | undefined)?.error;
-      if (typeof error === 'string' && error) {
-        throw new Error(error);
-      }
-
-      return ((response as { result?: unknown } | null | undefined)?.result as CacheStats | SimpleCacheStats | undefined) || null;
+      return (await this.sendCacheOperation({
+        operation: 'getStats',
+      })) as CacheStats | SimpleCacheStats | null;
     } catch (error) {
       return null;
     }

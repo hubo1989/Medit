@@ -139,7 +139,15 @@ export function createSettingsTabManager({
             });
 
             await Localization.setPreferredLocale(newLocale);
-            chrome.runtime.sendMessage({ type: 'localeChanged', locale: newLocale }).catch(() => { });
+            chrome.runtime
+              .sendMessage({
+                id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+                type: 'LOCALE_CHANGED',
+                payload: { locale: newLocale },
+                timestamp: Date.now(),
+                source: 'popup-settings',
+              })
+              .catch(() => { });
             applyI18nText();
 
             // Reload themes to update names
@@ -285,8 +293,11 @@ export function createSettingsTabManager({
       tabs.forEach(tab => {
         if (tab.id) {
           chrome.tabs.sendMessage(tab.id, {
-            type: 'themeChanged',
-            themeId: themeId
+            id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+            type: 'THEME_CHANGED',
+            payload: { themeId },
+            timestamp: Date.now(),
+            source: 'popup-settings',
           }).catch(() => {
             // Ignore errors for non-markdown tabs
           });
@@ -358,7 +369,15 @@ export function createSettingsTabManager({
       });
 
       await Localization.setPreferredLocale(DEFAULT_SETTING_LOCALE);
-      chrome.runtime.sendMessage({ type: 'localeChanged', locale: DEFAULT_SETTING_LOCALE }).catch(() => { });
+      chrome.runtime
+        .sendMessage({
+          id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+          type: 'LOCALE_CHANGED',
+          payload: { locale: DEFAULT_SETTING_LOCALE },
+          timestamp: Date.now(),
+          source: 'popup-settings',
+        })
+        .catch(() => { });
       applyI18nText();
 
       if (onReloadCacheData) {

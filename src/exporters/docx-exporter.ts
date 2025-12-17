@@ -583,37 +583,84 @@ class DocxExporter {
       ? url
       : (this.baseUrl ? new URL(url, this.baseUrl).href : url);
 
+    const createRequestId = (): string => {
+      const maybeCrypto = globalThis.crypto as Crypto | undefined;
+      if (maybeCrypto?.randomUUID) return maybeCrypto.randomUUID();
+      return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    };
+
+    const platform = globalThis.platform as { message?: { send?: (msg: Record<string, unknown>) => Promise<unknown> } } | undefined;
+
     return new Promise((resolve, reject) => {
-      chrome.runtime.sendMessage({
-        type: 'READ_LOCAL_FILE',
-        filePath: absoluteUrl,
-        binary: true
-      }, (response: { error?: string; content?: string; contentType?: string }) => {
-        if (response.error) {
-          reject(new Error(response.error));
+      const send = async (): Promise<unknown> => {
+        if (platform?.message?.send) {
+          return platform.message.send({
+            id: createRequestId(),
+            type: 'READ_LOCAL_FILE',
+            payload: {
+              filePath: absoluteUrl,
+              binary: true,
+            },
+            timestamp: Date.now(),
+            source: 'docx-exporter',
+          });
+        }
+
+        throw new Error('Platform messaging not available');
+      };
+
+      void send().then((raw: unknown) => {
+        let content: string | undefined;
+        let contentType: string | undefined;
+
+        const envelope = raw as { type?: unknown; ok?: unknown; data?: unknown; error?: unknown };
+        if (envelope && envelope.type === 'RESPONSE' && typeof envelope.ok === 'boolean') {
+          if (!envelope.ok) {
+            const message = (envelope.error as { message?: unknown } | undefined)?.message;
+            reject(new Error(typeof message === 'string' ? message : 'READ_LOCAL_FILE failed'));
+            return;
+          }
+          const data = envelope.data as { content?: unknown; contentType?: unknown } | undefined;
+          content = typeof data?.content === 'string' ? data.content : undefined;
+          contentType = typeof data?.contentType === 'string' ? data.contentType : undefined;
+        } else if (raw && typeof raw === 'object' && ('success' in (raw as Record<string, unknown>) || 'result' in (raw as Record<string, unknown>) || 'error' in (raw as Record<string, unknown>))) {
+          const msg = raw as { success?: unknown; result?: unknown; error?: unknown };
+          if (typeof msg.error === 'string' && msg.error.length > 0) {
+            reject(new Error(msg.error));
+            return;
+          }
+          if (msg.success === false) {
+            reject(new Error('READ_LOCAL_FILE failed'));
+            return;
+          }
+          const data = msg.result as { content?: unknown; contentType?: unknown } | undefined;
+          content = typeof data?.content === 'string' ? data.content : undefined;
+          contentType = typeof data?.contentType === 'string' ? data.contentType : undefined;
+        } else {
+          reject(new Error('Unexpected READ_LOCAL_FILE response shape'));
           return;
         }
 
-        const binaryString = atob(response.content || '');
+        const binaryString = atob(content || '');
         const bytes = new Uint8Array(binaryString.length);
         for (let i = 0; i < binaryString.length; i++) {
           bytes[i] = binaryString.charCodeAt(i);
         }
 
-        let contentType = response.contentType;
+        let resolvedContentType = contentType;
         if (!contentType) {
           const ext = url.split('.').pop()?.toLowerCase().split('?')[0] || '';
           const map: Record<string, string> = {
             'png': 'image/png', 'jpg': 'image/jpeg', 'jpeg': 'image/jpeg',
             'gif': 'image/gif', 'bmp': 'image/bmp', 'webp': 'image/webp', 'svg': 'image/svg+xml'
           };
-          contentType = map[ext] || 'image/png';
+          resolvedContentType = map[ext] || 'image/png';
         }
 
-        const result: ImageBufferResult = { buffer: bytes, contentType };
+        const result: ImageBufferResult = { buffer: bytes, contentType: resolvedContentType || 'image/png' };
         this.imageCache.set(url, result);
         resolve(result);
-      });
+      }).catch((err) => reject(err));
     });
   }
 }

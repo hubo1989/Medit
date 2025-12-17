@@ -107,6 +107,12 @@ interface BridgeMessage {
   payload?: LoadMarkdownPayload | SetThemePayload | UpdateSettingsPayload | SetLocalePayload;
 }
 
+function isBridgeMessage(message: unknown): message is BridgeMessage {
+  if (!message || typeof message !== 'object') return false;
+  const obj = message as Record<string, unknown>;
+  return typeof obj.type === 'string';
+}
+
 /**
  * Initialize the mobile viewer
  */
@@ -137,8 +143,8 @@ async function initialize(): Promise<void> {
  * Set up handlers for messages from host app
  */
 function setupMessageHandlers(): void {
-  bridge.addListener(async (message: BridgeMessage) => {
-    if (!message || !message.type) return;
+  bridge.addListener(async (message: unknown) => {
+    if (!isBridgeMessage(message) || !message.type) return;
 
     try {
       switch (message.type) {

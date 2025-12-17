@@ -5,28 +5,48 @@ import {
   handleRender,
   setThemeConfig,
   initRenderEnvironment,
-  MessageTypes,
   type RenderRequest
 } from '../../renderers/render-worker-core';
 import type { RendererThemeConfig } from '../../types/index';
 
+import { RenderChannel } from '../../messaging/channels/render-channel';
+import { ChromeRuntimeTransport } from '../../messaging/transports/chrome-runtime-transport';
+
+function createRequestId(): string {
+  return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
+function sendOffscreenLifecycle(type: string, payload?: Record<string, unknown>): void {
+  chrome.runtime
+    .sendMessage({
+      id: createRequestId(),
+      type,
+      payload: payload || {},
+      timestamp: Date.now(),
+      source: 'chrome-offscreen',
+    })
+    .catch(() => {
+      // Ignore errors (e.g. background not ready)
+    });
+}
+
 // Add error listeners for debugging
 window.addEventListener('error', (event) => {
-  chrome.runtime.sendMessage({
-    type: 'offscreenError',
-    error: event.error?.message || 'Unknown error',
+  const errorMessage = event.error?.message || 'Unknown error';
+  sendOffscreenLifecycle('OFFSCREEN_ERROR', {
+    error: errorMessage,
     filename: event.filename,
-    lineno: event.lineno
-  }).catch(() => { });
+    lineno: event.lineno,
+  });
 });
 
 window.addEventListener('unhandledrejection', (event) => {
-  chrome.runtime.sendMessage({
-    type: 'offscreenError',
-    error: `Unhandled promise rejection: ${event.reason}`,
+  const errorMessage = `Unhandled promise rejection: ${event.reason}`;
+  sendOffscreenLifecycle('OFFSCREEN_ERROR', {
+    error: errorMessage,
     filename: 'Promise',
-    lineno: 0
-  }).catch(() => { });
+    lineno: 0,
+  });
 });
 
 // Optimize canvas performance on page load
@@ -39,20 +59,14 @@ document.addEventListener('DOMContentLoaded', () => {
   initRenderEnvironment({ canvas: canvas || undefined });
 
   // Send ready signal when DOM is loaded
-  chrome.runtime.sendMessage({
-    type: 'offscreenDOMReady'
-  }).catch(() => { });
+  sendOffscreenLifecycle('OFFSCREEN_DOM_READY');
 });
 
 // Establish connection with background script for lifecycle monitoring
 const port = chrome.runtime.connect({ name: 'offscreen' });
 
 // Notify background script that offscreen document is ready
-chrome.runtime.sendMessage({
-  type: 'offscreenReady'
-}).catch(() => {
-  // Ignore errors if background script isn't ready
-});
+sendOffscreenLifecycle('OFFSCREEN_READY');
 
 /**
  * Render message from background script
@@ -67,49 +81,41 @@ interface RenderMessage {
   config?: RendererThemeConfig;
 }
 
-// Message handler for rendering requests
-chrome.runtime.onMessage.addListener((message: RenderMessage, sender, sendResponse) => {
-  
-  if (message.type === 'setThemeConfig') {
-    // Update theme configuration using shared core
-    if (message.config) {
-      setThemeConfig(message.config);
-    }
-    sendResponse({ success: true });
-    return true;
-  }
-  
-  // Handle unified render messages
-  if (message.action === MessageTypes.RENDER_DIAGRAM || message.action === 'RENDER_DIAGRAM') {
-    // Check message source using Chrome's sender object
-    // - sender.tab exists → from content script → SKIP (let background handle)
-    // - sender.tab is undefined → from background/extension → PROCESS
-    if (sender.tab) {
-      return false; // Don't send response, let background handle it
-    }
-    
-    // Process render task using shared core
-    const request: RenderRequest = {
-      renderType: message.renderType || '',
-      input: message.input || '',
-      themeConfig: message.themeConfig,
-      extraParams: message.extraParams
-    };
-
-    handleRender(request).then(result => {
-      sendResponse(result);
-    }).catch(error => {
-      console.error('Render error:', error);
-      sendResponse({ error: (error as Error).message });
-    });
-    
-    return true;
-  }
-
-  return false;
+// Render RPC channel (offscreen only handles messages targeted to it)
+const renderChannel = new RenderChannel(new ChromeRuntimeTransport(), {
+  source: 'chrome-offscreen',
+  timeoutMs: 300000,
+  acceptRequest: (msg) => {
+    if (!msg || typeof msg !== 'object') return false;
+    const target = (msg as { __target?: unknown }).__target;
+    return target === 'offscreen';
+  },
 });
 
-// Signal that the offscreen document is ready
-chrome.runtime.sendMessage({ type: 'offscreenReady' }).catch(() => {
-  // Ignore errors
+renderChannel.handle('SET_THEME_CONFIG', (payload) => {
+  const p = payload as { config?: RendererThemeConfig };
+  if (p.config) {
+    setThemeConfig(p.config);
+  }
+  return {};
 });
+
+renderChannel.handle('RENDER_DIAGRAM', async (payload) => {
+  const p = payload as {
+    renderType?: string;
+    input?: string | object;
+    themeConfig?: RendererThemeConfig | null;
+    extraParams?: Record<string, unknown>;
+  };
+
+  const request: RenderRequest = {
+    renderType: p.renderType || '',
+    input: p.input || '',
+    themeConfig: p.themeConfig,
+    extraParams: p.extraParams,
+  };
+
+  return handleRender(request);
+});
+
+renderChannel.handle('PING', () => ({ ready: true }));

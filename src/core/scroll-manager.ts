@@ -1,7 +1,7 @@
 // Scroll Position Manager
 // Handles saving and restoring scroll positions for markdown documents
 
-import type { PlatformAPI } from '../types/index';
+import type { PlatformAPI, ResponseEnvelope } from '../types/index';
 
 interface ScrollManager {
   cancelScrollRestore(): void;
@@ -18,6 +18,33 @@ interface ScrollManager {
 export function createScrollManager(platform: PlatformAPI, getCurrentDocumentUrl: () => string): ScrollManager {
   // Flag to stop scroll position restoration when user interacts
   let stopScrollRestore = false;
+
+  let requestCounter = 0;
+  const createRequestId = (): string => {
+    requestCounter += 1;
+    return `${Date.now()}-${requestCounter}`;
+  };
+
+  const sendScrollOperation = async (payload: Record<string, unknown>): Promise<unknown> => {
+    const response = await platform.message.send({
+      id: createRequestId(),
+      type: 'SCROLL_OPERATION',
+      payload,
+      timestamp: Date.now(),
+      source: 'content-scroll',
+    });
+
+    if (!response || typeof response !== 'object') {
+      throw new Error('No response received from background script');
+    }
+
+    const env = response as ResponseEnvelope;
+    if (env.ok) {
+      return env.data;
+    }
+
+    throw new Error(env.error?.message || 'Scroll operation failed');
+  };
 
   /**
    * Stop the automatic scroll position restoration
@@ -37,18 +64,34 @@ export function createScrollManager(platform: PlatformAPI, getCurrentDocumentUrl
     if (scrollPosition === 0) {
       // For position 0, just scroll to top immediately
       window.scrollTo(0, 0);
-      platform.message.send({
-        type: 'clearScrollPosition',
-        url: getCurrentDocumentUrl()
-      }).catch(() => {}); // Ignore errors
+      platform.message
+        .send({
+          id: createRequestId(),
+          type: 'SCROLL_OPERATION',
+          payload: {
+            operation: 'clear',
+            url: getCurrentDocumentUrl(),
+          },
+          timestamp: Date.now(),
+          source: 'content-scroll',
+        })
+        .catch(() => {}); // Ignore errors
       return;
     }
 
     // Clear saved position
-    platform.message.send({
-      type: 'clearScrollPosition',
-      url: getCurrentDocumentUrl()
-    }).catch(() => {}); // Ignore errors
+    platform.message
+      .send({
+        id: createRequestId(),
+        type: 'SCROLL_OPERATION',
+        payload: {
+          operation: 'clear',
+          url: getCurrentDocumentUrl(),
+        },
+        timestamp: Date.now(),
+        source: 'content-scroll',
+      })
+      .catch(() => {}); // Ignore errors
 
     // Debounced scroll adjustment
     let scrollTimer: ReturnType<typeof setTimeout> | null = null;
@@ -148,15 +191,13 @@ export function createScrollManager(platform: PlatformAPI, getCurrentDocumentUrl
 
     // Get saved scroll position from background script
     try {
-      const response = await platform.message.send({
-        type: 'getScrollPosition',
-        url: getCurrentDocumentUrl()
+      const data = await sendScrollOperation({
+        operation: 'get',
+        url: getCurrentDocumentUrl(),
       });
 
-      // Return saved position if available and current position is at top (page just loaded)
-      const position = (response as { position?: unknown } | null | undefined)?.position;
-      if (typeof position === 'number' && currentScrollPosition === 0) {
-        return position;
+      if (typeof data === 'number' && currentScrollPosition === 0) {
+        return data;
       }
     } catch (e) {
       // Failed to get saved position, use default

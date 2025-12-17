@@ -92,6 +92,30 @@ export type {
 } from './platform';
 
 // =============================================================================
+// Messaging Types
+// =============================================================================
+
+export type {
+  RenderMessageType,
+  ServiceMessageType,
+  CommonMessageType,
+  AnyMessageType,
+  RenderPayloadMap,
+  ServicePayloadMap,
+  RequestEnvelope,
+  ResponseEnvelope,
+  RenderRequestEnvelope,
+  ServiceRequestEnvelope,
+  RenderResponseData,
+} from './messaging';
+
+export {
+  RenderMessageType as RenderMessageTypes,
+  ServiceMessageType as ServiceMessageTypes,
+  CommonMessageType as CommonMessageTypes,
+} from './messaging';
+
+// =============================================================================
 // Plugin Types
 // =============================================================================
 

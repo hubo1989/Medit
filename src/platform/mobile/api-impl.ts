@@ -24,6 +24,13 @@ import type {
   SimpleCacheStats
 } from '../../types/index';
 
+import type { PlatformBridgeAPI } from '../../types/index';
+
+import { ServiceChannel } from '../../messaging/channels/service-channel';
+import { RenderChannel } from '../../messaging/channels/render-channel';
+import { FlutterJsChannelTransport } from '../../messaging/transports/flutter-jschannel-transport';
+import { WindowPostMessageTransport } from '../../messaging/transports/window-postmessage-transport';
+
 // ============================================================================
 // Type Definitions
 // ============================================================================
@@ -31,35 +38,11 @@ import type {
 /**
  * Pending request entry
  */
-interface PendingRequest<T = unknown> {
-  resolve: (value: T) => void;
-  reject: (error: Error) => void;
-}
-
-/**
- * Message from host
- */
 interface HostMessage {
-  _responseId?: number;
-  error?: string;
-  result?: unknown;
   type?: string;
+  payload?: unknown;
   [key: string]: unknown;
 }
-
-/**
- * Message to host
- */
-interface OutgoingMessage {
-  _requestId?: number;
-  type: string;
-  payload?: unknown;
-}
-
-/**
- * Message listener callback
- */
-type MessageListener = (data: HostMessage) => void;
 
 /**
  * Download options
@@ -78,13 +61,6 @@ interface QueueContext {
 }
 
 /**
- * Render pending request with context
- */
-interface RenderPendingRequest<T = unknown> extends PendingRequest<T> {
-  context?: QueueContext;
-}
-
-/**
  * Window extensions for mobile platform
  */
 declare global {
@@ -95,143 +71,34 @@ declare global {
     __receiveMessageFromHost?: (payload: unknown) => void;
     __renderFrameReady?: boolean;
     __renderFrameReadyCallbacks?: Array<() => void>;
-    __renderFramePendingRequests?: Map<number, RenderPendingRequest>;
     __mobilePlatformCache?: MobileCacheService;
   }
 }
 
 // ============================================================================
-// Message Bridge
+// Service Channel (Host ↔ WebView)
 // ============================================================================
 
-/**
- * Message bridge for Host ↔ WebView communication.
- *
- * Flutter integration notes:
- * - JS -> Flutter: use JavascriptChannel name `MarkdownViewer`, call `MarkdownViewer.postMessage(JSON.stringify(...))`.
- * - Flutter -> JS: execute JS `window.__receiveMessageFromHost(<json or object>)`.
- */
-class MessageBridge {
-  private pendingRequests: Map<number, PendingRequest>;
-  private requestId: number;
-  private listeners: MessageListener[];
+const hostServiceChannel = new ServiceChannel(new FlutterJsChannelTransport(), {
+  source: 'mobile-webview',
+  timeoutMs: 30000,
+});
 
-  constructor() {
-    this.pendingRequests = new Map();
-    this.requestId = 0;
-    this.listeners = [];
-    this._setupMessageHandler();
-  }
-
-  private _setupMessageHandler(): void {
-    const handleIncoming = (data: unknown): void => {
-      if (!data) return;
-
-      let parsed: HostMessage;
-      
-      // Allow string payloads (JSON)
-      if (typeof data === 'string') {
-        try {
-          parsed = JSON.parse(data);
-        } catch {
-          return;
-        }
-      } else if (typeof data === 'object' && data !== null) {
-        parsed = data as HostMessage;
-      } else {
-        return;
-      }
-
-      // Handle response to pending request
-      if (parsed._responseId !== undefined) {
-        const pending = this.pendingRequests.get(parsed._responseId);
-        if (pending) {
-          this.pendingRequests.delete(parsed._responseId);
-          if (parsed.error) {
-            pending.reject(new Error(parsed.error));
-          } else {
-            pending.resolve(parsed.result);
-          }
-        }
-        return;
-      }
-
-      // Handle incoming message from host
-      for (const listener of this.listeners) {
-        try {
-          listener(parsed);
-        } catch (e) {
-          console.error('Message listener error:', e);
-        }
-      }
-    };
-
-    // Optional: support window.postMessage-based delivery (e.g. debugging)
-    window.addEventListener('message', (event) => handleIncoming(event.data));
-
-    // Primary: Flutter calls this via `runJavaScript`
-    window.__receiveMessageFromHost = (payload: unknown): void => {
-      handleIncoming(payload);
-    };
-  }
-
-  /**
-   * Send message to Flutter and wait for response
-   */
-  sendRequest<T = unknown>(type: string, payload: unknown = {}): Promise<T> {
-    return new Promise((resolve, reject) => {
-      const id = ++this.requestId;
-      this.pendingRequests.set(id, { resolve: resolve as (value: unknown) => void, reject });
-
-      // Timeout after 30 seconds
-      setTimeout(() => {
-        if (this.pendingRequests.has(id)) {
-          this.pendingRequests.delete(id);
-          reject(new Error(`Request timeout: ${type}`));
-        }
-      }, 30000);
-
-      this._postToHost({
-        _requestId: id,
-        type,
-        payload
-      });
+// Bridge compatibility layer (used by mobile/main.ts and some plugins).
+// NOTE: sendRequest/postMessage now use unified envelopes under the hood.
+export const bridge: PlatformBridgeAPI = {
+  sendRequest: async <T = unknown>(type: string, payload: unknown): Promise<T> => {
+    return (await hostServiceChannel.send(type, payload)) as T;
+  },
+  postMessage: (type: string, payload: unknown): void => {
+    hostServiceChannel.post(type, payload);
+  },
+  addListener: (handler: (message: unknown) => void): (() => void) => {
+    return hostServiceChannel.onAny((message) => {
+      handler(message);
     });
-  }
-
-  /**
-   * Send message to Flutter without waiting for response
-   */
-  postMessage(type: string, payload: unknown = {}): void {
-    this._postToHost({ type, payload });
-  }
-
-  private _postToHost(message: OutgoingMessage): void {
-    const json = JSON.stringify(message);
-
-    // Flutter WebView: JavascriptChannel
-    if (window.MarkdownViewer && typeof window.MarkdownViewer.postMessage === 'function') {
-      window.MarkdownViewer.postMessage(json);
-      return;
-    }
-
-    // No-op fallback (host channel not available)
-    console.warn('[Mobile] Host message channel not available');
-  }
-
-  /**
-   * Add listener for messages from Flutter
-   */
-  addListener(callback: MessageListener): () => void {
-    this.listeners.push(callback);
-    return () => {
-      const index = this.listeners.indexOf(callback);
-      if (index > -1) this.listeners.splice(index, 1);
-    };
-  }
-}
-
-const bridge = new MessageBridge();
+  },
+};
 
 // ============================================================================
 // Mobile Storage Service
@@ -343,7 +210,7 @@ class MobileMessageService {
     return bridge.sendRequest('MESSAGE', message);
   }
 
-  addListener(callback: MessageListener): () => void {
+  addListener(callback: (message: unknown) => void): () => void {
     return bridge.addListener(callback);
   }
 }
@@ -495,22 +362,21 @@ interface MobileRenderResult {
  * Uses global state set up by inline script in index.html:
  * - window.__renderFrameReady
  * - window.__renderFrameReadyCallbacks
- * - window.__renderFramePendingRequests
  */
 class MobileRendererService extends BaseRendererService {
   private iframe: HTMLIFrameElement | null;
-  private requestId: number;
   private readyPromise: Promise<void> | null;
   private requestQueue: Promise<void>;
   private queueContext: QueueContext;
+  private renderChannel: RenderChannel | null;
 
   constructor() {
     super();
     this.iframe = null;
-    this.requestId = 0;
     this.readyPromise = null;
     this.requestQueue = Promise.resolve();
     this.queueContext = { cancelled: false, id: 0 };
+    this.renderChannel = null;
   }
 
   /**
@@ -537,11 +403,26 @@ class MobileRendererService extends BaseRendererService {
     return window.__renderFrameReady || false;
   }
 
-  /**
-   * Get pending requests map (shared with inline script)
-   */
-  get pendingRequests(): Map<number, RenderPendingRequest> {
-    return window.__renderFramePendingRequests!;
+  private getOrCreateRenderChannel(): RenderChannel {
+    if (!this.iframe || !this.iframe.contentWindow) {
+      throw new Error('Render frame not available');
+    }
+
+    if (!this.renderChannel) {
+      const targetWindow = this.iframe.contentWindow;
+      this.renderChannel = new RenderChannel(
+        new WindowPostMessageTransport(targetWindow, {
+          targetOrigin: '*',
+          acceptSource: targetWindow,
+        }),
+        {
+          source: 'mobile-parent',
+          timeoutMs: 60_000,
+        }
+      );
+    }
+
+    return this.renderChannel;
   }
 
   /**
@@ -612,44 +493,23 @@ class MobileRendererService extends BaseRendererService {
     timeout: number,
     context: QueueContext
   ): Promise<T> {
-    return new Promise((resolve, reject) => {
-      if (context.cancelled) {
-        reject(new Error('Request cancelled'));
-        return;
-      }
-      
-      if (!this.iframe || !this.isReady) {
-        reject(new Error('Render frame not ready'));
-        return;
-      }
+    if (context.cancelled) {
+      return Promise.reject(new Error('Request cancelled'));
+    }
 
-      const id = ++this.requestId;
-      
-      const timeoutTimer = setTimeout(() => {
-        if (this.pendingRequests.has(id)) {
-          this.pendingRequests.delete(id);
-          reject(new Error(`Render request timeout (${timeout/1000}s): ${type}`));
+    if (!this.iframe || !this.isReady) {
+      return Promise.reject(new Error('Render frame not ready'));
+    }
+
+    const channel = this.getOrCreateRenderChannel();
+    return channel
+      .send(type, payload, { timeoutMs: timeout })
+      .then((data) => {
+        if (context.cancelled) {
+          throw new Error('Request cancelled');
         }
-      }, timeout);
-      
-      this.pendingRequests.set(id, { 
-        resolve: (result: unknown) => {
-          clearTimeout(timeoutTimer);
-          resolve(result as T);
-        }, 
-        reject: (error: Error) => {
-          clearTimeout(timeoutTimer);
-          reject(error);
-        },
-        context
+        return data as T;
       });
-
-      this.iframe.contentWindow!.postMessage({
-        ...(payload as object),
-        type,
-        requestId: id
-      }, '*');
-    });
   }
 
   // Keep for compatibility, but not used with iframe approach
@@ -726,6 +586,8 @@ class MobileRendererService extends BaseRendererService {
   }
 
   async cleanup(): Promise<void> {
+    this.renderChannel?.close();
+    this.renderChannel = null;
     if (this.iframe && this.iframe.parentNode) {
       this.iframe.parentNode.removeChild(this.iframe);
       this.iframe = null;
@@ -810,7 +672,7 @@ class MobilePlatformAPI {
   public readonly i18n: MobileI18nService;
   
   // Internal bridge reference (for advanced usage)
-  public readonly _bridge: MessageBridge;
+  public readonly _bridge: PlatformBridgeAPI;
 
   constructor() {
     // Initialize services
@@ -841,7 +703,7 @@ class MobilePlatformAPI {
    * Notify host app that WebView is ready
    */
   notifyReady(): void {
-    bridge.postMessage('WEBVIEW_READY');
+    bridge.postMessage('WEBVIEW_READY', {});
   }
 
   /**
@@ -864,7 +726,6 @@ class MobilePlatformAPI {
 export const platform = new MobilePlatformAPI();
 
 export {
-  bridge,
   MobileStorageService,
   MobileFileService,
   MobileResourceService,

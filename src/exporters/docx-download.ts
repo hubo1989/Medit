@@ -19,6 +19,20 @@ interface DownloadFinalizeResponse {
   downloadId?: number;
 }
 
+type ResponseEnvelope = {
+  type: 'RESPONSE';
+  requestId: string;
+  ok: boolean;
+  data?: unknown;
+  error?: { message: string };
+};
+
+function isResponseEnvelope(message: unknown): message is ResponseEnvelope {
+  if (!message || typeof message !== 'object') return false;
+  const obj = message as Record<string, unknown>;
+  return obj.type === 'RESPONSE' && typeof obj.requestId === 'string' && typeof obj.ok === 'boolean';
+}
+
 /**
  * Convert byte array chunk to base64 without exceeding call stack limits
  * @param bytes - Binary chunk
@@ -40,19 +54,12 @@ export function encodeBytesToBase64(bytes: Uint8Array): string {
  * @returns Response from background script
  */
 export function runtimeSendMessage(message: unknown): Promise<unknown> {
-  return new Promise((resolve, reject) => {
-    try {
-      chrome.runtime.sendMessage(message, (response) => {
-        if (chrome.runtime.lastError) {
-          reject(new Error(chrome.runtime.lastError.message));
-          return;
-        }
-        resolve(response);
-      });
-    } catch (error) {
-      reject(error);
-    }
-  });
+  const platform = globalThis.platform as { message?: { send?: (msg: Record<string, unknown>) => Promise<unknown> } } | undefined;
+  if (platform?.message?.send && message && typeof message === 'object') {
+    return platform.message.send(message as Record<string, unknown>);
+  }
+
+  return Promise.reject(new Error('Platform messaging not available'));
 }
 
 /**
@@ -105,14 +112,22 @@ export async function downloadBlob(blob: Blob, filename: string): Promise<void> 
 
     token = uploadResult.token;
 
-    const finalizeResponse = await runtimeSendMessage({
+    const finalizeRaw = await runtimeSendMessage({
+      id: `${Date.now()}-docx-finalize`,
       type: 'DOCX_DOWNLOAD_FINALIZE',
-      token
-    }) as DownloadFinalizeResponse;
+      payload: { token },
+      timestamp: Date.now(),
+      source: 'docx-download',
+    });
 
-    if (!finalizeResponse || !finalizeResponse.success) {
-      throw new Error(finalizeResponse?.error || 'Download finalize failed');
+    if (isResponseEnvelope(finalizeRaw)) {
+      if (!finalizeRaw.ok) {
+        throw new Error(finalizeRaw.error?.message || 'Download finalize failed');
+      }
+      return;
     }
+
+    throw new Error('Unexpected response shape (expected ResponseEnvelope)');
   } catch (error) {
     console.error('Download failed:', error);
     if (token) {

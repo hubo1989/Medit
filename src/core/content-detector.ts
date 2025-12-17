@@ -48,8 +48,18 @@ function isMarkdownFile(): boolean {
 // Only run the main content script if this is a Markdown file
 if (isMarkdownFile()) {
   // Dynamically inject the original content script
-  chrome.runtime.sendMessage({
-    type: 'injectContentScript',
-    url: document.location.href
+  const url = document.location.href;
+  const id = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
+  const request = {
+    id,
+    type: 'INJECT_CONTENT_SCRIPT',
+    payload: { url },
+    timestamp: Date.now(),
+    source: 'content-detector',
+  };
+
+  chrome.runtime.sendMessage(request, () => {
+    // Fire and forget.
   });
 }

@@ -278,7 +278,11 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
 
       final type = decoded['type'];
       final payload = decoded['payload'];
-      final requestId = decoded['_requestId'] as int?;
+      final legacyRequestId = decoded['_requestId'] as int?;
+
+      // New unified envelope (WebView -> Host)
+      final envelopeId = decoded['id']?.toString();
+      final isEnvelope = envelopeId != null && decoded.containsKey('timestamp');
 
       switch (type) {
         case 'WEBVIEW_READY':
@@ -310,19 +314,40 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
 
         case 'DOWNLOAD_FILE':
           if (payload is Map) {
-            _handleDownloadFile(Map<String, dynamic>.from(payload), requestId);
+            if (isEnvelope) {
+              _handleDownloadFileEnvelope(
+                Map<String, dynamic>.from(payload),
+                envelopeId!,
+              );
+            } else {
+              _handleDownloadFile(Map<String, dynamic>.from(payload), legacyRequestId);
+            }
           }
           break;
 
         case 'READ_RELATIVE_FILE':
-          if (payload is Map && requestId != null) {
-            _handleReadRelativeFile(Map<String, dynamic>.from(payload), requestId);
+          if (payload is Map) {
+            if (isEnvelope) {
+              _handleReadRelativeFileEnvelope(
+                Map<String, dynamic>.from(payload),
+                envelopeId!,
+              );
+            } else if (legacyRequestId != null) {
+              _handleReadRelativeFile(Map<String, dynamic>.from(payload), legacyRequestId);
+            }
           }
           break;
 
         case 'FETCH_ASSET':
-          if (payload is Map && requestId != null) {
-            _handleFetchAsset(Map<String, dynamic>.from(payload), requestId);
+          if (payload is Map) {
+            if (isEnvelope) {
+              _handleFetchAssetEnvelope(
+                Map<String, dynamic>.from(payload),
+                envelopeId!,
+              );
+            } else if (legacyRequestId != null) {
+              _handleFetchAsset(Map<String, dynamic>.from(payload), legacyRequestId);
+            }
           }
           break;
 
@@ -374,6 +399,36 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
     }
   }
 
+  Future<void> _handleDownloadFileEnvelope(
+    Map<String, dynamic> payload,
+    String requestId,
+  ) async {
+    try {
+      final data = payload['data'] as String?;
+      final filename = payload['filename'] as String?;
+      final mimeType = payload['mimeType'] as String?;
+
+      if (data == null || filename == null) {
+        _respondToWebViewEnvelope(requestId, error: 'Invalid download request');
+        return;
+      }
+
+      final bytes = base64Decode(data);
+      final tempDir = await getTemporaryDirectory();
+      final file = File('${tempDir.path}/$filename');
+      await file.writeAsBytes(bytes);
+
+      await Share.shareXFiles(
+        [XFile(file.path, mimeType: mimeType)],
+        sharePositionOrigin: const Rect.fromLTWH(0, 0, 100, 100),
+      );
+
+      _respondToWebViewEnvelope(requestId, data: {'success': true});
+    } catch (e) {
+      _respondToWebViewEnvelope(requestId, error: e.toString());
+    }
+  }
+
   Future<void> _handleReadRelativeFile(Map<String, dynamic> payload, int requestId) async {
     try {
       final relativePath = payload['path'] as String?;
@@ -415,6 +470,50 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
     }
   }
 
+  Future<void> _handleReadRelativeFileEnvelope(
+    Map<String, dynamic> payload,
+    String requestId,
+  ) async {
+    try {
+      final relativePath = payload['path'] as String?;
+
+      if (relativePath == null || relativePath.isEmpty) {
+        _respondToWebViewEnvelope(requestId, error: 'No path provided');
+        return;
+      }
+
+      if (_currentFileDir == null) {
+        _respondToWebViewEnvelope(requestId, error: 'No markdown file opened');
+        return;
+      }
+
+      String absolutePath;
+      if (relativePath.startsWith('./')) {
+        absolutePath = '$_currentFileDir/${relativePath.substring(2)}';
+      } else if (relativePath.startsWith('../')) {
+        final baseDir = Directory(_currentFileDir!);
+        absolutePath = '${baseDir.path}/$relativePath';
+        absolutePath = File(absolutePath).absolute.path;
+      } else if (relativePath.startsWith('/')) {
+        absolutePath = relativePath;
+      } else {
+        absolutePath = '$_currentFileDir/$relativePath';
+      }
+
+      final file = File(absolutePath);
+      if (!await file.exists()) {
+        _respondToWebViewEnvelope(requestId, error: 'File not found: $absolutePath');
+        return;
+      }
+
+      final content = await file.readAsString();
+      _respondToWebViewEnvelope(requestId, data: {'content': content});
+    } catch (e) {
+      debugPrint('[Mobile] READ_RELATIVE_FILE error: $e');
+      _respondToWebViewEnvelope(requestId, error: e.toString());
+    }
+  }
+
   /// Handle FETCH_ASSET request from WebView
   /// Loads asset from Flutter's asset bundle
   Future<void> _handleFetchAsset(Map<String, dynamic> payload, int requestId) async {
@@ -430,6 +529,25 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
     } catch (e) {
       debugPrint('[Mobile] FETCH_ASSET error for ${payload['path']}: $e');
       _respondToWebView(requestId, error: e.toString());
+    }
+  }
+
+  Future<void> _handleFetchAssetEnvelope(
+    Map<String, dynamic> payload,
+    String requestId,
+  ) async {
+    try {
+      final path = payload['path'] as String?;
+      if (path == null) {
+        _respondToWebViewEnvelope(requestId, error: 'Missing path parameter');
+        return;
+      }
+
+      final content = await rootBundle.loadString('build/mobile/$path');
+      _respondToWebViewEnvelope(requestId, data: content);
+    } catch (e) {
+      debugPrint('[Mobile] FETCH_ASSET error for ${payload['path']}: $e');
+      _respondToWebViewEnvelope(requestId, error: e.toString());
     }
   }
 
@@ -449,6 +567,24 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
       response['error'] = error;
     } else {
       response['result'] = result;
+    }
+
+    _sendToWebView(response);
+  }
+
+  void _respondToWebViewEnvelope(String requestId, {dynamic data, String? error}) {
+    final response = <String, dynamic>{
+      'type': 'RESPONSE',
+      'requestId': requestId,
+      'ok': error == null,
+    };
+
+    if (error != null) {
+      response['error'] = <String, dynamic>{
+        'message': error,
+      };
+    } else {
+      response['data'] = data;
     }
 
     _sendToWebView(response);

@@ -22,6 +22,330 @@ let offscreenReadyPromise: Promise<void> | null = null;
 let offscreenReadyResolve: (() => void) | null = null;
 let globalCacheManager: ExtensionCacheManager | null = null;
 
+// Envelope helpers (kept local to avoid a hard dependency from background on src/messaging runtime).
+let legacyRequestCounter = 0;
+function createRequestId(): string {
+  legacyRequestCounter += 1;
+  return `${Date.now()}-${legacyRequestCounter}`;
+}
+
+function isRequestEnvelope(message: unknown): message is { id: string; type: string; payload: unknown } {
+  if (!message || typeof message !== 'object') return false;
+  const obj = message as Record<string, unknown>;
+  return typeof obj.id === 'string' && typeof obj.type === 'string' && 'payload' in obj;
+}
+
+function isResponseEnvelope(message: unknown): message is { type: 'RESPONSE'; requestId: string; ok: boolean; data?: unknown; error?: { message: string } } {
+  if (!message || typeof message !== 'object') return false;
+  const obj = message as Record<string, unknown>;
+  return obj.type === 'RESPONSE' && typeof obj.requestId === 'string' && typeof obj.ok === 'boolean';
+}
+
+function sendResponseEnvelope(
+  requestId: string,
+  sendResponse: (response: unknown) => void,
+  result: { ok: true; data?: unknown } | { ok: false; errorMessage: string }
+): void {
+  if (result.ok) {
+    sendResponse({
+      type: 'RESPONSE',
+      requestId,
+      ok: true,
+      data: result.data,
+    });
+    return;
+  }
+  sendResponse({
+    type: 'RESPONSE',
+    requestId,
+    ok: false,
+    error: { message: result.errorMessage },
+  });
+}
+
+async function handleCacheOperationEnvelope(
+  message: { id: string; type: string; payload: unknown },
+  sendResponse: (response: unknown) => void
+): Promise<void> {
+  try {
+    if (!globalCacheManager) {
+      globalCacheManager = await initGlobalCacheManager();
+    }
+
+    if (!globalCacheManager) {
+      sendResponseEnvelope(message.id, sendResponse, { ok: false, errorMessage: 'Cache system initialization failed' });
+      return;
+    }
+
+    const payload = (message.payload || {}) as Record<string, unknown>;
+    const operation = payload.operation as string | undefined;
+    const key = typeof payload.key === 'string' ? payload.key : '';
+    const value = payload.value;
+    const dataType = typeof payload.dataType === 'string' ? payload.dataType : '';
+    const limit = typeof payload.limit === 'number' ? payload.limit : 50;
+
+    switch (operation) {
+      case 'get': {
+        const item = await globalCacheManager.get(key);
+        sendResponseEnvelope(message.id, sendResponse, { ok: true, data: item ?? null });
+        return;
+      }
+      case 'set': {
+        await globalCacheManager.set(key, value, dataType);
+        sendResponseEnvelope(message.id, sendResponse, { ok: true, data: { success: true } });
+        return;
+      }
+      case 'delete': {
+        await globalCacheManager.delete(key);
+        sendResponseEnvelope(message.id, sendResponse, { ok: true, data: { success: true } });
+        return;
+      }
+      case 'clear': {
+        await globalCacheManager.clear();
+        sendResponseEnvelope(message.id, sendResponse, { ok: true, data: { success: true } });
+        return;
+      }
+      case 'getStats': {
+        const stats = await globalCacheManager.getStats(limit);
+        sendResponseEnvelope(message.id, sendResponse, { ok: true, data: stats });
+        return;
+      }
+      default:
+        sendResponseEnvelope(message.id, sendResponse, { ok: false, errorMessage: 'Unknown cache operation' });
+    }
+  } catch (error) {
+    sendResponseEnvelope(message.id, sendResponse, { ok: false, errorMessage: (error as Error).message });
+  }
+}
+
+async function handleFileStateOperationEnvelope(
+  message: { id: string; type: string; payload: unknown },
+  sendResponse: (response: unknown) => void
+): Promise<void> {
+  try {
+    const payload = (message.payload || {}) as Record<string, unknown>;
+    const operation = payload.operation as string | undefined;
+    const url = typeof payload.url === 'string' ? payload.url : '';
+    const state = (payload.state || {}) as FileState;
+
+    if (!url) {
+      sendResponseEnvelope(message.id, sendResponse, { ok: false, errorMessage: 'Missing url' });
+      return;
+    }
+
+    switch (operation) {
+      case 'get': {
+        const current = await getFileState(url);
+        sendResponseEnvelope(message.id, sendResponse, { ok: true, data: current });
+        return;
+      }
+      case 'set': {
+        const success = await saveFileState(url, state);
+        sendResponseEnvelope(message.id, sendResponse, { ok: true, data: { success } });
+        return;
+      }
+      case 'clear': {
+        const success = await clearFileState(url);
+        sendResponseEnvelope(message.id, sendResponse, { ok: true, data: { success } });
+        return;
+      }
+      default:
+        sendResponseEnvelope(message.id, sendResponse, { ok: false, errorMessage: 'Unknown file state operation' });
+    }
+  } catch (error) {
+    sendResponseEnvelope(message.id, sendResponse, { ok: false, errorMessage: (error as Error).message });
+  }
+}
+
+async function handleScrollOperationEnvelope(
+  message: { id: string; type: string; payload: unknown },
+  sendResponse: (response: unknown) => void
+): Promise<void> {
+  try {
+    const payload = (message.payload || {}) as Record<string, unknown>;
+    const operation = payload.operation as string | undefined;
+    const url = typeof payload.url === 'string' ? payload.url : '';
+
+    if (!url) {
+      sendResponseEnvelope(message.id, sendResponse, { ok: false, errorMessage: 'Missing url' });
+      return;
+    }
+
+    switch (operation) {
+      case 'get': {
+        const state = await getFileState(url);
+        const position = typeof (state as { scrollPosition?: unknown }).scrollPosition === 'number' ? (state as { scrollPosition?: number }).scrollPosition || 0 : 0;
+        sendResponseEnvelope(message.id, sendResponse, { ok: true, data: position });
+        return;
+      }
+      case 'clear': {
+        const currentState = await getFileState(url);
+        if ((currentState as { scrollPosition?: unknown }).scrollPosition !== undefined) {
+          delete (currentState as { scrollPosition?: unknown }).scrollPosition;
+          if (Object.keys(currentState).length === 0) {
+            await clearFileState(url);
+          } else {
+            await saveFileState(url, currentState);
+          }
+        }
+        sendResponseEnvelope(message.id, sendResponse, { ok: true, data: { success: true } });
+        return;
+      }
+      default:
+        sendResponseEnvelope(message.id, sendResponse, { ok: false, errorMessage: 'Unknown scroll operation' });
+    }
+  } catch (error) {
+    sendResponseEnvelope(message.id, sendResponse, { ok: false, errorMessage: (error as Error).message });
+  }
+}
+
+function handleUploadOperationEnvelope(
+  message: { id: string; type: string; payload: unknown },
+  sendResponse: (response: unknown) => void
+): void {
+  const payload = (message.payload || {}) as Record<string, unknown>;
+  const operation = payload.operation as string | undefined;
+
+  try {
+    switch (operation) {
+      case 'init': {
+        const purposeRaw = typeof payload.purpose === 'string' ? payload.purpose : 'general';
+        const purpose = purposeRaw.trim() ? purposeRaw.trim() : 'general';
+        const encoding = payload.encoding === 'base64' ? 'base64' : 'text';
+        const metadata = payload.metadata && typeof payload.metadata === 'object' ? (payload.metadata as Record<string, unknown>) : {};
+        const expectedSize = typeof payload.expectedSize === 'number' ? payload.expectedSize : null;
+        const requestedChunkSize = typeof payload.chunkSize === 'number' && payload.chunkSize > 0 ? payload.chunkSize : DEFAULT_UPLOAD_CHUNK_SIZE;
+
+        const { token, chunkSize } = initUploadSession(purpose, {
+          chunkSize: requestedChunkSize,
+          encoding,
+          expectedSize,
+          metadata,
+        });
+
+        sendResponseEnvelope(message.id, sendResponse, { ok: true, data: { token, chunkSize } });
+        return;
+      }
+      case 'chunk': {
+        const token = typeof payload.token === 'string' ? payload.token : '';
+        const chunk = typeof payload.chunk === 'string' ? payload.chunk : '';
+
+        if (!token || !chunk) {
+          sendResponseEnvelope(message.id, sendResponse, { ok: false, errorMessage: 'Invalid upload chunk payload' });
+          return;
+        }
+
+        appendUploadChunk(token, chunk);
+        sendResponseEnvelope(message.id, sendResponse, { ok: true, data: {} });
+        return;
+      }
+      case 'finalize': {
+        const token = typeof payload.token === 'string' ? payload.token : '';
+        if (!token) {
+          sendResponseEnvelope(message.id, sendResponse, { ok: false, errorMessage: 'Missing upload session token' });
+          return;
+        }
+
+        const session = finalizeUploadSession(token);
+        sendResponseEnvelope(message.id, sendResponse, {
+          ok: true,
+          data: {
+            token,
+            purpose: session.purpose,
+            bytes: session.receivedBytes,
+            encoding: session.encoding,
+          },
+        });
+        return;
+      }
+      case 'abort': {
+        const token = typeof payload.token === 'string' ? payload.token : undefined;
+        abortUploadSession(token);
+        sendResponseEnvelope(message.id, sendResponse, { ok: true, data: {} });
+        return;
+      }
+      default:
+        sendResponseEnvelope(message.id, sendResponse, { ok: false, errorMessage: 'Unknown upload operation' });
+    }
+  } catch (error) {
+    sendResponseEnvelope(message.id, sendResponse, { ok: false, errorMessage: (error as Error).message });
+  }
+}
+
+function handleDocxDownloadFinalizeEnvelope(
+  message: { id: string; type: string; payload: unknown },
+  sendResponse: (response: unknown) => void
+): boolean {
+  const payload = (message.payload || {}) as Record<string, unknown>;
+  const token = typeof payload.token === 'string' ? payload.token : '';
+  if (!token) {
+    sendResponseEnvelope(message.id, sendResponse, { ok: false, errorMessage: 'Missing download job token' });
+    return false;
+  }
+
+  try {
+    let session = uploadSessions.get(token);
+    if (!session) {
+      sendResponseEnvelope(message.id, sendResponse, { ok: false, errorMessage: 'Download job not found' });
+      return false;
+    }
+
+    if (!session.completed) {
+      session = finalizeUploadSession(token);
+    }
+
+    const { metadata = {}, data = '' } = session;
+    const filename = (metadata.filename as string) || 'document.docx';
+    const mimeType = (metadata.mimeType as string) || 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+
+    const dataUrl = `data:${mimeType};base64,${data}`;
+    chrome.downloads.download(
+      {
+        url: dataUrl,
+        filename,
+        saveAs: true,
+      },
+      (downloadId) => {
+        if (chrome.runtime.lastError) {
+          sendResponseEnvelope(message.id, sendResponse, {
+            ok: false,
+            errorMessage: chrome.runtime.lastError.message ?? 'Download failed',
+          });
+          return;
+        }
+        sendResponseEnvelope(message.id, sendResponse, { ok: true, data: { downloadId } });
+      }
+    );
+
+    uploadSessions.delete(token);
+    return true;
+  } catch (error) {
+    sendResponseEnvelope(message.id, sendResponse, { ok: false, errorMessage: (error as Error).message });
+    return false;
+  }
+}
+
+async function handleReadLocalFileEnvelope(
+  message: { id: string; type: string; payload: unknown },
+  sendResponse: (response: unknown) => void
+): Promise<void> {
+  const payload = (message.payload || {}) as Record<string, unknown>;
+  const filePath = typeof payload.filePath === 'string' ? payload.filePath : '';
+  const binary = payload.binary === true;
+
+  if (!filePath) {
+    sendResponseEnvelope(message.id, sendResponse, { ok: false, errorMessage: 'Missing filePath' });
+    return;
+  }
+
+  try {
+    const result = await readLocalFile(filePath, binary);
+    sendResponseEnvelope(message.id, sendResponse, { ok: true, data: result });
+  } catch (error) {
+    sendResponseEnvelope(message.id, sendResponse, { ok: false, errorMessage: (error as Error).message });
+  }
+}
+
 // Upload sessions in memory
 const uploadSessions = new Map<string, UploadSession>();
 const DEFAULT_UPLOAD_CHUNK_SIZE = 255 * 1024;
@@ -134,10 +458,9 @@ chrome.runtime.onConnect.addListener((port) => {
 
 // Handle messages from content script
 chrome.runtime.onMessage.addListener((message: BackgroundMessage, sender, sendResponse) => {
-  if (message.type === 'offscreenReady') {
+  if (isRequestEnvelope(message) && message.type === 'OFFSCREEN_READY') {
     offscreenCreated = true;
     offscreenReady = true;
-    // Resolve the ready promise if it exists
     if (offscreenReadyResolve) {
       offscreenReadyResolve();
       offscreenReadyResolve = null;
@@ -145,123 +468,129 @@ chrome.runtime.onMessage.addListener((message: BackgroundMessage, sender, sendRe
     return;
   }
 
-  if (message.type === 'offscreenDOMReady') {
+  if (isRequestEnvelope(message) && message.type === 'OFFSCREEN_DOM_READY') {
     return;
   }
 
-  if (message.type === 'offscreenError') {
-    console.error('Offscreen error:', (message as { error?: string }).error);
+  if (isRequestEnvelope(message) && message.type === 'OFFSCREEN_ERROR') {
+    const payload = (message as { payload?: unknown }).payload;
+    const errorMessage =
+      payload && typeof payload === 'object'
+        ? (payload as { error?: unknown }).error
+        : undefined;
+    console.error('Offscreen error:', typeof errorMessage === 'string' ? errorMessage : 'Unknown error');
     return;
   }
 
-  if (message.type === 'injectContentScript') {
-    handleContentScriptInjection(sender.tab?.id || 0, sendResponse);
-    return true; // Keep message channel open for async response
+  // New service envelope: dynamic content script injection (preferred)
+  if (isRequestEnvelope(message) && message.type === 'INJECT_CONTENT_SCRIPT') {
+    handleContentScriptInjection(sender.tab?.id || 0)
+      .then(() => {
+        sendResponseEnvelope(message.id, sendResponse, { ok: true, data: { success: true } });
+      })
+      .catch((error) => {
+        sendResponseEnvelope(message.id, sendResponse, { ok: false, errorMessage: (error as Error).message });
+      });
+    return true;
   }
 
-  // Handle file state management
-  if (message.type === 'saveFileState') {
-    saveFileState(message.url || '', message.state || {}).then(success => {
-      sendResponse({ success });
-    });
-    return true; // Keep message channel open for async response
+  // New render envelope (preferred)
+  if (isRequestEnvelope(message) && (message.type === 'RENDER_DIAGRAM' || message.type === 'SET_THEME_CONFIG' || message.type === 'PING')) {
+    handleRenderEnvelopeRequest(message, sendResponse);
+    return true;
   }
 
-  if (message.type === 'getFileState') {
-    getFileState(message.url || '').then(state => {
-      sendResponse({ state });
-    });
-    return true; // Keep message channel open for async response
+  // New service envelopes (preferred)
+  if (isRequestEnvelope(message) && message.type === 'CACHE_OPERATION') {
+    handleCacheOperationEnvelope(message, sendResponse);
+    return true;
   }
 
-  if (message.type === 'clearFileState') {
-    clearFileState(message.url || '').then(success => {
-      sendResponse({ success });
-    });
-    return true; // Keep message channel open for async response
+  if (isRequestEnvelope(message) && message.type === 'FILE_STATE_OPERATION') {
+    handleFileStateOperationEnvelope(message, sendResponse);
+    return true;
   }
 
-  // Legacy scroll position management (for backward compatibility)
-  if (message.type === 'saveScrollPosition') {
-    saveFileState(message.url || '', { scrollPosition: message.position }).then(success => {
-      sendResponse({ success });
-    });
-    return true; // Keep message channel open for async response
+  if (isRequestEnvelope(message) && message.type === 'SCROLL_OPERATION') {
+    handleScrollOperationEnvelope(message, sendResponse);
+    return true;
   }
 
-  if (message.type === 'getScrollPosition') {
-    getFileState(message.url || '').then(state => {
-      const position = state.scrollPosition || 0;
-      sendResponse({ position });
-    });
-    return true; // Keep message channel open for async response
+  if (isRequestEnvelope(message) && message.type === 'UPLOAD_OPERATION') {
+    handleUploadOperationEnvelope(message, sendResponse);
+    return true;
   }
 
-  if (message.type === 'clearScrollPosition') {
-    getFileState(message.url || '').then(async (currentState) => {
-      if (currentState.scrollPosition !== undefined) {
-        delete currentState.scrollPosition;
-        if (Object.keys(currentState).length === 0) {
-          await clearFileState(message.url || '');
-        } else {
-          await saveFileState(message.url || '', currentState);
-        }
-      }
-      sendResponse({ success: true });
-    });
-    return true; // Keep message channel open for async response
+  if (isRequestEnvelope(message) && message.type === 'DOCX_DOWNLOAD_FINALIZE') {
+    return handleDocxDownloadFinalizeEnvelope(message, sendResponse);
   }
 
-  // Handle cache operations
-  if (message.action === 'getCacheStats' || message.action === 'clearCache') {
-    handleCacheRequest(message, sendResponse);
-    return true; // Keep message channel open for async response
-  }
-
-  // Handle cache operations for content scripts
-  if (message.type === 'cacheOperation') {
-    handleContentCacheOperation(message, sendResponse);
-    return true; // Keep message channel open for async response
-  }
-
-  // Forward unified rendering messages to offscreen document
-  if (message.action === 'RENDER_DIAGRAM') {
-    handleRenderingRequest(message, sendResponse);
-    return true; // Keep message channel open for async response
-  }
-
-  // Handle local file reading
-  if (message.type === 'READ_LOCAL_FILE') {
-    handleFileRead(message, sendResponse);
-    return true; // Keep message channel open for async response
-  }
-
-  if (message.type === 'UPLOAD_INIT') {
-    handleUploadInit(message, sendResponse);
-    return;
-  }
-
-  if (message.type === 'UPLOAD_CHUNK') {
-    handleUploadChunk(message, sendResponse);
-    return;
-  }
-
-  if (message.type === 'UPLOAD_FINALIZE') {
-    handleUploadFinalize(message, sendResponse);
-    return;
-  }
-
-  if (message.type === 'UPLOAD_ABORT') {
-    handleUploadAbort(message);
-    return;
-  }
-  if (message.type === 'DOCX_DOWNLOAD_FINALIZE') {
-    return handleDocxDownloadFinalize(message, sendResponse);
+  if (isRequestEnvelope(message) && message.type === 'READ_LOCAL_FILE') {
+    handleReadLocalFileEnvelope(message, sendResponse);
+    return true;
   }
 
   // Return false for unhandled message types (synchronous response)
   return false;
 });
+
+async function sendToOffscreen(request: { id: string; type: string; payload: unknown }): Promise<unknown> {
+  // Ensure offscreen document exists and is ready
+  await ensureOffscreenDocument();
+
+  const offscreenRequest = {
+    ...request,
+    __target: 'offscreen'
+  };
+
+  return new Promise((resolve, reject) => {
+    chrome.runtime.sendMessage(offscreenRequest, (response) => {
+      if (chrome.runtime.lastError) {
+        // Reset all offscreen state on communication failure
+        if (chrome.runtime.lastError.message?.includes('receiving end does not exist')) {
+          offscreenCreated = false;
+          offscreenReady = false;
+          offscreenReadyPromise = null;
+          offscreenReadyResolve = null;
+        }
+        reject(new Error(`Offscreen communication failed: ${chrome.runtime.lastError.message}`));
+        return;
+      }
+      resolve(response);
+    });
+  });
+}
+
+async function handleRenderEnvelopeRequest(
+  message: { id: string; type: string; payload: unknown },
+  sendResponse: (response: unknown) => void
+): Promise<void> {
+  try {
+    const response = await sendToOffscreen(message);
+
+    // Ensure we always respond with a ResponseEnvelope for new callers.
+    if (isResponseEnvelope(response)) {
+      sendResponse(response);
+      return;
+    }
+
+    // Fallback: wrap unknown response.
+    sendResponse({
+      type: 'RESPONSE',
+      requestId: message.id,
+      ok: true,
+      data: response,
+    });
+  } catch (error) {
+    sendResponse({
+      type: 'RESPONSE',
+      requestId: message.id,
+      ok: false,
+      error: { message: (error as Error).message },
+    });
+  }
+}
+
 
 function createToken(): string {
   if (globalThis.crypto && typeof crypto.randomUUID === 'function') {
@@ -278,160 +607,32 @@ function createToken(): string {
   return Array.from(buffer, (value) => value.toString(16).padStart(8, '0')).join('-');
 }
 
-async function handleContentCacheOperation(message: BackgroundMessage, sendResponse: (response: unknown) => void): Promise<void> {
-  try {
-    // Ensure global cache manager is initialized
-    if (!globalCacheManager) {
-      globalCacheManager = await initGlobalCacheManager();
-    }
+async function readLocalFile(
+  filePath: string,
+  binary: boolean
+): Promise<{ content: string; contentType?: string }>{
+  // Use fetch to read the file - this should work from background script
+  const response = await fetch(filePath);
 
-    if (!globalCacheManager) {
-      sendResponse({ error: 'Cache system initialization failed' });
-      return;
-    }
-
-    switch (message.operation) {
-      case 'get':
-        const item = await globalCacheManager.get(message.key || '');
-        sendResponse({ result: item });
-        break;
-
-      case 'set':
-        await globalCacheManager.set(message.key || '', message.value, message.dataType || '');
-        sendResponse({ success: true });
-        break;
-
-      case 'clear':
-        await globalCacheManager.clear();
-        sendResponse({ success: true });
-        break;
-
-      case 'getStats':
-        const stats = await globalCacheManager.getStats(message.limit || 50);
-        sendResponse({ result: stats });
-        break;
-
-      default:
-        sendResponse({ error: 'Unknown cache operation' });
-    }
-
-  } catch (error) {
-    sendResponse({ error: (error as Error).message });
+  if (!response.ok) {
+    throw new Error(`Failed to read file: ${response.status} ${response.statusText}`);
   }
-}
 
-async function handleCacheRequest(
-  message: BackgroundMessage,
-  sendResponse: (response: SimpleCacheStats | { success: boolean; message: string } | { error: string }) => void
-): Promise<void> {
-  try {
-    // Ensure global cache manager is initialized
-    if (!globalCacheManager) {
-      globalCacheManager = await initGlobalCacheManager();
+  const contentType = response.headers.get('content-type') || '';
+
+  if (binary) {
+    const arrayBuffer = await response.arrayBuffer();
+    const bytes = new Uint8Array(arrayBuffer);
+    let binaryString = '';
+    for (let i = 0; i < bytes.byteLength; i++) {
+      binaryString += String.fromCharCode(bytes[i]);
     }
-
-    if (!globalCacheManager) {
-      sendResponse({
-        itemCount: 0,
-        maxItems: 1000,
-        totalSize: 0,
-        totalSizeMB: '0.00',
-        items: [],
-        message: 'Cache system initialization failed'
-      });
-      return;
-    }
-
-    if (message.action === 'getCacheStats') {
-      const limit = message.limit || 50;
-      const stats = await globalCacheManager.getStats(limit);
-      sendResponse(toSimpleCacheStats(stats, globalCacheManager.maxItems));
-    } else if (message.action === 'clearCache') {
-      await globalCacheManager.clear();
-      sendResponse({ success: true, message: 'Cache cleared successfully' });
-    } else {
-      sendResponse({ error: 'Unknown cache action' });
-    }
-
-  } catch (error) {
-    sendResponse({
-      itemCount: 0,
-      maxItems: 1000,
-      totalSize: 0,
-      totalSizeMB: '0.00',
-      items: [],
-      message: 'Cache operation failed'
-    });
+    const base64 = btoa(binaryString);
+    return { content: base64, contentType };
   }
-}
 
-async function handleFileRead(message: BackgroundMessage, sendResponse: (response: { content?: string; contentType?: string; error?: string }) => void): Promise<void> {
-  try {
-    // Use fetch to read the file - this should work from background script
-    const response = await fetch(message.filePath || '');
-
-    if (!response.ok) {
-      throw new Error(`Failed to read file: ${response.status} ${response.statusText}`);
-    }
-
-    // Get content type from response headers
-    const contentType = response.headers.get('content-type') || '';
-
-    // Check if binary mode is requested
-    if (message.binary) {
-      // Read as ArrayBuffer for binary files (images)
-      const arrayBuffer = await response.arrayBuffer();
-      // Convert to base64 for transmission
-      const bytes = new Uint8Array(arrayBuffer);
-      let binary = '';
-      for (let i = 0; i < bytes.byteLength; i++) {
-        binary += String.fromCharCode(bytes[i]);
-      }
-      const base64 = btoa(binary);
-      sendResponse({
-        content: base64,
-        contentType: contentType
-      });
-    } else {
-      // Read as text for text files
-      const content = await response.text();
-      sendResponse({ content });
-    }
-  } catch (error) {
-    sendResponse({ error: (error as Error).message });
-  }
-}
-
-async function handleRenderingRequest(message: BackgroundMessage, sendResponse: (response: { error?: string; [key: string]: unknown }) => void): Promise<void> {
-  try {
-    // Ensure offscreen document exists and is ready
-    await ensureOffscreenDocument();
-    
-    // Send message to offscreen document and wait for response
-    const response = await new Promise<{ error?: string; [key: string]: unknown }>((resolve, reject) => {
-      chrome.runtime.sendMessage(message, (response) => {
-        if (chrome.runtime.lastError) {
-          // Reset all offscreen state on communication failure
-          if (chrome.runtime.lastError.message?.includes('receiving end does not exist')) {
-            offscreenCreated = false;
-            offscreenReady = false;
-            offscreenReadyPromise = null;
-            offscreenReadyResolve = null;
-          }
-          reject(new Error(`Offscreen communication failed: ${chrome.runtime.lastError.message}`));
-        } else if (!response) {
-          reject(new Error('No response from offscreen document. Document may have failed to load.'));
-        } else {
-          resolve(response);
-        }
-      });
-    });
-    
-    sendResponse(response);
-
-  } catch (error) {
-    sendResponse({ error: (error as Error).message });
-  }
+  const content = await response.text();
+  return { content };
 }
 
 async function ensureOffscreenDocument(): Promise<void> {
@@ -507,7 +708,7 @@ async function ensureOffscreenDocument(): Promise<void> {
 }
 
 // Handle dynamic content script injection
-async function handleContentScriptInjection(tabId: number, sendResponse: (response: { success?: boolean; error?: string }) => void): Promise<void> {
+async function handleContentScriptInjection(tabId: number): Promise<void> {
   try {
     // Inject CSS first
     await chrome.scripting.insertCSS({
@@ -520,11 +721,8 @@ async function handleContentScriptInjection(tabId: number, sendResponse: (respon
       target: { tabId: tabId },
       files: ['core/content.js']
     });
-
-    sendResponse({ success: true });
-
   } catch (error) {
-    sendResponse({ error: (error as Error).message });
+    throw error;
   }
 }
 
@@ -602,117 +800,6 @@ function finalizeUploadSession(token: string): UploadSession {
 function abortUploadSession(token: string | undefined): void {
   if (token && uploadSessions.has(token)) {
     uploadSessions.delete(token);
-  }
-}
-
-function handleUploadInit(message: BackgroundMessage, sendResponse: (response: { success?: boolean; token?: string; chunkSize?: number; error?: string }) => void): void {
-  const payload = message?.payload || {};
-  const purpose = typeof payload.purpose === 'string' && payload.purpose.trim()
-    ? payload.purpose.trim()
-    : 'general';
-  const encoding = payload.encoding === 'base64' ? 'base64' : 'text';
-  const metadata = payload.metadata && typeof payload.metadata === 'object' ? payload.metadata : {};
-  const expectedSize = typeof payload.expectedSize === 'number' ? payload.expectedSize : null;
-  const requestedChunkSize = typeof payload.chunkSize === 'number' && payload.chunkSize > 0
-    ? payload.chunkSize
-    : DEFAULT_UPLOAD_CHUNK_SIZE;
-
-  try {
-    const { token, chunkSize } = initUploadSession(purpose, {
-      chunkSize: requestedChunkSize,
-      encoding,
-      expectedSize,
-      metadata
-    });
-
-    sendResponse({ success: true, token, chunkSize });
-  } catch (error) {
-    sendResponse({ error: (error as Error).message });
-  }
-}
-
-function handleUploadChunk(message: BackgroundMessage, sendResponse: (response: { success?: boolean; error?: string }) => void): void {
-  const token = message?.token;
-  const chunk = typeof message?.chunk === 'string' ? message.chunk : null;
-
-  if (!token || chunk === null) {
-    sendResponse({ error: 'Invalid upload chunk payload' });
-    return;
-  }
-
-  try {
-    appendUploadChunk(token, chunk);
-    sendResponse({ success: true });
-  } catch (error) {
-    sendResponse({ error: (error as Error).message });
-  }
-}
-
-function handleUploadFinalize(message: BackgroundMessage, sendResponse: (response: { success?: boolean; token?: string; purpose?: string; bytes?: number; encoding?: string; error?: string }) => void): void {
-  const token = message?.token;
-  if (!token) {
-    sendResponse({ error: 'Missing upload session token' });
-    return;
-  }
-
-  try {
-    const session = finalizeUploadSession(token);
-    sendResponse({
-      success: true,
-      token,
-      purpose: session.purpose,
-      bytes: session.receivedBytes,
-      encoding: session.encoding
-    });
-  } catch (error) {
-    sendResponse({ error: (error as Error).message });
-  }
-}
-
-function handleUploadAbort(message: BackgroundMessage): void {
-  const token = message?.token;
-  abortUploadSession(token);
-}
-
-function handleDocxDownloadFinalize(message: BackgroundMessage, sendResponse: (response: { success?: boolean; downloadId?: number; error?: string }) => void): boolean {
-  const token = message?.token;
-  if (!token) {
-    sendResponse({ error: 'Missing download job token' });
-    return false;
-  }
-
-  try {
-    let session = uploadSessions.get(token);
-    if (!session) {
-      sendResponse({ error: 'Download job not found' });
-      return false;
-    }
-
-    if (!session.completed) {
-      session = finalizeUploadSession(token);
-    }
-
-    const { metadata = {}, data = '' } = session;
-    const filename = (metadata.filename as string) || 'document.docx';
-    const mimeType = (metadata.mimeType as string) || 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
-
-    const dataUrl = `data:${mimeType};base64,${data}`;
-    chrome.downloads.download({
-      url: dataUrl,
-      filename,
-      saveAs: true
-    }, (downloadId) => {
-      if (chrome.runtime.lastError) {
-        sendResponse({ error: chrome.runtime.lastError.message });
-      } else {
-        sendResponse({ success: true, downloadId });
-      }
-    });
-    uploadSessions.delete(token);
-    return true;
-  } catch (error) {
-    sendResponse({ error: (error as Error).message });
-    return false;
   }
 }
 

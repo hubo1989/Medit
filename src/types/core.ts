@@ -78,6 +78,7 @@ export interface BackgroundMessage {
   renderType?: string;
   input?: string | object;
   themeConfig?: unknown;
+  config?: unknown;
   extraParams?: unknown;
   filePath?: string;
   binary?: boolean;

@@ -5,7 +5,8 @@ import type {
   FileState,
   HistoryEntry,
   FileStateManager,
-  PlatformAPI
+  PlatformAPI,
+  ResponseEnvelope
 } from '../types/index';
 
 /**
@@ -32,17 +33,52 @@ export function getCurrentDocumentUrl(): string {
  * @returns File state manager instance
  */
 export function createFileStateManager(platform: PlatformAPI): FileStateManager {
+  let requestCounter = 0;
+  const createRequestId = (): string => {
+    requestCounter += 1;
+    return `${Date.now()}-${requestCounter}`;
+  };
+
+  const sendFileStateOperation = async (payload: Record<string, unknown>): Promise<unknown> => {
+    const response = await platform.message.send({
+      id: createRequestId(),
+      type: 'FILE_STATE_OPERATION',
+      payload,
+      timestamp: Date.now(),
+      source: 'content-file-state',
+    });
+
+    if (!response || typeof response !== 'object') {
+      throw new Error('No response received from background script');
+    }
+
+    const env = response as ResponseEnvelope;
+    if (env.ok) {
+      return env.data;
+    }
+
+    throw new Error(env.error?.message || 'File state operation failed');
+  };
+
   /**
    * Save file state to background script
    * @param state - State object containing scrollPosition, tocVisible, zoom, layoutMode
    */
   function saveFileState(state: FileState): void {
     try {
-      platform.message.send({
-        type: 'saveFileState',
-        url: getCurrentDocumentUrl(),
-        state: state
-      }).catch(() => {}); // Fire and forget
+      platform.message
+        .send({
+          id: createRequestId(),
+          type: 'FILE_STATE_OPERATION',
+          payload: {
+            operation: 'set',
+            url: getCurrentDocumentUrl(),
+            state,
+          },
+          timestamp: Date.now(),
+          source: 'content-file-state',
+        })
+        .catch(() => {}); // Fire and forget
     } catch (e) {
       console.error('[FileState] Save error:', e);
     }
@@ -54,11 +90,14 @@ export function createFileStateManager(platform: PlatformAPI): FileStateManager 
    */
   async function getFileState(): Promise<FileState> {
     try {
-      const response = await platform.message.send({
-        type: 'getFileState',
-        url: getCurrentDocumentUrl()
-      }) as { state?: FileState };
-      return response?.state || {};
+      const data = await sendFileStateOperation({
+        operation: 'get',
+        url: getCurrentDocumentUrl(),
+      });
+      if (data && typeof data === 'object') {
+        return data as FileState;
+      }
+      return {};
     } catch (e) {
       console.error('[FileState] Get error:', e);
       return {};

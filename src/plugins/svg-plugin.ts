@@ -6,6 +6,20 @@
 import { BasePlugin } from './base-plugin';
 import type { PlatformBridgeAPI } from '../types/index';
 
+type ResponseEnvelopeLike = {
+  type: 'RESPONSE';
+  requestId: string;
+  ok: boolean;
+  data?: unknown;
+  error?: { message?: string };
+};
+
+function isResponseEnvelopeLike(message: unknown): message is ResponseEnvelopeLike {
+  if (!message || typeof message !== 'object') return false;
+  const obj = message as Record<string, unknown>;
+  return obj.type === 'RESPONSE' && typeof obj.requestId === 'string' && typeof obj.ok === 'boolean';
+}
+
 /**
  * AST node interface for SVG plugin
  */
@@ -124,21 +138,38 @@ export class SvgPlugin extends BasePlugin {
       throw new Error(`Cannot load relative SVG file in mobile: ${url}`);
     }
 
-    // Chrome extension: use message passing
+    // Chrome extension: use platform messaging when available (preferred)
     const baseUrl = window.location.href;
     const absoluteUrl = new URL(url, baseUrl).href;
-    return new Promise((resolve, reject) => {
-      chrome.runtime.sendMessage({
+
+    const createRequestId = (): string => {
+      const maybeCrypto = globalThis.crypto as Crypto | undefined;
+      if (maybeCrypto?.randomUUID) return maybeCrypto.randomUUID();
+      return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    };
+
+    const platform = globalThis.platform as { message?: { send?: (msg: Record<string, unknown>) => Promise<unknown> } } | undefined;
+    if (platform?.message?.send) {
+      const response = await platform.message.send({
+        id: createRequestId(),
         type: 'READ_LOCAL_FILE',
-        filePath: absoluteUrl
-      }, (response: { error?: string; content?: string }) => {
-        if (response.error) {
-          reject(new Error(response.error));
-        } else {
-          resolve(response.content || '');
-        }
+        payload: { filePath: absoluteUrl },
+        timestamp: Date.now(),
+        source: 'svg-plugin',
       });
-    });
+
+      if (isResponseEnvelopeLike(response)) {
+        if (!response.ok) {
+          throw new Error(response.error?.message || 'READ_LOCAL_FILE failed');
+        }
+        const data = response.data as { content?: unknown } | undefined;
+        return typeof data?.content === 'string' ? data.content : '';
+      }
+
+      throw new Error('Unexpected READ_LOCAL_FILE response shape');
+    }
+
+    throw new Error('Platform messaging not available');
   }
 
   /**
