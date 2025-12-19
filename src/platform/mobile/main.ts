@@ -49,12 +49,11 @@ interface ThemeData {
 
 function createPluginRenderer(): PluginRenderer {
   return {
-    render: async (type, content, extraParams, _context) => {
-      const result = await platform.renderer.render(type, content, extraParams);
+    render: async (type, content, _context) => {
+      const result = await platform.renderer.render(type, content);
 
       return {
         base64: result.base64,
-        svg: result.svg,
         width: result.width,
         height: result.height,
         format: result.format,

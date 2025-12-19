@@ -12,23 +12,11 @@
  */
 export interface RenderResult {
   base64?: string;
-  svg?: string;
   width: number;
   height: number;
   format: string;
   success?: boolean;
   error?: string;
-}
-
-/**
- * Render options
- */
-export interface RenderOptions {
-  outputFormat?: 'png' | 'svg';
-  width?: number;
-  height?: number;
-  scale?: number;
-  [key: string]: unknown;
 }
 
 // =============================================================================
@@ -38,7 +26,7 @@ export interface RenderOptions {
 /**
  * Render result type enumeration
  */
-export type RenderResultType = 'image' | 'svg' | 'text' | 'error' | 'empty';
+export type RenderResultType = 'image' | 'text' | 'error' | 'empty';
 
 /**
  * Unified render result content
@@ -46,7 +34,6 @@ export type RenderResultType = 'image' | 'svg' | 'text' | 'error' | 'empty';
 export interface RenderResultContent {
   data?: Uint8Array;
   base64?: string;
-  svg?: string;
   text?: string;
   width?: number;
   height?: number;

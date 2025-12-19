@@ -350,10 +350,9 @@ class DocxExporter {
           render: async (
             type: string,
             content: string | object,
-            extraParams?: Record<string, unknown>,
             context?: unknown
           ) => {
-            const result = await this.renderer!.render(type, content, extraParams, context);
+            const result = await this.renderer!.render(type, content, context);
             if (!result) {
               throw new Error('Plugin renderer returned empty result');
             }
@@ -361,11 +360,9 @@ class DocxExporter {
               throw new Error('Plugin renderer returned invalid dimensions');
             }
 
-            const formatFromParams = typeof extraParams?.outputFormat === 'string' ? extraParams.outputFormat : undefined;
-            const format = (typeof result.format === 'string' && result.format) ? result.format : (formatFromParams || 'png');
+            const format = (typeof result.format === 'string' && result.format) ? result.format : 'png';
             return {
               base64: result.base64,
-              svg: (result as any).svg,
               width: result.width,
               height: result.height,
               format: format,

@@ -19,7 +19,6 @@ import type {
 import type {
   RendererThemeConfig,
   RenderResult,
-  RenderOptions,
   CacheStats,
   SimpleCacheStats
 } from '../../types/index';
@@ -340,7 +339,6 @@ interface RenderRequestPayload {
   renderType: string;
   input: string | object;
   themeConfig: RendererThemeConfig | null;
-  extraParams?: RenderOptions;
 }
 
 /**
@@ -471,7 +469,6 @@ class MobileRendererService extends BaseRendererService {
   async render(
     type: string,
     input: string | object,
-    extraParams: RenderOptions = {},
     context: QueueContext | null = null
   ): Promise<MobileRenderResult> {
     const renderContext = context || this.queueContext;
@@ -483,10 +480,8 @@ class MobileRendererService extends BaseRendererService {
     const cache = window.__mobilePlatformCache;
     if (cache) {
       const inputString = typeof input === 'string' ? input : JSON.stringify(input);
-      const contentKey = inputString + JSON.stringify(extraParams);
-      const outputFormat = (extraParams.outputFormat as string) || 'png';
-      const formatSuffix = outputFormat.toUpperCase();
-      const cacheType = `${type.toUpperCase()}_${formatSuffix}`;
+      const contentKey = inputString;
+      const cacheType = `${type.toUpperCase()}_PNG`;
       const cacheKey = await cache.generateKey(contentKey, cacheType, this.themeConfig);
 
       const cached = await cache.get(cacheKey);
@@ -502,8 +497,7 @@ class MobileRendererService extends BaseRendererService {
       const result = await this.sendRequest<MobileRenderResult>('RENDER_DIAGRAM', {
         renderType: type,
         input,
-        themeConfig: this.themeConfig,
-        extraParams
+        themeConfig: this.themeConfig
       } as RenderRequestPayload, 60000, renderContext);
 
       cache.set(cacheKey, result, cacheType).catch(() => {});
@@ -519,8 +513,7 @@ class MobileRendererService extends BaseRendererService {
     return this.sendRequest<MobileRenderResult>('RENDER_DIAGRAM', {
       renderType: type,
       input,
-      themeConfig: this.themeConfig,
-      extraParams
+      themeConfig: this.themeConfig
     } as RenderRequestPayload, 60000, renderContext);
   }
 

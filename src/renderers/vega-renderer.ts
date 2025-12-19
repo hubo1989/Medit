@@ -8,14 +8,6 @@ import { expressionInterpreter } from 'vega-interpreter';
 import type { RendererThemeConfig, RenderResult } from '../types/index';
 
 /**
- * Extra parameters for rendering
- */
-interface ExtraParams {
-  outputFormat?: 'svg' | 'png';
-  [key: string]: unknown;
-}
-
-/**
  * Vega/Vega-Lite specification encoding channel
  */
 interface EncodingChannel {
@@ -68,7 +60,7 @@ export class VegaRenderer extends BaseRenderer {
   /**
    * Preprocess input - parse JSON string if needed
    */
-  preprocessInput(spec: string | VegaSpec, extraParams: ExtraParams): VegaSpec {
+  preprocessInput(spec: string | VegaSpec): VegaSpec {
     // Parse spec if it's a string
     let vegaSpec: VegaSpec;
     if (typeof spec === 'string') {
@@ -163,15 +155,12 @@ export class VegaRenderer extends BaseRenderer {
   }
 
   /**
-   * Override render to support both SVG and PNG output
+   * Render Vega/Vega-Lite spec to PNG
    * @param vegaSpec - Vega/Vega-Lite specification
    * @param themeConfig - Theme configuration
-   * @param extraParams - Extra parameters
-   * @returns Render result with base64/svg, width, height, format
+   * @returns Render result with base64, width, height, format
    */
-  async render(vegaSpec: string | VegaSpec, themeConfig: RendererThemeConfig | null, extraParams: ExtraParams = {}): Promise<RenderResult> {
-    const outputFormat = extraParams.outputFormat || 'png';
-    
+  async render(vegaSpec: string | VegaSpec, themeConfig: RendererThemeConfig | null): Promise<RenderResult> {
     // Ensure renderer is initialized
     if (!this._initialized) {
       await this.initialize(themeConfig);
@@ -181,7 +170,7 @@ export class VegaRenderer extends BaseRenderer {
     this.validateInput(vegaSpec);
     
     // Preprocess input
-    const processedSpec = this.preprocessInput(vegaSpec, extraParams);
+    const processedSpec = this.preprocessInput(vegaSpec);
     
     // Get font family from theme config
     const fontFamily = themeConfig?.fontFamily || "'SimSun', 'Times New Roman', Times, serif";
@@ -190,14 +179,11 @@ export class VegaRenderer extends BaseRenderer {
     const container = this.createContainer();
     container.style.cssText = 'position: absolute; left: -9999px; top: -9999px; display: inline-block; background: transparent; padding: 0; margin: 0;';
 
-    // Choose renderer based on output format
-    const rendererType = outputFormat === 'svg' ? 'svg' : 'canvas';
-    
-    // Prepare embed options
+    // Prepare embed options (always use canvas for PNG output)
     const embedOptions = {
       mode: this.mode as 'vega' | 'vega-lite',
       actions: false, // Hide action links
-      renderer: rendererType as 'svg' | 'canvas',
+      renderer: 'canvas' as const,
       ast: true, // Use AST mode to avoid eval
       expr: expressionInterpreter, // Use expression interpreter instead of eval
       config: {
@@ -224,34 +210,9 @@ export class VegaRenderer extends BaseRenderer {
     // Render the spec using vega-embed
     const result = await embed(container, processedSpec, embedOptions);
     
-    // Calculate scale (same as PNG for consistent dimensions)
+    // Calculate scale for PNG dimensions
     const scale = this.calculateCanvasScale(themeConfig);
 
-    // If SVG format requested, return SVG string
-    if (outputFormat === 'svg') {
-      const svgString = await result.view.toSVG();
-      
-      // Get dimensions from SVG
-      const parser = new DOMParser();
-      const svgDoc = parser.parseFromString(svgString, 'image/svg+xml');
-      const svgElement = svgDoc.documentElement;
-      const width = parseInt(svgElement.getAttribute('width') || '800');
-      const height = parseInt(svgElement.getAttribute('height') || '600');
-      
-      // Cleanup container
-      this.removeContainer(container);
-      
-      // Return scaled dimensions (same as PNG for consistent display)
-      return {
-        svg: svgString,
-        width: Math.round(width * scale),
-        height: Math.round(height * scale),
-        format: 'svg'
-      };
-    }
-    
-    // PNG format: render to canvas
-    
     // Get Canvas directly from the view object
     // toCanvas() returns a Promise<HTMLCanvasElement>
     const sourceCanvas = await result.view.toCanvas(scale);

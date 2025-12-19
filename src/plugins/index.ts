@@ -120,13 +120,9 @@ export function registerRemarkPlugins(
               async (data: TaskData) => {
                 const { id, code } = data;
                 try {
-                  const extraParams: Record<string, unknown> = plugin.getRenderParams();
-                  // Use SVG format for browser display (fonts render correctly)
-                  // Exception: HTML plugin uses PNG format (doesn't support SVG)
-                  extraParams.outputFormat = plugin.type === 'html' ? 'png' : 'svg';
                   // Get render context for cancellation support if available
                   const renderContext = renderer.getQueueContext ? renderer.getQueueContext() : null;
-                  const renderResult = await renderer.render(plugin.type, code || '', extraParams, renderContext);
+                  const renderResult = await renderer.render(plugin.type, code || '', renderContext);
                   if (renderResult) {
                     replacePlaceholderWithImage(id, renderResult, plugin.type, plugin.isInline());
                   } else {

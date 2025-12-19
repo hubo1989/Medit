@@ -23,7 +23,6 @@ export interface RenderRequest {
   renderType: string;
   input: string | object;
   themeConfig?: RendererThemeConfig | null;
-  extraParams?: Record<string, unknown>;
 }
 
 /**
@@ -68,9 +67,9 @@ export function getThemeConfig(): RendererThemeConfig | null {
 /**
  * Handle render request
  * @param options - Render options
- * @returns Render result with base64/svg, width, height
+ * @returns Render result with base64, width, height
  */
-export async function handleRender({ renderType, input, themeConfig, extraParams = {} }: RenderRequest): Promise<RenderResult> {
+export async function handleRender({ renderType, input, themeConfig }: RenderRequest): Promise<RenderResult> {
   // Update theme config if provided
   if (themeConfig) {
     currentThemeConfig = themeConfig;
@@ -83,7 +82,7 @@ export async function handleRender({ renderType, input, themeConfig, extraParams
   }
 
   // Perform render with current theme config
-  const result = await renderer.render(input, currentThemeConfig, extraParams as Record<string, unknown>);
+  const result = await renderer.render(input, currentThemeConfig);
   if (!result) {
     throw new Error('Renderer returned empty result');
   }

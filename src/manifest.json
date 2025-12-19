@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "__MSG_extensionName__",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "default_locale": "en",
   "description": "__MSG_extensionDescription__",
   "permissions": [
@@ -22,12 +22,14 @@
   "content_scripts": [
     {
       "matches": [
-        "file://*/*.md", 
+        "file://*/*.md",
         "file://*/*.markdown",
         "*://*/*.md",
         "*://*/*.markdown"
       ],
-      "js": ["core/content-detector.js"],
+      "js": [
+        "core/content-detector.js"
+      ],
       "run_at": "document_start"
     }
   ],
@@ -49,7 +51,11 @@
         "themes/code-themes/*.json",
         "themes/spacing-schemes/*.json"
       ],
-      "matches": ["file://*", "https://*/*", "http://*/*"]
+      "matches": [
+        "file://*",
+        "https://*/*",
+        "http://*/*"
+      ]
     }
   ],
   "action": {

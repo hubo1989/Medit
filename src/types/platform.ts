@@ -3,7 +3,7 @@
  * Types for platform abstraction layer
  */
 
-import type { RendererThemeConfig, RenderResult, RenderOptions } from './render';
+import type { RendererThemeConfig, RenderResult } from './render';
 import type { CacheStats, SimpleCacheStats } from './cache';
 
 // =============================================================================
@@ -89,7 +89,7 @@ export interface RendererService {
   init(): Promise<void>;
   setThemeConfig(config: RendererThemeConfig): Promise<void>;
   getThemeConfig(): RendererThemeConfig | null;
-  render(type: string, content: string | object, options?: RenderOptions): Promise<RenderResult>;
+  render(type: string, content: string | object): Promise<RenderResult>;
 }
 
 /**

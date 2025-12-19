@@ -7,14 +7,6 @@ import { BaseRenderer } from './base-renderer';
 import mermaid from 'mermaid';
 import type { RendererThemeConfig, RenderResult } from '../types/index';
 
-/**
- * Extra parameters for rendering
- */
-interface ExtraParams {
-  outputFormat?: 'svg' | 'png';
-  [key: string]: unknown;
-}
-
 export class MermaidRenderer extends BaseRenderer {
   constructor() {
     super('mermaid');
@@ -54,15 +46,23 @@ export class MermaidRenderer extends BaseRenderer {
   }
 
   /**
-   * Override render to support both SVG and PNG output
+   * Preprocess Mermaid code to convert \n to <br> for line breaks
+   * @param code - Mermaid diagram code
+   * @returns Preprocessed code with \n replaced by <br>
+   */
+  private preprocessCode(code: string): string {
+    // Globally replace literal \n with <br> for line breaks in labels
+    // This is safe because actual newlines are real line breaks, not \n literals
+    return code.replace(/\\n/g, '<br>');
+  }
+
+  /**
+   * Render Mermaid diagram to PNG
    * @param code - Mermaid diagram code
    * @param themeConfig - Theme configuration
-   * @param extraParams - Extra parameters
-   * @returns Render result with base64/svg, width, height, format
+   * @returns Render result with base64, width, height, format
    */
-  async render(code: string, themeConfig: RendererThemeConfig | null, extraParams: ExtraParams = {}): Promise<RenderResult> {
-    const outputFormat = extraParams.outputFormat || 'png';
-    
+  async render(code: string, themeConfig: RendererThemeConfig | null): Promise<RenderResult> {
     // Ensure renderer is initialized
     if (!this._initialized) {
       await this.initialize(themeConfig);
@@ -70,6 +70,9 @@ export class MermaidRenderer extends BaseRenderer {
 
     // Validate input
     this.validateInput(code);
+
+    // Preprocess code to convert \n to <br> in quoted strings
+    code = this.preprocessCode(code);
 
     // Apply theme configuration before each render
     this.applyThemeConfig(themeConfig);
@@ -99,13 +102,6 @@ export class MermaidRenderer extends BaseRenderer {
     if (!svgElement) {
       throw new Error('SVG element not found in rendered content');
     }
-
-    // Fix foreignObject overflow to prevent text clipping
-    const foreignObjects = svgElement.querySelectorAll('foreignObject');
-    foreignObjects.forEach(fo => {
-      (fo as unknown as HTMLElement).style.overflowX = 'visible';
-      (fo as unknown as HTMLElement).style.overflowY = 'visible';
-    });
 
     // Give layout engine time to process
     container.offsetHeight;
@@ -138,30 +134,11 @@ export class MermaidRenderer extends BaseRenderer {
     // Get font family from theme config
     const fontFamily = themeConfig?.fontFamily || "'SimSun', 'Times New Roman', Times, serif";
 
-    // Inject font style into SVG
-    const styledSvg = this.injectFontStyleToSvg(svg, fontFamily);
-
-    // Calculate scale (same as PNG for consistent dimensions)
+    // Calculate scale for PNG dimensions
     const scale = this.calculateCanvasScale(themeConfig);
 
-    // If SVG format requested, return SVG string directly
-    if (outputFormat === 'svg') {
-      // Cleanup container
-      this.removeContainer(container);
-
-      // Return scaled dimensions (same as PNG for consistent display)
-      return {
-        svg: styledSvg,
-        width: Math.round(captureWidth * scale),
-        height: Math.round(captureHeight * scale),
-        format: 'svg'
-      };
-    }
-
-    // PNG format: render SVG to canvas
-
-    // Render SVG directly to canvas with font family
-    const canvas = await this.renderSvgToCanvas(styledSvg, captureWidth * scale, captureHeight * scale, fontFamily);
+    // Render SVG to canvas as PNG
+    const canvas = await this.renderSvgToCanvas(svg, captureWidth * scale, captureHeight * scale, fontFamily);
 
     const pngDataUrl = canvas.toDataURL('image/png', 1.0);
     const base64Data = pngDataUrl.replace(/^data:image\/png;base64,/, '');
@@ -175,33 +152,5 @@ export class MermaidRenderer extends BaseRenderer {
       height: canvas.height,
       format: 'png'
     };
-  }
-
-  /**
-   * Inject font style into SVG content
-   * @param svgContent - Original SVG content
-   * @param fontFamily - Font family to inject
-   * @returns SVG with injected font style
-   */
-  injectFontStyleToSvg(svgContent: string, fontFamily: string): string {
-    // Create a style element with font-family for SVG internal elements only
-    // Use :scope to limit styles to SVG content and avoid affecting page elements
-    const styleContent = `
-      <style>
-        :root, :host, svg * { font-family: ${fontFamily} !important; }
-        text { font-family: ${fontFamily} !important; }
-        foreignObject { font-family: ${fontFamily} !important; }
-        foreignObject * { font-family: ${fontFamily} !important; }
-        .node { font-family: ${fontFamily} !important; }
-        .label { font-family: ${fontFamily} !important; }
-        .edgeLabel { font-family: ${fontFamily} !important; }
-        foreignObject span { font-family: ${fontFamily} !important; }
-        foreignObject div { font-family: ${fontFamily} !important; }
-        foreignObject p { font-family: ${fontFamily} !important; }
-      </style>
-    `;
-
-    // Insert style after opening svg tag
-    return svgContent.replace(/(<svg[^>]*>)/, `$1${styleContent}`);
   }
 }

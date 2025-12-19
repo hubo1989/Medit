@@ -8,14 +8,6 @@ import { BaseRenderer } from './base-renderer';
 import { sanitizeHtml, hasHtmlContent } from '../utils/html-sanitizer';
 import type { RendererThemeConfig, RenderResult } from '../types/index';
 
-/**
- * Extra parameters for rendering
- */
-interface ExtraParams {
-  width?: number;
-  [key: string]: unknown;
-}
-
 export class HtmlRenderer extends BaseRenderer {
   constructor() {
     super('html');
@@ -25,12 +17,11 @@ export class HtmlRenderer extends BaseRenderer {
    * Render HTML to PNG
    * @param input - HTML content to render
    * @param themeConfig - Theme configuration
-   * @param extraParams - Extra parameters
    * @returns Render result with base64, width, height, format
    */
-  async render(input: string, themeConfig: RendererThemeConfig | null, extraParams: ExtraParams = {}): Promise<RenderResult | null> {
+  async render(input: string, themeConfig: RendererThemeConfig | null): Promise<RenderResult | null> {
     this.validateInput(input);
-    return await this.renderHtmlToPng(input, themeConfig, extraParams);
+    return await this.renderHtmlToPng(input, themeConfig);
   }
 
   /**
@@ -41,10 +32,9 @@ export class HtmlRenderer extends BaseRenderer {
    * 3. Remove outline and crop to content bounds
    * @param htmlContent - HTML content to render
    * @param themeConfig - Theme configuration
-   * @param extraParams - Extra parameters (width)
    * @returns Render result with base64, width, height
    */
-  async renderHtmlToPng(htmlContent: string, themeConfig: RendererThemeConfig | null, extraParams: ExtraParams = {}): Promise<RenderResult | null> {
+  async renderHtmlToPng(htmlContent: string, themeConfig: RendererThemeConfig | null): Promise<RenderResult | null> {
     // Sanitize HTML before rendering
     const sanitizedHtml = sanitizeHtml(htmlContent);
     

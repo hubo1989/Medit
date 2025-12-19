@@ -6,14 +6,6 @@
 import { BaseRenderer } from './base-renderer';
 import type { RendererThemeConfig, RenderResult } from '../types/index';
 
-/**
- * Extra parameters for rendering
- */
-interface ExtraParams {
-  outputFormat?: 'svg' | 'png';
-  [key: string]: unknown;
-}
-
 export class SvgRenderer extends BaseRenderer {
   constructor() {
     super('svg');
@@ -33,15 +25,12 @@ export class SvgRenderer extends BaseRenderer {
   }
 
   /**
-   * Override render to support both SVG and PNG output
+   * Render SVG content to PNG
    * @param svg - SVG content
    * @param themeConfig - Theme configuration
-   * @param extraParams - Extra parameters
-   * @returns Render result with base64/svg, width, height, format
+   * @returns Render result with base64, width, height, format
    */
-  async render(svg: string, themeConfig: RendererThemeConfig | null, extraParams: ExtraParams = {}): Promise<RenderResult> {
-    const outputFormat = extraParams.outputFormat || 'png';
-    
+  async render(svg: string, themeConfig: RendererThemeConfig | null): Promise<RenderResult> {
     // Validate input
     this.validateInput(svg);
 
@@ -67,23 +56,10 @@ export class SvgRenderer extends BaseRenderer {
       captureHeight = Math.ceil(parseFloat(svgEl.getAttribute('height') || '600'));
     }
 
-    // Calculate scale (same as PNG for consistent dimensions)
+    // Calculate scale for PNG dimensions
     const scale = this.calculateCanvasScale(themeConfig);
 
-    // If SVG format requested, return the SVG string directly
-    if (outputFormat === 'svg') {
-      // Return scaled dimensions (same as PNG for consistent display)
-      return {
-        svg: svg,
-        width: Math.round(captureWidth * scale),
-        height: Math.round(captureHeight * scale),
-        format: 'svg'
-      };
-    }
-
-    // PNG format: render SVG to canvas
-
-    // Render SVG directly to canvas
+    // Render SVG to canvas as PNG
     const canvas = await this.renderSvgToCanvas(svg, captureWidth * scale, captureHeight * scale);
 
     const pngDataUrl = canvas.toDataURL('image/png', 1.0);

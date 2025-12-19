@@ -19,7 +19,6 @@ import type {
 import type {
   RendererThemeConfig,
   RenderResult,
-  RenderOptions,
   CacheStats,
   SimpleCacheStats
 } from '../../types/index';
@@ -366,10 +365,10 @@ export class ChromeRendererService extends BaseRendererService {
     await this.applyThemeIfNeeded(host);
   }
 
-  async render(type: string, content: string | object, options: RenderOptions = {}): Promise<RenderResult> {
+  async render(type: string, content: string | object): Promise<RenderResult> {
     // Generate cache key
     const inputString = typeof content === 'string' ? content : JSON.stringify(content);
-    const contentKey = inputString + JSON.stringify(options);
+    const contentKey = inputString;
     const cacheType = `${type.toUpperCase()}_PNG`;
     const cacheKey = await this.cache.generateKey(contentKey, cacheType, this.themeConfig);
 
@@ -388,7 +387,6 @@ export class ChromeRendererService extends BaseRendererService {
         renderType: type,
         input: content,
         themeConfig: this.themeConfig,
-        extraParams: options,
       },
       300000
     );

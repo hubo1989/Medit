@@ -43,7 +43,6 @@ export type {
 
 export type {
   RenderResult,
-  RenderOptions,
   RenderResultType,
   RenderResultContent,
   RenderResultDisplay,

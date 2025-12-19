@@ -8,7 +8,6 @@ import type {
   CacheStats,
   SimpleCacheStats,
   PlatformAPI,
-  RenderOptions,
   RenderResult,
   RendererCacheManager,
   RendererThemeConfig,
@@ -110,21 +109,18 @@ class ExtensionRenderer {
    * Unified diagram rendering method
    * @param renderType - Type of diagram (mermaid, vega, etc.)
    * @param input - Input data for rendering
-   * @param extraParams - Additional parameters (including outputFormat: 'svg' | 'png')
    * @param cacheType - Cache type identifier
-   * @returns Render result with base64/svg, width, height, format
+   * @returns Render result with base64, width, height, format
    */
   async _renderDiagram(
     renderType: string,
     input: string | object,
-    extraParams: RenderOptions = {},
     cacheType: string
   ): Promise<RenderResult> {
-    // Generate cache key (include outputFormat)
+    // Generate cache key
     const inputString = typeof input === 'string' ? input : JSON.stringify(input);
-    const contentKey = inputString + JSON.stringify(extraParams);
-    const outputFormat = extraParams.outputFormat || 'png';
-    const cacheKey = await this.cache.generateKey(contentKey, cacheType, this.themeConfig, outputFormat);
+    const contentKey = inputString;
+    const cacheKey = await this.cache.generateKey(contentKey, cacheType, this.themeConfig);
 
     // Check cache first
     const cached = (await this.cache.get(cacheKey)) as RenderResult | null;
@@ -136,7 +132,6 @@ class ExtensionRenderer {
       renderType,
       input,
       themeConfig: this.themeConfig,
-      extraParams,
     })) as RenderResult;
 
     if (response.error) {
@@ -157,16 +152,13 @@ class ExtensionRenderer {
    * Unified render method
    * @param type - Renderer type (mermaid, vega, vega-lite, html, svg, etc.)
    * @param input - Input data for rendering
-   * @param extraParams - Additional parameters (including outputFormat: 'svg' | 'png')
-   * @returns Render result with base64/svg, width, height, format
+   * @returns Render result with base64, width, height, format
    */
-  async render(type: string, input: string | object, extraParams: RenderOptions = {}): Promise<RenderResult> {
-    // Generate cache type identifier based on output format
-    const outputFormat = extraParams.outputFormat || 'png';
-    const formatSuffix = outputFormat.toUpperCase();
-    const cacheType = `${type.toUpperCase()}_${formatSuffix}`;
+  async render(type: string, input: string | object): Promise<RenderResult> {
+    // Generate cache type identifier
+    const cacheType = `${type.toUpperCase()}_PNG`;
     
-    return this._renderDiagram(type, input, extraParams, cacheType);
+    return this._renderDiagram(type, input, cacheType);
   }
 
   /**

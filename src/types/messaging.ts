@@ -6,7 +6,7 @@
  */
 
 import type { FileState } from './core';
-import type { RendererThemeConfig, RenderOptions, RenderResult } from './render';
+import type { RendererThemeConfig, RenderResult } from './render';
 
 // =============================================================================
 // Message Type Sets
@@ -67,7 +67,6 @@ export type RenderPayloadMap = {
     renderType: string;
     input: string | object;
     themeConfig?: RendererThemeConfig | null;
-    extraParams?: RenderOptions;
   };
   SET_THEME_CONFIG: {
     config: RendererThemeConfig;

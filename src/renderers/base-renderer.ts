@@ -64,10 +64,9 @@ export class BaseRenderer {
    * Main render method - must be implemented by subclasses
    * @param input - Input data for rendering
    * @param themeConfig - Theme configuration
-   * @param extraParams - Additional type-specific parameters
-   * @returns Render result with base64/svg, dimensions, and format, or null if nothing to render
+   * @returns Render result with base64, dimensions, and format, or null if nothing to render
    */
-  async render(input: string | object, themeConfig: RendererThemeConfig | null, extraParams: Record<string, any> = {}): Promise<RenderResult | null> {
+  async render(input: string | object, themeConfig: RendererThemeConfig | null): Promise<RenderResult | null> {
     throw new Error('render() must be implemented by subclass');
   }
 
@@ -85,10 +84,9 @@ export class BaseRenderer {
   /**
    * Preprocess input before rendering (can be overridden)
    * @param input - Raw input
-   * @param extraParams - Extra parameters
    * @returns Processed input
    */
-  preprocessInput(input: any, extraParams: Record<string, any>): any {
+  preprocessInput(input: any): any {
     return input;
   }
 
@@ -115,13 +113,8 @@ export class BaseRenderer {
    * @returns Canvas element
    */
   async renderSvgToCanvas(svgContent: string, width: number, height: number, fontFamily: string | null = null): Promise<HTMLCanvasElement> {
-    // Log SVG content for debugging
-    if (window.parent && window.parent !== window) {
-      window.parent.postMessage({
-        type: 'RENDER_FRAME_LOG',
-        args: ['[BaseRenderer] SVG first 800 chars:', svgContent.substring(0, 800)]
-      }, '*');
-    }
+
+    svgContent = svgContent.replace(/<style>/, `<style>foreignObject { overflow: visible; }`);
     
     return new Promise((resolve, reject) => {
       const img = new Image();

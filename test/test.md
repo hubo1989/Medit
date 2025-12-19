@@ -743,6 +743,42 @@ graph TD
     D --> E
 ```
 
+### foreignObject emoji 裁剪
+
+```mermaid
+block-beta
+    columns 3
+    
+    A["📊 项目统计概览"]:3
+    B1["100+\n开源项目"]
+    B2["50+\n贡献者"]
+    B3["全平台\n支持"]
+    
+    C["🔧 技术栈覆盖"]:3
+    C1["前端\nReact/Vue"]
+    C2["后端\nNode/Go"]
+    C3["数据库\n多种支持"]
+    
+    D["📈 发展里程碑"]:3
+    D1["2020年\n项目启动"]
+    D2["2022年\n1.0发布"]
+    D3["2024年\n社区成熟"]
+    
+    style A fill:#e1f5fe
+    style C fill:#e1f5fe
+    style D fill:#e1f5fe
+    style B1 fill:#c8e6c9
+    style C1 fill:#c8e6c9
+    style D1 fill:#c8e6c9
+```
+
+### 换行容错
+
+```mermaid
+flowchart TD
+    F2["🔗 接口规范统一\n三统一要求"]
+```
+
 ---
 
 ## 8. Vega-Lite 图表

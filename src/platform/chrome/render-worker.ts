@@ -72,7 +72,6 @@ interface RenderMessage {
   renderType?: string;
   input?: string;
   themeConfig?: RendererThemeConfig;
-  extraParams?: Record<string, unknown>;
   config?: RendererThemeConfig;
 }
 

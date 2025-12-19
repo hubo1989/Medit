@@ -64,7 +64,6 @@ export function bootstrapRenderWorker(channel: RenderWorkerChannel, options: Boo
       renderType: data.renderType || '',
       input: data.input || '',
       themeConfig: data.themeConfig,
-      extraParams: data.extraParams,
     };
 
     return handleRender(request);

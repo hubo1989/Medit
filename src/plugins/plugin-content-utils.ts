@@ -102,13 +102,9 @@ export function createRemarkPlugin(
             async (data: TaskData) => {
               const { id, code } = data;
               try {
-                const extraParams = plugin.getRenderParams();
-                // Use SVG format for browser display (fonts render correctly)
-                // Exception: HTML plugin uses PNG format (doesn't support SVG)
-                extraParams.outputFormat = plugin.type === 'html' ? 'png' : 'svg';
                 // Pass renderer's queue context for cancellation support on mobile
                 const renderContext = renderer.getQueueContext ? renderer.getQueueContext() : null;
-                const renderResult = await renderer.render(plugin.type, code || '', extraParams, renderContext);
+                const renderResult = await renderer.render(plugin.type, code || '', renderContext);
                 
                 // If renderer returns null (e.g., empty content), skip rendering
                 if (renderResult) {

@@ -123,7 +123,6 @@ export interface PluginRenderer {
   render(
     type: string,
     content: string | object,
-    extraParams?: Record<string, unknown>,
     context?: unknown
   ): Promise<PluginRenderResult | null>;
   getQueueContext?(): unknown;
@@ -134,7 +133,6 @@ export interface PluginRenderer {
  */
 export interface PluginRenderResult {
   base64?: string;
-  svg?: string;
   width: number;
   height: number;
   format: string;

@@ -5,7 +5,7 @@
  * These classes provide default implementations for cross-platform functionality.
  */
 
-import type { RendererThemeConfig, RenderResult, RenderOptions } from '../../types/render';
+import type { RendererThemeConfig, RenderResult } from '../../types/render';
 import type { CacheStats, SimpleCacheStats } from '../../types/cache';
 
 // ============================================================================
@@ -258,10 +258,9 @@ export class BaseRendererService {
    * Render content (must be implemented by subclass)
    * @param type - Render type
    * @param content - Content to render
-   * @param options - Render options
    * @returns Render result
    */
-  async render(type: string, content: string | object, options: RenderOptions = {}): Promise<RenderResult> {
+  async render(type: string, content: string | object): Promise<RenderResult> {
     throw new Error('Not implemented');
   }
 }

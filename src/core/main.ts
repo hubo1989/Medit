@@ -67,8 +67,8 @@ async function initializeMain(): Promise<void> {
   const renderer = new ExtensionRenderer(cacheManager);
 
   const pluginRenderer: PluginRenderer = {
-    render: async (type, content, extraParams, _context) => {
-      const result = await renderer.render(type, content, (extraParams || {}) as Record<string, unknown>);
+    render: async (type, content, _context) => {
+      const result = await renderer.render(type, content);
 
       if (result && (result as { error?: string }).error) {
         throw new Error((result as { error?: string }).error || 'Render failed');
@@ -82,7 +82,6 @@ async function initializeMain(): Promise<void> {
 
       return {
         base64: result.base64,
-        svg: result.svg,
         width: result.width,
         height: result.height,
         format,

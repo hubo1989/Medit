@@ -21,7 +21,6 @@ export type {
 export type {
   RendererThemeConfig,
   RenderResult,
-  RenderOptions,
   CacheStats,
   SimpleCacheStats
 } from '../../types/index';
