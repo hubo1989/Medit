@@ -183,10 +183,6 @@
     "message": "Word के रूप में साझा करें",
     "description": "Menu item for exporting to DOCX"
   },
-  "export_docx_success": {
-    "message": "निर्यात पूर्ण",
-    "description": "Toast when DOCX export succeeds"
-  },
   "exporting": {
     "message": "Word दस्तावेज़ तैयार हो रहा है...",
     "description": "Toast shown during export"

@@ -183,10 +183,6 @@
     "message": "Поделиться как Word",
     "description": "Menu item for exporting to DOCX"
   },
-  "export_docx_success": {
-    "message": "Экспорт завершён",
-    "description": "Toast when DOCX export succeeds"
-  },
   "exporting": {
     "message": "Подготовка документа Word...",
     "description": "Toast shown during export"

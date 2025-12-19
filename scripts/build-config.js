@@ -53,7 +53,6 @@ export const createBuildConfig = () => {
       'core/main': 'src/core/main.ts',
       'core/background': 'src/core/background.ts',
       'core/offscreen-render-worker': 'src/platform/chrome/offscreen-render-worker.ts',
-      'ui/iframe-render-worker': 'src/renderers/worker/dom/iframe-render-worker.ts',
       'ui/popup/popup': 'src/ui/popup/popup.ts',
       'ui/styles': 'src/ui/styles.css'
     },
@@ -62,6 +61,7 @@ export const createBuildConfig = () => {
     format: 'iife', // Use IIFE for Chrome extension content scripts
     target: ['chrome120'], // Target modern Chrome
     treeShaking: true,
+    metafile: true, // Generate metafile for bundle analysis
     // Define globals
     define: {
       'process.env.NODE_ENV': '"production"',
@@ -71,10 +71,10 @@ export const createBuildConfig = () => {
     inject: ['./scripts/buffer-shim.js'],
     loader: {
       '.css': 'css', // Load CSS files properly to handle @import
-      '.woff': 'file',
-      '.woff2': 'file',
-      '.ttf': 'file',
-      '.eot': 'file'
+      '.woff2': 'file', // Only woff2 for modern browsers (Chrome 120+)
+      '.woff': 'empty', // Ignore legacy formats
+      '.ttf': 'empty',
+      '.eot': 'empty'
     },
     assetNames: '[name]', // Use original filename without hash
     minify: true,
@@ -91,7 +91,6 @@ export const createBuildConfig = () => {
                 { src: 'src/ui/popup/popup.html', dest: 'dist/chrome/ui/popup/popup.html' },
                 { src: 'src/ui/popup/popup.css', dest: 'dist/chrome/ui/popup/popup.css' },
                 { src: 'src/platform/chrome/offscreen-render.html', dest: 'dist/chrome/ui/offscreen-render.html' },
-                { src: 'src/renderers/worker/dom/iframe-render.html', dest: 'dist/chrome/ui/iframe-render.html' },
                 { src: 'node_modules/html2canvas/dist/html2canvas.min.js', dest: 'dist/chrome/html2canvas.min.js', log: '📄 Copied html2canvas library' }
               ];
 

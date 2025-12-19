@@ -183,10 +183,6 @@
     "message": "Share as Word",
     "description": "Menu item for exporting to DOCX"
   },
-  "export_docx_success": {
-    "message": "Export completed",
-    "description": "Toast when DOCX export succeeds"
-  },
   "exporting": {
     "message": "Preparing Word document...",
     "description": "Fallback message when DOCX export fails"

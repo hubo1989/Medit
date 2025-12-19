@@ -118,7 +118,7 @@ async function buildIframeRenderWorkerBundle() {
 
   await build({
     entryPoints: {
-      'iframe-render-worker': 'src/renderers/worker/dom/iframe-render-worker.ts'
+      'iframe-render-worker': 'src/platform/mobile/iframe-render-worker.ts'
     },
     bundle: true,
     outdir: DIST_DIR,
@@ -192,7 +192,7 @@ function copyResources() {
   copyFile('src/platform/mobile/index.html', `${DIST_DIR}/index.html`);
   console.log('  ✓ index.html');
   
-  copyFile('src/renderers/worker/dom/iframe-render.html', `${DIST_DIR}/iframe-render.html`);
+  copyFile('src/platform/mobile/iframe-render.html', `${DIST_DIR}/iframe-render.html`);
   console.log('  ✓ iframe-render.html');
 
   // Copy themes
@@ -203,11 +203,24 @@ function copyResources() {
   copyDirectory('src/_locales', `${DIST_DIR}/_locales`);
   console.log('  ✓ _locales/');
 
-  // Copy KaTeX fonts (needed for math rendering, CSS is bundled)
+  // Copy KaTeX fonts (only woff2 for modern browsers)
   const katexFontsDir = 'node_modules/katex/dist/fonts';
   if (fs.existsSync(katexFontsDir)) {
-    copyDirectory(katexFontsDir, `${DIST_DIR}/fonts`);
-    console.log('  ✓ fonts/ (KaTeX)');
+    const fontsDestDir = `${DIST_DIR}/fonts`;
+    if (!fs.existsSync(fontsDestDir)) {
+      fs.mkdirSync(fontsDestDir, { recursive: true });
+    }
+    // Only copy .woff2 files (modern, smallest format)
+    const fontFiles = fs.readdirSync(katexFontsDir);
+    for (const file of fontFiles) {
+      if (file.endsWith('.woff2')) {
+        fs.copyFileSync(
+          path.join(katexFontsDir, file),
+          path.join(fontsDestDir, file)
+        );
+      }
+    }
+    console.log('  ✓ fonts/ (KaTeX woff2 only)');
   }
 
   console.log('✅ Resources copied');

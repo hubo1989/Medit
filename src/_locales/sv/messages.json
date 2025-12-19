@@ -183,10 +183,6 @@
     "message": "Dela som Word",
     "description": "Menu item for exporting to DOCX"
   },
-  "export_docx_success": {
-    "message": "Export klar",
-    "description": "Toast when DOCX export succeeds"
-  },
   "exporting": {
     "message": "Förbereder Word-dokument...",
     "description": "Toast shown during export"

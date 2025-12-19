@@ -183,10 +183,6 @@
     "message": "分享為 Word",
     "description": "Menu item for exporting to DOCX"
   },
-  "export_docx_success": {
-    "message": "匯出完成",
-    "description": "Toast when DOCX export succeeds"
-  },
   "exporting": {
     "message": "正在準備 Word 文件...",
     "description": "Toast shown during export"

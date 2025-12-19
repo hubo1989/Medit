@@ -56,16 +56,11 @@ export function createCacheTabManager({ showMessage, showConfirm }: CacheTabMana
   let cacheManager: BackgroundCacheProxy | null = null;
 
   /**
-   * Initialize the cache manager
+   * Initialize the cache manager (lazy - does not load data)
    */
   async function initCacheManager(): Promise<void> {
-    cacheManager = new BackgroundCacheProxy();
-    try {
-      await loadCacheData();
-    } catch (error) {
-      console.error('Failed to load cache data:', error);
-      showMessage(translate('cache_system_unavailable'), 'error');
-      showManualCacheInfo();
+    if (!cacheManager) {
+      cacheManager = new BackgroundCacheProxy();
     }
   }
 
@@ -128,12 +123,9 @@ export function createCacheTabManager({ showMessage, showConfirm }: CacheTabMana
     resetCacheView();
 
     try {
+      // Lazy init
       if (!cacheManager) {
-        await initCacheManager();
-      }
-
-      if (!cacheManager) {
-        throw new Error(translate('cache_manager_init_failed'));
+        cacheManager = new BackgroundCacheProxy();
       }
 
       const stats = await cacheManager.getStats();

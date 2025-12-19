@@ -183,10 +183,6 @@
     "message": "Bagikan sebagai Word",
     "description": "Menu item for exporting to DOCX"
   },
-  "export_docx_success": {
-    "message": "Ekspor selesai",
-    "description": "Toast when DOCX export succeeds"
-  },
   "exporting": {
     "message": "Menyiapkan dokumen Word...",
     "description": "Toast shown during export"

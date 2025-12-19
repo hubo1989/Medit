@@ -183,10 +183,6 @@
     "message": "แชร์เป็น Word",
     "description": "Menu item for exporting to DOCX"
   },
-  "export_docx_success": {
-    "message": "ส่งออกเสร็จสิ้น",
-    "description": "Toast when DOCX export succeeds"
-  },
   "exporting": {
     "message": "กำลังเตรียมเอกสาร Word...",
     "description": "Toast shown during export"

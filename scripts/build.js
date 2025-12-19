@@ -63,6 +63,29 @@ try {
   
   const config = createBuildConfig();
   const result = await build(config);
+  
+  // Analyze bundle sizes if metafile is available
+  if (result.metafile) {
+    const outputs = result.metafile.outputs;
+    console.log('\n📊 Bundle Analysis:');
+    const bundles = Object.entries(outputs)
+      .filter(([name]) => name.endsWith('.js'))
+      .map(([name, info]) => ({
+        name: name.replace('dist/chrome/', ''),
+        size: info.bytes,
+        inputs: Object.keys(info.inputs || {})
+      }))
+      .sort((a, b) => b.size - a.size);
+    
+    for (const bundle of bundles) {
+      console.log(`  ${bundle.name}: ${(bundle.size / 1024 / 1024).toFixed(2)} MB`);
+    }
+    
+    // Write metafile for detailed analysis
+    fs.writeFileSync('dist/chrome/metafile.json', JSON.stringify(result.metafile, null, 2));
+    console.log('\n📄 Metafile saved to dist/chrome/metafile.json');
+  }
+  
   console.log('✅ Build complete');
 } catch (error) {
   console.error('❌ Build failed:', error);

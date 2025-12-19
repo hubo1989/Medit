@@ -183,10 +183,6 @@
     "message": "Wordで共有",
     "description": "Menu item for exporting to DOCX"
   },
-  "export_docx_success": {
-    "message": "エクスポート完了",
-    "description": "Toast when DOCX export succeeds"
-  },
   "exporting": {
     "message": "Word文書を準備中...",
     "description": "Toast shown during export"

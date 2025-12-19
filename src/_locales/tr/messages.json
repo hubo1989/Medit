@@ -183,10 +183,6 @@
     "message": "Word olarak paylaş",
     "description": "Menu item for exporting to DOCX"
   },
-  "export_docx_success": {
-    "message": "Aktarım tamamlandı",
-    "description": "Toast when DOCX export succeeds"
-  },
   "exporting": {
     "message": "Word belgesi hazırlanıyor...",
     "description": "Toast shown during export"

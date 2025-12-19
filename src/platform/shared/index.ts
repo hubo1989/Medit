@@ -25,12 +25,8 @@ export type {
   SimpleCacheStats
 } from '../../types/index';
 
-export {
-  startIframeRenderWorker,
-} from './iframe-render-worker';
-
-// Note: Render worker related code is in src/renderers/:
-// - worker/worker-bootstrap.ts  - Shared worker bootstrap
-// - host/iframe-render-host.ts  - Shared iframe host
-// - platform/shared/iframe-render-worker.ts - Shared iframe worker runtime
+// Note: Render worker related code locations:
+// - Chrome: src/platform/chrome/offscreen-render-worker.ts
+// - Mobile: src/platform/mobile/iframe-render-worker.ts
+// - Shared bootstrap: src/renderers/worker/worker-bootstrap.ts
 

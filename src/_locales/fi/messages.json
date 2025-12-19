@@ -183,10 +183,6 @@
     "message": "Jaa Word-muodossa",
     "description": "Menu item for exporting to DOCX"
   },
-  "export_docx_success": {
-    "message": "Vienti valmis",
-    "description": "Toast when DOCX export succeeds"
-  },
   "exporting": {
     "message": "Valmistellaan Word-dokumenttia...",
     "description": "Toast shown during export"

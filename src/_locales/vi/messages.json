@@ -183,10 +183,6 @@
     "message": "Chia sẻ dưới dạng Word",
     "description": "Menu item for exporting to DOCX"
   },
-  "export_docx_success": {
-    "message": "Xuất hoàn tất",
-    "description": "Toast when DOCX export succeeds"
-  },
   "exporting": {
     "message": "Đang chuẩn bị tài liệu Word...",
     "description": "Toast shown during export"

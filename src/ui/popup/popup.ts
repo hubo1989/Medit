@@ -55,9 +55,9 @@ class PopupManager {
   private async init(): Promise<void> {
     await this.settingsTab.loadSettings();
     this.setupEventListeners();
-    this.cacheTab.initCacheManager();
     checkFileAccess();
 
+    // Only load data for the active tab
     if (this.currentTab === 'cache') {
       this.cacheTab.loadCacheData();
     } else if (this.currentTab === 'history') {

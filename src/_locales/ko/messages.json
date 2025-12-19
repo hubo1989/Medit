@@ -183,10 +183,6 @@
     "message": "Word로 공유",
     "description": "Menu item for exporting to DOCX"
   },
-  "export_docx_success": {
-    "message": "내보내기 완료",
-    "description": "Toast when DOCX export succeeds"
-  },
   "exporting": {
     "message": "Word 문서 준비 중...",
     "description": "Toast shown during export"

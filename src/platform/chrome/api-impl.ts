@@ -24,7 +24,6 @@ import type {
 } from '../../types/index';
 
 import type { RenderHost } from '../../renderers/host/render-host';
-import { IframeRenderHost } from '../../renderers/host/iframe-render-host';
 import { OffscreenRenderHost } from './hosts/offscreen-render-host';
 
 // ============================================================================
@@ -97,20 +96,56 @@ export class ChromeStorageService {
 
 // ============================================================================
 // Chrome File Service
+// Downloads via background script (chrome.downloads not available in content scripts)
 // ============================================================================
 
 export class ChromeFileService {
-  async download(blob: Blob, filename: string, options: DownloadOptions = {}): Promise<void> {
-    const url = URL.createObjectURL(blob);
-    try {
-      await chrome.downloads.download({
-        url,
+  private messageService: ChromeMessageService | null = null;
+
+  setMessageService(messageService: ChromeMessageService): void {
+    this.messageService = messageService;
+  }
+
+  async download(blob: Blob, filename: string, _options: DownloadOptions = {}): Promise<void> {
+    if (!this.messageService) {
+      throw new Error('MessageService not initialized');
+    }
+
+    // Convert blob to base64 and upload in chunks to background
+    const arrayBuffer = await blob.arrayBuffer();
+    const uint8Array = new Uint8Array(arrayBuffer);
+    let binary = '';
+    for (let i = 0; i < uint8Array.length; i++) {
+      binary += String.fromCharCode(uint8Array[i]);
+    }
+    const base64Data = btoa(binary);
+
+    const { uploadInChunks } = await import('../../utils/upload-manager');
+    
+    // Upload file data in chunks
+    const uploadResult = await uploadInChunks({
+      sendMessage: (msg) => this.messageService!.send(msg),
+      purpose: 'docx-download',
+      encoding: 'base64',
+      totalSize: base64Data.length,
+      metadata: {
         filename,
-        saveAs: options.saveAs !== false
-      });
-    } finally {
-      // Delay revoke to ensure download starts
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
+        mimeType: blob.type || 'application/octet-stream',
+      },
+      getChunk: (offset, size) => base64Data.slice(offset, offset + size),
+    });
+
+    // Finalize download - trigger chrome.downloads in background
+    const finalizeResponse = await this.messageService.send({
+      id: `${Date.now()}-download-finalize`,
+      type: 'DOCX_DOWNLOAD_FINALIZE',
+      payload: { token: uploadResult.token },
+      timestamp: Date.now(),
+      source: 'file-service',
+    });
+
+    if (!finalizeResponse.ok) {
+      throw new Error(finalizeResponse.error?.message || 'Download finalize failed');
     }
   }
 }
@@ -292,24 +327,12 @@ export class ChromeCacheService extends BaseCacheService {
 
 // ============================================================================
 // Chrome Renderer Service
-// Extends BaseRendererService for common theme config handling
+// Uses offscreen document for rendering diagrams (mermaid, vega, etc.)
 // ============================================================================
-
-type ChromeRenderHostType = 'offscreen' | 'iframe';
-
-const DEFAULT_CHROME_RENDER_HOST_TYPE: ChromeRenderHostType = 'offscreen';
-
-function normalizeChromeRenderHostType(value: unknown): ChromeRenderHostType | null {
-  if (value === 'iframe') return 'iframe';
-  if (value === 'offscreen') return 'offscreen';
-  return null;
-}
 
 export class ChromeRendererService extends BaseRendererService {
   private messageService: ChromeMessageService;
-  private hostType: ChromeRenderHostType = DEFAULT_CHROME_RENDER_HOST_TYPE;
   private offscreenHost: RenderHost | null = null;
-  private iframeHost: RenderHost | null = null;
   private themeDirty = false;
   private cache: ChromeCacheService;
 
@@ -323,24 +346,7 @@ export class ChromeRendererService extends BaseRendererService {
     // Renderer initialization handled by background/offscreen
   }
 
-  private async getHost(): Promise<RenderHost> {
-    const override = normalizeChromeRenderHostType(
-      (globalThis as unknown as { __markdownViewerChromeRenderHost?: unknown }).__markdownViewerChromeRenderHost
-    );
-
-    this.hostType = override || DEFAULT_CHROME_RENDER_HOST_TYPE;
-
-    if (this.hostType === 'iframe') {
-      if (!this.iframeHost) {
-        const iframeUrl = chrome.runtime.getURL('ui/iframe-render.html');
-        this.iframeHost = new IframeRenderHost({
-          iframeUrl,
-          source: 'chrome-parent',
-        });
-      }
-      return this.iframeHost;
-    }
-
+  private getHost(): RenderHost {
     if (!this.offscreenHost) {
       this.offscreenHost = new OffscreenRenderHost(this.messageService, 'chrome-renderer');
     }
@@ -361,7 +367,7 @@ export class ChromeRendererService extends BaseRendererService {
   async setThemeConfig(config: RendererThemeConfig): Promise<void> {
     this.themeConfig = config;
     this.themeDirty = true;
-    const host = await this.getHost();
+    const host = this.getHost();
     await this.applyThemeIfNeeded(host);
   }
 
@@ -378,7 +384,7 @@ export class ChromeRendererService extends BaseRendererService {
       return cached as RenderResult;
     }
 
-    const host = await this.getHost();
+    const host = this.getHost();
     await this.applyThemeIfNeeded(host);
 
     const result = await host.send<RenderResult>(
@@ -508,6 +514,9 @@ export class ChromePlatformAPI {
     this.cache = new ChromeCacheService(this.message);
     this.renderer = new ChromeRendererService(this.message, this.cache);
     this.i18n = new ChromeI18nService(this.storage, this.resource);
+    
+    // Inject message service into file service for download functionality
+    this.file.setMessageService(this.message);
   }
 
   async init(): Promise<void> {
