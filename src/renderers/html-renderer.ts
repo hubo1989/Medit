@@ -64,7 +64,7 @@ export class HtmlRenderer extends BaseRenderer {
     // Apply scale via CSS transform for high-res rendering
     const wrapper = document.createElement('div');
     wrapper.setAttribute('xmlns', 'http://www.w3.org/1999/xhtml');
-    wrapper.style.cssText = `display: inline-block; outline: 1px solid #ff0000; outline-offset: 0; transform: scale(${scale}); transform-origin: top left;`;
+    wrapper.style.cssText = `display: inline-block; overflow: hidden; outline: 1px solid #ff0000; outline-offset: 0; transform: scale(${scale}); transform-origin: top left;`;
     
     const container = document.createElement('div');
     container.style.cssText = `display: inline-block; font-family: ${fontFamily};`;
