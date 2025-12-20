@@ -75,10 +75,6 @@
     "message": "Falha ao carregar cache: {0}",
     "description": "Displayed when cache loading throws an error"
   },
-  "cache_manager_init_failed": {
-    "message": "Falha na inicialização do gestor de cache",
-    "description": "Error string used when cache manager cannot initialize"
-  },
   "cache_manual_clear_intro": {
     "message": "Para limpar a cache manualmente:",
     "description": "Manual cache clear intro"
@@ -151,10 +147,6 @@
     "message": "Capacidade usada",
     "description": "Label for usage percentage"
   },
-  "cache_system_unavailable": {
-    "message": "Sistema de cache indisponível — abra um ficheiro Markdown primeiro",
-    "description": "Shown when cache manager cannot be reached"
-  },
   "cancel": {
     "message": "Cancelar",
     "description": "Cancel button text"
@@ -170,6 +162,18 @@
   "clear_recent_files_confirm": {
     "message": "Remover todos os ficheiros recentes da lista?",
     "description": "Confirmation message for clearing recent files"
+  },
+  "delete": {
+    "message": "Eliminar",
+    "description": "Delete button text"
+  },
+  "delete_file": {
+    "message": "Eliminar ficheiro",
+    "description": "Menu item to delete a file"
+  },
+  "delete_file_confirm": {
+    "message": "Tem a certeza de que pretende eliminar \"{0}\"? Esta ação não pode ser anulada.",
+    "description": "Confirmation message for deleting a file"
   },
   "docx_export_failed_alert": {
     "message": "Falha na exportação{0}",
@@ -219,9 +223,17 @@
     "message": "página de definições da extensão",
     "description": "Link text to extension settings"
   },
+  "file_deleted": {
+    "message": "Ficheiro eliminado",
+    "description": "Toast when file is deleted"
+  },
   "file_not_found": {
     "message": "Ficheiro não encontrado",
     "description": "Error message when file doesn't exist"
+  },
+  "file_removed": {
+    "message": "Removido da lista",
+    "description": "Toast when file is removed from list"
   },
   "history_clear": {
     "message": "Limpar histórico",
@@ -279,6 +291,10 @@
     "message": "Nenhum título encontrado",
     "description": "Toast when document has no headings"
   },
+  "no_recent_files": {
+    "message": "Nenhum ficheiro recente",
+    "description": "Toast when there are no recent files"
+  },
   "open_file": {
     "message": "Abrir ficheiro",
     "description": "Menu item to open file"
@@ -307,21 +323,13 @@
     "message": "Remover",
     "description": "Remove item from list"
   },
+  "remove_from_list": {
+    "message": "Remover da lista",
+    "description": "Menu item to remove file from recent list"
+  },
   "reset": {
     "message": "Repor",
     "description": "Reset button"
-  },
-  "save_failed": {
-    "message": "Falha ao guardar ficheiro",
-    "description": "Toast when file save fails"
-  },
-  "save_file": {
-    "message": "Guardar na biblioteca",
-    "description": "Menu item for saving file to app storage"
-  },
-  "save_success": {
-    "message": "Ficheiro guardado",
-    "description": "Toast when file save succeeds"
   },
   "settings_general_title": {
     "message": "Definições da extensão",

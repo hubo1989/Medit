@@ -75,10 +75,6 @@
     "message": "Kunde inte ladda cache: {0}",
     "description": "Displayed when cache loading throws an error"
   },
-  "cache_manager_init_failed": {
-    "message": "Cache-manager initialisering misslyckades",
-    "description": "Error string used when cache manager cannot initialize"
-  },
   "cache_manual_clear_intro": {
     "message": "För att rensa cache manuellt:",
     "description": "Manual cache clear intro"
@@ -151,10 +147,6 @@
     "message": "Använd kapacitet",
     "description": "Label for usage percentage"
   },
-  "cache_system_unavailable": {
-    "message": "Cache-system otillgängligt — öppna en Markdown-fil först",
-    "description": "Shown when cache manager cannot be reached"
-  },
   "cancel": {
     "message": "Avbryt",
     "description": "Cancel button text"
@@ -170,6 +162,18 @@
   "clear_recent_files_confirm": {
     "message": "Ta bort alla senaste filer från listan?",
     "description": "Confirmation message for clearing recent files"
+  },
+  "delete": {
+    "message": "Delete",
+    "description": "Delete button text"
+  },
+  "delete_file": {
+    "message": "Delete file",
+    "description": "Menu item to delete a file"
+  },
+  "delete_file_confirm": {
+    "message": "Are you sure you want to delete \"{0}\"? This action cannot be undone.",
+    "description": "Confirmation message for deleting a file"
   },
   "docx_export_failed_alert": {
     "message": "Export misslyckades{0}",
@@ -219,9 +223,17 @@
     "message": "tilläggets inställningssida",
     "description": "Link text to extension settings"
   },
+  "file_deleted": {
+    "message": "File deleted",
+    "description": "Toast when file is deleted"
+  },
   "file_not_found": {
     "message": "Filen hittades inte",
     "description": "Error message when file doesn't exist"
+  },
+  "file_removed": {
+    "message": "Removed from list",
+    "description": "Toast when file is removed from list"
   },
   "history_clear": {
     "message": "Rensa historik",
@@ -268,7 +280,7 @@
     "description": "Menu item for language"
   },
   "more": {
-    "message": "Mer",
+    "message": "More",
     "description": "More menu tooltip"
   },
   "no_file_to_share": {
@@ -278,6 +290,10 @@
   "no_headings": {
     "message": "Inga rubriker hittades",
     "description": "Toast when document has no headings"
+  },
+  "no_recent_files": {
+    "message": "No recent files",
+    "description": "Toast when there are no recent files"
   },
   "open_file": {
     "message": "Öppna fil",
@@ -307,21 +323,13 @@
     "message": "Ta bort",
     "description": "Remove item from list"
   },
+  "remove_from_list": {
+    "message": "Remove from list",
+    "description": "Menu item to remove file from recent list"
+  },
   "reset": {
     "message": "Återställ",
     "description": "Reset button"
-  },
-  "save_failed": {
-    "message": "Kunde inte spara fil",
-    "description": "Toast when file save fails"
-  },
-  "save_file": {
-    "message": "Spara i bibliotek",
-    "description": "Menu item for saving file to app storage"
-  },
-  "save_success": {
-    "message": "Fil sparad",
-    "description": "Toast when file save succeeds"
   },
   "settings_general_title": {
     "message": "Tilläggsinställningar",

@@ -75,10 +75,6 @@
     "message": "加载缓存信息失败: {0}",
     "description": "缓存加载异常提示"
   },
-  "cache_manager_init_failed": {
-    "message": "缓存初始化失败",
-    "description": "缓存初始化错误信息"
-  },
   "cache_manual_clear_intro": {
     "message": "如需手动清空：",
     "description": "手动清空缓存引导"
@@ -150,10 +146,6 @@
   "cache_stat_usage_label": {
     "message": "容量使用",
     "description": "缓存统计标签"
-  },
-  "cache_system_unavailable": {
-    "message": "缓存系统不可用，请先打开 Markdown 文件",
-    "description": "缓存系统不可用提示"
   },
   "cancel": {
     "message": "取消",
@@ -269,7 +261,7 @@
   },
   "more": {
     "message": "更多",
-    "description": "More menu tooltip"
+    "description": "More options menu"
   },
   "no_file_to_share": {
     "message": "没有可分享的文件",
@@ -310,18 +302,6 @@
   "reset": {
     "message": "重置",
     "description": "Reset button"
-  },
-  "save_failed": {
-    "message": "保存文件失败",
-    "description": "Toast when file save fails"
-  },
-  "save_file": {
-    "message": "保存到文库",
-    "description": "Menu item for saving file to app storage"
-  },
-  "save_success": {
-    "message": "文件已保存",
-    "description": "Toast when file save succeeds"
   },
   "settings_general_title": {
     "message": "扩展设置",
@@ -550,5 +530,33 @@
   "zoom": {
     "message": "缩放",
     "description": "Menu item for zoom"
+  },
+  "remove_from_list": {
+    "message": "从列表移除",
+    "description": "Menu item to remove file from recent list"
+  },
+  "delete_file": {
+    "message": "删除文件",
+    "description": "Menu item to delete a file"
+  },
+  "delete_file_confirm": {
+    "message": "确定要删除 \"{0}\" 吗？此操作无法撤销。",
+    "description": "Confirmation message for deleting a file"
+  },
+  "delete": {
+    "message": "删除",
+    "description": "Delete button text"
+  },
+  "file_deleted": {
+    "message": "文件已删除",
+    "description": "Toast when file is deleted"
+  },
+  "file_removed": {
+    "message": "已从列表移除",
+    "description": "Toast when file is removed from list"
+  },
+  "no_recent_files": {
+    "message": "没有最近文件",
+    "description": "Toast when there are no recent files"
   }
 }

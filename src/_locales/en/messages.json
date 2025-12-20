@@ -75,10 +75,6 @@
     "message": "Failed to load cache: {0}",
     "description": "Displayed when cache loading throws an error"
   },
-  "cache_manager_init_failed": {
-    "message": "Cache manager initialization failed",
-    "description": "Error string used when cache manager cannot initialize"
-  },
   "cache_manual_clear_intro": {
     "message": "To clear cache manually:",
     "description": "Manual cache clear intro"
@@ -150,10 +146,6 @@
   "cache_stat_usage_label": {
     "message": "Capacity used",
     "description": "Label for usage percentage"
-  },
-  "cache_system_unavailable": {
-    "message": "Cache system unavailable — open a Markdown file first",
-    "description": "Shown when cache manager cannot be reached"
   },
   "cancel": {
     "message": "Cancel",
@@ -269,7 +261,7 @@
   },
   "more": {
     "message": "More",
-    "description": "More menu tooltip"
+    "description": "More options menu"
   },
   "no_file_to_share": {
     "message": "No file to share",
@@ -310,18 +302,6 @@
   "reset": {
     "message": "Reset",
     "description": "Reset button"
-  },
-  "save_failed": {
-    "message": "Failed to save file",
-    "description": "Toast when file save fails"
-  },
-  "save_file": {
-    "message": "Save to library",
-    "description": "Menu item for saving file to app storage"
-  },
-  "save_success": {
-    "message": "File saved",
-    "description": "Toast when file save succeeds"
   },
   "settings_general_title": {
     "message": "Extension settings",
@@ -550,5 +530,33 @@
   "zoom": {
     "message": "Zoom",
     "description": "Menu item for zoom"
+  },
+  "remove_from_list": {
+    "message": "Remove from list",
+    "description": "Menu item to remove file from recent list"
+  },
+  "delete_file": {
+    "message": "Delete file",
+    "description": "Menu item to delete a file"
+  },
+  "delete_file_confirm": {
+    "message": "Are you sure you want to delete \"{0}\"? This action cannot be undone.",
+    "description": "Confirmation message for deleting a file"
+  },
+  "delete": {
+    "message": "Delete",
+    "description": "Delete button text"
+  },
+  "file_deleted": {
+    "message": "File deleted",
+    "description": "Toast when file is deleted"
+  },
+  "file_removed": {
+    "message": "Removed from list",
+    "description": "Toast when file is removed from list"
+  },
+  "no_recent_files": {
+    "message": "No recent files",
+    "description": "Toast when there are no recent files"
   }
 }

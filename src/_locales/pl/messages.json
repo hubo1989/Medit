@@ -75,10 +75,6 @@
     "message": "Nie udało się załadować pamięci podręcznej: {0}",
     "description": "Displayed when cache loading throws an error"
   },
-  "cache_manager_init_failed": {
-    "message": "Inicjalizacja menedżera pamięci podręcznej nie powiodła się",
-    "description": "Error string used when cache manager cannot initialize"
-  },
   "cache_manual_clear_intro": {
     "message": "Aby wyczyścić pamięć podręczną ręcznie:",
     "description": "Manual cache clear intro"
@@ -151,10 +147,6 @@
     "message": "Wykorzystana pojemność",
     "description": "Label for usage percentage"
   },
-  "cache_system_unavailable": {
-    "message": "System pamięci podręcznej niedostępny — otwórz najpierw plik Markdown",
-    "description": "Shown when cache manager cannot be reached"
-  },
   "cancel": {
     "message": "Anuluj",
     "description": "Cancel button text"
@@ -170,6 +162,18 @@
   "clear_recent_files_confirm": {
     "message": "Usunąć wszystkie ostatnie pliki z listy?",
     "description": "Confirmation message for clearing recent files"
+  },
+  "delete": {
+    "message": "Delete",
+    "description": "Delete button text"
+  },
+  "delete_file": {
+    "message": "Delete file",
+    "description": "Menu item to delete a file"
+  },
+  "delete_file_confirm": {
+    "message": "Are you sure you want to delete \"{0}\"? This action cannot be undone.",
+    "description": "Confirmation message for deleting a file"
   },
   "docx_export_failed_alert": {
     "message": "Eksport nie powiódł się{0}",
@@ -219,9 +223,17 @@
     "message": "stronę ustawień rozszerzenia",
     "description": "Link text to extension settings"
   },
+  "file_deleted": {
+    "message": "File deleted",
+    "description": "Toast when file is deleted"
+  },
   "file_not_found": {
     "message": "Plik nie znaleziony",
     "description": "Error message when file doesn't exist"
+  },
+  "file_removed": {
+    "message": "Removed from list",
+    "description": "Toast when file is removed from list"
   },
   "history_clear": {
     "message": "Wyczyść historię",
@@ -268,7 +280,7 @@
     "description": "Menu item for language"
   },
   "more": {
-    "message": "Więcej",
+    "message": "More",
     "description": "More menu tooltip"
   },
   "no_file_to_share": {
@@ -278,6 +290,10 @@
   "no_headings": {
     "message": "Nie znaleziono nagłówków",
     "description": "Toast when document has no headings"
+  },
+  "no_recent_files": {
+    "message": "No recent files",
+    "description": "Toast when there are no recent files"
   },
   "open_file": {
     "message": "Otwórz plik",
@@ -307,21 +323,13 @@
     "message": "Usuń",
     "description": "Remove item from list"
   },
+  "remove_from_list": {
+    "message": "Remove from list",
+    "description": "Menu item to remove file from recent list"
+  },
   "reset": {
     "message": "Resetuj",
     "description": "Reset button"
-  },
-  "save_failed": {
-    "message": "Nie udało się zapisać pliku",
-    "description": "Toast when file save fails"
-  },
-  "save_file": {
-    "message": "Zapisz w bibliotece",
-    "description": "Menu item for saving file to app storage"
-  },
-  "save_success": {
-    "message": "Plik zapisany",
-    "description": "Toast when file save succeeds"
   },
   "settings_general_title": {
     "message": "Ustawienia rozszerzenia",

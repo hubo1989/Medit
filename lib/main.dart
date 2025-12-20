@@ -90,6 +90,9 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
     // Load saved theme
     _currentTheme = settingsService.theme;
     
+    // Listen to recent files changes
+    recentFilesService.addListener(_onRecentFilesChanged);
+    
     // Set up file receiving handler
     _setupFileReceiver();
 
@@ -158,17 +161,30 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
   
   /// Handle file received from external source (Intent/Share)
   Future<void> _handleReceivedFile(String content, String filename) async {
-    // Save to temp directory so we can share it later
+    // Save to Documents/Imported directory for permanent storage
     try {
-      final tempDir = await getTemporaryDirectory();
-      final tempFile = File('${tempDir.path}/$filename');
-      await tempFile.writeAsString(content);
+      final appDir = await getApplicationDocumentsDirectory();
+      final importedDir = Directory('${appDir.path}/Imported');
+      if (!await importedDir.exists()) {
+        await importedDir.create(recursive: true);
+      }
       
-      _currentFilePath = tempFile.path;
-      _currentFileDir = tempDir.path;
+      // Generate unique filename if file already exists
+      var targetFile = File('${importedDir.path}/$filename');
+      if (await targetFile.exists()) {
+        final nameWithoutExt = filename.replaceAll(RegExp(r'\.[^.]+$'), '');
+        final ext = filename.contains('.') ? filename.substring(filename.lastIndexOf('.')) : '.md';
+        final timestamp = DateTime.now().millisecondsSinceEpoch;
+        targetFile = File('${importedDir.path}/${nameWithoutExt}_$timestamp$ext');
+      }
       
-      // Add to recent files
-      await recentFilesService.add(tempFile.path, filename);
+      await targetFile.writeAsString(content);
+      
+      _currentFilePath = targetFile.path;
+      _currentFileDir = importedDir.path;
+      
+      // Add to recent files with content for caching
+      await recentFilesService.add(targetFile.path, filename, content: content);
       
       setState(() {
         _currentFilename = filename;
@@ -210,15 +226,31 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
           _pendingContent = content;
           _pendingFilename = filename;
           
-          // Also save to temp so it can be shared
+          // Save to Documents/Imported directory for permanent storage
           try {
-            final tempDir = await getTemporaryDirectory();
-            final tempFile = File('${tempDir.path}/${filename ?? "document.md"}');
-            await tempFile.writeAsString(content);
-            _currentFilePath = tempFile.path;
-            _currentFileDir = tempDir.path;
+            final appDir = await getApplicationDocumentsDirectory();
+            final importedDir = Directory('${appDir.path}/Imported');
+            if (!await importedDir.exists()) {
+              await importedDir.create(recursive: true);
+            }
+            
+            final actualFilename = filename ?? 'document.md';
+            var targetFile = File('${importedDir.path}/$actualFilename');
+            if (await targetFile.exists()) {
+              final nameWithoutExt = actualFilename.replaceAll(RegExp(r'\.[^.]+$'), '');
+              final ext = actualFilename.contains('.') ? actualFilename.substring(actualFilename.lastIndexOf('.')) : '.md';
+              final timestamp = DateTime.now().millisecondsSinceEpoch;
+              targetFile = File('${importedDir.path}/${nameWithoutExt}_$timestamp$ext');
+            }
+            
+            await targetFile.writeAsString(content);
+            _currentFilePath = targetFile.path;
+            _currentFileDir = importedDir.path;
+            
+            // Add to recent files
+            await recentFilesService.add(targetFile.path, actualFilename, content: content);
           } catch (e) {
-            debugPrint('[Mobile] Failed to save initial file to temp: $e');
+            debugPrint('[Mobile] Failed to save initial file: $e');
           }
         }
       }
@@ -232,7 +264,15 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
 
   @override
   void dispose() {
+    recentFilesService.removeListener(_onRecentFilesChanged);
     super.dispose();
+  }
+
+  /// Called when recent files list changes
+  void _onRecentFilesChanged() {
+    if (mounted) {
+      setState(() {});
+    }
   }
 
   Future<void> _initWebView() async {
@@ -710,8 +750,8 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
         _currentFileDir = file.parent.path;
         _currentFilePath = filePath;
 
-        // Add to recent files
-        await recentFilesService.add(filePath, filename);
+        // Add to recent files with content for caching
+        await recentFilesService.add(filePath, filename, content: content);
 
         setState(() {
           _currentFilename = filename;
@@ -837,62 +877,6 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
     }
   }
 
-  /// Save current file - let user choose location
-  Future<void> _saveToLibrary() async {
-    if (_pendingContent == null && _currentFilePath == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(localization.t('no_file_to_share'))),
-      );
-      return;
-    }
-    
-    try {
-      // Get content from current file or pending content
-      String content;
-      if (_currentFilePath != null) {
-        content = await File(_currentFilePath!).readAsString();
-      } else {
-        content = _pendingContent!;
-      }
-      
-      final filename = _currentFilename ?? 'document.md';
-      
-      // Use file picker to let user choose save location
-      final result = await FilePicker.platform.saveFile(
-        dialogTitle: localization.t('save_file'),
-        fileName: filename,
-        type: FileType.custom,
-        allowedExtensions: ['md', 'markdown'],
-        bytes: utf8.encode(content),
-      );
-      
-      if (result != null) {
-        // On some platforms, saveFile returns path but doesn't write
-        // We need to write the file ourselves
-        if (!result.endsWith('.md') && !result.endsWith('.markdown')) {
-          // File was saved by the picker (bytes were used)
-        } else {
-          // Write file to the selected path
-          final file = File(result);
-          await file.writeAsString(content);
-        }
-        
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(localization.t('save_success'))),
-          );
-        }
-      }
-    } catch (e) {
-      debugPrint('[Mobile] Save file error: $e');
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(localization.t('save_failed'))),
-        );
-      }
-    }
-  }
-
   /// Update export progress
   void _updateExportProgress(int completed, int total, String phase) {
     setState(() {
@@ -954,6 +938,113 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
         );
       }
     }
+  }
+
+  void _showRecentFiles() {
+    final recentFiles = recentFilesService.getAll();
+    
+    if (recentFiles.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(localization.t('no_recent_files'))),
+      );
+      return;
+    }
+    
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.5,
+        minChildSize: 0.3,
+        maxChildSize: 0.9,
+        expand: false,
+        builder: (context, scrollController) => SafeArea(
+          child: Column(
+            children: [
+              // Handle bar
+              Container(
+                margin: const EdgeInsets.only(top: 8),
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).hintColor.withOpacity(0.3),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              // Title
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Row(
+                  children: [
+                    Icon(
+                      AntIcons.history,
+                      size: 20,
+                      color: Theme.of(context).hintColor,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      localization.t('recent_files'),
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const Spacer(),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        _clearRecentFiles();
+                      },
+                      child: Text(localization.t('clear_all')),
+                    ),
+                  ],
+                ),
+              ),
+              const Divider(height: 1),
+              // File list
+              Expanded(
+                child: ListView.builder(
+                  controller: scrollController,
+                  itemCount: recentFiles.length,
+                  itemBuilder: (context, index) {
+                    final file = recentFiles[index];
+                    return ListTile(
+                      leading: const Icon(AntIcons.file_markdown_outline),
+                      title: Text(
+                        file.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      subtitle: Text(
+                        _formatRecentFilePath(file.path),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Theme.of(context).hintColor,
+                        ),
+                      ),
+                      onTap: () {
+                        Navigator.pop(context);
+                        _openRecentFile(file);
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _formatRecentFilePath(String path) {
+    final parts = path.split('/');
+    if (parts.length > 3) {
+      return '.../${parts.sublist(parts.length - 3).join('/')}';
+    }
+    return path;
   }
 
   void _showLanguagePicker() {
@@ -1209,11 +1300,10 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
           value: 'open',
           child: _buildMenuItemContent(AntIcons.folder_open_outline, localization.t('open_file')),
         ),
-        if (_hasContent)
-          PopupMenuItem<String>(
-            value: 'save',
-            child: _buildMenuItemContent(AntIcons.save, localization.t('save_file')),
-          ),
+        PopupMenuItem<String>(
+          value: 'recent',
+          child: _buildMenuItemContent(AntIcons.history, localization.t('recent_files')),
+        ),
         if (_hasContent)
           PopupMenuItem<String>(
             value: 'export_docx',
@@ -1247,9 +1337,6 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
         case 'open':
           _openFile();
           break;
-        case 'save':
-          _saveToLibrary();
-          break;
         case 'export_docx':
           _exportDocx();
           break;
@@ -1261,6 +1348,9 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
           break;
         case 'language':
           _showLanguagePicker();
+          break;
+        case 'recent':
+          _showRecentFiles();
           break;
         case 'clear_cache':
           _clearCache();
@@ -1377,10 +1467,18 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
                   delegate: SliverChildBuilderDelegate(
                     (context, index) {
                       final file = recentFiles[index];
-                      return _RecentFileItem(
-                        file: file,
-                        onTap: () => _openRecentFile(file),
-                        onDelete: () => _removeRecentFile(file),
+                      return FutureBuilder<bool>(
+                        future: recentFilesService.isImportedFile(file.path),
+                        builder: (context, snapshot) {
+                          final isImported = snapshot.data ?? false;
+                          return _RecentFileItem(
+                            file: file,
+                            onTap: () => _openRecentFile(file),
+                            onRemove: () => _removeRecentFile(file),
+                            onDeleteFile: isImported ? () => _deleteSharedFile(file) : null,
+                            isImportedFile: isImported,
+                          );
+                        },
                       );
                     },
                     childCount: recentFiles.length,
@@ -1397,11 +1495,12 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
   /// Open a recent file
   Future<void> _openRecentFile(RecentFile file) async {
     try {
-      final f = File(file.path);
-      if (!await f.exists()) {
-        // File no longer exists, remove from recent and show error
+      // Use readContent which handles both original file and cached content
+      final content = await recentFilesService.readContent(file);
+      
+      if (content == null) {
+        // Neither original nor cache available, remove from recent
         await recentFilesService.remove(file.path);
-        setState(() {});
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(localization.t('file_not_found'))),
@@ -1410,12 +1509,12 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
         return;
       }
 
-      final content = await f.readAsString();
+      final f = File(file.path);
       _currentFileDir = f.parent.path;
       _currentFilePath = file.path;
 
-      // Update last opened time
-      await recentFilesService.add(file.path, file.name);
+      // Update last opened time with content for caching
+      await recentFilesService.add(file.path, file.name, content: content);
 
       setState(() {
         _currentFilename = file.name;
@@ -1437,10 +1536,48 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
     }
   }
 
-  /// Remove a file from recent list
+  /// Remove a file from recent list (keeps original file)
   Future<void> _removeRecentFile(RecentFile file) async {
     await recentFilesService.remove(file.path);
-    setState(() {});
+  }
+
+  /// Delete a shared file and remove from recent list
+  Future<void> _deleteSharedFile(RecentFile file) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(localization.t('delete_file')),
+        content: Text(localization.t('delete_file_confirm', [file.name])),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(localization.t('cancel')),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(context).colorScheme.error,
+            ),
+            child: Text(localization.t('delete')),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      final deleted = await recentFilesService.removeAndDeleteFile(file.path);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              deleted
+                  ? localization.t('file_deleted')
+                  : localization.t('file_removed'),
+            ),
+          ),
+        );
+      }
+    }
   }
 
   /// Clear all recent files
@@ -1465,7 +1602,6 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
 
     if (confirmed == true) {
       await recentFilesService.clear();
-      setState(() {});
     }
   }
 }
@@ -1474,36 +1610,89 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
 class _RecentFileItem extends StatelessWidget {
   final RecentFile file;
   final VoidCallback onTap;
-  final VoidCallback onDelete;
+  final VoidCallback onRemove;
+  final VoidCallback? onDeleteFile;
+  final bool isImportedFile;
 
   const _RecentFileItem({
     required this.file,
     required this.onTap,
-    required this.onDelete,
+    required this.onRemove,
+    this.onDeleteFile,
+    this.isImportedFile = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: const Icon(AntIcons.file_markdown_outline),
+      leading: Icon(
+        AntIcons.file_markdown_outline,
+        color: isImportedFile ? Theme.of(context).colorScheme.secondary : null,
+      ),
       title: Text(
         file.name,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       ),
-      subtitle: Text(
-        _formatPath(file.path),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: TextStyle(
-          fontSize: 12,
-          color: Theme.of(context).hintColor,
-        ),
+      subtitle: Row(
+        children: [
+          if (isImportedFile) ...[
+            Icon(
+              AntIcons.share_alt,
+              size: 12,
+              color: Theme.of(context).colorScheme.secondary,
+            ),
+            const SizedBox(width: 4),
+          ],
+          Expanded(
+            child: Text(
+              _formatPath(file.path),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                fontSize: 12,
+                color: Theme.of(context).hintColor,
+              ),
+            ),
+          ),
+        ],
       ),
-      trailing: IconButton(
-        icon: const Icon(AntIcons.close, size: 18),
-        onPressed: onDelete,
-        tooltip: localization.t('remove'),
+      trailing: PopupMenuButton<String>(
+        icon: const Icon(Icons.more_vert, size: 20),
+        tooltip: localization.t('more'),
+        onSelected: (value) {
+          if (value == 'remove') {
+            onRemove();
+          } else if (value == 'delete' && onDeleteFile != null) {
+            onDeleteFile!();
+          }
+        },
+        itemBuilder: (context) => [
+          PopupMenuItem<String>(
+            value: 'remove',
+            child: Row(
+              children: [
+                const Icon(AntIcons.close, size: 18),
+                const SizedBox(width: 12),
+                Text(localization.t('remove_from_list')),
+              ],
+            ),
+          ),
+          if (isImportedFile && onDeleteFile != null)
+            PopupMenuItem<String>(
+              value: 'delete',
+              child: Row(
+                children: [
+                  Icon(AntIcons.delete_outline, size: 18, color: Theme.of(context).colorScheme.error),
+                  const SizedBox(width: 12),
+                  Text(
+                    localization.t('delete_file'),
+                    style: TextStyle(color: Theme.of(context).colorScheme.error),
+                  ),
+                ],
+              ),
+            ),
+        ],
       ),
       onTap: onTap,
     );

@@ -75,10 +75,6 @@
     "message": "Impossible de charger le cache : {0}",
     "description": "Message lorsqu'une erreur se produit"
   },
-  "cache_manager_init_failed": {
-    "message": "Échec de l'initialisation du gestionnaire de cache",
-    "description": "Erreur quand le cache ne peut pas s'initialiser"
-  },
   "cache_manual_clear_intro": {
     "message": "Pour vider le cache manuellement :",
     "description": "Introduction de la section de nettoyage"
@@ -151,10 +147,6 @@
     "message": "Pourcentage utilisé",
     "description": "Libellé pour le pourcentage"
   },
-  "cache_system_unavailable": {
-    "message": "Système de cache indisponible — ouvrez d'abord un fichier Markdown",
-    "description": "Affiché quand le cache est inaccessible"
-  },
   "cancel": {
     "message": "Annuler",
     "description": "Cancel button text"
@@ -170,6 +162,18 @@
   "clear_recent_files_confirm": {
     "message": "Supprimer tous les fichiers récents de la liste ?",
     "description": "Confirmation message for clearing recent files"
+  },
+  "delete": {
+    "message": "Supprimer",
+    "description": "Delete button text"
+  },
+  "delete_file": {
+    "message": "Supprimer le fichier",
+    "description": "Menu item to delete a file"
+  },
+  "delete_file_confirm": {
+    "message": "Êtes-vous sûr de vouloir supprimer \"{0}\" ? Cette action ne peut pas être annulée.",
+    "description": "Confirmation message for deleting a file"
   },
   "docx_export_failed_alert": {
     "message": "Exportation échouée{0}",
@@ -219,9 +223,17 @@
     "message": "page des paramètres de l'extension",
     "description": "Link text to extension settings"
   },
+  "file_deleted": {
+    "message": "Fichier supprimé",
+    "description": "Toast when file is deleted"
+  },
   "file_not_found": {
     "message": "Fichier introuvable",
     "description": "Error message when file doesn't exist"
+  },
+  "file_removed": {
+    "message": "Retiré de la liste",
+    "description": "Toast when file is removed from list"
   },
   "history_clear": {
     "message": "Effacer l'historique",
@@ -279,6 +291,10 @@
     "message": "Aucun titre trouvé",
     "description": "Toast when document has no headings"
   },
+  "no_recent_files": {
+    "message": "Aucun fichier récent",
+    "description": "Toast when there are no recent files"
+  },
   "open_file": {
     "message": "Ouvrir un fichier",
     "description": "Menu item to open file"
@@ -307,21 +323,13 @@
     "message": "Supprimer",
     "description": "Remove item from list"
   },
+  "remove_from_list": {
+    "message": "Retirer de la liste",
+    "description": "Menu item to remove file from recent list"
+  },
   "reset": {
     "message": "Réinitialiser",
     "description": "Reset button"
-  },
-  "save_failed": {
-    "message": "Échec de l'enregistrement",
-    "description": "Toast when file save fails"
-  },
-  "save_file": {
-    "message": "Enregistrer dans la bibliothèque",
-    "description": "Menu item for saving file to app storage"
-  },
-  "save_success": {
-    "message": "Fichier enregistré",
-    "description": "Toast when file save succeeds"
   },
   "settings_general_title": {
     "message": "Paramètres de l'extension",

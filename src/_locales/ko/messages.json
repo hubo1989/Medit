@@ -75,10 +75,6 @@
     "message": "캐시를 불러올 수 없습니다: {0}",
     "description": "캐시 로딩 오류"
   },
-  "cache_manager_init_failed": {
-    "message": "캐시 관리자 초기화 실패",
-    "description": "초기화 오류"
-  },
   "cache_manual_clear_intro": {
     "message": "수동으로 캐시를 비우는 방법:",
     "description": "청소 섹션 도입"
@@ -151,10 +147,6 @@
     "message": "사용률",
     "description": "사용률 라벨"
   },
-  "cache_system_unavailable": {
-    "message": "캐시 시스템을 사용할 수 없습니다. 먼저 Markdown 파일을 여세요",
-    "description": "캐시 사용 불가 메시지"
-  },
   "cancel": {
     "message": "취소",
     "description": "Cancel button text"
@@ -170,6 +162,18 @@
   "clear_recent_files_confirm": {
     "message": "모든 최근 파일을 목록에서 제거하시겠습니까?",
     "description": "Confirmation message for clearing recent files"
+  },
+  "delete": {
+    "message": "삭제",
+    "description": "Delete button text"
+  },
+  "delete_file": {
+    "message": "파일 삭제",
+    "description": "Menu item to delete a file"
+  },
+  "delete_file_confirm": {
+    "message": "\"{0}\"을(를) 삭제하시겠습니까? 이 작업은 취소할 수 없습니다.",
+    "description": "Confirmation message for deleting a file"
   },
   "docx_export_failed_alert": {
     "message": "내보내기에 실패했습니다{0}",
@@ -219,9 +223,17 @@
     "message": "확장 프로그램 설정 페이지",
     "description": "Link text to extension settings"
   },
+  "file_deleted": {
+    "message": "파일이 삭제되었습니다",
+    "description": "Toast when file is deleted"
+  },
   "file_not_found": {
     "message": "파일을 찾을 수 없습니다",
     "description": "Error message when file doesn't exist"
+  },
+  "file_removed": {
+    "message": "목록에서 제거되었습니다",
+    "description": "Toast when file is removed from list"
   },
   "history_clear": {
     "message": "기록 지우기",
@@ -268,7 +280,7 @@
     "description": "Menu item for language"
   },
   "more": {
-    "message": "더보기",
+    "message": "더 보기",
     "description": "More menu tooltip"
   },
   "no_file_to_share": {
@@ -278,6 +290,10 @@
   "no_headings": {
     "message": "제목을 찾을 수 없습니다",
     "description": "Toast when document has no headings"
+  },
+  "no_recent_files": {
+    "message": "최근 파일 없음",
+    "description": "Toast when there are no recent files"
   },
   "open_file": {
     "message": "파일 열기",
@@ -307,21 +323,13 @@
     "message": "제거",
     "description": "Remove item from list"
   },
+  "remove_from_list": {
+    "message": "목록에서 제거",
+    "description": "Menu item to remove file from recent list"
+  },
   "reset": {
     "message": "재설정",
     "description": "Reset button"
-  },
-  "save_failed": {
-    "message": "파일 저장 실패",
-    "description": "Toast when file save fails"
-  },
-  "save_file": {
-    "message": "라이브러리에 저장",
-    "description": "Menu item for saving file to app storage"
-  },
-  "save_success": {
-    "message": "파일 저장됨",
-    "description": "Toast when file save succeeds"
   },
   "settings_general_title": {
     "message": "확장 프로그램 설정",

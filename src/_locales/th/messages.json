@@ -75,10 +75,6 @@
     "message": "ไม่สามารถโหลดแคช: {0}",
     "description": "Displayed when cache loading throws an error"
   },
-  "cache_manager_init_failed": {
-    "message": "การเริ่มต้นตัวจัดการแคชล้มเหลว",
-    "description": "Error string used when cache manager cannot initialize"
-  },
   "cache_manual_clear_intro": {
     "message": "วิธีล้างแคชด้วยตนเอง:",
     "description": "Manual cache clear intro"
@@ -151,10 +147,6 @@
     "message": "ความจุที่ใช้",
     "description": "Label for usage percentage"
   },
-  "cache_system_unavailable": {
-    "message": "ระบบแคชไม่พร้อมใช้งาน — เปิดไฟล์ Markdown ก่อน",
-    "description": "Shown when cache manager cannot be reached"
-  },
   "cancel": {
     "message": "ยกเลิก",
     "description": "Cancel button text"
@@ -170,6 +162,18 @@
   "clear_recent_files_confirm": {
     "message": "ลบไฟล์ล่าสุดทั้งหมดออกจากรายการ?",
     "description": "Confirmation message for clearing recent files"
+  },
+  "delete": {
+    "message": "Delete",
+    "description": "Delete button text"
+  },
+  "delete_file": {
+    "message": "Delete file",
+    "description": "Menu item to delete a file"
+  },
+  "delete_file_confirm": {
+    "message": "Are you sure you want to delete \"{0}\"? This action cannot be undone.",
+    "description": "Confirmation message for deleting a file"
   },
   "docx_export_failed_alert": {
     "message": "การส่งออกล้มเหลว{0}",
@@ -219,9 +223,17 @@
     "message": "หน้าการตั้งค่าส่วนขยาย",
     "description": "Link text to extension settings"
   },
+  "file_deleted": {
+    "message": "File deleted",
+    "description": "Toast when file is deleted"
+  },
   "file_not_found": {
     "message": "ไม่พบไฟล์",
     "description": "Error message when file doesn't exist"
+  },
+  "file_removed": {
+    "message": "Removed from list",
+    "description": "Toast when file is removed from list"
   },
   "history_clear": {
     "message": "ล้างประวัติ",
@@ -268,7 +280,7 @@
     "description": "Menu item for language"
   },
   "more": {
-    "message": "เพิ่มเติม",
+    "message": "More",
     "description": "More menu tooltip"
   },
   "no_file_to_share": {
@@ -278,6 +290,10 @@
   "no_headings": {
     "message": "ไม่พบหัวข้อ",
     "description": "Toast when document has no headings"
+  },
+  "no_recent_files": {
+    "message": "No recent files",
+    "description": "Toast when there are no recent files"
   },
   "open_file": {
     "message": "เปิดไฟล์",
@@ -307,21 +323,13 @@
     "message": "ลบ",
     "description": "Remove item from list"
   },
+  "remove_from_list": {
+    "message": "Remove from list",
+    "description": "Menu item to remove file from recent list"
+  },
   "reset": {
     "message": "รีเซ็ต",
     "description": "Reset button"
-  },
-  "save_failed": {
-    "message": "บันทึกไฟล์ล้มเหลว",
-    "description": "Toast when file save fails"
-  },
-  "save_file": {
-    "message": "บันทึกลงคลัง",
-    "description": "Menu item for saving file to app storage"
-  },
-  "save_success": {
-    "message": "บันทึกไฟล์แล้ว",
-    "description": "Toast when file save succeeds"
   },
   "settings_general_title": {
     "message": "การตั้งค่าส่วนขยาย",
