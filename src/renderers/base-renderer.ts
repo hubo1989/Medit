@@ -75,7 +75,7 @@ export class BaseRenderer {
    * @param input - Input to validate
    * @throws If input is invalid
    */
-  validateInput(input: any): void {
+  validateInput(input: unknown): void {
     if (!input || (typeof input === 'string' && input.trim() === '')) {
       throw new Error(`Empty ${this.type} input provided`);
     }
@@ -86,7 +86,7 @@ export class BaseRenderer {
    * @param input - Raw input
    * @returns Processed input
    */
-  preprocessInput(input: any): any {
+  preprocessInput(input: unknown): unknown {
     return input;
   }
 

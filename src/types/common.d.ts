@@ -3,8 +3,8 @@ export type TaskStatus = 'ready' | 'fetching' | 'error' | 'completed';
 
 export interface AsyncTask {
   id: string;
-  callback: (data: any) => Promise<any>;
-  data: Record<string, any>;
+  callback: (data: unknown) => Promise<unknown>;
+  data: Record<string, unknown>;
   type: string;
   status: TaskStatus;
   error: Error | null;
@@ -15,16 +15,16 @@ export interface AsyncTask {
 // Plugin types
 export interface IPlugin {
   type: string;
-  match(node: any): boolean;
-  transform(node: any, context: any): string;
-  render?(data: any): Promise<string>;
+  match(node: unknown): boolean;
+  transform(node: unknown, context: unknown): string;
+  render?(data: unknown): Promise<string>;
 }
 
 // Renderer types
 export interface IRenderer {
   type: string;
-  match(node: any): boolean;
-  render(node: any, options?: any): Promise<string>;
+  match(node: unknown): boolean;
+  render(node: unknown, options?: unknown): Promise<string>;
 }
 
 // Cache entry types

@@ -11,7 +11,11 @@ function isMarkdownFile(): boolean {
   }
 
   // Check content type from document if available
-  const contentType = (document as any).contentType || (document as any).mimeType;
+  interface DocumentWithContentType {
+    contentType?: string;
+    mimeType?: string;
+  }
+  const contentType = (document as unknown as DocumentWithContentType).contentType || (document as unknown as DocumentWithContentType).mimeType;
 
   if (contentType) {
     // If content type is HTML, this page has already been processed

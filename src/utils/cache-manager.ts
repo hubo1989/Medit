@@ -32,6 +32,11 @@ class ExtensionCacheManager {
   pendingAccessTimeUpdates: Set<string> = new Set();
   accessTimeUpdateScheduled = false;
 
+  // Cache statistics
+  memoryHits = 0;
+  indexedDBHits = 0;
+  misses = 0;
+
   constructor(maxItems = 1000, memoryMaxItems = 100) {
     this.maxItems = maxItems; // IndexedDB max items
     this.memoryMaxItems = memoryMaxItems; // Memory cache max items
@@ -99,7 +104,7 @@ class ExtensionCacheManager {
   /**
    * Add item to memory cache with LRU eviction
    */
-  private _addToMemoryCache(key: string, value: any, metadata: Record<string, any> = {}): void {
+  private _addToMemoryCache(key: string, value: unknown, metadata: Record<string, unknown> = {}): void {
     // Remove if already exists to update position
     if (this.memoryCache.has(key)) {
       this._removeFromMemoryCache(key, false);
@@ -121,7 +126,7 @@ class ExtensionCacheManager {
   /**
    * Get item from memory cache and update LRU order
    */
-  private _getFromMemoryCache(key: string): any {
+  private _getFromMemoryCache(key: string): unknown {
     if (!this.memoryCache.has(key)) {
       return null;
     }
@@ -167,7 +172,7 @@ class ExtensionCacheManager {
   /**
    * Estimate byte size of data
    */
-  estimateSize(data: any): number {
+  estimateSize(data: unknown): number {
     return new Blob([typeof data === 'string' ? data : JSON.stringify(data)]).size;
   }
 
@@ -334,7 +339,7 @@ class ExtensionCacheManager {
    * Set cached item - Store in both memory and IndexedDB
    * Cleanup is done asynchronously to avoid blocking insertion
    */
-  async set(key: string, value: any, type = 'unknown'): Promise<void> {
+  async set(key: string, value: unknown, type = 'unknown'): Promise<void> {
     // Add to memory cache immediately for fast access
     this._addToMemoryCache(key, value, { type });
 
@@ -415,7 +420,7 @@ class ExtensionCacheManager {
   /**
    * Delete cached item from both layers
    */
-  async delete(key: string): Promise<void> {
+  async delete(key: string): Promise<boolean> {
     // Remove from memory cache
     this._removeFromMemoryCache(key);
 
@@ -429,7 +434,7 @@ class ExtensionCacheManager {
       const request = store.delete(key);
 
       request.onsuccess = () => {
-        resolve();
+        resolve(true);
       };
 
       request.onerror = () => {

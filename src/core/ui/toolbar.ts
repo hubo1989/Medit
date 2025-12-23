@@ -82,7 +82,7 @@ export function createToolbarManager(options: ToolbarManagerOptions): ToolbarMan
     
     if (contentDiv) {
       // Apply zoom using CSS zoom property (like browser zoom)
-      (contentDiv.style as any).zoom = (currentZoomLevel / 100);
+      (contentDiv.style as CSSStyleDeclaration & { zoom: string }).zoom = String(currentZoomLevel / 100);
       
       // Update scroll-margin-top for all headings to account for zoom
       // Formula: 50px (toolbar height) / zoom ratio

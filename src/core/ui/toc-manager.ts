@@ -3,7 +3,7 @@
 
 interface FileState {
   tocVisible?: boolean;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 type SaveFileStateFunction = (state: FileState) => void;
