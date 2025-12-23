@@ -278,8 +278,6 @@ async function handleLoadMarkdown(payload: LoadMarkdownPayload): Promise<void> {
         taskManager,
         clearContainer: false,
         processTasks: true,
-        batchSize: 200,
-        yieldDelay: 0,
         onHeadings: (headings) => {
           bridge.postMessage('HEADINGS_UPDATED', headings);
         },

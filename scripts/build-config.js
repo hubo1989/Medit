@@ -90,8 +90,7 @@ export const createBuildConfig = () => {
                 { src: 'src/manifest.json', dest: 'dist/chrome/manifest.json', log: '📄 Copied manifest.json from src/' },
                 { src: 'src/ui/popup/popup.html', dest: 'dist/chrome/ui/popup/popup.html' },
                 { src: 'src/ui/popup/popup.css', dest: 'dist/chrome/ui/popup/popup.css' },
-                { src: 'src/platform/chrome/offscreen-render.html', dest: 'dist/chrome/ui/offscreen-render.html' },
-                { src: 'node_modules/html2canvas/dist/html2canvas.min.js', dest: 'dist/chrome/html2canvas.min.js', log: '📄 Copied html2canvas library' }
+                { src: 'src/platform/chrome/offscreen-render.html', dest: 'dist/chrome/ui/offscreen-render.html' }
               ];
 
               fileCopies.push(...copyDirectory('icons', 'dist/chrome/icons'));

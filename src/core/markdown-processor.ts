@@ -68,6 +68,96 @@ export function normalizeMathBlocks(markdown: string): string {
 }
 
 /**
+ * Split markdown into logical chunks for incremental rendering.
+ * Preserves block boundaries (code blocks, math blocks, tables, lists).
+ * Uses adaptive chunk sizing: smaller chunks at the start for faster initial display.
+ * @param markdown - Raw markdown content
+ * @returns Array of markdown chunks
+ */
+export function splitMarkdownIntoChunks(markdown: string): string[] {
+  // Adaptive chunk size strategy with exponential growth:
+  // - Chunk 0: 50 lines
+  // - Chunk 1: 100 lines
+  // - Chunk 2: 200 lines
+  // - Chunk 3: 400 lines, and so on (each chunk doubles in size)
+  const INITIAL_CHUNK_SIZE = 50;
+
+  const getTargetChunkSize = (chunkIndex: number): number => {
+    return INITIAL_CHUNK_SIZE * Math.pow(2, chunkIndex);
+  };
+
+  const lines = markdown.split('\n');
+  const chunks: string[] = [];
+
+  let currentChunk: string[] = [];
+  let inCodeBlock = false;
+  let inMathBlock = false;
+  let inTable = false;
+  let listIndent = -1;
+
+  const flushChunk = () => {
+    if (currentChunk.length > 0) {
+      chunks.push(currentChunk.join('\n'));
+      currentChunk = [];
+    }
+  };
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const trimmedLine = line.trim();
+
+    // Track code blocks
+    if (trimmedLine.startsWith('```') || trimmedLine.startsWith('~~~')) {
+      inCodeBlock = !inCodeBlock;
+    }
+
+    // Track math blocks
+    if (trimmedLine === '$$') {
+      inMathBlock = !inMathBlock;
+    }
+
+    // Track tables (lines starting with |)
+    if (trimmedLine.startsWith('|')) {
+      inTable = true;
+    } else if (inTable && trimmedLine === '') {
+      inTable = false;
+    }
+
+    // Track lists (detect list item start)
+    const listMatch = line.match(/^(\s*)[-*+]|\d+\.\s/);
+    if (listMatch) {
+      const indent = listMatch[1]?.length ?? 0;
+      if (listIndent < 0 || indent <= listIndent) {
+        listIndent = indent;
+      }
+    } else if (listIndent >= 0 && trimmedLine === '') {
+      // Empty line might end the list
+      const nextLine = lines[i + 1];
+      if (!nextLine || !nextLine.match(/^(\s*)[-*+]|\d+\.\s/)) {
+        listIndent = -1;
+      }
+    }
+
+    currentChunk.push(line);
+
+    // Check if we can split here
+    const canSplit = !inCodeBlock && !inMathBlock && !inTable && listIndent < 0;
+    const isBlockBoundary = trimmedLine === '' || trimmedLine.startsWith('#');
+    const targetSize = getTargetChunkSize(chunks.length);
+    const reachedTarget = currentChunk.length >= targetSize;
+
+    if (canSplit && isBlockBoundary && reachedTarget) {
+      flushChunk();
+    }
+  }
+
+  // Flush remaining content
+  flushChunk();
+
+  return chunks;
+}
+
+/**
  * Escape HTML special characters
  * @param text - Text to escape
  * @returns Escaped text
@@ -497,6 +587,77 @@ export async function processMarkdownToHtml(
   htmlContent = sanitizeRenderedHtml(htmlContent);
 
   return htmlContent;
+}
+
+/**
+ * Options for streaming markdown processing
+ */
+export interface StreamMarkdownOptions extends ProcessMarkdownOptions {
+  /**
+   * Callback invoked after each chunk is processed
+   * @param html - HTML content of the processed chunk
+   * @param chunkIndex - Index of the current chunk (0-based)
+   * @param totalChunks - Total number of chunks
+   */
+  onChunk?: (html: string, chunkIndex: number, totalChunks: number) => Promise<void> | void;
+}
+
+/**
+ * Process markdown to HTML in streaming fashion.
+ * Splits markdown into chunks and processes/renders each incrementally.
+ * This allows the UI to show content progressively for large documents.
+ *
+ * @param markdown - Raw markdown content
+ * @param options - Processing options including streaming callbacks
+ */
+export async function processMarkdownStreaming(
+  markdown: string,
+  options: StreamMarkdownOptions
+): Promise<void> {
+  const { renderer, taskManager, translate = (key) => key, onChunk } = options;
+
+  // Pre-process markdown
+  const normalizedMarkdown = normalizeMathBlocks(markdown);
+
+  // Split into chunks (uses adaptive sizing internally)
+  const chunks = splitMarkdownIntoChunks(normalizedMarkdown);
+  const totalChunks = chunks.length;
+
+  // If only one chunk, process normally (avoid overhead)
+  if (totalChunks === 1) {
+    const html = await processMarkdownToHtml(markdown, { renderer, taskManager, translate });
+    await onChunk?.(html, 0, 1);
+    return;
+  }
+
+  // Process each chunk and render incrementally
+  for (let i = 0; i < totalChunks; i++) {
+    // Check if aborted
+    if (taskManager.isAborted()) {
+      return;
+    }
+
+    const chunk = chunks[i];
+
+    // Create a fresh processor for each chunk
+    const processor = createMarkdownProcessor(renderer, taskManager, translate);
+
+    // Process chunk
+    const file = await processor.process(chunk);
+    let htmlContent = String(file);
+
+    // Post-process HTML
+    htmlContent = processTablesForWordCompatibility(htmlContent);
+    htmlContent = sanitizeRenderedHtml(htmlContent);
+
+    // Invoke callback to render this chunk
+    await onChunk?.(htmlContent, i, totalChunks);
+
+    // Yield to main thread between chunks to keep UI responsive
+    if (i < totalChunks - 1) {
+      await new Promise(resolve => setTimeout(resolve, 0));
+    }
+  }
 }
 
 /**

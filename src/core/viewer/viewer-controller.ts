@@ -5,8 +5,7 @@ import {
   AsyncTaskManager,
   extractHeadings,
   extractTitle,
-  processMarkdownToHtml,
-  renderHtmlIncrementally,
+  processMarkdownStreaming,
   type HeadingInfo,
 } from '../markdown-processor';
 
@@ -42,12 +41,6 @@ export type RenderMarkdownOptions = {
    */
   processTasks?: boolean;
 
-  /**
-   * Incremental DOM render options.
-   */
-  batchSize?: number;
-  yieldDelay?: number;
-
   onHeadings?: (headings: HeadingInfo[]) => void;
   onProgress?: (completed: number, total: number) => void;
   onBeforeTasks?: () => void;
@@ -64,8 +57,6 @@ export async function renderMarkdownDocument(options: RenderMarkdownOptions): Pr
     taskManager: providedTaskManager,
     clearContainer = true,
     processTasks = true,
-    batchSize = 200,
-    yieldDelay = 0,
     onHeadings,
     onProgress,
     onBeforeTasks,
@@ -75,10 +66,27 @@ export async function renderMarkdownDocument(options: RenderMarkdownOptions): Pr
 
   const taskManager = providedTaskManager ?? new AsyncTaskManager(translate);
 
-  const html = await processMarkdownToHtml(markdown, {
+  if (clearContainer) {
+    container.innerHTML = '';
+  }
+
+  // Process and render markdown with streaming
+  await processMarkdownStreaming(markdown, {
     renderer,
     taskManager,
     translate,
+    onChunk: async (html) => {
+      if (taskManager.isAborted()) return;
+
+      // Append chunk HTML to container
+      const template = document.createElement('template');
+      template.innerHTML = html;
+      container.appendChild(template.content);
+
+      // Update headings after each chunk for progressive TOC
+      const headings = extractHeadings(container);
+      onHeadings?.(headings);
+    },
   });
 
   if (taskManager.isAborted()) {
@@ -89,22 +97,7 @@ export async function renderMarkdownDocument(options: RenderMarkdownOptions): Pr
     };
   }
 
-  if (clearContainer) {
-    container.innerHTML = '';
-  }
-
-  await renderHtmlIncrementally(container, html, { batchSize, yieldDelay });
-
-  if (taskManager.isAborted()) {
-    return {
-      title: extractTitle(markdown),
-      headings: [],
-      taskManager,
-    };
-  }
-
   const headings = extractHeadings(container);
-  onHeadings?.(headings);
 
   if (processTasks) {
     onBeforeTasks?.();

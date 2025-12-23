@@ -203,18 +203,14 @@ body.toc-hidden #markdown-wrapper {
 #markdown-wrapper {
   margin-left: 280px;
   margin-top: 50px;
+  min-height: calc(100vh - 50px);
   transition: margin-left 0.3s ease;
 }
 
 #markdown-page {
   max-width: 1060px;
   margin: 0 auto;
-  display: none;
-  /* Hidden until content is loaded */
-}
-
-#markdown-page.loaded {
-  display: block;
+  min-height: 100%;
 }
 
 #markdown-content {
@@ -223,6 +219,7 @@ body.toc-hidden #markdown-wrapper {
   margin: 0 auto;
   padding: 40px;
   box-sizing: border-box;
+  min-height: calc(100vh - 50px);
 }
 
 #markdown-content h1,

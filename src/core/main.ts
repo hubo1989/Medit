@@ -233,15 +233,11 @@ async function initializeMain(): Promise<void> {
       translate,
       clearContainer: true,
       processTasks: false,
+      onHeadings: () => {
+        // Update TOC progressively as chunks are rendered
+        void generateTOC();
+      },
     });
-
-    // Show the content container
-    const pageDiv = document.getElementById('markdown-page');
-    if (pageDiv) {
-      pageDiv.classList.add('loaded');
-    }
-
-    await generateTOC();
 
     // Apply initial zoom to ensure scroll margins are correct
     toolbarManager.applyZoom(toolbarManager.getZoomLevel(), false);
