@@ -217,9 +217,6 @@ class DocxExporter {
       const doc = new Document({
         creator: 'Markdown Viewer Extension',
         lastModifiedBy: 'Markdown Viewer Extension',
-        features: {
-          updateFields: true,  // Auto-update TOC fields when document is opened
-        },
         numbering: {
           config: [
             {

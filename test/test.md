@@ -1,5 +1,7 @@
 # Markdown Viewer Extension 渲染效果测试
 
+[toc]
+
 本文档用于全面测试 Chrome 扩展的 Markdown 渲染功能，按照从简单到复杂的顺序组织测试用例。
 
 ## 测试内容概览
