@@ -7,7 +7,7 @@ import {
   convertMathMl2Omml,
   convertOmml2Math,
   mathJaxReady,
-} from '../src/exporters/docx-math-converter.js';
+} from '../src/exporters/docx-math-converter.ts';
 
 // We also need latex2MathMl for testing, but it's not exported
 // So we'll use MathJax directly for generating MathML in tests

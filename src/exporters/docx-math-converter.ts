@@ -12,7 +12,8 @@ import { RegisterHTMLHandler } from 'mathjax-full/js/handlers/html';
 import { SerializedMmlVisitor } from 'mathjax-full/js/core/MmlTree/SerializedMmlVisitor';
 import { STATE } from 'mathjax-full/js/core/MathItem';
 import { mml2omml } from './mml2omml';
-import { xml2js, Element as XmlElement } from 'xml-js';
+import { xml2js } from 'xml-js';
+import type { Element as XmlElement } from 'xml-js';
 
 /**
  * MathJax environment interface
