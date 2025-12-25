@@ -8,14 +8,6 @@
   "paragraph": 0.5,
   "list": 0.667,
   "listItem": 0.167,
-  "blockquote": {
-    "before": 0,
-    "after": 0,
-    "padding": {
-      "vertical": 0.083,
-      "horizontal": 0.833
-    }
-  },
   "horizontalRule": {
     "before": 1.25,
     "after": 1.25

@@ -477,24 +477,16 @@ function generateSpacingCSS(spacingScheme: SpacingScheme, bodyFontSize: string):
   margin: ${calcSpacing(spacingScheme.listItem)} 0;
 }`);
 
-  // Blockquote spacing
-  if (spacingScheme.blockquote) {
-    const bq = spacingScheme.blockquote;
-    const margins = [];
-    
-    margins.push(calcSpacing(bq.before));
-    margins.push('0'); // right
-    margins.push(calcSpacing(bq.after));
-    margins.push('0'); // left
+  // Blockquote spacing - use paragraph spacing if not explicitly configured
+  const bqBefore = spacingScheme.blockquote?.before ?? spacingScheme.paragraph;
+  const bqAfter = spacingScheme.blockquote?.after ?? spacingScheme.paragraph;
+  const bqPaddingVertical = spacingScheme.blockquote?.padding.vertical ?? 0.083;
+  const bqPaddingHorizontal = spacingScheme.blockquote?.padding.horizontal ?? 1.083;
 
-    const paddingVertical = calcSpacing(bq.padding.vertical);
-    const paddingHorizontal = calcSpacing(bq.padding.horizontal);
-
-    css.push(`#markdown-content blockquote {
-  margin: ${margins.join(' ')};
-  padding: ${paddingVertical} ${paddingHorizontal};
+  css.push(`#markdown-content blockquote {
+  margin: ${calcSpacing(bqBefore)} 0 ${calcSpacing(bqAfter)} 0;
+  padding: ${calcSpacing(bqPaddingVertical)} ${calcSpacing(bqPaddingHorizontal)};
 }`);
-  }
 
   // Horizontal rule spacing
   if (spacingScheme.horizontalRule) {

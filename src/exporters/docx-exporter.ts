@@ -363,6 +363,14 @@ class DocxExporter {
         }));
       }
 
+      if (node.type === 'blockquote' && lastNodeType === 'blockquote') {
+        elements.push(new Paragraph({
+          text: '',
+          alignment: AlignmentType.LEFT,
+          spacing: { before: 120, after: 120, line: 240 },
+        }));
+      }
+
       const converted = await this.convertNode(node);
       if (converted) {
         if (Array.isArray(converted)) {
