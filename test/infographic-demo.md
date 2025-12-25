@@ -1,202 +1,157 @@
-# Infographic 图表完整演示
+# Infographic 图表演示
 
 [返回主测试文档](./test.md)
 
-本文档包含 Infographic 图表的完整演示，涵盖各种信息图类型。
+本文档展示 Infographic 信息图各类别的代表性示例。源代码共定义 **212 个模板**，可访问 [AntV Infographic Gallery](https://infographic.antv.vision/examples) 查看在线演示。
 
 ---
 
-## 1. 流程箭头 (List - Horizontal Arrow)
+## 1. 列表类 (List)
 
 ```infographic
-infographic list-row-simple-horizontal-arrow
+infographic list-grid-badge-card
 data
-  title My Process
+  title Service Features
+  desc Platform capabilities overview
   items
-    - label Step 1
-      desc Start
-    - label Step 2
-      desc In Progress
-    - label Step 3
-      desc Complete
+    - label Analytics
+      desc Real-time data insights
+    - label Security
+      desc Enterprise-grade protection
+    - label Scalability
+      desc Auto-scaling infrastructure
+    - label Integration
+      desc 100+ API connectors
+    - label Support
+      desc 24/7 expert assistance
+    - label Compliance
+      desc SOC2 and GDPR ready
 ```
 
-## 2. 金字塔 (Sequence - Pyramid)
+**可用模板变体（23 款）：**
+
+- **list-row-\*** 横向列表 — 项目水平排列，带箭头或连接线，适合展示有序流程、步骤说明
+  - `list-row-simple-horizontal-arrow` 简约箭头样式
+  - `list-row-horizontal-icon-arrow` 带图标的箭头样式
+  - `list-row-horizontal-icon-line` 带图标的连线样式
+  - `list-row-circular-progress` 环形进度样式
+  - `list-row-simple-horizontal-arrow-badge` 带徽章的箭头样式
+- **list-column-\*** 纵向列表 — 项目垂直排列，适合展示清单、待办事项、步骤指南
+  - `list-column-done-list` 已完成清单样式，带勾选标记
+  - `list-column-vertical-icon-arrow` 带图标的垂直箭头
+  - `list-column-simple` 简约纵向列表
+- **list-grid-\*** 网格列表 — 多列网格布局，适合展示功能特性、产品矩阵、KPI 指标卡
+  - `list-grid-badge-card` 徽章卡片，带标签和数值
+  - `list-grid-candy-card-lite` 糖果色卡片，清新活泼
+  - `list-grid-ribbon-card` 丝带卡片，带装饰条
+  - `list-grid-progress-card` 进度卡片，显示完成度
+  - `list-grid-circular-progress` 环形进度卡片
+  - `list-grid-simple` 简约网格
+  - `list-grid-icon-card` 图标卡片
+  - `list-grid-number-card` 数字卡片，突出数值
+  - `list-grid-underline-text` 下划线文字样式
+- **list-sector-\*** 扇形列表 — 扇形/放射状布局，适合展示核心能力、业务板块、围绕中心的分类
+  - `list-sector-plain-text` 纯文本扇形
+  - `list-sector-half-plain-text` 半圆扇形
+  - `list-sector-underline-text` 下划线文字扇形
+- **list-pyramid-\*** 金字塔列表 — 层级金字塔结构，适合展示马斯洛需求、投资配置、优先级层次
+  - `list-pyramid-compact-card` 紧凑卡片金字塔
+  - `list-pyramid-underline-text` 下划线文字金字塔
+  - `list-pyramid-simple` 简约金字塔
+
+---
+
+## 2. 序列类 (Sequence)
 
 ```infographic
-infographic sequence-pyramid-simple
+infographic sequence-timeline-simple
 data
-  title Digital Transformation Hierarchy
-  desc Five-tier progression from infrastructure to strategic innovation
+  title Company Milestones
+  desc Key events in our journey
   items
-    - label Strategic Innovation
-      desc Data-driven decision making
-    - label Analytics Platform
-      desc Enterprise-wide insights
-    - label Data Integration
-      desc Unified data sources
-    - label Infrastructure
-      desc Cloud and systems foundation
-    - label Foundation
-      desc Basic digital capabilities
+    - label 2018
+      desc Company founded with initial team
+    - label 2019
+      desc First product launch
+    - label 2020
+      desc Series A funding secured
+    - label 2021
+      desc Expanded to 10 cities
+    - label 2022
+      desc Reached 1M users
+    - label 2023
+      desc International expansion
 ```
 
-## 3. 优劣势对比 (Comparison - Binary)
+**可用模板变体（46 款）：**
 
-```infographic
-infographic compare-binary-horizontal-simple-fold
-data
-  title Pros and Cons Analysis
-  desc Core strengths and areas for improvement
-  items
-    - label Strong R&D
-      desc Industry-leading technology capabilities
-    - label Customer Loyalty
-      desc 60% repeat purchase rate
-    - label Service Excellence
-      desc Fast response, high satisfaction
-    - label Brand Exposure
-      desc Needs more marketing
-    - label Channel Coverage
-      desc Online presence needs expansion
-    - label Operating Costs
-      desc Higher than industry average
-```
+- **sequence-timeline-\*** 时间线 — 垂直时间轴布局，适合展示发展历程、里程碑事件、项目进度
+  - `sequence-timeline-simple` 简约时间线
+  - `sequence-timeline-done-list` 已完成清单样式
+  - `sequence-timeline-rounded-rect-node` 圆角矩形节点
+  - `sequence-timeline-plain-text` 纯文本样式
+  - `sequence-timeline-simple-illus` 插画风格
+- **sequence-steps-\*** 步骤流程 — 带步骤编号的流程图，适合展示操作指南、业务流程、使用教程
+  - `sequence-steps-simple` 简约步骤
+  - `sequence-steps-badge-card` 徽章卡片步骤
+  - `sequence-steps-simple-illus` 插画风格步骤
+- **sequence-roadmap-vertical-\*** 路线图 — 产品/战略路线图，适合展示产品规划、战略路径、发展计划
+  - `sequence-roadmap-vertical-simple` 简约路线图
+  - `sequence-roadmap-vertical-plain-text` 纯文本样式
+  - `sequence-roadmap-vertical-badge-card` 徽章卡片样式
+  - `sequence-roadmap-vertical-pill-badge` 药丸徽章样式
+  - `sequence-roadmap-vertical-quarter-circular` 扇形样式
+  - `sequence-roadmap-vertical-quarter-simple-card` 卡片样式
+  - `sequence-roadmap-vertical-underline-text` 下划线文字样式
+- **sequence-ascending-\*** 递进列表 — 逐级递增的阶梯图，适合展示成长阶段、能力进阶、发展层次
+  - `sequence-ascending-steps` 递进步骤
+  - `sequence-ascending-stairs-3d-simple` 3D 阶梯简约
+  - `sequence-ascending-stairs-3d-underline-text` 3D 阶梯下划线
+- **sequence-stairs-front-\*** 阶梯图 — 正面视角的阶梯，适合展示职业发展、能力等级、递进关系
+  - `sequence-stairs-front-simple` 简约正面阶梯
+  - `sequence-stairs-front-pill-badge` 药丸徽章阶梯
+  - `sequence-stairs-front-compact-card` 紧凑卡片阶梯
+- **sequence-snake-steps-\*** 蛇形布局 — S 形蜿蜒路径，适合展示用户旅程、复杂流程、多步骤引导
+  - `sequence-snake-steps-simple` 简约蛇形
+  - `sequence-snake-steps-compact-card` 紧凑卡片蛇形
+  - `sequence-snake-steps-pill-badge` 药丸徽章蛇形
+  - `sequence-snake-steps-underline-text` 下划线文字蛇形
+  - `sequence-snake-steps-simple-illus` 插画风格蛇形
+- **sequence-horizontal-zigzag-\*** 水平之字形 — 左右交替的之字路径，适合展示交替流程、创意工作流
+  - `sequence-horizontal-zigzag-simple` 简约样式
+  - `sequence-horizontal-zigzag-plain-text` 纯文本样式
+  - `sequence-horizontal-zigzag-simple-illus` 插画风格
+  - `sequence-horizontal-zigzag-horizontal-icon-line` 图标连线样式
+  - `sequence-horizontal-zigzag-simple-horizontal-arrow` 箭头样式
+  - `sequence-horizontal-zigzag-underline-text` 下划线文字
+- **sequence-zigzag-\*** 之字形变体 — 垂直之字形和 3D 样式
+  - `sequence-zigzag-steps-underline-text` 垂直之字形
+  - `sequence-zigzag-pucks-3d-simple` 3D 圆盘简约
+  - `sequence-zigzag-pucks-3d-underline-text` 3D 圆盘下划线
+  - `sequence-zigzag-pucks-3d-indexed-card` 3D 圆盘索引卡片
+- **sequence-circular-\*** 环形流程 — 闭环循环图，适合展示循环流程、PDCA、持续改进
+  - `sequence-circular-simple` 简约环形
+  - `sequence-circular-underline-text` 下划线文字环形
+- **sequence-filter-mesh-\*** 漏斗图 — 逐级筛选的漏斗形状，适合展示转化漏斗、销售管道
+  - `sequence-filter-mesh-simple` 简约漏斗
+  - `sequence-filter-mesh-underline-text` 下划线文字漏斗
+- **sequence-color-snake-steps-\*** 彩色蛇形 — 多彩蛇形时间线
+  - `sequence-color-snake-steps-horizontal-icon-line` 图标连线样式
+  - `sequence-color-snake-steps-simple-illus` 插画风格
+- `sequence-pyramid-simple` 金字塔 — 层级金字塔，适合展示层级架构
+- `sequence-mountain-underline-text` 山峰图 — 山峰形状的里程碑图
+- `sequence-cylinders-3d-simple` 圆柱体 — 3D 圆柱堆叠
+- `sequence-circle-arrows-indexed-card` 圆形步骤 — 带箭头的环形步骤
 
-## 4. 四象限分析 (Quadrant)
+---
 
-```infographic
-infographic quadrant-quarter-circular
-data
-  title Risk Control Matrix
-  desc Frequency vs Impact Analysis
-  items
-    - label High Impact High Freq
-      desc Avoid Risk
-    - label Low Impact High Freq
-      desc Control Risk
-    - label High Impact Low Freq
-      desc Transfer Risk
-    - label Low Impact Low Freq
-      desc Accept Risk
-```
-
-## 5. 水平图标箭头 (List - Horizontal Icon Arrow)
-
-```infographic
-infographic list-row-horizontal-icon-arrow
-data
-  title Customer Growth Engine
-  desc Multi-channel reach and repeat purchases
-  items
-    - label Lead Acquisition
-      value 18.6
-      desc Channel investment and content marketing
-      icon mdi/rocket-launch
-    - label Conversion Optimization
-      value 12.4
-      desc Lead scoring and automated follow-ups
-      icon mdi/progress-check
-    - label Loyalty Boost
-      value 9.8
-      desc Membership programs and benefits
-      icon mdi/account-sync
-    - label Brand Advocacy
-      value 6.2
-      desc Community rewards and referral loops
-      icon mdi/account-group
-```
-
-## 6. 递进列表 (Sequence - Ascending)
-
-```infographic
-infographic sequence-ascending-steps
-data
-  title Organizational Growth
-  desc Company development stages
-  items
-    - label Startup Phase
-      desc Initial team and product positioning
-    - label Growth Phase
-      desc Rapid expansion and market entry
-    - label Scale Phase
-      desc Platform optimization and efficiency
-    - label Maturity Phase
-      desc Ecosystem building and sustained growth
-```
-
-## 7. 路线图 (Sequence - Roadmap)
-
-```infographic
-infographic sequence-roadmap-vertical-simple
-data
-  title Product Roadmap
-  desc Key milestones and deliverables
-  items
-    - label Q1 2024
-      desc Foundation setup
-    - label Q2 2024
-      desc Core features release
-    - label Q3 2024
-      desc Beta testing
-    - label Q4 2024
-      desc Public launch
-```
-
-## 8. 网格列表 (List - Grid)
-
-```infographic
-infographic list-grid-simple
-data
-  title Core Competencies
-  desc Enterprise advantages across dimensions
-  items
-    - label Brand Power
-      value 85
-      desc Strong recognition
-    - label Tech Strength
-      value 90
-      desc Innovation capability
-    - label Market Growth
-      value 78
-      desc Rapid expansion
-    - label Service Rating
-      value 88
-      desc High satisfaction
-    - label Data Assets
-      value 92
-      desc Complete profiles
-    - label Innovation
-      value 83
-      desc Fast iteration
-```
-
-## 9. 扇形列表 (List - Sector)
-
-```infographic
-infographic list-sector-plain-text
-data
-  title Core Competencies
-  items
-    - label Cloud Computing
-      desc Enterprise cloud services
-    - label AI Division
-      desc Machine learning and deep learning
-    - label IoT Solutions
-      desc Smart device connectivity
-    - label FinTech
-      desc Digital payment solutions
-    - label New Energy
-      desc Renewable energy systems
-```
-
-## 10. SWOT分析 (Compare - SWOT)
+## 3. 对比类 (Comparison)
 
 ```infographic
 infographic compare-swot
 data
-  title SWOT分析
-  desc 通过全面分析内外部因素，指导企业战略制定与调整
+  title SWOT Analysis
+  desc Strategic planning framework
   items
     - label Strengths
       children
@@ -224,889 +179,50 @@ data
         - label Supply chain risks
 ```
 
----
-## 11. 时间线 (Sequence - Timeline)
+**可用模板变体（17 款）：**
 
-```infographic
-infographic sequence-timeline-simple
-data
-  title Company Milestones
-  desc Key events in our journey
-  items
-    - label 2018
-      desc Company founded with initial team
-    - label 2019
-      desc First product launch
-    - label 2020
-      desc Series A funding secured
-    - label 2021
-      desc Expanded to 10 cities
-    - label 2022
-      desc Reached 1M users
-    - label 2023
-      desc International expansion
-```
-
-## 12. 环形流程 (Sequence - Circular)
-
-```infographic
-infographic sequence-circular-underline-text
-data
-  title Continuous Improvement Cycle
-  desc Iterative process for excellence
-  items
-    - label Plan
-      desc Define goals and strategy
-    - label Do
-      desc Execute the plan
-    - label Check
-      desc Monitor and measure results
-    - label Act
-      desc Improve based on findings
-    - label Review
-      desc Assess overall progress
-    - label Adapt
-      desc Adjust for next cycle
-```
-
-## 13. 漏斗图 (Sequence - Filter)
-
-```infographic
-infographic sequence-filter-mesh-simple
-data
-  title Sales Funnel
-  desc Conversion at each stage
-  items
-    - label Awareness
-      desc 10,000 visitors per month
-    - label Interest
-      desc 3,000 engaged users
-    - label Consideration
-      desc 800 qualified leads
-    - label Intent
-      desc 200 demo requests
-    - label Purchase
-      desc 50 new customers
-    - label Loyalty
-      desc 35 repeat buyers
-```
-
-## 14. 关系圈 (Relation - Circle)
-
-```infographic
-infographic relation-circle-circular-progress
-data
-  title 子公司盈利分析
-  desc 各子公司财务表现，盈利同比增长
-  items
-    - label Cloud Computing
-      value 25
-      desc Enterprise cloud services
-    - label AI Division
-      value 40
-      desc Machine learning solutions
-    - label IoT Platform
-      value 99
-      desc Smart device connectivity
-    - label FinTech
-      value 18
-      desc Digital payments
-    - label New Energy
-      value 50
-      desc Renewable energy
-```
-
-## 15. 蛇形布局 (Sequence - Snake)
-
-```infographic
-infographic sequence-snake-steps-underline-text
-data
-  title User Onboarding Journey
-  desc Step-by-step activation process
-  items
-    - label Sign Up
-      desc Create account with email
-    - label Verify
-      desc Confirm email address
-    - label Profile
-      desc Complete user profile
-    - label Tutorial
-      desc Learn key features
-    - label First Action
-      desc Complete initial task
-    - label Engagement
-      desc Explore advanced features
-```
-
-## 16. 阶梯图 (Sequence - Stairs)
-
-```infographic
-infographic sequence-stairs-front-simple
-data
-  title Career Development Path
-  desc Professional growth stages
-  items
-    - label Junior
-      desc Entry level, learning fundamentals
-    - label Mid-Level
-      desc Independent contributor
-    - label Senior
-      desc Technical leadership
-    - label Lead
-      desc Team management
-    - label Principal
-      desc Strategic direction
-    - label Executive
-      desc Organization leadership
-```
-
-## 17. 列布局 (List - Column)
-
-```infographic
-infographic list-column-done-list
-data
-  title Key Metrics Dashboard
-  desc Performance indicators
-  items
-    - label Revenue
-      desc $12.5M quarterly
-    - label Users
-      desc 2.3M active monthly
-    - label Retention
-      desc 85% month-over-month
-    - label NPS Score
-      desc 72 points
-    - label Conversion
-      desc 4.2% signup rate
-```
-
-## 18. 层级对比 (Compare - Hierarchy)
-
-```infographic
-infographic compare-hierarchy-left-right-circle-node-plain-text
-data
-  title Competitive Analysis
-  desc Our advantages vs areas to improve
-  items
-    - label Advantages
-      children
-        - label Product Innovation
-          desc Leading edge technology
-        - label Customer Service
-          desc 24/7 support availability
-        - label Pricing Strategy
-          desc Competitive rates
-    - label Disadvantages
-      children
-        - label Market Reach
-          desc Limited geographic coverage
-        - label Brand Awareness
-          desc Lower recognition
-        - label Resources
-          desc Smaller team size
-```
-
-## 19. 步骤流程 (Sequence - Steps)
-
-```infographic
-infographic sequence-steps-simple
-data
-  title Order Fulfillment Process
-  desc From order to delivery
-  items
-    - label Order Received
-      desc Customer places order
-    - label Payment Verified
-      desc Transaction confirmed
-    - label Picking
-      desc Items collected from warehouse
-    - label Packing
-      desc Secure packaging
-    - label Shipping
-      desc Handed to carrier
-    - label Delivered
-      desc Customer receives order
-```
-
-## 20. 金字塔列表 (List - Pyramid)
-
-```infographic
-infographic list-pyramid-compact-card
-data
-  title Maslow's Hierarchy of Needs
-  desc Human motivation levels
-  items
-    - label Self-Actualization
-      value 5
-      desc Achieving full potential
-    - label Esteem
-      value 15
-      desc Recognition and respect
-    - label Love/Belonging
-      value 25
-      desc Relationships and community
-    - label Safety
-      value 30
-      desc Security and stability
-    - label Physiological
-      value 40
-      desc Basic survival needs
-```
-
----
-## 21. Relation - Circle (关系圈)
-
-```infographic
-infographic relation-circle-circular-progress
-data
-  title 子公司盈利分析
-  desc 各子公司财务表现，盈利同比增长
-  items
-    - label Cloud Computing
-      value 25
-      desc Enterprise cloud services
-    - label AI Division
-      value 40
-      desc Machine learning solutions
-    - label IoT Platform
-      value 99
-      desc Smart device connectivity
-    - label FinTech
-      value 18
-      desc Digital payments
-    - label New Energy
-      value 50
-      desc Renewable energy
-```
-
-## 22. Sequence - Snake (蛇形布局)
-
-```infographic
-infographic sequence-snake-steps-underline-text
-data
-  title User Onboarding Journey
-  desc Step-by-step activation process
-  items
-    - label Sign Up
-      desc Create account with email
-    - label Verify
-      desc Confirm email address
-    - label Profile
-      desc Complete user profile
-    - label Tutorial
-      desc Learn key features
-    - label First Action
-      desc Complete initial task
-    - label Engagement
-      desc Explore advanced features
-```
-
-## 23. Sequence - Stairs (阶梯图)
-
-```infographic
-infographic sequence-stairs-front-simple
-data
-  title Career Development Path
-  desc Professional growth stages
-  items
-    - label Junior
-      desc Entry level, learning fundamentals
-    - label Mid-Level
-      desc Independent contributor
-    - label Senior
-      desc Technical leadership
-    - label Lead
-      desc Team management
-    - label Principal
-      desc Strategic direction
-    - label Executive
-      desc Organization leadership
-```
-
-## 24. List - Column (列布局)
-
-```infographic
-infographic list-column-done-list
-data
-  title Key Metrics Dashboard
-  desc Performance indicators
-  items
-    - label Revenue
-      desc $12.5M quarterly
-    - label Users
-      desc 2.3M active monthly
-    - label Retention
-      desc 85% month-over-month
-    - label NPS Score
-      desc 72 points
-    - label Conversion
-      desc 4.2% signup rate
-```
-
-## 25. Compare - Hierarchy (层级对比)
-
-```infographic
-infographic compare-hierarchy-left-right-circle-node-plain-text
-data
-  title Competitive Analysis
-  desc Our advantages vs areas to improve
-  items
-    - label Advantages
-      children
-        - label Product Innovation
-          desc Leading edge technology
-        - label Customer Service
-          desc 24/7 support availability
-        - label Pricing Strategy
-          desc Competitive rates
-    - label Disadvantages
-      children
-        - label Market Reach
-          desc Limited geographic coverage
-        - label Brand Awareness
-          desc Lower recognition
-        - label Resources
-          desc Smaller team size
-```
-
-## 26. Sequence - Steps (步骤流程)
-
-```infographic
-infographic sequence-steps-simple
-data
-  title Order Fulfillment Process
-  desc From order to delivery
-  items
-    - label Order Received
-      desc Customer places order
-    - label Payment Verified
-      desc Transaction confirmed
-    - label Picking
-      desc Items collected from warehouse
-    - label Packing
-      desc Secure packaging
-    - label Shipping
-      desc Handed to carrier
-    - label Delivered
-      desc Customer receives order
-```
-
-## 27. List - Pyramid (金字塔列表)
-
-```infographic
-infographic list-pyramid-compact-card
-data
-  title Maslow's Hierarchy of Needs
-  desc Human motivation levels
-  items
-    - label Self-Actualization
-      value 5
-      desc Achieving full potential
-    - label Esteem
-      value 15
-      desc Recognition and respect
-    - label Love/Belonging
-      value 25
-      desc Relationships and community
-    - label Safety
-      value 30
-      desc Security and stability
-    - label Physiological
-      value 40
-      desc Basic survival needs
-```
-
-## 28. Quadrant - Simple (简单四象限)
-
-```infographic
-infographic quadrant-quarter-simple-card
-data
-  title Priority Matrix
-  desc Urgent vs Important
-  items
-    - label Do First
-      desc Urgent and Important
-    - label Schedule
-      desc Important but Not Urgent
-    - label Delegate
-      desc Urgent but Not Important
-    - label Eliminate
-      desc Neither Urgent nor Important
-```
-
-## 29. Sequence - Horizontal (水平序列)
-
-```infographic
-infographic sequence-horizontal-zigzag-underline-text
-data
-  title Design Thinking Process
-  desc Human-centered innovation approach
-  items
-    - label Empathize
-      desc Understand user needs deeply
-    - label Define
-      desc Frame the core problem
-    - label Ideate
-      desc Generate creative solutions
-    - label Prototype
-      desc Build quick experiments
-    - label Test
-      desc Validate with real users
-    - label Iterate
-      desc Refine based on feedback
-```
-
-## 30. Sequence - Zigzag (之字形流程)
-
-```infographic
-infographic sequence-zigzag-steps-underline-text
-data
-  title Content Creation Workflow
-  desc From idea to publication
-  items
-    - label Research
-      desc Gather information and insights
-    - label Outline
-      desc Structure the content
-    - label Draft
-      desc Write initial version
-    - label Edit
-      desc Refine and polish
-    - label Review
-      desc Get feedback
-    - label Publish
-      desc Release to audience
-```
-
-## 31. Sequence - Mountain (山峰图)
-
-```infographic
-infographic sequence-mountain-underline-text
-data
-  title Achievement Peaks
-  desc Key accomplishments over time
-  items
-    - label Milestone 1
-      desc First product launch
-    - label Milestone 2
-      desc 100K users reached
-    - label Milestone 3
-      desc Series B funding
-    - label Milestone 4
-      desc International expansion
-    - label Milestone 5
-      desc Industry award winner
-    - label Milestone 6
-      desc 1M users milestone
-```
-
-## 32. Sequence - Cylinders (圆柱体序列)
-
-```infographic
-infographic sequence-cylinders-3d-simple
-data
-  title Data Pipeline Stages
-  desc Processing flow from ingestion to insights
-  items
-    - label Ingestion
-      desc Raw data collection
-    - label Validation
-      desc Quality checks
-    - label Transform
-      desc Data normalization
-    - label Storage
-      desc Data warehouse
-    - label Analysis
-      desc Pattern extraction
-    - label Reporting
-      desc Business insights
-```
-
-## 33. Sequence - Circle (圆形步骤)
-
-```infographic
-infographic sequence-circle-arrows-indexed-card
-data
-  title Agile Sprint Cycle
-  desc Iterative development process
-  items
-    - label Sprint Planning
-      desc Define sprint goals and tasks
-    - label Daily Standup
-      desc Quick status sync
-    - label Development
-      desc Build and code
-    - label Review
-      desc Demo to stakeholders
-    - label Retrospective
-      desc Reflect and improve
-    - label Release
-      desc Deploy to production
-```
-
-## 34. Sequence - Color (彩色序列)
-
-```infographic
-infographic sequence-color-snake-steps-horizontal-icon-line
-data
-  title Brand Guidelines Journey
-  desc Creating consistent brand identity
-  items
-    - label Discovery
-      desc Research and analysis
-      time 2023
-    - label Strategy
-      desc Define positioning
-      time 2023
-    - label Design
-      desc Visual identity creation
-      time 2024
-    - label Guidelines
-      desc Document standards
-      time 2024
-    - label Rollout
-      desc Implementation
-      time 2024
-    - label Monitor
-      desc Brand consistency tracking
-      time 2025
-```
+- `compare-swot` SWOT 分析 — 四象限战略分析框架，适合展示优势/劣势/机会/威胁分析
+- **compare-binary-horizontal-\*** 双向对比 — 左右两栏对比布局，适合展示方案对比、优劣势对照
+  - 分隔符样式：`-fold`（折叠）、`-arrow`（箭头）、`-vs`（VS 对战）
+  - 内容样式：`-simple`、`-underline-text`、`-badge-card`、`-compact-card`
+  - 组合示例：`compare-binary-horizontal-simple-fold`、`compare-binary-horizontal-badge-card-vs`
+- **compare-hierarchy-left-right-\*** 层级对比 — 左右对称的层级树，适合展示竞品分析、组织对照
+  - `compare-hierarchy-left-right-circle-node-plain-text` 圆形节点纯文本
+  - `compare-hierarchy-left-right-circle-node-pill-badge` 圆形节点药丸徽章
+- **compare-hierarchy-row-\*** 行式对比 — 横向排列的层级对比
+  - `compare-hierarchy-row-letter-card-compact-card` 字母卡片配紧凑卡片
+  - `compare-hierarchy-row-letter-card-rounded-rect-node` 字母卡片配圆角矩形
 
 ---
 
-## 35. Chart - Bar (柱状图)
+## 4. 象限类 (Quadrant)
 
 ```infographic
-infographic chart-bar-plain-text
+infographic quadrant-quarter-circular
 data
-  title Annual Revenue Growth
-  desc Revenue comparison in billions (unit: $B)
+  title Risk Control Matrix
+  desc Frequency vs Impact Analysis
   items
-    - label 2021
-      value 120
-    - label 2022
-      value 150
-    - label 2023
-      value 190
-    - label 2024
-      value 240
+    - label High Impact High Freq
+      desc Avoid Risk
+    - label Low Impact High Freq
+      desc Control Risk
+    - label High Impact Low Freq
+      desc Transfer Risk
+    - label Low Impact Low Freq
+      desc Accept Risk
 ```
 
-## 36. Chart - Line (折线图)
+**可用模板变体（3 款）：**
 
-```infographic
-infographic chart-line-plain-text
-data
-  title User Growth Trend
-  desc Monthly active users (in millions)
-  items
-    - label Jan
-      value 12
-    - label Feb
-      value 15
-    - label Mar
-      value 18
-    - label Apr
-      value 22
-    - label May
-      value 28
-    - label Jun
-      value 35
-```
+- **quadrant-quarter-\*** 四象限 — 经典四象限矩阵，适合展示优先级矩阵、风险评估、二维分类决策
+  - `quadrant-quarter-circular` 扇形四象限，视觉更动感
+  - `quadrant-quarter-simple-card` 卡片式四象限，信息更丰富
+- `quadrant-simple-illus` 简单象限 — 插画风格四象限，适合展示技能矩阵、影响力分析、简洁分类
 
-## 37. Chart - Pie (饼图)
+---
 
-```infographic
-infographic chart-pie-plain-text
-data
-  title Market Share Distribution
-  desc Product category revenue breakdown
-  items
-    - label Electronics
-      value 35
-      desc Consumer electronics segment
-    - label Software
-      value 28
-      desc SaaS and licensing
-    - label Services
-      value 22
-      desc Professional services
-    - label Hardware
-      value 15
-      desc Enterprise hardware
-```
-
-## 38. Chart - Pie Donut (环形饼图)
-
-```infographic
-infographic chart-pie-donut-plain-text
-data
-  title Budget Allocation
-  desc Q4 2024 department spending
-  items
-    - label R&D
-      value 40
-      desc Research and development
-    - label Marketing
-      value 25
-      desc Brand and campaigns
-    - label Operations
-      value 20
-      desc Infrastructure and logistics
-    - label HR
-      value 15
-      desc Talent and training
-```
-
-## 39. Chart - Word Cloud (词云)
-
-```infographic
-infographic chart-wordcloud
-data
-  items
-    - label Data Analytics
-    - label Artificial Intelligence
-    - label Machine Learning
-    - label Deep Learning
-    - label Big Data
-    - label Cloud Computing
-    - label DevOps
-    - label Microservices
-    - label Kubernetes
-    - label Docker
-    - label Python
-    - label JavaScript
-    - label TypeScript
-    - label React
-    - label Vue
-    - label Node.js
-    - label API
-    - label GraphQL
-    - label REST
-    - label Database
-    - label MongoDB
-    - label PostgreSQL
-    - label Redis
-    - label Elasticsearch
-    - label Security
-    - label Authentication
-    - label CI/CD
-    - label Terraform
-    - label AWS
-    - label Azure
-```
-
-## 40. Hierarchy - Tree (层级树)
-
-```infographic
-infographic hierarchy-tree-tech-style-capsule-item
-data
-  title Organization Structure
-  desc Technology department hierarchy
-  items
-    - label CTO
-      children
-        - label VP Engineering
-          children
-            - label Frontend Team
-            - label Backend Team
-            - label DevOps Team
-        - label VP Product
-          children
-            - label Product Design
-            - label UX Research
-        - label VP Data
-          children
-            - label Data Science
-            - label Data Engineering
-```
-
-## 41. Hierarchy - Mind Map (思维导图)
-
-```infographic
-infographic hierarchy-mindmap-branch-gradient-compact-card
-data
-  title User Research Framework
-  desc Comprehensive user research methodology
-  items
-    - label User Research
-      children
-        - label Quantitative
-          desc Data-driven analysis
-          children
-            - label Surveys
-            - label A/B Testing
-            - label Analytics
-        - label Qualitative
-          desc Human-centered insights
-          children
-            - label Interviews
-            - label Focus Groups
-            - label Usability Testing
-        - label Mixed Methods
-          desc Combined approach
-          children
-            - label Diary Studies
-            - label Contextual Inquiry
-```
-
-## 42. Sequence - 3D Stairs (3D 阶梯)
-
-```infographic
-infographic sequence-ascending-stairs-3d-underline-text
-data
-  title Career Progression
-  desc Professional development stages
-  items
-    - label Analyst
-      desc Entry level, learning fundamentals
-    - label Associate
-      desc Independent contributor
-    - label Manager
-      desc Team leadership
-    - label Director
-      desc Department oversight
-    - label VP
-      desc Strategic leadership
-    - label C-Level
-      desc Executive direction
-```
-
-## 43. Sequence - 3D Pucks (3D 圆盘)
-
-```infographic
-infographic sequence-zigzag-pucks-3d-simple
-data
-  title Product Development Lifecycle
-  desc From concept to launch
-  items
-    - label Ideation
-      desc Brainstorming and concept validation
-    - label Design
-      desc User experience and visual design
-    - label Development
-      desc Engineering and implementation
-    - label Testing
-      desc Quality assurance and validation
-    - label Launch
-      desc Go-to-market and release
-    - label Iteration
-      desc Feedback and continuous improvement
-```
-
-## 44. Compare - Binary Arrow (双向对比箭头)
-
-```infographic
-infographic compare-binary-horizontal-badge-card-arrow
-data
-  title Strategic Decision Analysis
-  desc Evaluating growth options
-  items
-    - label Option A Expansion
-      children
-        - label Higher Revenue Potential
-          desc Access to new markets
-        - label Brand Growth
-          desc Increased visibility
-        - label Talent Pool
-          desc Access to skilled workforce
-    - label Option B Optimization
-      children
-        - label Lower Risk
-          desc Stable operations
-        - label Cost Efficiency
-          desc Better margins
-        - label Focus
-          desc Core competency strength
-```
-
-## 45. Compare - Binary VS (VS 对比)
-
-```infographic
-infographic compare-binary-horizontal-underline-text-vs
-data
-  title Technology Stack Comparison
-  desc Frontend framework analysis
-  items
-    - label React
-      children
-        - label Virtual DOM
-          desc Efficient rendering
-        - label Large Ecosystem
-          desc Rich component libraries
-        - label JSX Syntax
-          desc Component-based development
-    - label Vue
-      children
-        - label Template Syntax
-          desc HTML-like structure
-        - label Reactive System
-          desc Automatic dependency tracking
-        - label Gentle Learning Curve
-          desc Easy to get started
-```
-
-## 46. List - Pyramid Investment (投资金字塔)
-
-```infographic
-infographic list-pyramid-compact-card
-data
-  title Investment Strategy Pyramid
-  desc Asset allocation by risk level
-  items
-    - label High Risk
-      value 10
-      desc Crypto and speculative assets
-    - label Growth
-      value 20
-      desc Stocks and equity funds
-    - label Balanced
-      value 30
-      desc Mixed portfolio
-    - label Conservative
-      value 25
-      desc Bonds and fixed income
-    - label Safe
-      value 15
-      desc Cash and money market
-```
-
-## 47. List - Sector Half (半扇形)
-
-```infographic
-infographic list-sector-half-plain-text
-data
-  title Department Performance
-  items
-    - label Sales
-      desc Revenue generation team
-    - label Marketing
-      desc Brand and customer acquisition
-    - label Engineering
-      desc Product development
-    - label Support
-      desc Customer success
-```
-
-## 48. Quadrant - Simple Illustration (简单象限图)
-
-```infographic
-infographic quadrant-simple-illus
-data
-  title Skill Priority Matrix
-  desc Impact vs Difficulty Assessment
-  items
-    - label High Impact Easy
-      desc Quick wins to implement first
-    - label High Impact Hard
-      desc Strategic projects for planning
-    - label Low Impact Easy
-      desc Fill-in tasks when available
-    - label Low Impact Hard
-      desc Deprioritize or eliminate
-```
-
-## 49. Relation - Circle with Icon (图标关系圈)
+## 5. 关系类 (Relation)
 
 ```infographic
 infographic relation-circle-icon-badge
@@ -1131,480 +247,124 @@ data
       icon mdi/account-group
 ```
 
-## 50. Hierarchy Tree - Curved Style (曲线连接树)
+**可用模板变体（2 款）：**
 
-```infographic
-infographic hierarchy-tree-curved-line-rounded-rect-node
-data
-  title Product Feature Map
-  desc Core module breakdown
-  items
-    - label Platform Core
-      children
-        - label User Management
-          children
-            - label Authentication
-            - label Authorization
-            - label Profile
-        - label Data Layer
-          children
-            - label Storage
-            - label Cache
-            - label Search
-        - label API Gateway
-          children
-            - label REST
-            - label GraphQL
-            - label WebSocket
-```
+- **relation-circle-\*** 关系圈 — 环形分布的关系图，适合展示部门占比、子公司关系、团队构成
+  - `relation-circle-circular-progress` 环形进度样式，显示百分比
+  - `relation-circle-icon-badge` 图标徽章样式，带图标标识
 
 ---
 
-## 51. Chart - Pie with Compact Card (饼图紧凑卡片)
+## 6. 层级类 (Hierarchy)
 
 ```infographic
-infographic chart-pie-compact-card
+infographic hierarchy-tree-tech-style-capsule-item
 data
-  title Revenue by Region
-  desc Quarterly regional performance
+  title Organization Structure
+  desc Technology department hierarchy
   items
-    - label North America
-      value 42
-      desc Primary market
-    - label Europe
-      value 28
-      desc Growing market
-    - label Asia Pacific
-      value 20
-      desc Emerging market
-    - label Latin America
-      value 10
-      desc Developing market
+    - label CTO
+      children
+        - label VP Engineering
+          children
+            - label Frontend Team
+            - label Backend Team
+            - label DevOps Team
+        - label VP Product
+          children
+            - label Product Design
+            - label UX Research
+        - label VP Data
+          children
+            - label Data Science
+            - label Data Engineering
 ```
 
-## 52. Chart - Donut with Pill Badge (环形饼图徽章)
+**可用模板变体（110 款）：**
+
+层级类模板采用 **组合命名** 方式
+
+- **hierarchy-tree-\*** 层级树（100 款）— 自上而下的树形结构，适合展示组织架构、产品功能树、系统模块
+  - 方向（4 种）：默认(top-bottom)、`bt`(bottom-top)、`lr`(left-right)、`rl`(right-left)
+  - 连接线样式（5 种）：
+    - `tech-style` 科技风格，直线渐变带箭头
+    - `curved-line` 曲线连接，柔和优雅
+    - `dashed-line` 虚线连接，带圆点标记
+    - `distributed-origin` 分布式起点，带箭头
+    - `dashed-arrow` 虚线箭头
+  - 节点样式（5 种）：
+    - `capsule-item` 胶囊形节点
+    - `badge-card` 徽章卡片
+    - `rounded-rect-node` 圆角矩形
+    - `ribbon-card` 丝带卡片
+    - `compact-card` 紧凑卡片
+  - 命名规则：`hierarchy-tree-[方向-]{连接线样式}-{节点样式}`
+  - 示例：`hierarchy-tree-tech-style-capsule-item`、`hierarchy-tree-lr-curved-line-badge-card`
+- **hierarchy-mindmap-\*** 思维导图（10 款）— 中心发散的思维导图，适合展示知识结构、头脑风暴
+  - 颜色模式（2 种）：
+    - `branch-gradient` 分支渐变，每个分支独立颜色
+    - `level-gradient` 层级渐变，按深度着色
+  - 节点样式（5 种）：
+    - `lined-palette` 彩色下划线
+    - `capsule-item` 胶囊节点
+    - `circle-progress` 环形进度
+    - `rounded-rect` 圆角矩形
+    - `compact-card` 紧凑卡片
+  - 示例：`hierarchy-mindmap-branch-gradient-capsule-item`
+
+---
+
+## 7. 图表类 (Chart)
 
 ```infographic
-infographic chart-pie-donut-pill-badge
+infographic chart-pie-donut-plain-text
 data
-  title Traffic Sources
-  desc Website visitor origins
+  title Budget Allocation
+  desc Q4 2024 department spending
   items
-    - label Organic Search
-      value 45
-    - label Social Media
-      value 25
-    - label Direct
-      value 18
-    - label Referral
-      value 12
-```
-
-## 53. Chart - Word Cloud Rotate (旋转词云)
-
-```infographic
-infographic chart-wordcloud-rotate
-data
-  items
-    - label Innovation
-    - label Strategy
-    - label Leadership
-    - label Growth
-    - label Digital
-    - label Transform
-    - label Agile
-    - label Customer
-    - label Value
-    - label Impact
-    - label Excellence
-    - label Quality
-    - label Efficiency
-    - label Synergy
-    - label Vision
-    - label Mission
-    - label Culture
-    - label Talent
-    - label Success
-    - label Performance
-```
-
-## 54. List - Grid with Badge Card (网格徽章卡片)
-
-```infographic
-infographic list-grid-badge-card
-data
-  title Service Features
-  desc Platform capabilities overview
-  items
-    - label Analytics
-      desc Real-time data insights
-    - label Security
-      desc Enterprise-grade protection
-    - label Scalability
-      desc Auto-scaling infrastructure
-    - label Integration
-      desc 100+ API connectors
-    - label Support
-      desc 24/7 expert assistance
-    - label Compliance
-      desc SOC2 and GDPR ready
-```
-
-## 55. List - Grid with Candy Card (糖果卡片网格)
-
-```infographic
-infographic list-grid-candy-card-lite
-data
-  title Team Competencies
-  desc Core skill areas
-  items
-    - label Frontend
-      desc React, Vue, Angular
-    - label Backend
-      desc Node.js, Python, Go
-    - label Database
-      desc PostgreSQL, MongoDB
-    - label DevOps
-      desc K8s, Docker, CI/CD
-    - label Design
-      desc Figma, Sketch
-    - label Testing
-      desc Jest, Cypress
-```
-
-## 56. List - Grid with Ribbon Card (丝带卡片网格)
-
-```infographic
-infographic list-grid-ribbon-card
-data
-  title Award Categories
-  desc Recognition program tiers
-  items
-    - label Gold
-      desc Exceptional performance
-    - label Silver
-      desc Outstanding achievement
-    - label Bronze
-      desc Notable contribution
-    - label Honorable
-      desc Special recognition
-    - label Rising Star
-      desc High potential
-    - label Team Player
-      desc Collaboration excellence
-```
-
-## 57. List - Grid with Progress Card (进度卡片)
-
-```infographic
-infographic list-grid-progress-card
-data
-  title Project Status
-  desc Sprint completion metrics
-  items
-    - label Backend API
-      value 95
-      desc Nearly complete
-    - label Frontend UI
-      value 80
-      desc On track
-    - label Testing
-      value 65
-      desc In progress
-    - label Documentation
-      value 45
-      desc Ongoing
-    - label Deployment
-      value 30
-      desc Starting soon
-    - label Monitoring
-      value 15
-      desc Planning phase
-```
-
-## 58. List - Grid with Circular Progress (环形进度)
-
-```infographic
-infographic list-grid-circular-progress
-data
-  title Department KPIs
-  desc Quarterly target achievement
-  items
-    - label Sales
-      value 92
-      desc Revenue targets
+    - label R&D
+      value 40
+      desc Research and development
     - label Marketing
-      value 85
-      desc Lead generation
-    - label Engineering
-      value 78
-      desc Sprint velocity
-    - label Support
-      value 95
-      desc Customer satisfaction
+      value 25
+      desc Brand and campaigns
+    - label Operations
+      value 20
+      desc Infrastructure and logistics
     - label HR
-      value 88
-      desc Hiring goals
-    - label Finance
-      value 90
-      desc Budget adherence
+      value 15
+      desc Talent and training
 ```
 
-## 59. List - Row with Circular Progress (行环形进度)
+**可用模板变体（11 款）：**
 
-```infographic
-infographic list-row-circular-progress
-data
-  title Skills Assessment
-  desc Team proficiency levels
-  items
-    - label JavaScript
-      value 90
-    - label Python
-      value 85
-    - label SQL
-      value 80
-    - label Cloud
-      value 75
-    - label DevOps
-      value 70
-```
+- `chart-bar-plain-text` 柱状图 — 水平条形图，适合展示数量对比、年度趋势、横向排名
+- `chart-column-simple` 条形图 — 垂直柱形图，适合展示分类数据、纵向对比、增长趋势
+- `chart-line-plain-text` 折线图 — 连续数据趋势线，适合展示趋势变化、时间序列、增长曲线
+- **chart-pie-\*** 饼图 — 经典饼图，适合展示占比分布、市场份额、构成分析
+  - `chart-pie-plain-text` 纯文本标注
+  - `chart-pie-compact-card` 紧凑卡片标注
+  - `chart-pie-pill-badge` 药丸徽章标注
+- **chart-pie-donut-\*** 环形饼图 — 中空环形图，适合展示占比对比、预算分配、可在中心显示汇总数据
+  - `chart-pie-donut-plain-text` 纯文本标注
+  - `chart-pie-donut-pill-badge` 药丸徽章标注
+  - `chart-pie-donut-compact-card` 紧凑卡片标注
+- `chart-wordcloud` 词云 — 标准词云，适合展示关键词热度、标签云、文本分析
+- `chart-wordcloud-rotate` 旋转词云 — 带旋转角度的词云，适合展示创意词云、动态标签
 
-## 60. List - Row with Icon Line (图标线条)
+---
 
-```infographic
-infographic list-row-horizontal-icon-line
-data
-  title Customer Journey
-  desc Touchpoint progression
-  items
-    - label Awareness
-      desc Discover brand
-      icon mdi/eye
-    - label Interest
-      desc Explore products
-      icon mdi/magnify
-    - label Consideration
-      desc Compare options
-      icon mdi/scale-balance
-    - label Purchase
-      desc Complete transaction
-      icon mdi/cart
-    - label Loyalty
-      desc Repeat customer
-      icon mdi/heart
-```
+## 数据字段说明
 
-## 61. List - Column with Done List (完成清单)
-
-```infographic
-infographic list-column-done-list
-data
-  title Sprint Backlog
-  desc Task completion status
-  items
-    - label User authentication
-      desc Login and signup flow
-    - label Dashboard layout
-      desc Main navigation design
-    - label API integration
-      desc Connect to backend services
-    - label Data visualization
-      desc Charts and graphs
-    - label Export feature
-      desc PDF and CSV downloads
-```
-
-## 62. List - Column with Vertical Arrow (垂直箭头)
-
-```infographic
-infographic list-column-vertical-icon-arrow
-data
-  title Data Pipeline
-  desc Processing stages
-  items
-    - label Ingest
-      time Step 1
-      desc Collect raw data
-    - label Transform
-      time Step 2
-      desc Clean and normalize
-    - label Validate
-      time Step 3
-      desc Quality checks
-    - label Store
-      time Step 4
-      desc Data warehouse
-    - label Analyze
-      time Step 5
-      desc Generate insights
-```
-
-## 63. Sequence - Steps with Badge Card (徽章卡片步骤)
-
-```infographic
-infographic sequence-steps-badge-card
-data
-  title Onboarding Process
-  desc New employee journey
-  items
-    - label Day 1
-      desc Welcome and orientation
-    - label Week 1
-      desc Team introductions
-    - label Month 1
-      desc Training completion
-    - label Month 3
-      desc First performance review
-```
-
-## 64. Sequence - Timeline with Done List (时间线完成清单)
-
-```infographic
-infographic sequence-timeline-done-list
-data
-  title Project Milestones
-  desc Key deliverables timeline
-  items
-    - label Requirements
-      desc Gather and document needs
-    - label Design
-      desc Create wireframes and mockups
-    - label Development
-      desc Build core features
-    - label Testing
-      desc QA and bug fixes
-    - label Launch
-      desc Production deployment
-```
-
-## 65. Sequence - Timeline with Rounded Node (圆角节点时间线)
-
-```infographic
-infographic sequence-timeline-rounded-rect-node
-data
-  title Company History
-  desc Key events timeline
-  items
-    - label Founded
-      desc Company established
-    - label Series A
-      desc First major funding
-    - label Expansion
-      desc New market entry
-    - label IPO
-      desc Public offering
-    - label Acquisition
-      desc Strategic purchase
-```
-
-## 66. Sequence - Filter Mesh (过滤漏斗)
-
-```infographic
-infographic sequence-filter-mesh-simple
-data
-  title Lead Funnel
-  desc Conversion analysis
-  items
-    - label Visitors
-      desc Website traffic
-    - label Leads
-      desc Contact forms
-    - label Qualified
-      desc Sales ready
-    - label Opportunities
-      desc Active deals
-    - label Customers
-      desc Closed won
-```
-
-## 67. Sequence - Mountain Milestones (山峰里程碑)
-
-```infographic
-infographic sequence-mountain-underline-text
-data
-  title Revenue Milestones
-  desc Growth achievements
-  items
-    - label $1M ARR
-      desc Seed stage
-    - label $5M ARR
-      desc Series A
-    - label $20M ARR
-      desc Series B
-    - label $50M ARR
-      desc Growth stage
-    - label $100M ARR
-      desc Scale stage
-```
-
-## 68. Sequence - Circle Arrows PDCA (圆形箭头)
-
-```infographic
-infographic sequence-circle-arrows-indexed-card
-data
-  title PDCA Cycle
-  desc Continuous improvement
-  items
-    - label Plan
-      desc Define objectives and processes
-    - label Do
-      desc Implement the plan
-    - label Check
-      desc Monitor and measure
-    - label Act
-      desc Improve based on results
-```
-
-## 69. Hierarchy Tree - Dashed Line (虚线树)
-
-```infographic
-infographic hierarchy-tree-dashed-line-rounded-rect-node
-data
-  title System Architecture
-  desc Technical components
-  items
-    - label Application Layer
-      children
-        - label Web App
-        - label Mobile App
-        - label API Gateway
-    - label Service Layer
-      children
-        - label Auth Service
-        - label Data Service
-        - label Notification Service
-    - label Data Layer
-      children
-        - label Primary DB
-        - label Cache
-        - label Message Queue
-```
-
-## 70. Hierarchy Tree - Badge Card Style (徽章卡片树)
-
-```infographic
-infographic hierarchy-tree-tech-style-badge-card
-data
-  title Investment Portfolio
-  desc Asset allocation structure
-  items
-    - label Portfolio
-      children
-        - label Equities
-          children
-            - label US Stocks
-            - label International
-            - label Emerging Markets
-        - label Fixed Income
-          children
-            - label Government Bonds
-            - label Corporate Bonds
-        - label Alternatives
-          children
-            - label Real Estate
-            - label Commodities
-```
+| 字段 | 说明 | 适用模板 |
+|------|------|----------|
+| `title` | 图表标题 | 所有模板 |
+| `desc` | 图表描述/副标题 | 所有模板 |
+| `label` | 项目标签/名称 | 所有模板 |
+| `value` | 数值（百分比/数量） | 图表、进度、关系圈等 |
+| `icon` | MDI 图标 (如 `mdi/chart-line`) | 支持图标的模板 |
+| `time` | 时间标签 | 时间线、彩色序列等 |
+| `children` | 子项目（嵌套结构） | 层级树、思维导图、SWOT、对比 |
 
 ---
 
