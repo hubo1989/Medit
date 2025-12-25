@@ -221,37 +221,16 @@ class MobileMessageService {
 // ============================================================================
 
 /**
- * Memory cache item with metadata
- */
-interface MemoryCacheItem {
-  value: unknown;
-  metadata: Record<string, unknown>;
-  accessTime: number;
-}
-
-/**
  * Mobile Cache Service
- * Two-layer caching: Memory (L1) + Flutter Storage (L2)
- * Extends BaseCacheService for common hash/key generation
- * 
- * Similar to Chrome's BackgroundCacheManagerProxy, this service
- * communicates with Flutter host for persistent storage operations.
- * Memory cache provides fast access for recently used items.
- * Flutter storage provides persistence with larger capacity.
+ * Communicates with Flutter host for persistent storage operations.
+ * Extends BaseCacheService for common hash/key generation.
  */
 class MobileCacheService extends BaseCacheService {
-  // L1 Memory Cache - Fast access for recently used items
-  private memoryCache: Map<string, MemoryCacheItem> = new Map();
-  private memoryAccessOrder: string[] = []; // Track access order for LRU
-  private memoryMaxItems: number;
-
-  constructor(memoryMaxItems = 50) {
+  constructor() {
     super();
-    this.memoryMaxItems = memoryMaxItems;
   }
 
   async init(): Promise<void> {
-    // Memory cache is ready immediately
     // Flutter storage is initialized on first use
   }
 
@@ -259,103 +238,17 @@ class MobileCacheService extends BaseCacheService {
     // No-op: Flutter handles storage initialization
   }
 
-  // ==========================================================================
-  // L1 Memory Cache Operations
-  // ==========================================================================
-
   /**
-   * Add item to memory cache with LRU eviction
-   */
-  private addToMemoryCache(key: string, value: unknown, metadata: Record<string, unknown> = {}): void {
-    // Remove if already exists to update position
-    if (this.memoryCache.has(key)) {
-      this.removeFromMemoryCache(key);
-    }
-
-    // Add to cache and access order
-    this.memoryCache.set(key, { value, metadata, accessTime: Date.now() });
-    this.memoryAccessOrder.push(key);
-
-    // Evict oldest items if over limit
-    while (this.memoryCache.size > this.memoryMaxItems) {
-      const oldestKey = this.memoryAccessOrder.shift();
-      if (oldestKey) {
-        this.memoryCache.delete(oldestKey);
-      }
-    }
-  }
-
-  /**
-   * Get item from memory cache and update LRU order
-   */
-  private getFromMemoryCache(key: string): unknown | null {
-    if (!this.memoryCache.has(key)) {
-      return null;
-    }
-
-    const item = this.memoryCache.get(key);
-    if (!item) {
-      return null;
-    }
-
-    // Update access order (move to end)
-    this.removeFromMemoryCache(key);
-    item.accessTime = Date.now();
-    this.memoryCache.set(key, item);
-    this.memoryAccessOrder.push(key);
-
-    return item.value;
-  }
-
-  /**
-   * Remove item from memory cache
-   */
-  private removeFromMemoryCache(key: string): void {
-    if (this.memoryCache.has(key)) {
-      this.memoryCache.delete(key);
-      const index = this.memoryAccessOrder.indexOf(key);
-      if (index > -1) {
-        this.memoryAccessOrder.splice(index, 1);
-      }
-    }
-  }
-
-  /**
-   * Clear memory cache
-   */
-  private clearMemoryCache(): void {
-    this.memoryCache.clear();
-    this.memoryAccessOrder = [];
-  }
-
-  // ==========================================================================
-  // Two-Layer Cache Operations (Memory + Flutter Storage)
-  // ==========================================================================
-
-  /**
-   * Get cached item - Check memory first, then Flutter storage
+   * Get cached item from Flutter storage
    */
   async get(key: string): Promise<unknown> {
-    // Try L1 Memory Cache first
-    const memoryResult = this.getFromMemoryCache(key);
-    if (memoryResult !== null) {
-      return memoryResult;
-    }
-
-    // Try L2 Flutter Storage
-    // Note: bridge.sendRequest returns response.data directly (already unwrapped by BaseMessageChannel)
     try {
       const data = await bridge.sendRequest<unknown>('CACHE_OPERATION', {
         operation: 'get',
         key,
       });
 
-      if (data !== null && data !== undefined) {
-        // Add to memory cache for faster future access
-        this.addToMemoryCache(key, data);
-        return data;
-      }
-      return null;
+      return data ?? null;
     } catch (error) {
       console.warn('[MobileCache] Get failed:', error);
       return null;
@@ -363,14 +256,9 @@ class MobileCacheService extends BaseCacheService {
   }
 
   /**
-   * Set cached item - Store in both memory and Flutter storage
+   * Set cached item in Flutter storage
    */
   async set(key: string, value: unknown, type: string = 'unknown'): Promise<boolean> {
-    // Add to memory cache immediately
-    this.addToMemoryCache(key, value, { type });
-
-    // Store in Flutter storage for persistence
-    // Note: bridge.sendRequest returns response.data directly
     try {
       const result = await bridge.sendRequest<{ success: boolean }>('CACHE_OPERATION', {
         operation: 'set',
@@ -383,17 +271,14 @@ class MobileCacheService extends BaseCacheService {
       return result?.success ?? false;
     } catch (error) {
       console.warn('[MobileCache] Set failed:', error);
-      this.removeFromMemoryCache(key);
       return false;
     }
   }
 
   /**
-   * Delete cached item from both layers
+   * Delete cached item from Flutter storage
    */
   async delete(key: string): Promise<boolean> {
-    this.removeFromMemoryCache(key);
-
     try {
       const result = await bridge.sendRequest<{ success: boolean }>('CACHE_OPERATION', {
         operation: 'delete',
@@ -407,11 +292,9 @@ class MobileCacheService extends BaseCacheService {
   }
 
   /**
-   * Clear all cache from both layers
+   * Clear all cache from Flutter storage
    */
   async clear(): Promise<boolean> {
-    this.clearMemoryCache();
-
     try {
       const result = await bridge.sendRequest<{ success: boolean }>('CACHE_OPERATION', {
         operation: 'clear',

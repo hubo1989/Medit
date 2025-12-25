@@ -28,8 +28,6 @@ export type {
 
 export type {
   CacheItem,
-  MemoryCacheItem,
-  MemoryCacheStats,
   IndexedDBCacheStats,
   CacheStats,
   SimpleCacheStats,

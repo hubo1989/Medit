@@ -1,25 +1,19 @@
-// Chrome Extension Cache Manager with Two-Layer Caching: Memory (L1) + IndexedDB (L2)
+// Chrome Extension Cache Manager with IndexedDB Storage
 
 import type {
   CacheItem,
-  MemoryCacheItem,
   CacheStats,
   RendererThemeConfig
 } from '../types/index';
 
 // Re-export types for consumers
-export type { CacheItem, MemoryCacheItem, CacheStats };
+export type { CacheItem, CacheStats };
 
 class ExtensionCacheManager {
   maxItems: number;
-  memoryMaxItems: number;
   dbName = 'MarkdownViewerCache';
   dbVersion = 1;
   storeName = 'renderCache';
-
-  // L1 Memory Cache - Fast access for recently used items
-  memoryCache: Map<string, MemoryCacheItem> = new Map();
-  memoryAccessOrder: string[] = []; // Track access order for LRU
 
   db: IDBDatabase | null = null;
   initPromise: Promise<IDBDatabase>;
@@ -28,18 +22,8 @@ class ExtensionCacheManager {
   cleanupInProgress = false; // Flag to prevent concurrent cleanup
   cleanupScheduled = false; // Flag to prevent multiple scheduled cleanups
 
-  // Batched access time updates to reduce transaction overhead
-  pendingAccessTimeUpdates: Set<string> = new Set();
-  accessTimeUpdateScheduled = false;
-
-  // Cache statistics
-  memoryHits = 0;
-  indexedDBHits = 0;
-  misses = 0;
-
-  constructor(maxItems = 1000, memoryMaxItems = 100) {
-    this.maxItems = maxItems; // IndexedDB max items
-    this.memoryMaxItems = memoryMaxItems; // Memory cache max items
+  constructor(maxItems = 1000) {
+    this.maxItems = maxItems;
     this.initPromise = this.initDB();
   }
 
@@ -98,78 +82,6 @@ class ExtensionCacheManager {
   }
 
   /**
-   * Memory Cache Management - L1 Cache Operations
-   */
-
-  /**
-   * Add item to memory cache with LRU eviction
-   */
-  private _addToMemoryCache(key: string, value: unknown, metadata: Record<string, unknown> = {}): void {
-    // Remove if already exists to update position
-    if (this.memoryCache.has(key)) {
-      this._removeFromMemoryCache(key, false);
-    }
-
-    // Add to cache and access order
-    this.memoryCache.set(key, { value, metadata, accessTime: Date.now() });
-    this.memoryAccessOrder.push(key);
-
-    // Evict oldest items if over limit
-    while (this.memoryCache.size > this.memoryMaxItems) {
-      const oldestKey = this.memoryAccessOrder.shift();
-      if (oldestKey) {
-        this.memoryCache.delete(oldestKey);
-      }
-    }
-  }
-
-  /**
-   * Get item from memory cache and update LRU order
-   */
-  private _getFromMemoryCache(key: string): unknown {
-    if (!this.memoryCache.has(key)) {
-      return null;
-    }
-
-    // Get item first
-    const item = this.memoryCache.get(key);
-    if (!item) {
-      return null;
-    }
-
-    // Update access order (remove from current position and add to end)
-    this._removeFromMemoryCache(key, false);
-
-    // Update access time and re-add to cache
-    item.accessTime = Date.now();
-    this.memoryCache.set(key, item);
-    this.memoryAccessOrder.push(key);
-
-    return item.value;
-  }
-
-  /**
-   * Remove item from memory cache
-   */
-  private _removeFromMemoryCache(key: string, logRemoval = true): void {
-    if (this.memoryCache.has(key)) {
-      this.memoryCache.delete(key);
-      const index = this.memoryAccessOrder.indexOf(key);
-      if (index > -1) {
-        this.memoryAccessOrder.splice(index, 1);
-      }
-    }
-  }
-
-  /**
-   * Clear memory cache
-   */
-  private _clearMemoryCache(): void {
-    this.memoryCache.clear();
-    this.memoryAccessOrder = [];
-  }
-
-  /**
    * Estimate byte size of data
    */
   estimateSize(data: unknown): number {
@@ -177,22 +89,12 @@ class ExtensionCacheManager {
   }
 
   /**
-   * Get cached item by key - Two-layer cache lookup
+   * Get cached item by key from IndexedDB
    */
   async get(key: string): Promise<any> {
-    // Try L1 Memory Cache first
-    const memoryResult = this._getFromMemoryCache(key);
-    if (memoryResult !== null) {
-      // Update IndexedDB access time asynchronously (non-blocking)
-      this._scheduleAccessTimeUpdate(key);
-      return memoryResult;
-    }
-
-    // Try L2 IndexedDB Cache
     await this.ensureDB();
 
     return new Promise((resolve, reject) => {
-      // Use readonly transaction for get - faster and doesn't block other operations
       const transaction = this.db!.transaction([this.storeName], 'readonly');
       const store = transaction.objectStore(this.storeName);
 
@@ -201,15 +103,6 @@ class ExtensionCacheManager {
       getRequest.onsuccess = () => {
         const result = getRequest.result as CacheItem | undefined;
         if (result) {
-          // Add to memory cache for faster future access
-          this._addToMemoryCache(key, result.value, {
-            type: result.type,
-            originalTimestamp: result.timestamp
-          });
-
-          // Update access time asynchronously (non-blocking)
-          this._scheduleAccessTimeUpdate(key);
-
           resolve(result.value);
         } else {
           resolve(null);
@@ -227,123 +120,10 @@ class ExtensionCacheManager {
   }
 
   /**
-   * Schedule batched access time update (non-blocking)
-   * Batches multiple updates into a single transaction
-   */
-  private _scheduleAccessTimeUpdate(key: string): void {
-    // Skip access time updates for now - they cause performance issues
-    // The in-memory cache already tracks access order
-    // TODO: Consider updating access time only on cleanup or periodically
-    return;
-
-    this.pendingAccessTimeUpdates.add(key);
-
-    if (this.accessTimeUpdateScheduled) {
-      return;
-    }
-
-    this.accessTimeUpdateScheduled = true;
-
-    // Batch updates with a longer delay to reduce transaction frequency
-    setTimeout(async () => {
-      this.accessTimeUpdateScheduled = false;
-
-      if (this.pendingAccessTimeUpdates.size === 0) {
-        return;
-      }
-
-      const keysToUpdate = Array.from(this.pendingAccessTimeUpdates);
-      this.pendingAccessTimeUpdates.clear();
-
-      try {
-        await this._batchUpdateAccessTime(keysToUpdate);
-      } catch (error) {
-        // Silent fail for access time updates
-      }
-    }, 500); // 500ms delay to batch multiple accesses
-  }
-
-  /**
-   * Batch update access times in a single transaction
-   */
-  private async _batchUpdateAccessTime(keys: string[]): Promise<void> {
-    if (keys.length === 0) return;
-
-    await this.ensureDB();
-
-    return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction([this.storeName], 'readwrite');
-      const store = transaction.objectStore(this.storeName);
-      const now = Date.now();
-      let completed = 0;
-
-      keys.forEach(key => {
-        const getRequest = store.get(key);
-
-        getRequest.onsuccess = () => {
-          const item = getRequest.result as CacheItem | undefined;
-          if (item) {
-            item.accessTime = now;
-            store.put(item);
-          }
-          completed++;
-          if (completed === keys.length) {
-            resolve();
-          }
-        };
-
-        getRequest.onerror = () => {
-          completed++;
-          if (completed === keys.length) {
-            resolve();
-          }
-        };
-      });
-
-      transaction.onerror = () => reject(transaction.error);
-    });
-  }
-
-  /**
-   * Update access time for LRU management (separate transaction)
-   * @deprecated Use _scheduleAccessTimeUpdate instead for better performance
-   */
-  async updateAccessTime(key: string): Promise<void> {
-    await this.ensureDB();
-
-    return new Promise((resolve, reject) => {
-      const transaction = this.db!.transaction([this.storeName], 'readwrite');
-      const store = transaction.objectStore(this.storeName);
-
-      const getRequest = store.get(key);
-
-      getRequest.onsuccess = () => {
-        const item = getRequest.result as CacheItem | undefined;
-        if (item) {
-          item.accessTime = Date.now();
-          const putRequest = store.put(item);
-
-          putRequest.onsuccess = () => resolve();
-          putRequest.onerror = () => reject(putRequest.error);
-        } else {
-          resolve(); // Item not found, that's ok
-        }
-      };
-
-      getRequest.onerror = () => reject(getRequest.error);
-      transaction.onerror = () => reject(transaction.error);
-    });
-  }
-
-  /**
-   * Set cached item - Store in both memory and IndexedDB
+   * Set cached item in IndexedDB
    * Cleanup is done asynchronously to avoid blocking insertion
    */
   async set(key: string, value: unknown, type = 'unknown'): Promise<void> {
-    // Add to memory cache immediately for fast access
-    this._addToMemoryCache(key, value, { type });
-
-    // Also store in IndexedDB for persistence
     await this.ensureDB();
 
     const size = this.estimateSize(value);
@@ -359,7 +139,6 @@ class ExtensionCacheManager {
     };
 
     try {
-      // Insert immediately without waiting for cleanup
       const transaction = this.db!.transaction([this.storeName], 'readwrite');
       const store = transaction.objectStore(this.storeName);
 
@@ -371,19 +150,14 @@ class ExtensionCacheManager {
         };
 
         request.onerror = () => {
-          // Remove from memory cache if IndexedDB failed
-          this._removeFromMemoryCache(key);
           reject(request.error);
         };
 
-        // Also handle transaction errors
         transaction.onerror = () => {
-          this._removeFromMemoryCache(key);
           reject(transaction.error);
         };
 
         transaction.onabort = () => {
-          this._removeFromMemoryCache(key);
           reject(new Error('Transaction aborted'));
         };
       });
@@ -393,7 +167,6 @@ class ExtensionCacheManager {
 
       return result;
     } catch (error) {
-      this._removeFromMemoryCache(key);
       throw error;
     }
   }
@@ -418,13 +191,9 @@ class ExtensionCacheManager {
   }
 
   /**
-   * Delete cached item from both layers
+   * Delete cached item from IndexedDB
    */
   async delete(key: string): Promise<boolean> {
-    // Remove from memory cache
-    this._removeFromMemoryCache(key);
-
-    // Remove from IndexedDB
     await this.ensureDB();
 
     const transaction = this.db!.transaction([this.storeName], 'readwrite');
@@ -444,13 +213,9 @@ class ExtensionCacheManager {
   }
 
   /**
-   * Clear all cache from both layers
+   * Clear all cache from IndexedDB
    */
   async clear(): Promise<void> {
-    // Clear memory cache
-    this._clearMemoryCache();
-
-    // Clear IndexedDB
     await this.ensureDB();
 
     const transaction = this.db!.transaction([this.storeName], 'readwrite');
@@ -470,19 +235,10 @@ class ExtensionCacheManager {
   }
 
   /**
-   * Get comprehensive cache statistics from both layers
+   * Get cache statistics from IndexedDB
    */
   async getStats(limit = 50): Promise<CacheStats> {
     await this.ensureDB();
-
-    // Skip expensive memory cache size calculation (estimateSize creates Blob for each item)
-    const memoryStats = {
-      itemCount: this.memoryCache.size,
-      maxItems: this.memoryMaxItems,
-      totalSize: 0,
-      totalSizeMB: '0.00',
-      items: [] as Array<{ key: string; size: number; accessTime: string; metadata: Record<string, unknown> }>
-    };
 
     return new Promise((resolve, reject) => {
       const transaction = this.db!.transaction([this.storeName], 'readonly');
@@ -525,7 +281,6 @@ class ExtensionCacheManager {
       
       transaction.oncomplete = () => {
         const stats: CacheStats = {
-          memoryCache: memoryStats,
           indexedDBCache: {
             itemCount: itemCount,
             maxItems: this.maxItems,
@@ -537,19 +292,12 @@ class ExtensionCacheManager {
               size: item.size,
               sizeMB: (item.size / (1024 * 1024)).toFixed(3),
               created: new Date(item.timestamp).toISOString(),
-              lastAccess: new Date(item.accessTime).toISOString(),
-              inMemory: this.memoryCache.has(item.key)
+              lastAccess: new Date(item.accessTime).toISOString()
             }))
           },
           combined: {
             totalItems: itemCount,
-            totalSizeMB: (totalSize / (1024 * 1024)).toFixed(2),
-            memoryHitRatio: itemCount > 0 ? (memoryStats.itemCount / itemCount * 100).toFixed(1) + '%' : '0%',
-            hitRate: {
-              memoryHits: this.memoryHits,
-              indexedDBHits: this.indexedDBHits,
-              misses: this.misses
-            }
+            totalSizeMB: (totalSize / (1024 * 1024)).toFixed(2)
           },
           databaseInfo: {
             dbName: this.dbName,
@@ -654,9 +402,6 @@ class ExtensionCacheManager {
             }
 
             keysToDelete.forEach(item => {
-              // Remove from memory cache
-              this._removeFromMemoryCache(item.key, false);
-
               // Delete from IndexedDB
               const deleteRequest = cleanupStore.delete(item.key);
 

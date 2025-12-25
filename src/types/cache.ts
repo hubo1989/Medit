@@ -21,34 +21,9 @@ export interface CacheItem<T = unknown> {
   accessTime: number;
 }
 
-/**
- * Memory cache item with metadata
- */
-export interface MemoryCacheItem<T = unknown> {
-  value: T;
-  metadata: Record<string, unknown>;
-  accessTime: number;
-}
-
 // =============================================================================
 // Cache Statistics Types
 // =============================================================================
-
-/**
- * Memory cache statistics
- */
-export interface MemoryCacheStats {
-  itemCount: number;
-  maxItems: number;
-  totalSize: number;
-  totalSizeMB: string;
-  items: Array<{
-    key: string;
-    size: number;
-    accessTime: string;
-    metadata: Record<string, unknown>;
-  }>;
-}
 
 /**
  * IndexedDB cache statistics
@@ -65,7 +40,6 @@ export interface IndexedDBCacheStats {
     sizeMB: string;
     created: string;
     lastAccess: string;
-    inMemory: boolean;
   }>;
 }
 
@@ -73,17 +47,10 @@ export interface IndexedDBCacheStats {
  * Full cache statistics (for detailed view)
  */
 export interface CacheStats {
-  memoryCache: MemoryCacheStats;
   indexedDBCache: IndexedDBCacheStats;
   combined: {
     totalItems: number;
     totalSizeMB: string;
-    memoryHitRatio: string;
-    hitRate: {
-      memoryHits: number;
-      indexedDBHits: number;
-      misses: number;
-    };
   };
   databaseInfo: {
     dbName: string;
