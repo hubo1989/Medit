@@ -10,6 +10,8 @@ import {
   BorderStyle,
   TableLayoutType,
   VerticalAlign as VerticalAlignTable,
+  WidthType,
+  convertInchesToTwip,
   type IBorderOptions,
   type IParagraphOptions,
   type ITableCellOptions,
@@ -26,7 +28,7 @@ interface TableConverterOptions {
 }
 
 export interface TableConverter {
-  convertTable(node: DOCXTableNode): Promise<Table>;
+  convertTable(node: DOCXTableNode, listLevel?: number): Promise<Table>;
 }
 
 /**
@@ -48,9 +50,10 @@ export function createTableConverter({ themeStyles, convertInlineNodes }: TableC
   /**
    * Convert table node to DOCX Table
    * @param node - Table AST node
+   * @param listLevel - List nesting level for indentation (default: 0)
    * @returns DOCX Table
    */
-  async function convertTable(node: DOCXTableNode): Promise<Table> {
+  async function convertTable(node: DOCXTableNode, listLevel = 0): Promise<Table> {
     const rows: TableRow[] = [];
     const alignments = (node as unknown as { align?: Array<'left' | 'center' | 'right' | null> }).align || [];
     const tableRows = (node.children || []).filter((row) => row.type === 'tableRow');
@@ -156,10 +159,15 @@ export function createTableConverter({ themeStyles, convertInlineNodes }: TableC
       }
     }
 
+    // For nested tables, add half the indent to the left margin and keep center alignment
+    // This creates the visual effect of centering within the indented area
+    const indentSize = listLevel > 0 ? convertInchesToTwip(0.5 * listLevel / 2) : undefined;
+
     return new Table({
       rows: rows,
       layout: TableLayoutType.AUTOFIT,
       alignment: AlignmentType.CENTER,
+      indent: indentSize ? { size: indentSize, type: WidthType.DXA } : undefined,
     });
   }
 

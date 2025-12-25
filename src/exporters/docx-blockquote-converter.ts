@@ -19,7 +19,7 @@ import type { DOCXThemeStyles, DOCXBlockquoteNode, DOCXASTNode } from '../types/
 import type { InlineResult, InlineNode } from './docx-inline-converter';
 
 type ConvertInlineNodesFunction = (children: InlineNode[], options?: { color?: string }) => Promise<InlineResult[]>;
-type ConvertChildNodeFunction = (node: DOCXASTNode) => Promise<FileChild | FileChild[] | null>;
+type ConvertChildNodeFunction = (node: DOCXASTNode, blockquoteNestLevel?: number) => Promise<FileChild | FileChild[] | null>;
 
 interface BlockquoteConverterOptions {
   themeStyles: DOCXThemeStyles;
@@ -28,7 +28,7 @@ interface BlockquoteConverterOptions {
 }
 
 export interface BlockquoteConverter {
-  convertBlockquote(node: DOCXBlockquoteNode, nestLevel?: number): Promise<Table>;
+  convertBlockquote(node: DOCXBlockquoteNode, listLevel?: number): Promise<Table>;
   setConvertChildNode(fn: ConvertChildNodeFunction): void;
 }
 
@@ -92,10 +92,11 @@ export function createBlockquoteConverter({ themeStyles, convertInlineNodes, con
   /**
    * Convert blockquote node to a DOCX Table (single-cell table as container)
    * @param node - Blockquote AST node
-   * @param nestLevel - Current nesting level (default: 0)
+   * @param listLevel - List nesting level for indentation (default: 0)
+   * @param nestLevel - Blockquote nesting level within blockquotes (default: 0)
    * @returns DOCX Table representing the blockquote
    */
-  async function convertBlockquote(node: DOCXBlockquoteNode, nestLevel = 0): Promise<Table> {
+  async function convertBlockquote(node: DOCXBlockquoteNode, listLevel = 0, nestLevel = 0): Promise<Table> {
     const cellChildren: FileChild[] = [];
 
     let isFirst = true;
@@ -104,13 +105,14 @@ export function createBlockquoteConverter({ themeStyles, convertInlineNodes, con
         cellChildren.push(await convertBlockquoteParagraph(child, isFirst));
         isFirst = false;
       } else if (child.type === 'blockquote') {
-        // Nested blockquote: recursively create another table
-        const nestedTable = await convertBlockquote(child as DOCXBlockquoteNode, nestLevel + 1);
+        // Nested blockquote: recursively create another table (keep same listLevel, increment nestLevel)
+        const nestedTable = await convertBlockquote(child as DOCXBlockquoteNode, listLevel, nestLevel + 1);
         cellChildren.push(nestedTable);
         isFirst = false;
       } else if (convertChildNode) {
         // Use generic converter for other node types (code, table, etc.)
-        const converted = await convertChildNode(child);
+        // Pass blockquote nest level + 1 for proper right margin compensation
+        const converted = await convertChildNode(child, nestLevel + 1);
         if (converted) {
           if (Array.isArray(converted)) {
             cellChildren.push(...converted);
@@ -148,15 +150,28 @@ export function createBlockquoteConverter({ themeStyles, convertInlineNodes, con
       children: [cell],
     });
 
-    // Create table with full width
+    // Calculate indent for this blockquote level
+    // For top-level (nestLevel=0): use listLevel indent if inside a list
+    // For nested blockquotes (nestLevel>0): use a fixed small indent relative to parent
+    const listIndent = listLevel > 0 ? 0.5 * listLevel : 0;
+    const blockquoteIndent = 0.2 * nestLevel; // Fixed indent per nesting level
+    const totalIndent = listIndent + blockquoteIndent;
+
+    // Width calculation:
+    // - Top level: full content width minus indent
+    // - Nested: use 100% of parent cell width (parent already constrains it)
+    const isNested = nestLevel > 0;
+    
+    // Create table with appropriate width
     const table = new Table({
       rows: [row],
-      width: { size: 100, type: WidthType.PERCENTAGE },
+      width: isNested 
+        ? { size: 100, type: WidthType.PERCENTAGE }  // Nested: fill parent cell
+        : { size: convertInchesToTwip(6.5 - listIndent), type: WidthType.DXA },  // Top level: calculated width
       layout: TableLayoutType.FIXED,
-      indent: {
-        size: convertInchesToTwip(0.1 * nestLevel),
-        type: WidthType.DXA,
-      },
+      indent: isNested
+        ? undefined  // Nested: no extra indent, align with parent text
+        : (listIndent > 0 ? { size: convertInchesToTwip(listIndent), type: WidthType.DXA } : undefined),  // Top level: list indent only
     });
 
     return table;

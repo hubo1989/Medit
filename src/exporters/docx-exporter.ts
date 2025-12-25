@@ -159,7 +159,8 @@ class DocxExporter {
     });
 
     // Set up the child node converter for blockquote (allows blockquotes to contain any content)
-    this.blockquoteConverter.setConvertChildNode((node) => this.convertNode(node));
+    // Pass blockquoteNestLevel to child nodes for proper right margin compensation
+    this.blockquoteConverter.setConvertChildNode((node, blockquoteNestLevel) => this.convertNode(node, {}, 0, blockquoteNestLevel));
 
     this.listConverter = createListConverter({
       themeStyles: this.themeStyles,
@@ -167,6 +168,9 @@ class DocxExporter {
       getListInstanceCounter: () => this.listInstanceCounter,
       incrementListInstanceCounter: () => this.listInstanceCounter++
     });
+
+    // Set up the child node converter for list (allows lists to contain blockquotes and other content)
+    this.listConverter.setConvertChildNode((node, listLevel) => this.convertNode(node, {}, listLevel));
   }
 
   async exportToDocx(
@@ -375,7 +379,9 @@ class DocxExporter {
 
   private async convertNode(
     node: DOCXASTNode,
-    parentStyle: Record<string, unknown> = {}
+    parentStyle: Record<string, unknown> = {},
+    listLevel = 0,
+    blockquoteNestLevel = 0
   ): Promise<FileChild | FileChild[] | null> {
     const docxHelpers: DOCXHelpers = {
       Paragraph, TextRun, ImageRun, AlignmentType, convertInchesToTwip,
@@ -426,11 +432,11 @@ class DocxExporter {
       case 'list':
         return await this.listConverter!.convertList(node as unknown as DOCXListNode);
       case 'code':
-        return this.convertCodeBlock(node);
+        return this.convertCodeBlock(node, listLevel, blockquoteNestLevel);
       case 'blockquote':
-        return await this.blockquoteConverter!.convertBlockquote(node as unknown as DOCXBlockquoteNode);
+        return await this.blockquoteConverter!.convertBlockquote(node as unknown as DOCXBlockquoteNode, listLevel);
       case 'table':
-        return await this.tableConverter!.convertTable(node as unknown as DOCXTableNode);
+        return await this.tableConverter!.convertTable(node as unknown as DOCXTableNode, listLevel);
       case 'thematicBreak':
         return this.convertThematicBreak();
       case 'html':
@@ -486,9 +492,20 @@ class DocxExporter {
     });
   }
 
-  private convertCodeBlock(node: DOCXASTNode): Paragraph {
+  private convertCodeBlock(node: DOCXASTNode, listLevel = 0, blockquoteNestLevel = 0): Paragraph {
     const runs = this.codeHighlighter!.getHighlightedRunsForCode(node.value ?? '', node.lang);
     const codeBackground = this.themeStyles?.characterStyles?.code?.background || 'F6F8FA';
+    
+    // Border space (10 points) extends outward, need to compensate with indent
+    // 10 points = 200 twips (1 point = 20 twips)
+    const borderSpace = 200;
+    // Calculate indent based on list level (0.5 inch per level) plus border compensation
+    const baseIndent = listLevel > 0 ? convertInchesToTwip(0.5 * listLevel) : 0;
+    const indentLeft = baseIndent + borderSpace;
+    // Right indent: border compensation + extra for each blockquote nesting level
+    // Each blockquote level needs ~300 twips extra compensation for cell boundaries
+    const blockquoteCompensation = blockquoteNestLevel > 0 ? 300 * blockquoteNestLevel : 0;
+    const indentRight = borderSpace + blockquoteCompensation;
 
     return new Paragraph({
       children: runs,
@@ -496,6 +513,7 @@ class DocxExporter {
       alignment: AlignmentType.LEFT,
       spacing: { before: 200, after: 200, line: 276 },
       shading: { fill: codeBackground },
+      indent: { left: indentLeft, right: indentRight },
       border: {
         top: { color: 'E1E4E8', space: 10, style: BorderStyle.SINGLE, size: 6 },
         bottom: { color: 'E1E4E8', space: 10, style: BorderStyle.SINGLE, size: 6 },

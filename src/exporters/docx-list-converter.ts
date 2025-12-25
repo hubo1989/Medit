@@ -8,8 +8,9 @@ import {
   LevelFormat,
   type IParagraphOptions,
   type ParagraphChild,
+  type FileChild,
 } from 'docx';
-import type { DOCXThemeStyles, DOCXListNode } from '../types/docx';
+import type { DOCXThemeStyles, DOCXListNode, DOCXASTNode } from '../types/docx';
 import type { InlineResult, InlineNode } from './docx-inline-converter';
 
 // List item node within a DOCXListNode
@@ -20,6 +21,7 @@ interface ListItemNode {
 }
 
 type ConvertInlineNodesFunction = (children: InlineNode[], options?: Record<string, unknown>) => Promise<InlineResult[]>;
+type ConvertChildNodeFunction = (node: DOCXASTNode, listLevel?: number) => Promise<FileChild | FileChild[] | null>;
 
 interface ListConverterOptions {
   themeStyles: DOCXThemeStyles;
@@ -84,8 +86,9 @@ export function createNumberingLevels(): NumberingLevel[] {
 }
 
 export interface ListConverter {
-  convertList(node: DOCXListNode): Promise<Paragraph[]>;
-  convertListItem(ordered: boolean, item: ListItemNode, level: number, listInstance: number): Promise<Paragraph[]>;
+  convertList(node: DOCXListNode): Promise<FileChild[]>;
+  convertListItem(ordered: boolean, item: ListItemNode, level: number, listInstance: number): Promise<FileChild[]>;
+  setConvertChildNode(fn: ConvertChildNodeFunction): void;
 }
 
 /**
@@ -103,13 +106,23 @@ export function createListConverter({
   const defaultRun = themeStyles.default?.run || { font: 'Arial', size: 22 };
   const defaultSpacing = themeStyles.default?.paragraph?.spacing || { line: 276 };
   
+  // Mutable reference to convertChildNode (set later to avoid circular dependency)
+  let convertChildNode: ConvertChildNodeFunction | undefined;
+
   /**
-   * Convert list node to DOCX paragraphs
-   * @param node - List AST node
-   * @returns Array of DOCX Paragraphs
+   * Set the convertChildNode function (called after all converters are initialized)
    */
-  async function convertList(node: DOCXListNode): Promise<Paragraph[]> {
-    const items: Paragraph[] = [];
+  function setConvertChildNode(fn: ConvertChildNodeFunction): void {
+    convertChildNode = fn;
+  }
+  
+  /**
+   * Convert list node to DOCX elements (paragraphs, tables, etc.)
+   * @param node - List AST node
+   * @returns Array of DOCX FileChild elements
+   */
+  async function convertList(node: DOCXListNode): Promise<FileChild[]> {
+    const items: FileChild[] = [];
     const listInstance = incrementListInstanceCounter();
 
     for (const item of node.children) {
@@ -123,15 +136,15 @@ export function createListConverter({
   }
 
   /**
-   * Convert list item node to DOCX paragraphs
+   * Convert list item node to DOCX elements
    * @param ordered - Whether the list is ordered
    * @param node - ListItem AST node
    * @param level - Current nesting level
    * @param listInstance - List instance number for numbering
-   * @returns Array of DOCX Paragraphs
+   * @returns Array of DOCX FileChild elements
    */
-  async function convertListItem(ordered: boolean, node: ListItemNode, level: number, listInstance: number): Promise<Paragraph[]> {
-    const items: Paragraph[] = [];
+  async function convertListItem(ordered: boolean, node: ListItemNode, level: number, listInstance: number): Promise<FileChild[]> {
+    const items: FileChild[] = [];
     const isTaskList = node.checked !== null && node.checked !== undefined;
 
     for (const child of node.children) {
@@ -175,11 +188,22 @@ export function createListConverter({
         for (const nestedItem of listChild.children) {
           items.push(...await convertListItem(listChild.ordered ?? false, nestedItem as ListItemNode, level + 1, listInstance));
         }
+      } else if (convertChildNode) {
+        // Handle other node types (e.g., blockquote, code, table) within list items
+        // Pass the current list level for proper indentation
+        const converted = await convertChildNode(child as DOCXASTNode, level + 1);
+        if (converted) {
+          if (Array.isArray(converted)) {
+            items.push(...converted);
+          } else {
+            items.push(converted);
+          }
+        }
       }
     }
 
     return items;
   }
 
-  return { convertList, convertListItem };
+  return { convertList, convertListItem, setConvertChildNode };
 }
