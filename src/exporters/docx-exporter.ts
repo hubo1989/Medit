@@ -250,13 +250,13 @@ class DocxExporter {
     } catch (error) {
       const errMsg = error instanceof Error ? error.message : String(error);
       const errStack = error instanceof Error ? error.stack : '';
+      this.imageCache.clear();
       console.error('DOCX export error:', errMsg, errStack);
       return { success: false, error: errMsg };
     } finally {
       this.progressCallback = null;
       this.totalResources = 0;
-      this.processedResources = 0;
-      this.imageCache.clear();
+      this.processedResources = 0;  
     }
   }
 
