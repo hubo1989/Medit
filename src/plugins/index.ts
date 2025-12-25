@@ -15,6 +15,7 @@ import { VegaPlugin } from './vega-plugin';
 import { HtmlPlugin } from './html-plugin';
 import { SvgPlugin } from './svg-plugin';
 import { DotPlugin } from './dot-plugin';
+import { InfographicPlugin } from './infographic-plugin';
 import { replacePlaceholderWithImage } from './plugin-html-utils';
 import { createErrorHTML } from './plugin-content-utils';
 import { convertPluginResultToDOCX } from '../exporters/docx-exporter';
@@ -68,7 +69,8 @@ export const plugins: BasePlugin[] = [
   new VegaLitePlugin(),
   new VegaPlugin(),
   new SvgPlugin(),
-  new DotPlugin()
+  new DotPlugin(),
+  new InfographicPlugin()
 ];
 
 // ============================================================================

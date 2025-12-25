@@ -9,6 +9,7 @@ import { VegaRenderer } from './vega-renderer';
 import { HtmlRenderer } from './html-renderer';
 import { SvgRenderer } from './svg-renderer';
 import { DotRenderer } from './dot-renderer';
+import { InfographicRenderer } from './infographic-renderer';
 import type { BaseRenderer } from './base-renderer';
 
 // Export renderer instances array
@@ -18,5 +19,6 @@ export const renderers: BaseRenderer[] = [
   new VegaRenderer('vega'),
   new HtmlRenderer(),
   new SvgRenderer(),
-  new DotRenderer()
+  new DotRenderer(),
+  new InfographicRenderer()
 ];

@@ -12,6 +12,8 @@ import {
   FALLBACK_LOCALE
 } from '../shared/index';
 
+import { uploadInChunks } from '../../utils/upload-manager';
+
 import type {
   LocaleMessages
 } from '../shared/index';
@@ -119,8 +121,6 @@ export class ChromeFileService {
       binary += String.fromCharCode(uint8Array[i]);
     }
     const base64Data = btoa(binary);
-
-    const { uploadInChunks } = await import('../../utils/upload-manager');
     
     // Upload file data in chunks
     const uploadResult = await uploadInChunks({
