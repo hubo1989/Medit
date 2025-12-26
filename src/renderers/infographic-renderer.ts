@@ -5,8 +5,11 @@
  * Similar to DOT renderer, uses the library's SVG output capability
  */
 import { BaseRenderer } from './base-renderer';
-import { Infographic } from '@antv/infographic';
+import { Infographic, setDefaultFont } from '@antv/infographic';
 import type { RendererThemeConfig, RenderResult } from '../types/index';
+
+// Default font stack for Infographic diagrams
+const DEFAULT_FONT_FAMILY = "'SimSun', 'Times New Roman', Times, serif";
 
 export class InfographicRenderer extends BaseRenderer {
 
@@ -23,6 +26,15 @@ export class InfographicRenderer extends BaseRenderer {
   }
 
   /**
+   * Apply theme configuration to Infographic
+   * @param themeConfig - Theme configuration
+   */
+  applyThemeConfig(themeConfig: RendererThemeConfig | null = null): void {
+    const fontFamily = themeConfig?.fontFamily || DEFAULT_FONT_FAMILY;
+    setDefaultFont(fontFamily);
+  }
+
+  /**
    * Render Infographic syntax to PNG
    * @param code - Infographic syntax code
    * @param themeConfig - Theme configuration
@@ -33,6 +45,9 @@ export class InfographicRenderer extends BaseRenderer {
     if (!this._initialized) {
       await this.initialize(themeConfig);
     }
+
+    // Apply theme config on every render to ensure font follows theme changes
+    this.applyThemeConfig(themeConfig);
 
     // Validate input
     this.validateInput(code);
