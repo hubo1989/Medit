@@ -237,13 +237,14 @@ async function initializeMain(): Promise<void> {
         // Update TOC progressively as chunks are rendered
         void generateTOC();
       },
+      onStreamingComplete: () => {
+        // Streaming is complete, all initial DOM content is ready
+        // Apply zoom and restore scroll position now
+        toolbarManager.applyZoom(toolbarManager.getZoomLevel(), false);
+        restoreScrollPosition(savedScrollPosition);
+        setTimeout(updateActiveTocItem, 100);
+      },
     });
-
-    // Apply initial zoom to ensure scroll margins are correct
-    toolbarManager.applyZoom(toolbarManager.getZoomLevel(), false);
-
-    restoreScrollPosition(savedScrollPosition);
-    setTimeout(updateActiveTocItem, 100);
 
     // Process async tasks after the initial render (keeps the page responsive)
     setTimeout(async () => {

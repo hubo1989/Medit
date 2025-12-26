@@ -45,6 +45,7 @@ export type RenderMarkdownOptions = {
   onProgress?: (completed: number, total: number) => void;
   onBeforeTasks?: () => void;
   onAfterTasks?: () => void;
+  onStreamingComplete?: () => void;
   postProcess?: (container: Element) => Promise<void> | void;
 };
 
@@ -61,6 +62,7 @@ export async function renderMarkdownDocument(options: RenderMarkdownOptions): Pr
     onProgress,
     onBeforeTasks,
     onAfterTasks,
+    onStreamingComplete,
     postProcess,
   } = options;
 
@@ -96,6 +98,9 @@ export async function renderMarkdownDocument(options: RenderMarkdownOptions): Pr
       taskManager,
     };
   }
+
+  // Streaming rendering is complete, notify caller
+  onStreamingComplete?.();
 
   const headings = extractHeadings(container);
 
