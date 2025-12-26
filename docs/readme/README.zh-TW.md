@@ -94,11 +94,12 @@ $$
 
 ### 1. 圖表自動轉換
 
-**Mermaid 流程圖** · **Graphviz DOT 圖** · **Vega/Vega-Lite 資料圖表** · SVG 圖片 · 複雜 HTML 表格
+**Mermaid 流程圖** · **Graphviz DOT 圖** · **Vega/Vega-Lite 資料圖表** · **Infographic** · SVG 圖片 · 複雜 HTML 表格
 
 **Mermaid：** 流程圖、時序圖、類別圖、狀態圖 → 技術文檔、架構設計  
 **Graphviz DOT：** 有向圖/無向圖、網路拓撲、狀態機 → 系統架構、依賴分析  
-**Vega/Vega-Lite：** 柱狀圖、折線圖、散點圖、熱力圖 → 商務報告、資料分析
+**Vega/Vega-Lite：** 柱狀圖、折線圖、散點圖、熱力圖 → 商務報告、資料分析  
+**Infographic：** 統計圖表、資訊圖、資料視覺化 → 資料展示、視覺敘事
 
 **時間對比：** 複雜時序圖（10個物件）
 - 傳統工具：畫圖30分鐘 + 修改20分鐘 + 調整10分鐘 + 匯出5分鐘 = **65分鐘**
@@ -200,7 +201,7 @@ LaTeX → Word 可編輯公式（不是圖片！）
 
 ### Markdown 語法全支援
 
-標題 · 段落 · 粗體 · 斜體 · 刪除線 · 列表 · 任務列表 · 引用 · 程式碼區塊（100+ 語言高亮）· 表格 · 連結 · 圖片 · Mermaid 圖表 · Vega / Vega-Lite 圖表 · LaTeX 公式 · HTML · GFM 擴充
+標題 · 段落 · 粗體 · 斜體 · 刪除線 · 列表 · 任務列表 · 引用 · 程式碼區塊（100+ 語言高亮）· 表格 · 連結 · 圖片 · Mermaid 圖表 · Vega / Vega-Lite 圖表 · Infographic 圖表 · LaTeX 公式 · HTML · GFM 擴充
 
 ### 18 個主題
 
@@ -240,7 +241,7 @@ LaTeX → Word 可編輯公式（不是圖片！）
 A: 能。標準 .docx 格式，數學公式可編輯，不是圖片。
 
 **Q: 支援哪些圖表？**  
-A: 所有 Mermaid 圖表（流程圖、時序圖、甘特圖、類別圖、狀態圖、圓餅圖、ER圖等）、Vega / Vega-Lite 資料視覺化圖表 + SVG 自動轉換。
+A: 所有 Mermaid 圖表（流程圖、時序圖、甘特圖、類別圖、狀態圖、圓餅圖、ER圖等）、Vega / Vega-Lite 資料視覺化圖表、Infographic 統計圖表 + SVG 自動轉換。
 
 **Q: 檔案大小有限制嗎？**  
 A: 無限制。智慧快取，100+ 圖表的文檔也秒開。

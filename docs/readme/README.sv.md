@@ -94,11 +94,12 @@ Låt data tala, generera professionella rapporter med ett klick.
 
 ### 1. Automatisk diagramkonvertering
 
-**Mermaid-diagram** · **Graphviz DOT-grafer** · **Vega/Vega-Lite datadiagram** · SVG-bilder · Komplexa HTML-tabeller
+**Mermaid-diagram** · **Graphviz DOT-grafer** · **Vega/Vega-Lite datadiagram** · **Infographic** · SVG-bilder · Komplexa HTML-tabeller
 
 **Mermaid:** Flödesscheman, sekvensdiagram, klassdiagram, tillståndsdiagram → Tekniska dokument, arkitekturdesign  
 **Graphviz DOT:** Riktade och oriktade grafer, tillståndsdiagram, organisationsscheman → Systemarkitektur, dataflöde  
-**Vega/Vega-Lite:** Stapeldiagram, linjediagram, spridningsdiagram, värmekarta → Affärsrapporter, dataanalys
+**Vega/Vega-Lite:** Stapeldiagram, linjediagram, spridningsdiagram, värmekarta → Affärsrapporter, dataanalys  
+**Infographic:** Statistiska diagram, infografik, datavisualisering → Datapresentation, visuellt berättande
 
 **Tidsjämförelse:** Komplext sekvensdiagram (10 objekt)
 - Traditionella verktyg: Rita 30min + Ändra 20min + Justera 10min + Exportera 5min = **65 minuter**
@@ -200,7 +201,7 @@ Dokument med 50 Mermaid-diagram:
 
 ### Fullt Markdown-syntaxstöd
 
-Rubriker · Stycken · Fetstil · Kursiv · Genomstruken · Listor · Uppgiftslistor · Citat · Kodblock (100+ språk markerade) · Tabeller · Länkar · Bilder · Mermaid-diagram · Vega / Vega-Lite-diagram · LaTeX-formler · HTML · GFM-tillägg
+Rubriker · Stycken · Fetstil · Kursiv · Genomstruken · Listor · Uppgiftslistor · Citat · Kodblock (100+ språk markerade) · Tabeller · Länkar · Bilder · Mermaid-diagram · Vega / Vega-Lite-diagram · Infographic-diagram · LaTeX-formler · HTML · GFM-tillägg
 
 ### 18 teman
 
@@ -240,7 +241,7 @@ Förenklad kinesiska · Traditionell kinesiska · English · Deutsch · Español
 S: Ja. Standard .docx-format, matematiska formler är redigerbara, inte bilder.
 
 **F: Vilka diagram stöds?**  
-S: Alla Mermaid-diagram (flödesschema, sekvens, gantt, klass, tillstånd, cirkel, ER, etc.), Vega / Vega-Lite datavisualiseringsdiagram + SVG automatisk konvertering.
+S: Alla Mermaid-diagram (flödesschema, sekvens, gantt, klass, tillstånd, cirkel, ER, etc.), Vega / Vega-Lite datavisualiseringsdiagram, Infographic statistiska diagram + SVG automatisk konvertering.
 
 **F: Finns det en filstorleksgräns?**  
 S: Ingen gräns. Smart cache, dokument med 100+ diagram öppnas omedelbart.

@@ -94,11 +94,12 @@ Let data speak, generate professional reports with one click.
 
 ### 1. Automatic Diagram Conversion
 
-**Mermaid Diagrams** · **Graphviz DOT** · **Vega/Vega-Lite Data Charts** · SVG images · Complex HTML tables
+**Mermaid Diagrams** · **Graphviz DOT** · **Vega/Vega-Lite Data Charts** · **Infographic** · SVG images · Complex HTML tables
 
 **Mermaid:** Flowcharts, sequence diagrams, class diagrams, state diagrams → Technical docs, architecture design  
 **Graphviz DOT:** Directed/undirected graphs, network topology, state machines → System architecture, dependency analysis  
-**Vega/Vega-Lite:** Bar charts, line charts, scatter plots, heatmaps → Business reports, data analytics
+**Vega/Vega-Lite:** Bar charts, line charts, scatter plots, heatmaps → Business reports, data analytics  
+**Infographic:** Statistical charts, infographics, data visualization → Data presentation, visual storytelling
 
 **Time comparison:** Complex sequence diagram (10 objects)
 - Traditional tools: Draw 30min + Modify 20min + Adjust 10min + Export 5min = **65 minutes**
@@ -200,7 +201,7 @@ Document with 50 Mermaid diagrams:
 
 ### Full Markdown Syntax Support
 
-Headings · Paragraphs · Bold · Italic · Strikethrough · Lists · Task lists · Blockquotes · Code blocks (100+ languages highlighted) · Tables · Links · Images · Mermaid diagrams · Vega / Vega-Lite charts · LaTeX formulas · HTML · GFM extensions
+Headings · Paragraphs · Bold · Italic · Strikethrough · Lists · Task lists · Blockquotes · Code blocks (100+ languages highlighted) · Tables · Links · Images · Mermaid diagrams · Vega / Vega-Lite charts · Infographic charts · LaTeX formulas · HTML · GFM extensions
 
 ### 18 Themes
 
@@ -240,7 +241,7 @@ Simplified Chinese · Traditional Chinese · English · Deutsch · Español · F
 A: Yes. Standard .docx format, math formulas are editable, not images.
 
 **Q: Which diagrams are supported?**  
-A: All Mermaid diagrams (flowchart, sequence, gantt, class, state, pie, ER, etc.), Vega / Vega-Lite data visualization charts + SVG auto-conversion.
+A: All Mermaid diagrams (flowchart, sequence, gantt, class, state, pie, ER, etc.), Vega / Vega-Lite data visualization charts, Infographic statistical charts + SVG auto-conversion.
 
 **Q: Is there a file size limit?**  
 A: No limit. Smart cache, documents with 100+ diagrams open instantly.

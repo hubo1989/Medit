@@ -94,11 +94,12 @@ Mów danymi, generuj profesjonalne raporty jednym kliknięciem.
 
 ### 1. Automatyczna konwersja wykresów
 
-**Schematy blokowe Mermaid** · **Graphviz DOT** · **Wykresy danych Vega/Vega-Lite** · Obrazy SVG · Złożone tabele HTML
+**Schematy blokowe Mermaid** · **Graphviz DOT** · **Wykresy danych Vega/Vega-Lite** · **Infographic** · Obrazy SVG · Złożone tabele HTML
 
 **Mermaid:** Schematy blokowe, diagramy sekwencji, diagramy klas, diagramy stanów → Dokumentacja techniczna, projektowanie architektury  
 **Graphviz DOT:** Grafy skierowane/nieskierowane, topologia sieci, automaty stanowe → Architektura systemów, analiza zależności  
-**Vega/Vega-Lite:** Wykresy słupkowe, liniowe, punktowe, mapy cieplne → Raporty biznesowe, analiza danych
+**Vega/Vega-Lite:** Wykresy słupkowe, liniowe, punktowe, mapy cieplne → Raporty biznesowe, analiza danych  
+**Infographic:** Wykresy statystyczne, infografiki, wizualizacja danych → Prezentacja danych, wizualne opowiadanie historii
 
 **Porównanie czasu:** Złożony diagram sekwencji (10 obiektów)
 - Tradycyjne narzędzia: rysowanie 30 min + modyfikacja 20 min + dostosowanie 10 min + eksport 5 min = **65 minut**
@@ -200,7 +201,7 @@ Dokument zawierający 50 diagramów Mermaid:
 
 ### Pełne wsparcie składni Markdown
 
-Nagłówki · Akapity · Pogrubienie · Kursywa · Przekreślenie · Listy · Listy zadań · Cytaty · Bloki kodu (podświetlanie 100+ języków) · Tabele · Linki · Obrazy · Diagramy Mermaid · Wykresy Vega / Vega-Lite · Formuły LaTeX · HTML · Rozszerzenia GFM
+Nagłówki · Akapity · Pogrubienie · Kursywa · Przekreślenie · Listy · Listy zadań · Cytaty · Bloki kodu (podświetlanie 100+ języków) · Tabele · Linki · Obrazy · Diagramy Mermaid · Wykresy Vega / Vega-Lite · Wykresy Infographic · Formuły LaTeX · HTML · Rozszerzenia GFM
 
 ### 18 motywów
 
@@ -240,7 +241,7 @@ Nagłówki · Akapity · Pogrubienie · Kursywa · Przekreślenie · Listy · Li
 O: Tak. Standardowy format .docx, formuły matematyczne edytowalne, nie są obrazami.
 
 **P: Jakie wykresy są obsługiwane?**  
-O: Wszystkie diagramy Mermaid (schematy blokowe, diagramy sekwencji, wykresy Gantta, diagramy klas, diagramy stanów, wykresy kołowe, diagramy ER itp.), wykresy wizualizacji danych Vega / Vega-Lite + automatyczna konwersja SVG.
+O: Wszystkie diagramy Mermaid (schematy blokowe, diagramy sekwencji, wykresy Gantta, diagramy klas, diagramy stanów, wykresy kołowe, diagramy ER itp.), wykresy wizualizacji danych Vega / Vega-Lite, wykresy statystyczne Infographic + automatyczna konwersja SVG.
 
 **P: Czy jest limit rozmiaru pliku?**  
 O: Bez limitu. Inteligentna pamięć podręczna, dokumenty ze 100+ wykresami otwierają się natychmiast.

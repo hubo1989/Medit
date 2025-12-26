@@ -94,11 +94,12 @@ Fale com dados, gere relatórios profissionais com um clique.
 
 ### 1. Conversão automática de gráficos
 
-**Fluxogramas Mermaid** · **Graphviz DOT** · **Gráficos de dados Vega/Vega-Lite** · Imagens SVG · Tabelas HTML complexas
+**Fluxogramas Mermaid** · **Graphviz DOT** · **Gráficos de dados Vega/Vega-Lite** · **Infographic** · Imagens SVG · Tabelas HTML complexas
 
 **Mermaid:** Fluxogramas, diagramas de sequência, diagramas de classe, diagramas de estado → Documentação técnica, design de arquitetura  
 **Graphviz DOT:** Grafos dirigidos/não dirigidos, topologia de rede, máquinas de estado → Arquitetura de sistemas, análise de dependências  
-**Vega/Vega-Lite:** Gráficos de barras, linhas, dispersão, mapas de calor → Relatórios empresariais, análise de dados
+**Vega/Vega-Lite:** Gráficos de barras, linhas, dispersão, mapas de calor → Relatórios empresariais, análise de dados  
+**Infographic:** Gráficos estatísticos, infográficos, visualização de dados → Apresentação de dados, narrativa visual
 
 **Comparação de tempo:** Diagrama de sequência complexo (10 objetos)
 - Ferramentas tradicionais: desenho 30 min + modificação 20 min + ajuste 10 min + exportação 5 min = **65 minutos**
@@ -200,7 +201,7 @@ Documento contendo 50 diagramas Mermaid:
 
 ### Suporte completo à sintaxe Markdown
 
-Títulos · Parágrafos · Negrito · Itálico · Rasurado · Listas · Listas de tarefas · Citações · Blocos de código (destaque de 100+ linguagens) · Tabelas · Ligações · Imagens · Diagramas Mermaid · Gráficos Vega / Vega-Lite · Fórmulas LaTeX · HTML · Extensões GFM
+Títulos · Parágrafos · Negrito · Itálico · Rasurado · Listas · Listas de tarefas · Citações · Blocos de código (destaque de 100+ linguagens) · Tabelas · Ligações · Imagens · Diagramas Mermaid · Gráficos Vega / Vega-Lite · Gráficos Infographic · Fórmulas LaTeX · HTML · Extensões GFM
 
 ### 18 temas
 
@@ -240,7 +241,7 @@ Títulos · Parágrafos · Negrito · Itálico · Rasurado · Listas · Listas d
 R: Sim. Formato .docx padrão, fórmulas matemáticas editáveis, não são imagens.
 
 **P: Quais gráficos são suportados?**  
-R: Todos os diagramas Mermaid (fluxogramas, diagramas de sequência, gráficos de Gantt, diagramas de classe, diagramas de estado, gráficos circulares, diagramas ER, etc.), gráficos de visualização de dados Vega / Vega-Lite + conversão automática de SVG.
+R: Todos os diagramas Mermaid (fluxogramas, diagramas de sequência, gráficos de Gantt, diagramas de classe, diagramas de estado, gráficos circulares, diagramas ER, etc.), gráficos de visualização de dados Vega / Vega-Lite, gráficos estatísticos Infographic + conversão automática de SVG.
 
 **P: Existe limite de tamanho de ficheiro?**  
 R: Sem limite. Cache inteligente, documentos com 100+ gráficos abrem instantaneamente.

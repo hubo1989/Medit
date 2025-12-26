@@ -94,11 +94,12 @@ Parla con i dati, genera rapporti professionali con un clic.
 
 ### 1. Conversione automatica dei grafici
 
-**Diagrammi di flusso Mermaid** · **Graphviz DOT** · **Grafici dati Vega/Vega-Lite** · Immagini SVG · Tabelle HTML complesse
+**Diagrammi di flusso Mermaid** · **Graphviz DOT** · **Grafici dati Vega/Vega-Lite** · **Infographic** · Immagini SVG · Tabelle HTML complesse
 
 **Mermaid:** Diagrammi di flusso, diagrammi di sequenza, diagrammi di classe, diagrammi di stato → Documentazione tecnica, progettazione architetturale  
 **Graphviz DOT:** Grafi orientati/non orientati, topologia di rete, macchine a stati → Architettura di sistema, analisi delle dipendenze  
-**Vega/Vega-Lite:** Grafici a barre, grafici a linee, grafici a dispersione, mappe di calore → Rapporti aziendali, analisi dati
+**Vega/Vega-Lite:** Grafici a barre, grafici a linee, grafici a dispersione, mappe di calore → Rapporti aziendali, analisi dati  
+**Infographic:** Grafici statistici, infografiche, visualizzazione dati → Presentazione dati, storytelling visivo
 
 **Confronto tempi:** Diagramma di sequenza complesso (10 oggetti)
 - Strumenti tradizionali: disegno 30 min + modifica 20 min + regolazione 10 min + esportazione 5 min = **65 minuti**
@@ -200,7 +201,7 @@ Documento contenente 50 diagrammi Mermaid:
 
 ### Supporto completo sintassi Markdown
 
-Titoli · Paragrafi · Grassetto · Corsivo · Barrato · Elenchi · Liste di attività · Citazioni · Blocchi di codice (evidenziazione 100+ linguaggi) · Tabelle · Link · Immagini · Diagrammi Mermaid · Grafici Vega / Vega-Lite · Formule LaTeX · HTML · Estensioni GFM
+Titoli · Paragrafi · Grassetto · Corsivo · Barrato · Elenchi · Liste di attività · Citazioni · Blocchi di codice (evidenziazione 100+ linguaggi) · Tabelle · Link · Immagini · Diagrammi Mermaid · Grafici Vega / Vega-Lite · Grafici Infographic · Formule LaTeX · HTML · Estensioni GFM
 
 ### 18 temi
 
@@ -240,7 +241,7 @@ Titoli · Paragrafi · Grassetto · Corsivo · Barrato · Elenchi · Liste di at
 R: Sì. Formato .docx standard, formule matematiche modificabili, non sono immagini.
 
 **D: Quali grafici sono supportati?**  
-R: Tutti i diagrammi Mermaid (diagrammi di flusso, diagrammi di sequenza, diagrammi di Gantt, diagrammi di classe, diagrammi di stato, diagrammi a torta, diagrammi ER, ecc.), grafici di visualizzazione dati Vega / Vega-Lite + conversione automatica SVG.
+R: Tutti i diagrammi Mermaid (diagrammi di flusso, diagrammi di sequenza, diagrammi di Gantt, diagrammi di classe, diagrammi di stato, diagrammi a torta, diagrammi ER, ecc.), grafici di visualizzazione dati Vega / Vega-Lite, grafici statistici Infographic + conversione automatica SVG.
 
 **D: C'è un limite di dimensione del file?**  
 R: Nessun limite. Cache intelligente, documenti con 100+ grafici si aprono istantaneamente.

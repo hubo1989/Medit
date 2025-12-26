@@ -94,11 +94,12 @@ Lassen Sie Daten sprechen, generieren Sie professionelle Berichte mit einem Klic
 
 ### 1. Automatische Diagrammkonvertierung
 
-**Mermaid-Diagramme** · **Graphviz DOT** · **Vega/Vega-Lite-Datendiagramme** · SVG-Bilder · Komplexe HTML-Tabellen
+**Mermaid-Diagramme** · **Graphviz DOT** · **Vega/Vega-Lite-Datendiagramme** · **Infographic** · SVG-Bilder · Komplexe HTML-Tabellen
 
 **Mermaid:** Flussdiagramme, Sequenzdiagramme, Klassendiagramme, Zustandsdiagramme → Technische Dokumente, Architekturdesign  
 **Graphviz DOT:** Gerichtete/ungerichtete Graphen, Netzwerktopologie, Zustandsautomaten → Systemarchitektur, Abhängigkeitsanalyse  
-**Vega/Vega-Lite:** Balkendiagramme, Liniendiagramme, Streudiagramme, Heatmaps → Geschäftsberichte, Datenanalyse
+**Vega/Vega-Lite:** Balkendiagramme, Liniendiagramme, Streudiagramme, Heatmaps → Geschäftsberichte, Datenanalyse  
+**Infographic:** Statistische Diagramme, Infografiken, Datenvisualisierung → Datenpräsentation, visuelles Storytelling
 
 **Zeitvergleich:** Komplexes Sequenzdiagramm (10 Objekte)
 - Traditionelle Tools: Zeichnen 30min + Ändern 20min + Anpassen 10min + Exportieren 5min = **65 Minuten**
@@ -200,7 +201,7 @@ Dokument mit 50 Mermaid-Diagrammen:
 
 ### Volle Markdown-Syntax-Unterstützung
 
-Überschriften · Absätze · Fett · Kursiv · Durchgestrichen · Listen · Aufgabenlisten · Blockzitate · Codeblöcke (100+ Sprachen hervorgehoben) · Tabellen · Links · Bilder · Mermaid-Diagramme · Vega/Vega-Lite-Diagramme · LaTeX-Formeln · HTML · GFM-Erweiterungen
+Überschriften · Absätze · Fett · Kursiv · Durchgestrichen · Listen · Aufgabenlisten · Blockzitate · Codeblöcke (100+ Sprachen hervorgehoben) · Tabellen · Links · Bilder · Mermaid-Diagramme · Vega/Vega-Lite-Diagramme · Infographic-Diagramme · LaTeX-Formeln · HTML · GFM-Erweiterungen
 
 ### 18 Themes
 
@@ -240,7 +241,7 @@ Vereinfachtes Chinesisch · Traditionelles Chinesisch · English · Deutsch · E
 A: Ja. Standard-.docx-Format, mathematische Formeln sind bearbeitbar, keine Bilder.
 
 **F: Welche Diagramme werden unterstützt?**  
-A: Alle Mermaid-Diagramme (Flussdiagramm, Sequenz, Gantt, Klasse, Zustand, Kreisdiagramm, ER usw.), Vega/Vega-Lite-Datenvisualisierungsdiagramme + SVG-Autokonvertierung.
+A: Alle Mermaid-Diagramme (Flussdiagramm, Sequenz, Gantt, Klasse, Zustand, Kreisdiagramm, ER usw.), Vega/Vega-Lite-Datenvisualisierungsdiagramme, Infographic-Statistikdiagramme + SVG-Autokonvertierung.
 
 **F: Gibt es eine Dateigrößenbeschränkung?**  
 A: Keine Beschränkung. Intelligenter Cache, Dokumente mit 100+ Diagrammen öffnen sich sofort.

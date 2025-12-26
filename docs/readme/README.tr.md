@@ -94,11 +94,12 @@ Verilerin konuşmasına izin verin, tek tıkla profesyonel raporlar oluşturun.
 
 ### 1. Otomatik Diyagram Dönüştürme
 
-**Mermaid Diyagramları** · **Graphviz DOT** · **Vega/Vega-Lite Veri Grafikleri** · SVG görselleri · Karmaşık HTML tabloları
+**Mermaid Diyagramları** · **Graphviz DOT** · **Vega/Vega-Lite Veri Grafikleri** · **Infographic** · SVG görselleri · Karmaşık HTML tabloları
 
 **Mermaid:** Akış şemaları, sıra diyagramları, sınıf diyagramları, durum diyagramları → Teknik belgeler, mimari tasarım  
 **Graphviz DOT:** Yönlendirilmiş/yönlendirilmemiş graflar, ağ topolojisi, durum makineleri → Sistem mimarisi, bağımlılık analizi  
-**Vega/Vega-Lite:** Çubuk grafikler, çizgi grafikler, dağılım grafikleri, ısı haritaları → İş raporları, veri analizi
+**Vega/Vega-Lite:** Çubuk grafikler, çizgi grafikler, dağılım grafikleri, ısı haritaları → İş raporları, veri analizi  
+**Infographic:** İstatistiksel grafikler, infografikler, veri görselleştirme → Veri sunumu, görsel hikaye anlatımı
 
 **Zaman karşılaştırması:** Karmaşık sıra diyagramı (10 nesne)
 - Geleneksel araçlar: Çizim 30dk + Değiştirme 20dk + Ayarlama 10dk + Dışa aktarma 5dk = **65 dakika**
@@ -200,7 +201,7 @@ Farklı senaryolar, farklı stiller, tek tıkla geçiş yapın:
 
 ### Tam Markdown Sözdizimi Desteği
 
-Başlıklar · Paragraflar · Kalın · İtalik · Üstü çizili · Listeler · Görev listeleri · Alıntılar · Kod blokları (100+ dil vurgulanmış) · Tablolar · Bağlantılar · Resimler · Mermaid diyagramları · Vega / Vega-Lite grafikleri · LaTeX formülleri · HTML · GFM uzantıları
+Başlıklar · Paragraflar · Kalın · İtalik · Üstü çizili · Listeler · Görev listeleri · Alıntılar · Kod blokları (100+ dil vurgulanmış) · Tablolar · Bağlantılar · Resimler · Mermaid diyagramları · Vega / Vega-Lite grafikleri · Infographic grafikleri · LaTeX formülleri · HTML · GFM uzantıları
 
 ### 18 Tema
 
@@ -240,7 +241,7 @@ Basitleştirilmiş Çince · Geleneksel Çince · English · Deutsch · Español
 C: Evet. Standart .docx biçimi, matematik formülleri düzenlenebilir, görüntü değil.
 
 **S: Hangi diyagramlar destekleniyor?**  
-C: Tüm Mermaid diyagramları (akış şeması, sıra, gantt, sınıf, durum, pasta, ER vb.), Vega / Vega-Lite veri görselleştirme grafikleri + SVG otomatik dönüştürme.
+C: Tüm Mermaid diyagramları (akış şeması, sıra, gantt, sınıf, durum, pasta, ER vb.), Vega / Vega-Lite veri görselleştirme grafikleri, Infographic istatistiksel grafikler + SVG otomatik dönüştürme.
 
 **S: Dosya boyutu sınırı var mı?**  
 C: Sınır yok. Akıllı önbellek, 100+ diyagramlı belgeler anında açılır.

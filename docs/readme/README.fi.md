@@ -94,11 +94,12 @@ Anna datan puhua, luo ammattimaiset raportit yhdellä klikkauksella.
 
 ### 1. Automaattinen kaaviomuunnos
 
-**Mermaid-kaaviot** · **Graphviz DOT-kaaviot** · **Vega/Vega-Lite-datakaaviot** · SVG-kuvat · Monimutkaiset HTML-taulukot
+**Mermaid-kaaviot** · **Graphviz DOT-kaaviot** · **Vega/Vega-Lite-datakaaviot** · **Infographic** · SVG-kuvat · Monimutkaiset HTML-taulukot
 
 **Mermaid:** Vuokaaviot, sekvenssikaaviot, luokkakaaviot, tilakaaviot → Tekniset dokumentit, arkkitehtuurisuunnittelu  
 **Graphviz DOT:** Ohjatut ja ohjaamattomat kaaviot, tilakonekartat, organisaatiokaaviot → Järjestelmäarkkitehtuuri, tietovuokaaviot  
-**Vega/Vega-Lite:** Pylväskaaviot, viivakaaviot, hajontakaaviot, lämpökartat → Liiketoimintaraportit, data-analyysi
+**Vega/Vega-Lite:** Pylväskaaviot, viivakaaviot, hajontakaaviot, lämpökartat → Liiketoimintaraportit, data-analyysi  
+**Infographic:** Tilastokaaviot, infografiikat, datan visualisointi → Datan esittäminen, visuaalinen tarinank erto
 
 **Aikavertailu:** Monimutkainen sekvenssikaavio (10 objektia)
 - Perinteiset työkalut: Piirtäminen 30min + Muokkaus 20min + Säätö 10min + Vienti 5min = **65 minuuttia**
@@ -200,7 +201,7 @@ Dokumentti, jossa 50 Mermaid-kaaviota:
 
 ### Täysi Markdown-syntaksituki
 
-Otsikot · Kappaleet · Lihavoitu · Kursivoitu · Yliviivaus · Luettelot · Tehtävälistat · Lainaukset · Koodilohkot (100+ kielen korostus) · Taulukot · Linkit · Kuvat · Mermaid-kaaviot · Vega / Vega-Lite -kaaviot · LaTeX-kaavat · HTML · GFM-laajennukset
+Otsikot · Kappaleet · Lihavoitu · Kursivoitu · Yliviivaus · Luettelot · Tehtävälistat · Lainaukset · Koodilohkot (100+ kielen korostus) · Taulukot · Linkit · Kuvat · Mermaid-kaaviot · Vega / Vega-Lite -kaaviot · Infographic-kaaviot · LaTeX-kaavat · HTML · GFM-laajennukset
 
 ### 18 teemaa
 
@@ -240,7 +241,7 @@ Yksinkertaistettu kiina · Perinteinen kiina · English · Deutsch · Español �
 A: Kyllä. Standardi .docx-muoto, matemaattiset kaavat ovat muokattavissa, eivät kuvia.
 
 **K: Mitä kaavioita tuetaan?**  
-A: Kaikki Mermaid-kaaviot (vuokaavio, sekvenssi, gantt, luokka, tila, piirakka, ER jne.), Vega / Vega-Lite -datavisualisointikaaviot + SVG-automaattimuunnos.
+A: Kaikki Mermaid-kaaviot (vuokaavio, sekvenssi, gantt, luokka, tila, piirakka, ER jne.), Vega / Vega-Lite -datavisualisointikaaviot, Infographic-tilastokaaviot + SVG-automaattimuunnos.
 
 **K: Onko tiedoston koolle rajoitusta?**  
 A: Ei rajoitusta. Älykäs välimuisti, dokumentit, joissa on 100+ kaaviota, avautuvat välittömästi.

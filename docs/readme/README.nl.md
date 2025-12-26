@@ -94,11 +94,12 @@ Laat data spreken, genereer professionele rapporten met één klik.
 
 ### 1. Automatische diagramconversie
 
-**Mermaid-diagrammen** · **Graphviz DOT** · **Vega/Vega-Lite datagrafieken** · SVG-afbeeldingen · Complexe HTML-tabellen
+**Mermaid-diagrammen** · **Graphviz DOT** · **Vega/Vega-Lite datagrafieken** · **Infographic** · SVG-afbeeldingen · Complexe HTML-tabellen
 
 **Mermaid:** Stroomdiagrammen, sequentiediagrammen, klassediagrammen, toestandsdiagrammen → Technische documentatie, architectuurontwerp  
 **Graphviz DOT:** Gerichte/ongerichte grafen, netwerktopologie, toestandsmachines → Systeemarchitectuur, afhankelijkheidsanalyse  
-**Vega/Vega-Lite:** Staafdiagrammen, lijngrafieken, spreidingsdiagrammen, heatmaps → Zakelijke rapporten, data-analyse
+**Vega/Vega-Lite:** Staafdiagrammen, lijngrafieken, spreidingsdiagrammen, heatmaps → Zakelijke rapporten, data-analyse  
+**Infographic:** Statistische grafieken, infographics, datavisualisatie → Datapresentatie, visueel verhalen vertellen
 
 **Tijdvergelijking:** Complex sequentiediagram (10 objecten)
 - Traditionele hulpmiddelen: Tekenen 30min + Wijzigen 20min + Aanpassen 10min + Exporteren 5min = **65 minuten**
@@ -200,7 +201,7 @@ Document met 50 Mermaid-diagrammen:
 
 ### Volledige ondersteuning voor Markdown-syntaxis
 
-Koppen · Alinea's · Vet · Cursief · Doorhalen · Lijsten · Takenlijsten · Citaten · Codeblokken (100+ talen gemarkeerd) · Tabellen · Links · Afbeeldingen · Mermaid-diagrammen · Vega / Vega-Lite grafieken · LaTeX-formules · HTML · GFM-extensies
+Koppen · Alinea's · Vet · Cursief · Doorhalen · Lijsten · Takenlijsten · Citaten · Codeblokken (100+ talen gemarkeerd) · Tabellen · Links · Afbeeldingen · Mermaid-diagrammen · Vega / Vega-Lite grafieken · Infographic grafieken · LaTeX-formules · HTML · GFM-extensies
 
 ### 18 thema's
 
@@ -240,7 +241,7 @@ Vereenvoudigd Chinees · Traditioneel Chinees · Engels · Deutsch · Español �
 A: Ja. Standaard .docx-formaat, wiskundige formules zijn bewerkbaar, geen afbeeldingen.
 
 **V: Welke diagrammen worden ondersteund?**  
-A: Alle Mermaid-diagrammen (stroomdiagram, sequentie, gantt, klasse, toestand, taart, ER, enz.), Vega / Vega-Lite datavisualisatiegrafieken + SVG automatische conversie.
+A: Alle Mermaid-diagrammen (stroomdiagram, sequentie, gantt, klasse, toestand, taart, ER, enz.), Vega / Vega-Lite datavisualisatiegrafieken, Infographic statistische grafieken + SVG automatische conversie.
 
 **V: Is er een bestandsgroottelimiet?**  
 A: Geen limiet. Slimme cache, documenten met 100+ diagrammen openen direct.

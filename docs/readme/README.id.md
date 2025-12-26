@@ -94,11 +94,12 @@ Biarkan data berbicara, hasilkan laporan profesional dengan satu klik.
 
 ### 1. Konversi Diagram Otomatis
 
-**Diagram Mermaid** · **Graphviz DOT** · **Grafik Data Vega/Vega-Lite** · Gambar SVG · Tabel HTML kompleks
+**Diagram Mermaid** · **Graphviz DOT** · **Grafik Data Vega/Vega-Lite** · **Infographic** · Gambar SVG · Tabel HTML kompleks
 
 **Mermaid:** Diagram alur, diagram urutan, diagram kelas, diagram status → Dokumen teknis, desain arsitektur  
 **Graphviz DOT:** Grafik berarah/tak berarah, topologi jaringan, mesin status → Arsitektur sistem, analisis ketergantungan  
-**Vega/Vega-Lite:** Grafik batang, grafik garis, plot sebar, peta panas → Laporan bisnis, analisis data
+**Vega/Vega-Lite:** Grafik batang, grafik garis, plot sebar, peta panas → Laporan bisnis, analisis data  
+**Infographic:** Grafik statistik, infografis, visualisasi data → Presentasi data, penceritaan visual
 
 **Perbandingan waktu:** Diagram urutan kompleks (10 objek)
 - Alat tradisional: Menggambar 30mnt + Memodifikasi 20mnt + Menyesuaikan 10mnt + Mengekspor 5mnt = **65 menit**
@@ -141,11 +142,11 @@ Skenario berbeda, gaya berbeda, beralih dengan satu klik:
 
 ## ⚡ Pengalaman Secepat Kilat
 
-### Cache Cerdas: Pertama kali 5d, kedua kali 1d
+### Cache Cerdas: Pertama kali 5 dtk, kedua kali 1 dtk
 
 Dokumen dengan 50 diagram Mermaid:
 - **Pembukaan pertama:** Teks ditampilkan langsung, diagram dirender di latar belakang, semua selesai dalam 5 detik
-- **Pembukaan kedua:** Muat dari cache, tampilan instan (<1d)
+- **Pembukaan kedua:** Muat dari cache, tampilan instan (<1 dtk)
 - **Teks dimodifikasi:** Masih instan (diagram dari cache)
 - **Diagram dimodifikasi:** Hanya diagram yang diubah yang dirender ulang
 
@@ -200,7 +201,7 @@ Dokumen dengan 50 diagram Mermaid:
 
 ### Dukungan Sintaks Markdown Penuh
 
-Judul · Paragraf · Tebal · Miring · Coret · Daftar · Daftar tugas · Kutipan · Blok kode (penyorotan 100+ bahasa) · Tabel · Tautan · Gambar · Diagram Mermaid · Grafik Vega / Vega-Lite · Rumus LaTeX · HTML · Ekstensi GFM
+Judul · Paragraf · Tebal · Miring · Coret · Daftar · Daftar tugas · Kutipan · Blok kode (penyorotan 100+ bahasa) · Tabel · Tautan · Gambar · Diagram Mermaid · Grafik Vega / Vega-Lite · Grafik Infographic · Rumus LaTeX · HTML · Ekstensi GFM
 
 ### 18 Tema
 
@@ -240,7 +241,7 @@ Cina Sederhana · Cina Tradisional · English · Deutsch · Español · Françai
 J: Ya. Format .docx standar, rumus matematika dapat diedit, bukan gambar.
 
 **T: Diagram apa yang didukung?**  
-J: Semua diagram Mermaid (flowchart, sequence, gantt, class, state, pie, ER, dll.), grafik visualisasi data Vega / Vega-Lite + konversi SVG otomatis.
+J: Semua diagram Mermaid (flowchart, sequence, gantt, class, state, pie, ER, dll.), grafik visualisasi data Vega / Vega-Lite, grafik statistik Infographic + konversi SVG otomatis.
 
 **T: Apakah ada batasan ukuran file?**  
 J: Tidak ada batasan. Cache cerdas, dokumen dengan 100+ diagram terbuka langsung.
@@ -258,7 +259,7 @@ J: Klik ikon toolbar → Pilih tema → Terapkan langsung.
 J: Saat ini 18 tema preset, penyesuaian akan datang.
 
 **T: Apakah dokumen besar akan lambat?**  
-J: Tidak. Pemuatan progresif + cache cerdas, teks ditampilkan langsung, diagram dirender di latar belakang (pertama 5d, kedua 1d).
+J: Tidak. Pemuatan progresif + cache cerdas, teks ditampilkan langsung, diagram dirender di latar belakang (pertama 5 dtk, kedua 1 dtk).
 
 **T: Apakah cache memakan banyak ruang?**  
 J: Standar maks 1000 item, sekitar 500 MB, dapat disesuaikan atau dihapus di pengaturan.

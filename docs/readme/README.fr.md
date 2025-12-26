@@ -94,11 +94,12 @@ Laissez les données parler, générez des rapports professionnels en un clic.
 
 ### 1. Conversion Automatique de Diagrammes
 
-**Diagrammes Mermaid** · **Graphviz DOT** · **Graphiques de Données Vega/Vega-Lite** · Images SVG · Tableaux HTML complexes
+**Diagrammes Mermaid** · **Graphviz DOT** · **Graphiques de Données Vega/Vega-Lite** · **Infographic** · Images SVG · Tableaux HTML complexes
 
 **Mermaid:** Organigrammes, diagrammes de séquence, diagrammes de classe, diagrammes d'état → Documents techniques, conception d'architecture  
 **Graphviz DOT:** Graphes orientés/non orientés, topologie réseau, machines à états → Architecture système, analyse des dépendances  
-**Vega/Vega-Lite:** Graphiques à barres, graphiques linéaires, nuages de points, cartes thermiques → Rapports d'affaires, analyse de données
+**Vega/Vega-Lite:** Graphiques à barres, graphiques linéaires, nuages de points, cartes thermiques → Rapports d'affaires, analyse de données  
+**Infographic:** Graphiques statistiques, infographies, visualisation de données → Présentation de données, narration visuelle
 
 **Comparaison de temps:** Diagramme de séquence complexe (10 objets)
 - Outils traditionnels: Dessiner 30min + Modifier 20min + Ajuster 10min + Exporter 5min = **65 minutes**
@@ -200,7 +201,7 @@ Document avec 50 diagrammes Mermaid:
 
 ### Support Complet de la Syntaxe Markdown
 
-En-têtes · Paragraphes · Gras · Italique · Barré · Listes · Listes de tâches · Citations · Blocs de code (100+ langages surlignés) · Tableaux · Liens · Images · Diagrammes Mermaid · Graphiques Vega / Vega-Lite · Formules LaTeX · HTML · Extensions GFM
+En-têtes · Paragraphes · Gras · Italique · Barré · Listes · Listes de tâches · Citations · Blocs de code (100+ langages surlignés) · Tableaux · Liens · Images · Diagrammes Mermaid · Graphiques Vega / Vega-Lite · Graphiques Infographic · Formules LaTeX · HTML · Extensions GFM
 
 ### 18 Thèmes
 
@@ -240,7 +241,7 @@ Chinois simplifié · Chinois traditionnel · English · Deutsch · Español · 
 A: Oui. Format .docx standard, les formules mathématiques sont éditables, pas des images.
 
 **Q: Quels diagrammes sont supportés?**  
-A: Tous les diagrammes Mermaid (flux, séquence, gantt, classe, état, camembert, ER, etc.), graphiques de visualisation de données Vega / Vega-Lite + auto-conversion SVG.
+A: Tous les diagrammes Mermaid (flux, séquence, gantt, classe, état, camembert, ER, etc.), graphiques de visualisation de données Vega / Vega-Lite, graphiques statistiques Infographic + auto-conversion SVG.
 
 **Q: Y a-t-il une limite de taille de fichier?**  
 A: Aucune limite. Cache intelligent, les documents avec 100+ diagrammes s'ouvrent instantanément.

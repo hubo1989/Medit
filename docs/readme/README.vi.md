@@ -94,11 +94,12 @@ Chọn chủ đề "Business", biểu đồ dữ liệu Vega-Lite tự động c
 
 ### 1. Chuyển đổi sơ đồ tự động
 
-**Sơ đồ Mermaid** · **Graphviz DOT** · **Biểu đồ dữ liệu Vega/Vega-Lite** · Hình ảnh SVG · Bảng HTML phức tạp
+**Sơ đồ Mermaid** · **Graphviz DOT** · **Biểu đồ dữ liệu Vega/Vega-Lite** · **Infographic** · Hình ảnh SVG · Bảng HTML phức tạp
 
 **Mermaid:** Sơ đồ luồng, sơ đồ tuần tự, sơ đồ lớp, sơ đồ trạng thái → Tài liệu kỹ thuật, thiết kế kiến trúc  
 **Graphviz DOT:** Đồ thị có hướng/vô hướng, cấu trúc liên kết mạng, máy trạng thái → Kiến trúc hệ thống, phân tích phụ thuộc  
-**Vega/Vega-Lite:** Biểu đồ cột, biểu đồ đường, biểu đồ phân tán, bản đồ nhiệt → Báo cáo kinh doanh, phân tích dữ liệu
+**Vega/Vega-Lite:** Biểu đồ cột, biểu đồ đường, biểu đồ phân tán, bản đồ nhiệt → Báo cáo kinh doanh, phân tích dữ liệu  
+**Infographic:** Biểu đồ thống kê, infographic, trực quan hóa dữ liệu → Trình bày dữ liệu, kể chuyện bằng hình ảnh
 
 **So sánh thời gian:** Sơ đồ tuần tự phức tạp (10 đối tượng)
 - Công cụ truyền thống: Vẽ 30phút + Sửa đổi 20phút + Điều chỉnh 10phút + Xuất 5phút = **65 phút**
@@ -200,7 +201,7 @@ Tài liệu có 50 sơ đồ Mermaid:
 
 ### Hỗ trợ cú pháp Markdown đầy đủ
 
-Tiêu đề · Đoạn văn · Đậm · Nghiêng · Gạch ngang · Danh sách · Danh sách nhiệm vụ · Trích dẫn · Khối mã (làm nổi bật 100+ ngôn ngữ) · Bảng · Liên kết · Hình ảnh · Sơ đồ Mermaid · Biểu đồ Vega / Vega-Lite · Công thức LaTeX · HTML · Phần mở rộng GFM
+Tiêu đề · Đoạn văn · Đậm · Nghiêng · Gạch ngang · Danh sách · Danh sách nhiệm vụ · Trích dẫn · Khối mã (làm nổi bật 100+ ngôn ngữ) · Bảng · Liên kết · Hình ảnh · Sơ đồ Mermaid · Biểu đồ Vega / Vega-Lite · Biểu đồ Infographic · Công thức LaTeX · HTML · Phần mở rộng GFM
 
 ### 18 chủ đề
 
@@ -240,7 +241,7 @@ Tiếng Trung Giản thể · Tiếng Trung Phồn thể · English · Deutsch �
 Đ: Có. Định dạng .docx tiêu chuẩn, công thức toán học có thể chỉnh sửa, không phải hình ảnh.
 
 **H: Những sơ đồ nào được hỗ trợ?**  
-Đ: Tất cả sơ đồ Mermaid (sơ đồ luồng, tuần tự, gantt, lớp, trạng thái, tròn, ER, v.v.), biểu đồ trực quan hóa dữ liệu Vega / Vega-Lite + chuyển đổi SVG tự động.
+Đ: Tất cả sơ đồ Mermaid (sơ đồ luồng, tuần tự, gantt, lớp, trạng thái, tròn, ER, v.v.), biểu đồ trực quan hóa dữ liệu Vega / Vega-Lite, biểu đồ thống kê Infographic + chuyển đổi SVG tự động.
 
 **H: Có giới hạn kích thước tệp không?**  
 Đ: Không có giới hạn. Bộ nhớ cache thông minh, tài liệu có 100+ sơ đồ mở ngay lập tức.
