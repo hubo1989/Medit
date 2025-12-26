@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class SettingsService {
   static const String _keyTheme = 'theme';
   static const String _keyFontSize = 'fontSize';
-  static const String _keyLineBreaks = 'lineBreaks';
+  static const String _keyHrPageBreak = 'hrPageBreak';
   static const String _keyLocale = 'locale';
 
   SharedPreferences? _prefs;
@@ -22,9 +22,9 @@ class SettingsService {
   int get fontSize => _prefs?.getInt(_keyFontSize) ?? 16;
   set fontSize(int value) => _prefs?.setInt(_keyFontSize, value);
 
-  // Soft line breaks
-  bool get lineBreaks => _prefs?.getBool(_keyLineBreaks) ?? false;
-  set lineBreaks(bool value) => _prefs?.setBool(_keyLineBreaks, value);
+  // HR as page break in DOCX export
+  bool get hrPageBreak => _prefs?.getBool(_keyHrPageBreak) ?? true;
+  set hrPageBreak(bool value) => _prefs?.setBool(_keyHrPageBreak, value);
 
   // Locale
   String get locale => _prefs?.getString(_keyLocale) ?? 'system';
@@ -35,7 +35,7 @@ class SettingsService {
     return {
       'theme': theme,
       'fontSize': fontSize,
-      'lineBreaks': lineBreaks,
+      'hrPageBreak': hrPageBreak,
       'locale': locale,
     };
   }

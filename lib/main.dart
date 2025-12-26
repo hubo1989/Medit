@@ -6,6 +6,7 @@ import 'package:ant_icons/ant_icons.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:getwidget/getwidget.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -16,6 +17,7 @@ import 'package:webview_flutter_android/webview_flutter_android.dart';
 
 import 'services/cache_service.dart';
 import 'services/localization_service.dart';
+import 'theme/app_theme.dart';
 import 'services/recent_files_service.dart';
 import 'services/settings_service.dart';
 import 'services/theme_asset_service.dart';
@@ -41,17 +43,7 @@ class MarkdownViewerApp extends StatelessWidget {
     return MaterialApp(
       title: localization.t('extensionName'),
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        useMaterial3: true,
-      ),
-      darkTheme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.blue,
-          brightness: Brightness.dark,
-        ),
-        useMaterial3: true,
-      ),
+      theme: appTheme,
       home: const MarkdownViewerHome(),
     );
   }
@@ -493,6 +485,11 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
       for (final key in keys) {
         if (key == 'selectedTheme') {
           result['selectedTheme'] = settingsService.theme;
+        } else if (key == 'markdownViewerSettings') {
+          // Return all viewer settings for DOCX export and other features
+          result['markdownViewerSettings'] = {
+            'docxHrAsPageBreak': settingsService.hrPageBreak,
+          };
         }
         // Add more keys as needed
       }
@@ -510,6 +507,14 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
       if (items != null) {
         if (items.containsKey('selectedTheme')) {
           settingsService.theme = items['selectedTheme'] as String;
+        }
+        if (items.containsKey('markdownViewerSettings')) {
+          final viewerSettings = items['markdownViewerSettings'] as Map?;
+          if (viewerSettings != null) {
+            if (viewerSettings.containsKey('docxHrAsPageBreak')) {
+              settingsService.hrPageBreak = viewerSettings['docxHrAsPageBreak'] as bool;
+            }
+          }
         }
         // Add more keys as needed
       }
@@ -1004,6 +1009,24 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
+  /// Go back to empty state, clearing current document
+  void _goBack() {
+    setState(() {
+      _hasContent = false;
+      _currentFilename = null;
+      _currentFilePath = null;
+      _currentFileDir = null;
+      _headings = [];
+    });
+    // Clear only the markdown content container, preserve WebView structure
+    _controller.runJavaScript('''
+      (function() {
+        var content = document.getElementById('markdown-content');
+        if (content) content.innerHTML = '';
+      })();
+    ''');
+  }
+
   void _showToc() {
     if (_headings.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -1156,23 +1179,31 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
                 padding: const EdgeInsets.all(16.0),
                 child: Row(
                   children: [
-                    Icon(
-                      AntIcons.history,
-                      size: 20,
-                      color: Theme.of(context).hintColor,
+                    GFAvatar(
+                      backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                      size: GFSize.SMALL,
+                      child: Icon(
+                        AntIcons.history,
+                        size: 18,
+                        color: Theme.of(context).colorScheme.onPrimaryContainer,
+                      ),
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 12),
                     Text(
                       localization.t('recent_files'),
-                      style: Theme.of(context).textTheme.titleMedium,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     const Spacer(),
-                    TextButton(
+                    GFButton(
                       onPressed: () {
                         Navigator.pop(context);
                         _clearRecentFiles();
                       },
-                      child: Text(localization.t('clear_all')),
+                      text: localization.t('clear_all'),
+                      type: GFButtonType.transparent,
+                      size: GFSize.SMALL,
                     ),
                   ],
                 ),
@@ -1185,22 +1216,18 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
                   itemCount: recentFiles.length,
                   itemBuilder: (context, index) {
                     final file = recentFiles[index];
-                    return ListTile(
-                      leading: const Icon(AntIcons.file_markdown_outline),
-                      title: Text(
-                        file.name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      subtitle: Text(
-                        _formatRecentFilePath(file.path),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Theme.of(context).hintColor,
+                    return GFListTile(
+                      avatar: GFAvatar(
+                        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                        size: GFSize.SMALL,
+                        child: Icon(
+                          AntIcons.file_markdown_outline,
+                          size: 18,
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                         ),
                       ),
+                      titleText: file.name,
+                      subTitleText: _formatRecentFilePath(file.path),
                       onTap: () {
                         Navigator.pop(context);
                         _openRecentFile(file);
@@ -1254,63 +1281,29 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
 
     showModalBottomSheet(
       context: context,
-      builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(
-                localization.t('language'),
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-            ),
-            Flexible(
-              child: ListView(
-                shrinkWrap: true,
-                children: [
-                  // Auto option
-                  RadioListTile<String?>(
-                    title: Text(localization.t('mobile_settings_language_auto')),
-                    value: null,
-                    groupValue: localization.userSelectedLocale,
-                    onChanged: (value) async {
-                      await localization.setLocale(null);
-                      if (mounted) {
-                        Navigator.pop(context);
-                        setState(() {});
-                        // Notify WebView
-                        _controller.runJavaScript(
-                          "if(window.setLocale){window.setLocale('${localization.currentLocale}');}"
-                        );
-                      }
-                    },
-                  ),
-                  const Divider(height: 1),
-                  // All supported locales
-                  ...LocalizationService.supportedLocales.map((locale) {
-                    final key = localeKeyMap[locale] ?? 'settings_language_en';
-                    return RadioListTile<String?>(
-                      title: Text(localization.t(key)),
-                      value: locale,
-                      groupValue: localization.userSelectedLocale,
-                      onChanged: (value) async {
-                        await localization.setLocale(value);
-                        if (mounted) {
-                          Navigator.pop(context);
-                          setState(() {});
-                          // Notify WebView
-                          _controller.runJavaScript(
-                            "if(window.setLocale){window.setLocale('$value');}"
-                          );
-                        }
-                      },
-                    );
-                  }),
-                ],
-              ),
-            ),
-          ],
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.6,
+        minChildSize: 0.4,
+        maxChildSize: 0.9,
+        expand: false,
+        builder: (context, scrollController) => _LanguagePickerSheet(
+          scrollController: scrollController,
+          localeKeyMap: localeKeyMap,
+          onLocaleSelected: (locale) async {
+            await localization.setLocale(locale);
+            if (mounted) {
+              Navigator.pop(context);
+              setState(() {});
+              final localeToSend = locale ?? localization.currentLocale;
+              _controller.runJavaScript(
+                "if(window.setLocale){window.setLocale('$localeToSend');}",
+              );
+            }
+          },
         ),
       ),
     );
@@ -1319,11 +1312,14 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
   void _showAbout() async {
     final packageInfo = await PackageInfo.fromPlatform();
     if (!mounted) return;
-    showAboutDialog(
+    
+    showDialog(
       context: context,
-      applicationName: localization.t('extensionName'),
-      applicationVersion: 'v${packageInfo.version}',
-      applicationLegalese: '@xicilion',
+      builder: (context) => _AboutDialog(
+        appName: localization.t('extensionName'),
+        version: 'v${packageInfo.version}',
+        author: '@xicilion',
+      ),
     );
   }
 
@@ -1337,9 +1333,16 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Scaffold(
+    return PopScope(
+      canPop: !_hasContent,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop && _hasContent) {
+          _goBack();
+        }
+      },
+      child: Stack(
+        children: [
+          Scaffold(
           key: _scaffoldKey,
           drawer: _headings.isNotEmpty ? _TocDrawer(
             headings: _headings,
@@ -1409,7 +1412,8 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
         // Export progress overlay
         if (_isExporting)
           _buildExportProgressOverlay(),
-      ],
+        ],
+      ),
     );
   }
 
@@ -1427,33 +1431,32 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
     }
     
     return Container(
-      color: Colors.black54,
+      color: Colors.black.withValues(alpha: 0.6),
       child: Center(
-        child: Card(
+        child: GFCard(
+          boxFit: BoxFit.cover,
           margin: const EdgeInsets.all(32),
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const CircularProgressIndicator(),
-                const SizedBox(height: 16),
+          padding: const EdgeInsets.all(24),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const GFLoader(type: GFLoaderType.circle),
+              const SizedBox(height: 16),
+              Text(
+                phaseText,
+                style: const TextStyle(fontSize: 16),
+              ),
+              if (_exportTotal > 0) ...[
+                const SizedBox(height: 8),
                 Text(
-                  phaseText,
-                  style: const TextStyle(fontSize: 16),
-                ),
-                if (_exportTotal > 0) ...[
-                  const SizedBox(height: 8),
-                  Text(
-                    '$_exportProgress / $_exportTotal',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[600],
-                    ),
+                  '$_exportProgress / $_exportTotal',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Theme.of(context).hintColor,
                   ),
-                ],
+                ),
               ],
-            ),
+            ],
           ),
         ),
       ),
@@ -1472,32 +1475,18 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
         buttonPosition.dx + button.size.width,
         buttonPosition.dy + button.size.height,
       ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       items: [
-        PopupMenuItem<String>(
-          value: 'open',
-          child: _buildMenuItemContent(AntIcons.folder_open_outline, localization.t('open_file')),
-        ),
-        PopupMenuItem<String>(
-          value: 'recent',
-          child: _buildMenuItemContent(AntIcons.history, localization.t('recent_files')),
-        ),
+        _buildPopupMenuItem('open', AntIcons.folder_open_outline, localization.t('open_file')),
+        _buildPopupMenuItem('recent', AntIcons.history, localization.t('recent_files')),
         if (_hasContent)
-          PopupMenuItem<String>(
-            value: 'export_docx',
-            child: _buildMenuItemContent(AntIcons.file_word, localization.t('export_docx')),
-          ),
-        PopupMenuItem<String>(
-          value: 'settings',
-          child: _buildMenuItemContent(AntIcons.setting_outline, localization.t('tab_settings')),
-        ),
+          _buildPopupMenuItem('export_docx', AntIcons.file_word, localization.t('export_docx')),
         const PopupMenuDivider(),
-        PopupMenuItem<String>(
-          value: 'about',
-          child: _buildMenuItemContent(AntIcons.info_circle_outline, localization.t('about')),
-        ),
+        _buildPopupMenuItem('settings', AntIcons.setting_outline, localization.t('tab_settings')),
+        _buildPopupMenuItem('about', AntIcons.info_circle_outline, localization.t('about')),
       ],
     ).then((value) {
-      if (value == null) return;
+      if (value == null || !mounted) return;
       switch (value) {
         case 'open':
           _openFile();
@@ -1506,7 +1495,6 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
           _exportDocx();
           break;
         case 'settings':
-          if (!mounted) return;
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (_) => SettingsPage(webViewController: _controller),
@@ -1523,16 +1511,19 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
     });
   }
 
-  Widget _buildMenuItemContent(IconData icon, String title) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(icon, size: 20),
-        const SizedBox(width: 16),
-        Text(title),
-      ],
+  PopupMenuItem<String> _buildPopupMenuItem(String value, IconData icon, String title) {
+    return PopupMenuItem<String>(
+      value: value,
+      child: Row(
+        children: [
+          Icon(icon, size: 20),
+          const SizedBox(width: 12),
+          Text(title),
+        ],
+      ),
     );
   }
+
 
   Widget _buildContentView() {
     return SafeArea(
@@ -1566,12 +1557,15 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
                   padding: const EdgeInsets.fromLTRB(32, 48, 32, 24),
                   child: Column(
                     children: [
-                      Icon(
-                        AntIcons.file_markdown_outline,
-                        size: 64,
-                        color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(16),
+                        child: Image.asset(
+                          'build/mobile/icons/icon128.png',
+                          width: 72,
+                          height: 72,
+                        ),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 20),
                       Text(
                         localization.t('extensionName'),
                         style: Theme.of(context).textTheme.headlineSmall?.copyWith(
@@ -1589,8 +1583,13 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
                       const SizedBox(height: 24),
                       FilledButton.icon(
                         onPressed: _openFile,
-                        icon: const Icon(AntIcons.folder_open_outline),
+                        icon: Icon(AntIcons.folder_open_outline),
                         label: Text(localization.t('open_file')),
+                        style: FilledButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                          shape: const StadiumBorder(),
+                          textStyle: const TextStyle(fontSize: 16),
+                        ),
                       ),
                     ],
                   ),
@@ -1605,20 +1604,22 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
                       children: [
                         Icon(
                           AntIcons.history,
-                          size: 18,
+                          size: 16,
                           color: Theme.of(context).hintColor,
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: 6),
                         Text(
                           localization.t('recent_files'),
                           style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            color: Theme.of(context).hintColor,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                         const Spacer(),
-                        TextButton(
+                        GFButton(
                           onPressed: _clearRecentFiles,
-                          child: Text(localization.t('clear_all')),
+                          text: localization.t('clear_all'),
+                          type: GFButtonType.transparent,
+                          size: GFSize.SMALL,
                         ),
                       ],
                     ),
@@ -1706,22 +1707,12 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
   Future<void> _deleteSharedFile(RecentFile file) async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(localization.t('delete_file')),
-        content: Text(localization.t('delete_file_confirm', [file.name])),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(localization.t('cancel')),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            style: TextButton.styleFrom(
-              foregroundColor: Theme.of(context).colorScheme.error,
-            ),
-            child: Text(localization.t('delete')),
-          ),
-        ],
+      builder: (context) => _ConfirmDialog(
+        title: localization.t('delete_file'),
+        content: localization.t('delete_file_confirm', [file.name]),
+        confirmText: localization.t('delete'),
+        cancelText: localization.t('cancel'),
+        isDestructive: true,
       ),
     );
 
@@ -1745,19 +1736,11 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
   Future<void> _clearRecentFiles() async {
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(localization.t('clear_recent_files')),
-        content: Text(localization.t('clear_recent_files_confirm')),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(localization.t('cancel')),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(localization.t('clear_all')),
-          ),
-        ],
+      builder: (context) => _ConfirmDialog(
+        title: localization.t('clear_recent_files'),
+        content: localization.t('clear_recent_files_confirm'),
+        confirmText: localization.t('clear_all'),
+        cancelText: localization.t('cancel'),
       ),
     );
 
@@ -1783,19 +1766,119 @@ class _RecentFileItem extends StatelessWidget {
     this.isImportedFile = false,
   });
 
+  void _showOptionsMenu(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Handle bar
+            Container(
+              margin: const EdgeInsets.only(top: 8),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Theme.of(context).hintColor.withOpacity(0.3),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 8),
+            // File name header
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Row(
+                children: [
+                  GFAvatar(
+                    backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    size: GFSize.SMALL,
+                    child: Icon(
+                      AntIcons.file_markdown_outline,
+                      size: 16,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      file.name,
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(height: 1),
+            GFListTile(
+              avatar: GFAvatar(
+                backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+                size: GFSize.SMALL,
+                child: Icon(
+                  AntIcons.close,
+                  size: 16,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+              titleText: localization.t('remove_from_list'),
+              onTap: () {
+                Navigator.pop(context);
+                onRemove();
+              },
+            ),
+            if (isImportedFile && onDeleteFile != null)
+              GFListTile(
+                avatar: GFAvatar(
+                  backgroundColor: Theme.of(context).colorScheme.errorContainer,
+                  size: GFSize.SMALL,
+                  child: Icon(
+                    AntIcons.delete_outline,
+                    size: 16,
+                    color: Theme.of(context).colorScheme.error,
+                  ),
+                ),
+                title: Text(
+                  localization.t('delete_file'),
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                ),
+                onTap: () {
+                  Navigator.pop(context);
+                  onDeleteFile!();
+                },
+              ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      leading: Icon(
-        AntIcons.file_markdown_outline,
-        color: isImportedFile ? Theme.of(context).colorScheme.secondary : null,
+    return GFListTile(
+      avatar: GFAvatar(
+        backgroundColor: isImportedFile 
+            ? Theme.of(context).colorScheme.secondaryContainer
+            : Theme.of(context).colorScheme.surfaceContainerHighest,
+        child: Icon(
+          AntIcons.file_markdown_outline,
+          color: isImportedFile 
+              ? Theme.of(context).colorScheme.secondary 
+              : Theme.of(context).colorScheme.onSurfaceVariant,
+        ),
       ),
       title: Text(
         file.name,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       ),
-      subtitle: Row(
+      subTitle: Row(
         children: [
           if (isImportedFile) ...[
             Icon(
@@ -1818,42 +1901,10 @@ class _RecentFileItem extends StatelessWidget {
           ),
         ],
       ),
-      trailing: PopupMenuButton<String>(
+      icon: GFIconButton(
         icon: const Icon(Icons.more_vert, size: 20),
-        tooltip: localization.t('more'),
-        onSelected: (value) {
-          if (value == 'remove') {
-            onRemove();
-          } else if (value == 'delete' && onDeleteFile != null) {
-            onDeleteFile!();
-          }
-        },
-        itemBuilder: (context) => [
-          PopupMenuItem<String>(
-            value: 'remove',
-            child: Row(
-              children: [
-                const Icon(AntIcons.close, size: 18),
-                const SizedBox(width: 12),
-                Text(localization.t('remove_from_list')),
-              ],
-            ),
-          ),
-          if (isImportedFile && onDeleteFile != null)
-            PopupMenuItem<String>(
-              value: 'delete',
-              child: Row(
-                children: [
-                  Icon(AntIcons.delete_outline, size: 18, color: Theme.of(context).colorScheme.error),
-                  const SizedBox(width: 12),
-                  Text(
-                    localization.t('delete_file'),
-                    style: TextStyle(color: Theme.of(context).colorScheme.error),
-                  ),
-                ],
-              ),
-            ),
-        ],
+        type: GFButtonType.transparent,
+        onPressed: () => _showOptionsMenu(context),
       ),
       onTap: onTap,
     );
@@ -1881,17 +1932,57 @@ class _TocDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Drawer(
+    return GFDrawer(
       child: SafeArea(
-        child: headings.isEmpty
-            ? Center(
-                child: Text(
-                  localization.t('no_headings'),
-                  style: const TextStyle(color: Colors.grey),
+        child: Column(
+          children: [
+            // Header
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(color: Theme.of(context).dividerColor),
                 ),
-              )
-            : ListView.builder(
-                padding: const EdgeInsets.symmetric(vertical: 8),
+              ),
+              child: Row(
+                children: [
+                  GFAvatar(
+                    backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                    size: GFSize.SMALL,
+                    child: Icon(
+                      AntIcons.unordered_list,
+                      size: 18,
+                      color: Theme.of(context).colorScheme.onPrimaryContainer,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      localization.t('toc'),
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  GFIconButton(
+                    icon: const Icon(Icons.close),
+                    type: GFButtonType.transparent,
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
+              ),
+            ),
+            // Content
+            Expanded(
+              child: headings.isEmpty
+                  ? Center(
+                      child: Text(
+                        localization.t('no_headings'),
+                        style: TextStyle(color: Theme.of(context).hintColor),
+                      ),
+                    )
+                  : ListView.builder(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
                       itemCount: headings.length,
                       itemBuilder: (context, index) {
                         final heading = headings[index];
@@ -1899,28 +1990,63 @@ class _TocDrawer extends StatelessWidget {
                         final text = heading['text'] as String? ?? '';
                         final id = heading['id'] as String? ?? '';
 
-                        return InkWell(
+                        return _TocItem(
+                          text: text,
+                          level: level,
                           onTap: () => onHeadingTap(id),
-                          child: Padding(
-                            padding: EdgeInsets.only(
-                              left: 16.0 + (level - 1) * 16.0,
-                              right: 16,
-                              top: 6,
-                              bottom: 6,
-                            ),
-                            child: Text(
-                              text,
-                              style: TextStyle(
-                                fontSize: level == 1 ? 16 : (level == 2 ? 15 : 14),
-                                fontWeight: level <= 2 ? FontWeight.w600 : FontWeight.normal,
-                                color: level > 3 ? Theme.of(context).hintColor : null,
-                              ),
-                            ),
-                          ),
                         );
                       },
                     ),
+            ),
+          ],
+        ),
       ),
+    );
+  }
+}
+
+/// Single TOC item with GetWidget style
+class _TocItem extends StatelessWidget {
+  final String text;
+  final int level;
+  final VoidCallback onTap;
+
+  const _TocItem({
+    required this.text,
+    required this.level,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GFListTile(
+      padding: EdgeInsets.only(
+        left: 16.0 + (level - 1) * 16.0,
+        right: 16,
+        top: 4,
+        bottom: 4,
+      ),
+      avatar: level <= 2
+          ? Container(
+              width: 6,
+              height: 6,
+              decoration: BoxDecoration(
+                color: level == 1
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context).colorScheme.secondary,
+                shape: BoxShape.circle,
+              ),
+            )
+          : const SizedBox(width: 6),
+      title: Text(
+        text,
+        style: TextStyle(
+          fontSize: level == 1 ? 15 : (level == 2 ? 14 : 13),
+          fontWeight: level <= 2 ? FontWeight.w600 : FontWeight.normal,
+          color: level > 3 ? Theme.of(context).hintColor : null,
+        ),
+      ),
+      onTap: onTap,
     );
   }
 }
@@ -1963,7 +2089,15 @@ class _FontSizeBottomSheetState extends State<_FontSizeBottomSheet> {
           children: [
             Row(
               children: [
-                const Icon(AntIcons.font_size),
+                GFAvatar(
+                  backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                  size: GFSize.SMALL,
+                  child: Icon(
+                    AntIcons.font_size,
+                    size: 18,
+                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+                  ),
+                ),
                 const SizedBox(width: 12),
                 Text(
                   localization.t('zoom'),
@@ -1973,25 +2107,26 @@ class _FontSizeBottomSheetState extends State<_FontSizeBottomSheet> {
                 ),
                 const Spacer(),
                 if (!isDefault)
-                  TextButton(
+                  GFButton(
                     onPressed: () {
                       setState(() {
                         _currentSize = 16;
                       });
                       widget.onChanged(16);
                     },
-                    child: Text(localization.t('reset')),
+                    text: localization.t('reset'),
+                    type: GFButtonType.transparent,
+                    size: GFSize.SMALL,
                   ),
-                Text(
-                  '$zoomPercent%',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.primary,
-                    fontWeight: FontWeight.w600,
-                  ),
+                GFBadge(
+                  text: '$zoomPercent%',
+                  color: Theme.of(context).colorScheme.primaryContainer,
+                  textColor: Theme.of(context).colorScheme.primary,
+                  shape: GFBadgeShape.pills,
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
             Row(
               children: [
                 const Text('A', style: TextStyle(fontSize: 12)),
@@ -2013,6 +2148,259 @@ class _FontSizeBottomSheetState extends State<_FontSizeBottomSheet> {
               ],
             ),
             const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Language picker bottom sheet with GetWidget style
+class _LanguagePickerSheet extends StatelessWidget {
+  final ScrollController scrollController;
+  final Map<String, String> localeKeyMap;
+  final void Function(String?) onLocaleSelected;
+
+  const _LanguagePickerSheet({
+    required this.scrollController,
+    required this.localeKeyMap,
+    required this.onLocaleSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final currentLocale = localization.userSelectedLocale;
+    
+    return Column(
+      children: [
+        // Header
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            border: Border(
+              bottom: BorderSide(color: Theme.of(context).dividerColor),
+            ),
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.language_outlined),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  localization.t('language'),
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ],
+          ),
+        ),
+        // Language list
+        Expanded(
+          child: ListView(
+            controller: scrollController,
+            children: [
+              // Auto option
+              _LanguageItem(
+                title: localization.t('mobile_settings_language_auto'),
+                isSelected: currentLocale == null,
+                onTap: () => onLocaleSelected(null),
+              ),
+              const Divider(height: 1, indent: 56),
+              // All supported locales
+              ...LocalizationService.supportedLocales.map((locale) {
+                final key = localeKeyMap[locale] ?? 'settings_language_en';
+                return _LanguageItem(
+                  title: localization.t(key),
+                  isSelected: currentLocale == locale,
+                  onTap: () => onLocaleSelected(locale),
+                );
+              }),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Single language item with GetWidget style
+class _LanguageItem extends StatelessWidget {
+  final String title;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _LanguageItem({
+    required this.title,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GFListTile(
+      avatar: isSelected
+          ? Icon(Icons.check, color: Theme.of(context).colorScheme.primary, size: 20)
+          : const SizedBox(width: 20),
+      titleText: title,
+      onTap: onTap,
+      selected: isSelected,
+    );
+  }
+}
+
+/// Confirm dialog with GetWidget style
+class _ConfirmDialog extends StatelessWidget {
+  final String title;
+  final String content;
+  final String confirmText;
+  final String cancelText;
+  final bool isDestructive;
+
+  const _ConfirmDialog({
+    required this.title,
+    required this.content,
+    required this.confirmText,
+    required this.cancelText,
+    this.isDestructive = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                GFAvatar(
+                  backgroundColor: isDestructive
+                      ? Theme.of(context).colorScheme.errorContainer
+                      : Theme.of(context).colorScheme.primaryContainer,
+                  size: GFSize.SMALL,
+                  child: Icon(
+                    isDestructive ? Icons.warning_amber_rounded : Icons.help_outline,
+                    size: 18,
+                    color: isDestructive
+                        ? Theme.of(context).colorScheme.error
+                        : Theme.of(context).colorScheme.onPrimaryContainer,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Text(
+              content,
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+            const SizedBox(height: 24),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                GFButton(
+                  onPressed: () => Navigator.pop(context, false),
+                  text: cancelText,
+                  type: GFButtonType.outline2x,
+                  shape: GFButtonShape.pills,
+                  size: GFSize.SMALL,
+                ),
+                const SizedBox(width: 12),
+                GFButton(
+                  onPressed: () => Navigator.pop(context, true),
+                  text: confirmText,
+                  shape: GFButtonShape.pills,
+                  size: GFSize.SMALL,
+                  color: isDestructive
+                      ? Theme.of(context).colorScheme.error
+                      : Theme.of(context).colorScheme.primary,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// About dialog with GetWidget style
+class _AboutDialog extends StatelessWidget {
+  final String appName;
+  final String version;
+  final String author;
+
+  const _AboutDialog({
+    required this.appName,
+    required this.version,
+    required this.author,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(16),
+              child: Image.asset(
+                'build/mobile/icons/icon128.png',
+                width: 72,
+                height: 72,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              appName,
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  version,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context).hintColor,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  author,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context).hintColor,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+            GFButton(
+              onPressed: () => Navigator.pop(context),
+              text: 'OK',
+              shape: GFButtonShape.pills,
+              fullWidthButton: true,
+            ),
           ],
         ),
       ),

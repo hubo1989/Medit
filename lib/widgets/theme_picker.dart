@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:getwidget/getwidget.dart';
 import '../models/theme_info.dart';
 import '../services/localization_service.dart';
 import '../services/theme_registry_service.dart';
@@ -113,6 +114,7 @@ class _CategorySection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final useChinese = ThemePicker._useChineseNames;
+    final hasSelectedTheme = themes.any((t) => t.id == currentTheme);
     
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -120,28 +122,26 @@ class _CategorySection extends StatelessWidget {
         // Category header
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Row(
             children: [
               Text(
                 useChinese ? category.name : category.nameEn,
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: Theme.of(context).colorScheme.primary,
+                  color: hasSelectedTheme 
+                      ? Theme.of(context).colorScheme.primary 
+                      : Theme.of(context).hintColor,
                 ),
               ),
-              if (category.description.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.only(top: 2),
-                  child: Text(
-                    category.description,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Theme.of(context).hintColor,
-                    ),
-                  ),
+              if (hasSelectedTheme) ...[
+                const SizedBox(width: 6),
+                Icon(
+                  Icons.check_circle,
+                  size: 14,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
+              ],
             ],
           ),
         ),
@@ -188,46 +188,24 @@ class _ThemeChip extends StatelessWidget {
         ? theme.displayNameZh! 
         : theme.displayName;
 
-    return Material(
-      color: isSelected ? colorScheme.primaryContainer : colorScheme.surfaceContainerHighest,
-      borderRadius: BorderRadius.circular(8),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(8),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8),
-            border: isSelected
-                ? Border.all(color: colorScheme.primary, width: 2)
-                : null,
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (isSelected) ...[
-                Icon(Icons.check, size: 18, color: colorScheme.primary),
-                const SizedBox(width: 6),
-              ],
-              Text(
-                displayName,
-                style: TextStyle(
-                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                  color: isSelected ? colorScheme.primary : null,
-                ),
-              ),
-              if (theme.featured) ...[
-                const SizedBox(width: 6),
-                Icon(
-                  Icons.star,
-                  size: 14,
-                  color: Colors.amber.shade600,
-                ),
-              ],
-            ],
-          ),
-        ),
+    Widget? avatar;
+    if (isSelected) {
+      avatar = Icon(Icons.check, size: 16, color: colorScheme.onPrimary);
+    } else if (theme.featured) {
+      avatar = Icon(Icons.star, size: 14, color: colorScheme.secondary);
+    }
+
+    return ActionChip(
+      onPressed: onTap,
+      label: Text(displayName),
+      avatar: avatar,
+      backgroundColor: isSelected ? colorScheme.primary : null,
+      side: isSelected ? BorderSide.none : BorderSide(color: colorScheme.outline),
+      labelStyle: TextStyle(
+        fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+        color: isSelected ? colorScheme.onPrimary : colorScheme.onSurface,
       ),
+      padding: const EdgeInsets.symmetric(horizontal: 8),
     );
   }
 }

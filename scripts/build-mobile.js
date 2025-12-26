@@ -203,6 +203,14 @@ function copyResources() {
   copyDirectory('src/_locales', `${DIST_DIR}/_locales`);
   console.log('  ✓ _locales/');
 
+  // Copy app icons for Flutter
+  const iconsDir = `${DIST_DIR}/icons`;
+  if (!fs.existsSync(iconsDir)) {
+    fs.mkdirSync(iconsDir, { recursive: true });
+  }
+  copyFile('icons/icon128.png', `${iconsDir}/icon128.png`);
+  console.log('  ✓ icons/');
+
   // Copy KaTeX fonts (only woff2 for modern browsers)
   const katexFontsDir = 'node_modules/katex/dist/fonts';
   if (fs.existsSync(katexFontsDir)) {

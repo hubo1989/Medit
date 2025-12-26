@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:getwidget/getwidget.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'dart:convert';
 import '../services/cache_service.dart';
@@ -74,18 +75,30 @@ class _SettingsPageState extends State<SettingsPage> {
         children: [
           // Interface section
           _SectionHeader(title: localization.t('settings_interface_title')),
-          ListTile(
-            leading: const Icon(Icons.palette_outlined),
-            title: Text(localization.t('theme')),
-            subtitle: Text(_getCurrentThemeDisplayName()),
-            trailing: const Icon(Icons.chevron_right),
+          GFListTile(
+            avatar: GFAvatar(
+              backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+              child: Icon(
+                Icons.palette_outlined,
+                color: Theme.of(context).colorScheme.onPrimaryContainer,
+              ),
+            ),
+            titleText: localization.t('theme'),
+            subTitleText: _getCurrentThemeDisplayName(),
+            icon: const Icon(Icons.chevron_right),
             onTap: _pickTheme,
           ),
-          ListTile(
-            leading: const Icon(Icons.language_outlined),
-            title: Text(localization.t('language')),
-            subtitle: Text(_getCurrentLanguageDisplayName()),
-            trailing: const Icon(Icons.chevron_right),
+          GFListTile(
+            avatar: GFAvatar(
+              backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+              child: Icon(
+                Icons.language_outlined,
+                color: Theme.of(context).colorScheme.onPrimaryContainer,
+              ),
+            ),
+            titleText: localization.t('language'),
+            subTitleText: _getCurrentLanguageDisplayName(),
+            icon: const Icon(Icons.chevron_right),
             onTap: _pickLanguage,
           ),
           const Divider(),
@@ -102,30 +115,30 @@ class _SettingsPageState extends State<SettingsPage> {
             },
           ),
           _SwitchTile(
-            title: localization.t('mobile_settings_soft_line_breaks_title'),
-            subtitle: localization.t('mobile_settings_soft_line_breaks_desc'),
-            value: settingsService.lineBreaks,
+            title: localization.t('settings_docx_hr_page_break'),
+            subtitle: localization.t('settings_docx_hr_page_break_note'),
+            value: settingsService.hrPageBreak,
             onChanged: (value) {
               setState(() {
-                settingsService.lineBreaks = value;
+                settingsService.hrPageBreak = value;
               });
-              _applyLineBreaks(value);
+              // Settings are read via platform storage abstraction when exporting
             },
           ),
           const Divider(),
-          ListTile(
-            leading: const Icon(Icons.cleaning_services_outlined),
-            title: Text(localization.t('cache_clear')),
-            subtitle: Text(
-              '${localization.t('cache_stat_size_label')}: ${_loadingStats ? '…' : (_cacheSize.isEmpty ? '…' : _cacheSize)}\n'
-              '${localization.t('cache_stat_item_label')}: $_cacheCount',
+          GFListTile(
+            avatar: GFAvatar(
+              backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+              child: Icon(
+                Icons.cleaning_services_outlined,
+                color: Theme.of(context).colorScheme.onPrimaryContainer,
+              ),
             ),
-            trailing: _clearingCache
-                ? const SizedBox(
-                    width: 24,
-                    height: 24,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
+            titleText: localization.t('cache_clear'),
+            subTitleText: '${localization.t('cache_stat_size_label')}: ${_loadingStats ? '…' : (_cacheSize.isEmpty ? '…' : _cacheSize)}\n'
+              '${localization.t('cache_stat_item_label')}: $_cacheCount',
+            icon: _clearingCache
+                ? const GFLoader(type: GFLoaderType.circle, size: GFSize.SMALL)
                 : const Icon(Icons.chevron_right),
             onTap: _clearingCache ? null : _clearCache,
           ),
@@ -144,19 +157,6 @@ class _SettingsPageState extends State<SettingsPage> {
       );
     } catch (e) {
       debugPrint('[Settings] Failed to apply font size: $e');
-    }
-  }
-
-  Future<void> _applyLineBreaks(bool enabled) async {
-    final controller = widget.webViewController;
-    if (controller == null) return;
-
-    try {
-      await controller.runJavaScript(
-        "if(window.setLineBreaks){window.setLineBreaks($enabled);}",
-      );
-    } catch (e) {
-      debugPrint('[Settings] Failed to apply line breaks: $e');
     }
   }
 
@@ -295,68 +295,131 @@ class _SettingsPageState extends State<SettingsPage> {
 
     showModalBottomSheet(
       context: context,
-      builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(
-                localization.t('language'),
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-            ),
-            Flexible(
-              child: ListView(
-                shrinkWrap: true,
-                children: [
-                  RadioListTile<String?>(
-                    title: Text(localization.t('mobile_settings_language_auto')),
-                    value: null,
-                    groupValue: localization.userSelectedLocale,
-                    onChanged: (value) async {
-                      await localization.setLocale(null);
-                      if (mounted) {
-                        Navigator.pop(context);
-                        setState(() {});
-                        final controller = widget.webViewController;
-                        if (controller != null) {
-                          controller.runJavaScript(
-                            "if(window.setLocale){window.setLocale('${localization.currentLocale}');}",
-                          );
-                        }
-                      }
-                    },
-                  ),
-                  const Divider(height: 1),
-                  ...LocalizationService.supportedLocales.map((locale) {
-                    final key = localeKeyMap[locale] ?? 'settings_language_en';
-                    return RadioListTile<String?>(
-                      title: Text(localization.t(key)),
-                      value: locale,
-                      groupValue: localization.userSelectedLocale,
-                      onChanged: (value) async {
-                        if (value == null) return;
-                        await localization.setLocale(value);
-                        if (mounted) {
-                          Navigator.pop(context);
-                          setState(() {});
-                          final controller = widget.webViewController;
-                          if (controller != null) {
-                            controller.runJavaScript(
-                              "if(window.setLocale){window.setLocale('$value');}",
-                            );
-                          }
-                        }
-                      },
-                    );
-                  }),
-                ],
-              ),
-            ),
-          ],
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.6,
+        minChildSize: 0.4,
+        maxChildSize: 0.9,
+        expand: false,
+        builder: (context, scrollController) => _LanguagePickerSheet(
+          scrollController: scrollController,
+          localeKeyMap: localeKeyMap,
+          onLocaleSelected: (locale) async {
+            await localization.setLocale(locale);
+            if (mounted) {
+              Navigator.pop(context);
+              setState(() {});
+              final controller = widget.webViewController;
+              if (controller != null) {
+                final localeToSend = locale ?? localization.currentLocale;
+                controller.runJavaScript(
+                  "if(window.setLocale){window.setLocale('$localeToSend');}",
+                );
+              }
+            }
+          },
         ),
       ),
+    );
+  }
+}
+
+/// Language picker bottom sheet with GetWidget style
+class _LanguagePickerSheet extends StatelessWidget {
+  final ScrollController scrollController;
+  final Map<String, String> localeKeyMap;
+  final void Function(String?) onLocaleSelected;
+
+  const _LanguagePickerSheet({
+    required this.scrollController,
+    required this.localeKeyMap,
+    required this.onLocaleSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final currentLocale = localization.userSelectedLocale;
+    
+    return Column(
+      children: [
+        // Header
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            border: Border(
+              bottom: BorderSide(color: Theme.of(context).dividerColor),
+            ),
+          ),
+          child: Row(
+            children: [
+              const Icon(Icons.language_outlined),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  localization.t('language'),
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ],
+          ),
+        ),
+        // Language list
+        Expanded(
+          child: ListView(
+            controller: scrollController,
+            children: [
+              // Auto option
+              _LanguageItem(
+                title: localization.t('mobile_settings_language_auto'),
+                isSelected: currentLocale == null,
+                onTap: () => onLocaleSelected(null),
+              ),
+              const Divider(height: 1, indent: 56),
+              // All supported locales
+              ...LocalizationService.supportedLocales.map((locale) {
+                final key = localeKeyMap[locale] ?? 'settings_language_en';
+                return _LanguageItem(
+                  title: localization.t(key),
+                  isSelected: currentLocale == locale,
+                  onTap: () => onLocaleSelected(locale),
+                );
+              }),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Single language item with GetWidget style
+class _LanguageItem extends StatelessWidget {
+  final String title;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _LanguageItem({
+    required this.title,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GFListTile(
+      avatar: isSelected
+          ? Icon(Icons.check, color: Theme.of(context).colorScheme.primary, size: 20)
+          : const SizedBox(width: 20),
+      titleText: title,
+      onTap: onTap,
+      selected: isSelected,
     );
   }
 }
@@ -393,15 +456,24 @@ class _FontSizeTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      leading: const Icon(Icons.format_size),
-      title: Text(localization.t('zoom')),
-      subtitle: Text('$fontSize pt'),
-      trailing: Row(
+    return GFListTile(
+      avatar: GFAvatar(
+        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+        child: Icon(
+          Icons.format_size,
+          color: Theme.of(context).colorScheme.onPrimaryContainer,
+        ),
+      ),
+      titleText: localization.t('zoom'),
+      subTitleText: '$fontSize pt',
+      icon: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           IconButton(
-            icon: const Icon(Icons.remove_circle_outline),
+            icon: Icon(Icons.remove_circle_outline, 
+              color: fontSize > 12 ? Theme.of(context).colorScheme.primary : Theme.of(context).disabledColor,
+            ),
+            iconSize: 28,
             onPressed: fontSize > 12 ? () => onChanged(fontSize - 1) : null,
           ),
           SizedBox(
@@ -409,11 +481,18 @@ class _FontSizeTile extends StatelessWidget {
             child: Text(
               '$fontSize',
               textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Theme.of(context).colorScheme.primary,
+              ),
             ),
           ),
           IconButton(
-            icon: const Icon(Icons.add_circle_outline),
+            icon: Icon(Icons.add_circle_outline,
+              color: fontSize < 24 ? Theme.of(context).colorScheme.primary : Theme.of(context).disabledColor,
+            ),
+            iconSize: 28,
             onPressed: fontSize < 24 ? () => onChanged(fontSize + 1) : null,
           ),
         ],
@@ -437,12 +516,23 @@ class _SwitchTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SwitchListTile(
-      secondary: const Icon(Icons.wrap_text),
-      title: Text(title),
-      subtitle: Text(subtitle),
-      value: value,
-      onChanged: onChanged,
+    return GFListTile(
+      avatar: GFAvatar(
+        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+        child: Icon(
+          Icons.insert_page_break_outlined,
+          color: Theme.of(context).colorScheme.onPrimaryContainer,
+        ),
+      ),
+      titleText: title,
+      subTitleText: subtitle,
+      icon: GFToggle(
+        onChanged: (val) => onChanged(val ?? false),
+        value: value,
+        type: GFToggleType.ios,
+        enabledThumbColor: Theme.of(context).colorScheme.primary,
+        enabledTrackColor: Theme.of(context).colorScheme.primaryContainer,
+      ),
     );
   }
 }

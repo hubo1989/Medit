@@ -183,7 +183,7 @@ class DocxExporter {
     try {
       this.setBaseUrl(window.location.href);
 
-      // Load export-related settings (best-effort; defaults apply if unavailable)
+      // Load export-related settings via platform abstraction
       try {
         const storage = globalThis.platform?.storage;
         if (storage?.get) {

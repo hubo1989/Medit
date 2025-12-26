@@ -470,8 +470,6 @@ declare global {
     clearCache: () => Promise<boolean>;
     getCacheStats: () => Promise<string | null>;
     setFontSize: (size: number) => Promise<void>;
-    setLineBreaks: (enabled: boolean) => Promise<void>;
-    __lineBreaksEnabled?: boolean;
   }
 }
 
@@ -528,19 +526,6 @@ window.setFontSize = async (size: number) => {
     }
   } catch (error) {
     console.error('[Mobile] Failed to set font size:', error);
-  }
-};
-
-window.setLineBreaks = async (enabled: boolean) => {
-  try {
-    // Store setting for next render
-    window.__lineBreaksEnabled = enabled;
-    // Re-render if we have content
-    if (currentMarkdown) {
-      handleLoadMarkdown({ content: currentMarkdown, filename: currentFilename });
-    }
-  } catch (error) {
-    console.error('[Mobile] Failed to set line breaks:', error);
   }
 };
 
