@@ -319,10 +319,6 @@
     "message": "Tệp gần đây",
     "description": "Title for recent files section"
   },
-  "remove": {
-    "message": "Xóa",
-    "description": "Remove item from list"
-  },
   "remove_from_list": {
     "message": "Remove from list",
     "description": "Menu item to remove file from recent list"
@@ -330,6 +326,14 @@
   "reset": {
     "message": "Đặt lại",
     "description": "Reset button"
+  },
+  "settings_docx_hr_page_break": {
+    "message": "DOCX: Xem đường kẻ ngang như ngắt trang",
+    "description": "Checkbox label for exporting Markdown horizontal rules (---) as page breaks in DOCX"
+  },
+  "settings_docx_hr_page_break_note": {
+    "message": "Khi bật, dấu phân cách Markdown (---) sẽ tạo trang mới trong tài liệu Word xuất ra.",
+    "description": "Helper note for the DOCX hr page break option"
   },
   "settings_general_title": {
     "message": "Cài đặt tiện ích mở rộng",

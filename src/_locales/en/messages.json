@@ -163,6 +163,18 @@
     "message": "Remove all recent files from the list?",
     "description": "Confirmation message for clearing recent files"
   },
+  "delete": {
+    "message": "Delete",
+    "description": "Delete button text"
+  },
+  "delete_file": {
+    "message": "Delete file",
+    "description": "Menu item to delete a file"
+  },
+  "delete_file_confirm": {
+    "message": "Are you sure you want to delete \"{0}\"? This action cannot be undone.",
+    "description": "Confirmation message for deleting a file"
+  },
   "docx_export_failed_alert": {
     "message": "Export failed{0}",
     "description": "Alert shown when DOCX export fails"
@@ -211,9 +223,17 @@
     "message": "extension settings page",
     "description": "Link text to extension settings"
   },
+  "file_deleted": {
+    "message": "File deleted",
+    "description": "Toast when file is deleted"
+  },
   "file_not_found": {
     "message": "File not found",
     "description": "Error message when file doesn't exist"
+  },
+  "file_removed": {
+    "message": "Removed from list",
+    "description": "Toast when file is removed from list"
   },
   "history_clear": {
     "message": "Clear history",
@@ -271,6 +291,10 @@
     "message": "No headings found",
     "description": "Toast when document has no headings"
   },
+  "no_recent_files": {
+    "message": "No recent files",
+    "description": "Toast when there are no recent files"
+  },
   "open_file": {
     "message": "Open File",
     "description": "Menu item to open file"
@@ -295,13 +319,21 @@
     "message": "Recent Files",
     "description": "Title for recent files section"
   },
-  "remove": {
-    "message": "Remove",
-    "description": "Remove item from list"
+  "remove_from_list": {
+    "message": "Remove from list",
+    "description": "Menu item to remove file from recent list"
   },
   "reset": {
     "message": "Reset",
     "description": "Reset button"
+  },
+  "settings_docx_hr_page_break": {
+    "message": "DOCX: Treat horizontal rules as page breaks",
+    "description": "Checkbox label for exporting Markdown horizontal rules (---) as page breaks in DOCX"
+  },
+  "settings_docx_hr_page_break_note": {
+    "message": "When enabled, Markdown separators (---) will create a new page in exported Word documents.",
+    "description": "Helper note for the DOCX hr page break option"
   },
   "settings_general_title": {
     "message": "Extension settings",
@@ -530,33 +562,5 @@
   "zoom": {
     "message": "Zoom",
     "description": "Menu item for zoom"
-  },
-  "remove_from_list": {
-    "message": "Remove from list",
-    "description": "Menu item to remove file from recent list"
-  },
-  "delete_file": {
-    "message": "Delete file",
-    "description": "Menu item to delete a file"
-  },
-  "delete_file_confirm": {
-    "message": "Are you sure you want to delete \"{0}\"? This action cannot be undone.",
-    "description": "Confirmation message for deleting a file"
-  },
-  "delete": {
-    "message": "Delete",
-    "description": "Delete button text"
-  },
-  "file_deleted": {
-    "message": "File deleted",
-    "description": "Toast when file is deleted"
-  },
-  "file_removed": {
-    "message": "Removed from list",
-    "description": "Toast when file is removed from list"
-  },
-  "no_recent_files": {
-    "message": "No recent files",
-    "description": "Toast when there are no recent files"
   }
 }

@@ -82,6 +82,8 @@ class DocxExporter {
   private progressCallback: DOCXProgressCallback | null = null;
   private totalResources = 0;
   private processedResources = 0;
+
+  private docxHrAsPageBreak = true;
   
   // Converters (initialized in exportToDocx)
   private tableConverter: TableConverter | null = null;
@@ -180,6 +182,21 @@ class DocxExporter {
   ): Promise<DOCXExportResult> {
     try {
       this.setBaseUrl(window.location.href);
+
+      // Load export-related settings (best-effort; defaults apply if unavailable)
+      try {
+        const storage = globalThis.platform?.storage;
+        if (storage?.get) {
+          const result = await storage.get(['markdownViewerSettings']);
+          const userSettings = (result as any)?.markdownViewerSettings as Record<string, unknown> | undefined;
+          const value = userSettings?.docxHrAsPageBreak;
+          this.docxHrAsPageBreak = typeof value === 'boolean' ? value : true;
+        } else {
+          this.docxHrAsPageBreak = true;
+        }
+      } catch {
+        this.docxHrAsPageBreak = true;
+      }
 
       const selectedThemeId = await themeManager.loadSelectedTheme();
       this.themeStyles = await loadThemeForDOCX(selectedThemeId);
@@ -347,7 +364,7 @@ class DocxExporter {
         continue;
       }
 
-      if (node.type === 'thematicBreak' && lastNodeType === 'thematicBreak') {
+      if (!this.docxHrAsPageBreak && node.type === 'thematicBreak' && lastNodeType === 'thematicBreak') {
         elements.push(new Paragraph({
           text: '',
           alignment: AlignmentType.LEFT,
@@ -540,6 +557,18 @@ class DocxExporter {
   }
 
   private convertThematicBreak(): Paragraph {
+    if (this.docxHrAsPageBreak) {
+      return new Paragraph({
+        // Use pageBreakBefore instead of an explicit PageBreak run.
+        // This avoids creating an extra blank page when the break happens to land
+        // at the top of a page after Word's layout/pagination.
+        pageBreakBefore: true,
+        children: [new TextRun({ text: '', size: 1 })],
+        spacing: { before: 0, after: 0, line: 1, lineRule: 'exact' },
+        alignment: AlignmentType.LEFT,
+      });
+    }
+
     return new Paragraph({
       text: '',
       alignment: AlignmentType.LEFT,

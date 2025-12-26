@@ -52,6 +52,7 @@ interface ThemeRegistry {
 interface Settings {
   maxCacheItems: number;
   preferredLocale: string;
+  docxHrAsPageBreak: boolean;
 }
 
 /**
@@ -87,7 +88,8 @@ export function createSettingsTabManager({
 }: SettingsTabManagerOptions): SettingsTabManager {
   let settings: Settings = {
     maxCacheItems: 1000,
-    preferredLocale: DEFAULT_SETTING_LOCALE
+    preferredLocale: DEFAULT_SETTING_LOCALE,
+    docxHrAsPageBreak: true,
   };
   let currentTheme = 'default';
   let themes: ThemeDefinition[] = [];
@@ -164,6 +166,12 @@ export function createSettingsTabManager({
 
     // Load themes
     loadThemes();
+
+    // DOCX: Treat horizontal rule as page break
+    const docxHrPageBreakEl = document.getElementById('docx-hr-page-break') as HTMLInputElement | null;
+    if (docxHrPageBreakEl) {
+      docxHrPageBreakEl.checked = settings.docxHrAsPageBreak !== false;
+    }
   }
 
   /**
@@ -329,6 +337,11 @@ export function createSettingsTabManager({
 
       settings.maxCacheItems = maxCacheItems;
 
+      const docxHrPageBreakEl = document.getElementById('docx-hr-page-break') as HTMLInputElement | null;
+      if (docxHrPageBreakEl) {
+        settings.docxHrAsPageBreak = Boolean(docxHrPageBreakEl.checked);
+      }
+
       await chrome.storage.local.set({
         markdownViewerSettings: settings
       });
@@ -361,7 +374,8 @@ export function createSettingsTabManager({
     try {
       settings = {
         maxCacheItems: 1000,
-        preferredLocale: DEFAULT_SETTING_LOCALE
+        preferredLocale: DEFAULT_SETTING_LOCALE,
+        docxHrAsPageBreak: true,
       };
 
       await chrome.storage.local.set({

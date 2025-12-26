@@ -319,10 +319,6 @@
     "message": "Fichiers récents",
     "description": "Title for recent files section"
   },
-  "remove": {
-    "message": "Supprimer",
-    "description": "Remove item from list"
-  },
   "remove_from_list": {
     "message": "Retirer de la liste",
     "description": "Menu item to remove file from recent list"
@@ -330,6 +326,14 @@
   "reset": {
     "message": "Réinitialiser",
     "description": "Reset button"
+  },
+  "settings_docx_hr_page_break": {
+    "message": "DOCX : Traiter les séparateurs horizontaux comme des sauts de page",
+    "description": "Checkbox label for exporting Markdown horizontal rules (---) as page breaks in DOCX"
+  },
+  "settings_docx_hr_page_break_note": {
+    "message": "Lorsque activé, les séparateurs Markdown (---) créent une nouvelle page dans les documents Word exportés.",
+    "description": "Helper note for the DOCX hr page break option"
   },
   "settings_general_title": {
     "message": "Paramètres de l'extension",

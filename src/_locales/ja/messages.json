@@ -319,10 +319,6 @@
     "message": "最近のファイル",
     "description": "Title for recent files section"
   },
-  "remove": {
-    "message": "削除",
-    "description": "Remove item from list"
-  },
   "remove_from_list": {
     "message": "リストから削除",
     "description": "Menu item to remove file from recent list"
@@ -330,6 +326,14 @@
   "reset": {
     "message": "リセット",
     "description": "Reset button"
+  },
+  "settings_docx_hr_page_break": {
+    "message": "DOCX: 水平線を改ページとして扱う",
+    "description": "Checkbox label for exporting Markdown horizontal rules (---) as page breaks in DOCX"
+  },
+  "settings_docx_hr_page_break_note": {
+    "message": "有効にすると、Markdown の区切り線（---）がエクスポートされた Word 文書で改ページになります。",
+    "description": "Helper note for the DOCX hr page break option"
   },
   "settings_general_title": {
     "message": "拡張機能の設定",

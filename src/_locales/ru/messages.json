@@ -319,10 +319,6 @@
     "message": "Недавние файлы",
     "description": "Title for recent files section"
   },
-  "remove": {
-    "message": "Удалить",
-    "description": "Remove item from list"
-  },
   "remove_from_list": {
     "message": "Удалить из списка",
     "description": "Menu item to remove file from recent list"
@@ -330,6 +326,14 @@
   "reset": {
     "message": "Сбросить",
     "description": "Reset button"
+  },
+  "settings_docx_hr_page_break": {
+    "message": "DOCX: Считать горизонтальные линии разрывами страницы",
+    "description": "Checkbox label for exporting Markdown horizontal rules (---) as page breaks in DOCX"
+  },
+  "settings_docx_hr_page_break_note": {
+    "message": "Если включено, разделители Markdown (---) будут создавать новую страницу в экспортированных документах Word.",
+    "description": "Helper note for the DOCX hr page break option"
   },
   "settings_general_title": {
     "message": "Настройки расширения",

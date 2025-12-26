@@ -163,6 +163,18 @@
     "message": "确定要清除所有最近打开的文件记录吗？",
     "description": "Confirmation message for clearing recent files"
   },
+  "delete": {
+    "message": "删除",
+    "description": "Delete button text"
+  },
+  "delete_file": {
+    "message": "删除文件",
+    "description": "Menu item to delete a file"
+  },
+  "delete_file_confirm": {
+    "message": "确定要删除 \"{0}\" 吗？此操作无法撤销。",
+    "description": "Confirmation message for deleting a file"
+  },
   "docx_export_failed_alert": {
     "message": "导出失败{0}",
     "description": "DOCX 导出失败警告"
@@ -211,9 +223,17 @@
     "message": "扩展设置页面",
     "description": "Link text to extension settings"
   },
+  "file_deleted": {
+    "message": "文件已删除",
+    "description": "Toast when file is deleted"
+  },
   "file_not_found": {
     "message": "文件不存在",
     "description": "Error message when file doesn't exist"
+  },
+  "file_removed": {
+    "message": "已从列表移除",
+    "description": "Toast when file is removed from list"
   },
   "history_clear": {
     "message": "清空历史",
@@ -271,6 +291,10 @@
     "message": "未找到标题",
     "description": "Toast when document has no headings"
   },
+  "no_recent_files": {
+    "message": "没有最近文件",
+    "description": "Toast when there are no recent files"
+  },
   "open_file": {
     "message": "打开文件",
     "description": "Menu item to open file"
@@ -295,13 +319,21 @@
     "message": "最近文件",
     "description": "Title for recent files section"
   },
-  "remove": {
-    "message": "移除",
-    "description": "Remove item from list"
+  "remove_from_list": {
+    "message": "从列表移除",
+    "description": "Menu item to remove file from recent list"
   },
   "reset": {
     "message": "重置",
     "description": "Reset button"
+  },
+  "settings_docx_hr_page_break": {
+    "message": "DOCX：将分隔线(hr)导出为分页",
+    "description": "Checkbox label for exporting Markdown horizontal rules (---) as page breaks in DOCX"
+  },
+  "settings_docx_hr_page_break_note": {
+    "message": "开启后，Markdown 分隔线（---）在导出的 Word 文档中会产生分页。",
+    "description": "Helper note for the DOCX hr page break option"
   },
   "settings_general_title": {
     "message": "扩展设置",
@@ -530,33 +562,5 @@
   "zoom": {
     "message": "缩放",
     "description": "Menu item for zoom"
-  },
-  "remove_from_list": {
-    "message": "从列表移除",
-    "description": "Menu item to remove file from recent list"
-  },
-  "delete_file": {
-    "message": "删除文件",
-    "description": "Menu item to delete a file"
-  },
-  "delete_file_confirm": {
-    "message": "确定要删除 \"{0}\" 吗？此操作无法撤销。",
-    "description": "Confirmation message for deleting a file"
-  },
-  "delete": {
-    "message": "删除",
-    "description": "Delete button text"
-  },
-  "file_deleted": {
-    "message": "文件已删除",
-    "description": "Toast when file is deleted"
-  },
-  "file_removed": {
-    "message": "已从列表移除",
-    "description": "Toast when file is removed from list"
-  },
-  "no_recent_files": {
-    "message": "没有最近文件",
-    "description": "Toast when there are no recent files"
   }
 }
