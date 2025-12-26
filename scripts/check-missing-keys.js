@@ -8,6 +8,7 @@
 
 import fs from 'fs';
 import path from 'path';
+import { findI18nKeysInCode } from './shared/find-i18n-keys-in-code.js';
 
 const LOCALES_DIR = path.join(import.meta.dirname, '../src/_locales');
 const SRC_DIR = path.join(import.meta.dirname, '../src');
@@ -42,137 +43,7 @@ function getKeys(messages) {
 
 // Find all translation key references in source code
 function findKeysInCode() {
-  const keysUsedInCode = new Set();
-  const keysUsedInHTML = new Set();
-  const keysUsedInDart = new Set();
-  
-  // Scan JavaScript files for translate() calls
-  function scanJSFile(filePath) {
-    try {
-      const content = fs.readFileSync(filePath, 'utf8');
-      
-      // Match translate('key') or translate("key")
-      const translatePattern = /translate\s*\(\s*['"]([^'"]+)['"]/g;
-      let match;
-      while ((match = translatePattern.exec(content)) !== null) {
-        keysUsedInCode.add(match[1]);
-      }
-      
-      // Match chrome.i18n.getMessage('key') or chrome.i18n.getMessage("key")
-      const i18nPattern = /chrome\.i18n\.getMessage\s*\(\s*['"]([^'"]+)['"]/g;
-      while ((match = i18nPattern.exec(content)) !== null) {
-        keysUsedInCode.add(match[1]);
-      }
-    } catch (error) {
-      console.error(`Error scanning ${filePath}:`, error.message);
-    }
-  }
-  
-  // Scan HTML files for data-i18n attributes
-  function scanHTMLFile(filePath) {
-    try {
-      const content = fs.readFileSync(filePath, 'utf8');
-      
-      // Match data-i18n="key"
-      const i18nPattern = /data-i18n\s*=\s*["']([^"']+)["']/g;
-      let match;
-      while ((match = i18nPattern.exec(content)) !== null) {
-        keysUsedInHTML.add(match[1]);
-      }
-    } catch (error) {
-      console.error(`Error scanning ${filePath}:`, error.message);
-    }
-  }
-  
-  // Scan manifest.json for __MSG_key__ patterns
-  function scanManifestFile(filePath) {
-    try {
-      const content = fs.readFileSync(filePath, 'utf8');
-      
-      // Match __MSG_key__
-      const msgPattern = /__MSG_([^_]+)__/g;
-      let match;
-      while ((match = msgPattern.exec(content)) !== null) {
-        keysUsedInCode.add(match[1]);
-      }
-    } catch (error) {
-      console.error(`Error scanning ${filePath}:`, error.message);
-    }
-  }
-  
-  // Scan Dart files for localization.t() or localization.translate() calls
-  function scanDartFile(filePath) {
-    try {
-      const content = fs.readFileSync(filePath, 'utf8');
-      
-      // Match localization.t('key') or localization.t("key")
-      const tPattern = /localization\.t\s*\(\s*['"]([^'"]+)['"]/g;
-      let match;
-      while ((match = tPattern.exec(content)) !== null) {
-        keysUsedInDart.add(match[1]);
-      }
-      
-      // Match localization.translate('key') or localization.translate("key")
-      const translatePattern = /localization\.translate\s*\(\s*['"]([^'"]+)['"]/g;
-      while ((match = translatePattern.exec(content)) !== null) {
-        keysUsedInDart.add(match[1]);
-      }
-    } catch (error) {
-      console.error(`Error scanning ${filePath}:`, error.message);
-    }
-  }
-  
-  // Recursively scan directory
-  function scanDirectory(dir, extensions) {
-    try {
-      const files = fs.readdirSync(dir);
-      
-      for (const file of files) {
-        const fullPath = path.join(dir, file);
-        const stat = fs.statSync(fullPath);
-        
-        if (stat.isDirectory()) {
-          // Skip _locales directory and node_modules
-          if (file !== '_locales' && file !== 'node_modules' && file !== 'dist') {
-            scanDirectory(fullPath, extensions);
-          }
-        } else if (stat.isFile()) {
-          const ext = path.extname(file);
-          if (extensions.includes(ext)) {
-            if (ext === '.js' || ext === '.ts') {
-              scanJSFile(fullPath);
-            } else if (ext === '.html') {
-              scanHTMLFile(fullPath);
-            } else if (ext === '.dart') {
-              scanDartFile(fullPath);
-            }
-          } else if (file === 'manifest.json') {
-            scanManifestFile(fullPath);
-          }
-        }
-      }
-    } catch (error) {
-      console.error(`Error scanning directory ${dir}:`, error.message);
-    }
-  }
-  
-  // Scan all source files
-  scanDirectory(SRC_DIR, ['.js', '.ts', '.html']);
-  
-  // Scan Flutter source files
-  if (fs.existsSync(FLUTTER_DIR)) {
-    scanDirectory(FLUTTER_DIR, ['.dart']);
-  }
-  
-  // Combine all keys used in code
-  const allUsedKeys = new Set([...keysUsedInCode, ...keysUsedInHTML, ...keysUsedInDart]);
-  
-  return {
-    all: allUsedKeys,
-    inJS: keysUsedInCode,
-    inHTML: keysUsedInHTML,
-    inDart: keysUsedInDart
-  };
+  return findI18nKeysInCode({ srcDir: SRC_DIR, flutterDir: FLUTTER_DIR });
 }
 
 // Main function
@@ -241,6 +112,11 @@ function main() {
       console.table(Object.values(missingTable));
       console.log(`\nShowing ${relevantLocales.length} locale(s) with missing keys: ${relevantLocales.join(', ')}`);
     }
+
+    console.log('\n🛠️  Suggested action:');
+    console.log('  - Batch fix with: node scripts/update-locale-keys.js');
+    console.log('  - Add missing key(s) to scripts/i18n/update-locale-keys.json (keys + translations; no English placeholders).');
+    console.log('  - Re-check: node scripts/check-missing-keys.js');
   }
   
   if (missingKeysMap.size === 0) {
@@ -261,84 +137,12 @@ function main() {
   // Keys defined but not used
   const definedKeys = allKeysArray;
   const unusedKeys = definedKeys.filter(key => !usedKeys.all.has(key));
-  
-  // Double-check unused keys with full-text search as fallback
-  const trulyUnusedKeys = [];
-  const falsePositives = [];
-  
-  if (unusedKeys.length > 0) {
-    console.log('🔍 Double-checking unused keys with full-text search...\n');
-    
-    for (const key of unusedKeys) {
-      let foundInSource = false;
-      
-      // Recursively search all source files
-      function searchInDirectory(dir) {
-        if (foundInSource) return;
-        
-        try {
-          const files = fs.readdirSync(dir);
-          
-          for (const file of files) {
-            if (foundInSource) break;
-            
-            const fullPath = path.join(dir, file);
-            const stat = fs.statSync(fullPath);
-            
-            if (stat.isDirectory()) {
-              // Skip these directories
-              if (file !== '_locales' && file !== 'node_modules' && file !== 'dist' && file !== '.git' && file !== 'build') {
-                searchInDirectory(fullPath);
-              }
-            } else if (stat.isFile()) {
-              // Skip non-source files
-              const ext = path.extname(file);
-              if (['.js', '.html', '.json', '.css', '.md', '.dart'].includes(ext) || file === 'manifest.json') {
-                try {
-                  const content = fs.readFileSync(fullPath, 'utf8');
-                  
-                  // Search for the key as a whole word
-                  const regex = new RegExp(`\\b${key}\\b`, 'g');
-                  if (regex.test(content)) {
-                    // Make sure it's not just in the messages.json files
-                    if (!fullPath.includes('_locales')) {
-                      foundInSource = true;
-                      falsePositives.push({ key, file: fullPath.replace(SRC_DIR, 'src') });
-                    }
-                  }
-                } catch (error) {
-                  // Skip files that can't be read
-                }
-              }
-            }
-          }
-        } catch (error) {
-          // Skip directories that can't be read
-        }
-      }
-      
-      searchInDirectory(SRC_DIR);
-      
-      // Also search in Flutter directory
-      if (!foundInSource && fs.existsSync(FLUTTER_DIR)) {
-        searchInDirectory(FLUTTER_DIR);
-      }
-      
-      if (!foundInSource) {
-        trulyUnusedKeys.push(key);
-      }
-    }
-  }
-  
-  if (falsePositives.length > 0) {
-    console.log('⚠️  Keys marked as unused but found in full-text search (possible false positives):');
-    console.log('─'.repeat(80));
-    falsePositives.forEach(({ key, file }) => {
-      console.log(`  🔍 ${key} - found in ${file}`);
-    });
-    console.log(`\nTotal false positives: ${falsePositives.length}\n`);
-  }
-  
+
+  // NOTE: We intentionally do NOT use full-text search for "unused" detection.
+  // Only real i18n call-sites are considered usage, to avoid false positives like
+  // common tokens (e.g. action values such as 'remove').
+  const trulyUnusedKeys = unusedKeys;
+
   if (trulyUnusedKeys.length > 0) {
     console.log('⚠️  Keys defined in messages.json but NOT used in code:');
     console.log('─'.repeat(80));
@@ -372,10 +176,12 @@ function main() {
       console.log(`\nShowing ${relevantLocales.length} locale(s) with unused keys: ${relevantLocales.join(', ')}`);
     }
     console.log(`Total unused keys: ${trulyUnusedKeys.length}\n`);
+
+    console.log('🛠️  Suggested action:');
+    console.log('  - Clean up with: node scripts/cleanup-unused-keys.js');
+    console.log('  - Re-check: node scripts/check-missing-keys.js\n');
   } else if (unusedKeys.length === 0) {
     console.log('✅ All defined keys are used in code.\n');
-  } else {
-    console.log('✅ All initially detected unused keys were found in full-text search.\n');
   }
   
   // Keys used but not defined
@@ -388,6 +194,13 @@ function main() {
       console.log(`  ⚠️  ${key}`);
     });
     console.log(`\nTotal undefined keys: ${undefinedKeys.length}\n`);
+
+    const localesNeedingTranslations = locales.filter(l => l !== 'en').sort();
+    console.log('🛠️  Suggested action:');
+    console.log('  - Fix with: node scripts/update-locale-keys.js');
+    console.log('  - Add each key to scripts/i18n/update-locale-keys.json, then provide translations for locales:');
+    console.log(`    ${localesNeedingTranslations.join(', ')}`);
+    console.log('  - Re-check: node scripts/check-missing-keys.js\n');
   } else {
     console.log('✅ All used keys are defined in messages.json.\n');
   }
@@ -397,9 +210,7 @@ function main() {
   console.log('📊 Summary:');
   console.log(`  • Total keys defined: ${definedKeys.length}`);
   console.log(`  • Total keys used in code: ${usedKeys.all.size}`);
-  console.log(`  • Unused keys (pattern matching): ${unusedKeys.length}`);
-  console.log(`  • Unused keys (verified): ${trulyUnusedKeys.length}`);
-  console.log(`  • False positives: ${falsePositives.length}`);
+  console.log(`  • Unused keys: ${trulyUnusedKeys.length}`);
   console.log(`  • Undefined keys: ${undefinedKeys.length}`);
   console.log(`  • Missing translations: ${missingKeysMap.size}`);
   console.log('═'.repeat(80) + '\n');

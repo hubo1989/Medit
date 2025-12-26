@@ -18,27 +18,55 @@ const __dirname = path.dirname(__filename);
 
 const LOCALES_DIR = path.join(__dirname, '../src/_locales');
 
-/**
- * Keys to add/update (English as default)
- * Format: { key: { message: "...", description: "..." } }
- */
-const KEYS = {
-  // Example:
-  // export_docx: {
-  //   message: "Share as Word",
-  //   description: "Menu item for exporting to DOCX and sharing"
-  // }
-};
+const DEFAULT_CONFIG_PATH = path.join(__dirname, './i18n/update-locale-keys.json');
+
+function parseArgs(argv) {
+  const args = { config: DEFAULT_CONFIG_PATH };
+  for (let i = 2; i < argv.length; i++) {
+    const arg = argv[i];
+    if (arg === '--config') {
+      const next = argv[i + 1];
+      if (!next) {
+        throw new Error('Missing value for --config');
+      }
+      args.config = path.isAbsolute(next) ? next : path.resolve(process.cwd(), next);
+      i++;
+    }
+  }
+  return args;
+}
+
+function loadConfig(configPath) {
+  if (!fs.existsSync(configPath)) {
+    throw new Error(`Config file not found: ${configPath}`);
+  }
+
+  const raw = fs.readFileSync(configPath, 'utf8');
+  const parsed = JSON.parse(raw);
+
+  const keys = parsed?.keys;
+  const translations = parsed?.translations ?? {};
+
+  if (!keys || typeof keys !== 'object' || Array.isArray(keys)) {
+    throw new Error('Invalid config: expected { keys: { ... } }');
+  }
+  if (typeof translations !== 'object' || Array.isArray(translations)) {
+    throw new Error('Invalid config: expected { translations: { ... } }');
+  }
+
+  return { keys, translations };
+}
 
 /**
- * Translations for each locale (override defaults)
- * Format: { locale: { key: { message: "..." } } }
- */
-const TRANSLATIONS = {
-  // Example:
-  // zh_CN: {
-  //   export_docx: { message: "分享为 Word" }
-  // }
+ * Keys to add/update.
+ *
+ * IMPORTANT:
+ * - These messages are the canonical English strings.
+ * - For non-English locales, this script will NOT fall back to English.
+ *   Missing translations must be provided via TRANSLATIONS, otherwise the
+ *   key will be skipped and reported.
+ *
+ * Format: { key: { message: "...", description: "..." } }
 };
 
 /**
@@ -56,7 +84,7 @@ function sortObjectKeys(obj) {
 /**
  * Process a single locale file
  */
-function processLocaleFile(locale) {
+function processLocaleFile(locale, KEYS, TRANSLATIONS) {
   const messagesPath = path.join(LOCALES_DIR, locale, 'messages.json');
   
   if (!fs.existsSync(messagesPath)) {
@@ -71,11 +99,22 @@ function processLocaleFile(locale) {
     let added = 0;
     let updated = 0;
     let skipped = 0;
+    const missingTranslations = [];
     
+    const isEnglishLocale = locale === 'en';
+
     for (const [key, defaultValue] of Object.entries(KEYS)) {
-      // Get translation for this locale, or use default
+      // For non-English locales, require explicit translation.
       const translation = TRANSLATIONS[locale]?.[key];
-      const newMessage = translation?.message ?? defaultValue.message;
+      const hasExplicitTranslation = typeof translation?.message === 'string' && translation.message.length > 0;
+
+      if (!isEnglishLocale && !hasExplicitTranslation) {
+        missingTranslations.push(key);
+        skipped++;
+        continue;
+      }
+
+      const newMessage = isEnglishLocale ? defaultValue.message : translation.message;
       
       if (!messages[key]) {
         // Key doesn't exist - add it
@@ -104,11 +143,11 @@ function processLocaleFile(locale) {
     } else {
       console.log(`⏭️  ${locale}: no keys to process`);
     }
-    
-    return { added, updated, skipped };
+
+    return { added, updated, skipped, missingTranslations };
   } catch (error) {
     console.error(`❌ Error processing ${locale}:`, error.message);
-    return { added: 0, updated: 0, skipped: 0 };
+    return { added: 0, updated: 0, skipped: 0, missingTranslations: [] };
   }
 }
 
@@ -116,6 +155,8 @@ function processLocaleFile(locale) {
  * Main function
  */
 function main() {
+  const args = parseArgs(process.argv);
+  const { keys: KEYS, translations: TRANSLATIONS } = loadConfig(args.config);
   const keyCount = Object.keys(KEYS).length;
   
   if (keyCount === 0) {
@@ -124,6 +165,7 @@ function main() {
   }
   
   console.log('🔄 Processing locale keys...\n');
+  console.log(`Config: ${args.config}`);
   console.log('Keys:', Object.keys(KEYS).join(', '));
   console.log('');
   
@@ -141,16 +183,31 @@ function main() {
   let totalAdded = 0;
   let totalUpdated = 0;
   let totalSkipped = 0;
+  const missingTranslationsByLocale = new Map();
   
   for (const locale of locales) {
-    const { added, updated, skipped } = processLocaleFile(locale);
+    const { added, updated, skipped, missingTranslations } = processLocaleFile(locale, KEYS, TRANSLATIONS);
     totalAdded += added;
     totalUpdated += updated;
     totalSkipped += skipped;
+
+    if (missingTranslations.length > 0) {
+      missingTranslationsByLocale.set(locale, missingTranslations);
+    }
   }
   
   console.log('');
   console.log(`📊 Summary: +${totalAdded} added, ~${totalUpdated} updated, =${totalSkipped} unchanged`);
+
+  if (missingTranslationsByLocale.size > 0) {
+    console.log('\n❌ Missing translations (script did NOT add English fallbacks):');
+    for (const [locale, keys] of Array.from(missingTranslationsByLocale.entries()).sort(([a], [b]) => a.localeCompare(b))) {
+      console.log(`  - ${locale}: ${keys.join(', ')}`);
+    }
+    console.log('\nProvide translations in scripts/update-locale-keys.js (TRANSLATIONS) and re-run this script.\n');
+    process.exitCode = 1;
+  }
+
   console.log('✨ Done!');
 }
 
