@@ -45,7 +45,7 @@ export async function fetchText(path: string): Promise<string> {
 
 /**
  * Extract asset path from URL
- * Handles chrome-extension:// URLs and relative paths
+ * Handles chrome-extension://, vscode-resource URLs, and relative paths
  */
 function extractAssetPath(urlOrPath: string): string {
   // If it's a relative path starting with ./, strip it
@@ -57,6 +57,15 @@ function extractAssetPath(urlOrPath: string): string {
   if (urlOrPath.startsWith('chrome-extension://')) {
     const url = new URL(urlOrPath);
     return url.pathname.slice(1); // Remove leading /
+  }
+  
+  // If it's a VSCode resource URL, extract the path after /webview/
+  // e.g., https://file+.vscode-resource.vscode-cdn.net/.../webview/themes/font-config.json
+  if (urlOrPath.includes('vscode-resource') || urlOrPath.includes('vscode-webview')) {
+    const webviewIndex = urlOrPath.indexOf('/webview/');
+    if (webviewIndex !== -1) {
+      return urlOrPath.slice(webviewIndex + '/webview/'.length);
+    }
   }
   
   // Otherwise return as-is

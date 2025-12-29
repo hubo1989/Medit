@@ -66,7 +66,8 @@ export function bootstrapRenderWorker(channel: RenderWorkerChannel, options: Boo
       themeConfig: data.themeConfig,
     };
 
-    return handleRender(request);
+    const result = await handleRender(request);
+    return result;
   });
 
   channel.handle(RenderWorkerMessageTypes.PING, (): PingResponse => {

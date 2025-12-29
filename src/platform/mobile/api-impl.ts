@@ -13,7 +13,8 @@ import {
 } from '../shared/index';
 
 import type {
-  LocaleMessages
+  LocaleMessages,
+  QueueContext
 } from '../shared/index';
 
 import type {
@@ -52,14 +53,6 @@ interface HostMessage {
 interface DownloadOptions {
   mimeType?: string;
   [key: string]: unknown;
-}
-
-/**
- * Render request context for cancellation
- */
-interface QueueContext {
-  cancelled: boolean;
-  id: number;
 }
 
 /**
@@ -368,6 +361,13 @@ class MobileRendererService extends BaseRendererService {
     });
     this.requestQueue = Promise.resolve();
     this.queueContext = { cancelled: false, id: 0 };
+  }
+
+  /**
+   * Initialize the renderer
+   */
+  async init(): Promise<void> {
+    // Mobile renderer initialization - iframe is created when first needed
   }
 
   /**

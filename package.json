@@ -1,13 +1,15 @@
 {
   "name": "markdown-viewer-extension",
+  "displayName": "Markdown Viewer Advanced",
   "version": "1.3.0",
-  "description": "A Chrome extension to view Markdown files with syntax highlighting",
+  "description": "Advanced Markdown viewer with Mermaid, KaTeX, Vega, GraphViz and more",
   "type": "module",
   "main": "src/content.js",
   "scripts": {
     "postinstall": "patch-package",
     "build:chrome": "node scripts/build.js",
     "build:mobile": "node scripts/build-mobile.js",
+    "build:vscode": "node scripts/build-vscode.js",
     "app:ios": "flutter build ipa --export-options-plist=ios/exportOptions.plist && mkdir -p dist/ios && cp -a build/ios/ipa/* dist/ios/",
     "app:ios:sim": "flutter build ios --simulator && mkdir -p dist/ios-sim && cp -a build/ios/iphonesimulator/Runner.app dist/ios-sim/",
     "app:android": "flutter build apk && mkdir -p dist/android && cp build/app/outputs/flutter-apk/*.apk dist/android/",
@@ -49,10 +51,6 @@
   "bugs": {
     "url": "https://github.com/xicilion/markdown-viewer-extension/issues"
   },
-  "engines": {
-    "node": ">=16.0.0",
-    "fibjs": ">=0.36.0"
-  },
   "dependencies": {
     "@antv/infographic": "^0.2.1",
     "@viz-js/viz": "^3.24.0",
@@ -84,7 +82,123 @@
   "devDependencies": {
     "@types/chrome": "^0.1.32",
     "@types/node": "^25.0.3",
+    "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^2.22.0",
     "patch-package": "^8.0.1",
     "typescript": "^5.9.3"
-  }
+  },
+  "publisher": "xicilion",
+  "categories": [
+    "Visualization",
+    "Other"
+  ],
+  "activationEvents": [
+    "onLanguage:markdown"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "markdownViewer.preview",
+        "title": "Open Markdown Preview (Advanced)",
+        "category": "Markdown Viewer",
+        "icon": "$(book)"
+      },
+      {
+        "command": "markdownViewer.previewToSide",
+        "title": "Open Markdown Preview to the Side (Advanced)",
+        "category": "Markdown Viewer",
+        "icon": "$(book)"
+      },
+      {
+        "command": "markdownViewer.exportDocx",
+        "title": "Export to DOCX",
+        "category": "Markdown Viewer",
+        "icon": "$(file-binary)"
+      },
+      {
+        "command": "markdownViewer.refresh",
+        "title": "Refresh Preview",
+        "category": "Markdown Viewer",
+        "icon": "$(refresh)"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "markdownViewer.previewToSide",
+          "when": "editorLangId == markdown",
+          "group": "navigation"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "markdownViewer.preview",
+          "when": "editorLangId == markdown",
+          "group": "navigation"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "markdownViewer.preview",
+          "when": "editorLangId == markdown"
+        },
+        {
+          "command": "markdownViewer.previewToSide",
+          "when": "editorLangId == markdown"
+        },
+        {
+          "command": "markdownViewer.exportDocx",
+          "when": "editorLangId == markdown"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Markdown Viewer Advanced",
+      "properties": {
+        "markdownViewer.theme": {
+          "type": "string",
+          "default": "auto",
+          "enum": [
+            "auto",
+            "github-light",
+            "github-dark",
+            "academic",
+            "minimal"
+          ],
+          "description": "Theme for the Markdown preview"
+        },
+        "markdownViewer.fontSize": {
+          "type": "number",
+          "default": 16,
+          "minimum": 10,
+          "maximum": 32,
+          "description": "Base font size in pixels"
+        },
+        "markdownViewer.fontFamily": {
+          "type": "string",
+          "default": "",
+          "description": "Font family for the preview (leave empty for default)"
+        },
+        "markdownViewer.lineNumbers": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show line numbers in code blocks"
+        },
+        "markdownViewer.scrollSync": {
+          "type": "boolean",
+          "default": true,
+          "description": "Synchronize scrolling between editor and preview"
+        }
+      }
+    },
+    "keybindings": [
+      {
+        "command": "markdownViewer.previewToSide",
+        "key": "ctrl+shift+v",
+        "mac": "cmd+shift+v",
+        "when": "editorLangId == markdown"
+      }
+    ]
+  },
+  "icon": "icons/icon128.png"
 }

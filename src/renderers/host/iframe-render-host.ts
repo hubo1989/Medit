@@ -4,7 +4,14 @@ import { RenderChannel } from '../../messaging/channels/render-channel';
 import { WindowPostMessageTransport } from '../../messaging/transports/window-postmessage-transport';
 
 export type IframeRenderHostOptions = {
-  iframeUrl: string;
+  /** URL to load in iframe (for normal browser environments) */
+  iframeUrl?: string;
+  /** HTML content to load via blob URL (for VSCode webview to bypass CSP) */
+  htmlContent?: string;
+  /** Async function to fetch HTML content */
+  fetchHtmlContent?: () => Promise<string>;
+  /** Nonce for script tags (required for VSCode webview CSP) */
+  nonce?: string;
   source: string;
   timeoutMs?: number;
   readyTimeoutMs?: number;
@@ -12,28 +19,47 @@ export type IframeRenderHostOptions = {
 
 export class IframeRenderHost implements RenderHost {
   private iframe: HTMLIFrameElement | null = null;
+  private iframeCreationPromise: Promise<HTMLIFrameElement> | null = null;
   private readyPromise: Promise<void> | null = null;
   private renderChannel: RenderChannel | null = null;
+  private blobUrl: string | null = null;
 
-  private readonly iframeUrl: string;
+  private readonly iframeUrl?: string;
+  private readonly htmlContent?: string;
+  private readonly fetchHtmlContent?: () => Promise<string>;
+  private readonly nonce?: string;
   private readonly source: string;
   private readonly timeoutMs: number;
   private readonly readyTimeoutMs: number;
 
   constructor(options: IframeRenderHostOptions) {
     this.iframeUrl = options.iframeUrl;
+    this.htmlContent = options.htmlContent;
+    this.fetchHtmlContent = options.fetchHtmlContent;
+    this.nonce = options.nonce;
     this.source = options.source;
     this.timeoutMs = options.timeoutMs ?? 60_000;
     this.readyTimeoutMs = options.readyTimeoutMs ?? 15_000;
   }
 
-  private ensureIframeCreated(): HTMLIFrameElement {
+  private async ensureIframeCreated(): Promise<HTMLIFrameElement> {
+    // Return existing iframe
     if (this.iframe) {
       return this.iframe;
     }
+    
+    // Return existing creation promise to avoid creating multiple iframes
+    if (this.iframeCreationPromise) {
+      return this.iframeCreationPromise;
+    }
 
+    // Create new iframe (only once)
+    this.iframeCreationPromise = this.createIframe();
+    return this.iframeCreationPromise;
+  }
+
+  private async createIframe(): Promise<HTMLIFrameElement> {
     const iframe = document.createElement('iframe');
-    iframe.src = this.iframeUrl;
     iframe.setAttribute('aria-hidden', 'true');
     iframe.tabIndex = -1;
     iframe.style.position = 'fixed';
@@ -43,14 +69,43 @@ export class IframeRenderHost implements RenderHost {
     iframe.style.height = '10px';
     iframe.style.border = '0';
     iframe.style.opacity = '0';
+    
+    // For VSCode: allow scripts in iframe, but don't allow same-origin to avoid sandbox escape
+    iframe.setAttribute('sandbox', 'allow-scripts');
+
+    // Determine how to load iframe content
+    if (this.htmlContent || this.fetchHtmlContent) {
+      // Use srcdoc to create a completely independent iframe document
+      // This bypasses parent CSP entirely since srcdoc creates a fresh document
+      let html = this.htmlContent;
+      if (!html && this.fetchHtmlContent) {
+        html = await this.fetchHtmlContent();
+      }
+      if (html) {
+        // If nonce is provided (VSCode webview), add it to all script tags
+        // This allows scripts to execute under parent's CSP
+        if (this.nonce) {
+          // Add nonce to all script tags (both inline and external)
+          html = html.replace(/<script(?![^>]*\bnonce=)/gi, `<script nonce="${this.nonce}"`);
+        }
+        // Use srcdoc instead of blob URL - srcdoc creates independent document without inheriting parent CSP
+        iframe.srcdoc = html;
+        // Don't set src when using srcdoc
+        iframe.src = '';
+      }
+    } else if (this.iframeUrl) {
+      iframe.src = this.iframeUrl;
+    } else {
+      throw new Error('IframeRenderHost: either iframeUrl, htmlContent, or fetchHtmlContent is required');
+    }
 
     (document.documentElement || document.body).appendChild(iframe);
     this.iframe = iframe;
     return iframe;
   }
 
-  private getOrCreateRenderChannel(): RenderChannel {
-    const iframe = this.ensureIframeCreated();
+  private async getOrCreateRenderChannel(): Promise<RenderChannel> {
+    const iframe = await this.ensureIframeCreated();
     const targetWindow = iframe.contentWindow;
     if (!targetWindow) {
       throw new Error('Render frame not available');
@@ -73,7 +128,8 @@ export class IframeRenderHost implements RenderHost {
   }
 
   async ensureReady(): Promise<void> {
-    const iframe = this.ensureIframeCreated();
+    const iframe = await this.ensureIframeCreated();
+    
     const targetWindow = iframe.contentWindow;
     if (!targetWindow) {
       throw new Error('Render frame not available');
@@ -85,16 +141,14 @@ export class IframeRenderHost implements RenderHost {
 
     this.readyPromise = new Promise((resolve, reject) => {
       const onMessage = (event: MessageEvent) => {
-        if (event.source !== targetWindow) {
-          return;
-        }
-
+        // In VSCode webview with blob URL, event.source may not match targetWindow
+        // So we only check the message type for RENDER_FRAME_READY
         const data = event.data as { type?: unknown } | null;
         if (data && data.type === 'RENDER_FRAME_READY') {
           try {
             targetWindow.postMessage({ type: 'READY_ACK' }, '*');
-          } catch {
-            // Ignore
+          } catch (e) {
+            // Ignore errors sending READY_ACK
           }
 
           window.removeEventListener('message', onMessage);
@@ -103,6 +157,11 @@ export class IframeRenderHost implements RenderHost {
       };
 
       window.addEventListener('message', onMessage);
+
+      // Also listen for iframe error event
+      iframe.addEventListener('error', (e) => {
+        console.error('[IframeRenderHost] iframe error event:', e);
+      });
 
       setTimeout(() => {
         window.removeEventListener('message', onMessage);
@@ -115,7 +174,7 @@ export class IframeRenderHost implements RenderHost {
 
   async send<T = unknown>(type: string, payload: unknown, timeoutMs?: number): Promise<T> {
     await this.ensureReady();
-    const channel = this.getOrCreateRenderChannel();
+    const channel = await this.getOrCreateRenderChannel();
     return (await channel.send(type, payload, { timeoutMs: timeoutMs ?? this.timeoutMs })) as T;
   }
 
@@ -128,5 +187,11 @@ export class IframeRenderHost implements RenderHost {
       this.iframe.parentNode.removeChild(this.iframe);
     }
     this.iframe = null;
+
+    // Clean up blob URL if created
+    if (this.blobUrl) {
+      URL.revokeObjectURL(this.blobUrl);
+      this.blobUrl = null;
+    }
   }
 }

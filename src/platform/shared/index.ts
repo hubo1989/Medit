@@ -14,7 +14,8 @@ export {
 
 export type {
   LocaleMessages,
-  LocaleMessageEntry
+  LocaleMessageEntry,
+  QueueContext
 } from './base-services';
 
 // Re-export types from unified type system

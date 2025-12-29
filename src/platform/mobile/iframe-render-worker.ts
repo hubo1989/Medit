@@ -1,6 +1,15 @@
 // Mobile Iframe Render Worker
 // Entry point for the render iframe in Flutter WebView
 
+// Send ready message immediately before any imports fail
+try {
+  if (window.parent && window.parent !== window) {
+    window.parent.postMessage({ type: 'RENDER_FRAME_READY' }, '*');
+  }
+} catch (e) {
+  // Ignore errors
+}
+
 import { RenderChannel } from '../../messaging/channels/render-channel';
 import { WindowPostMessageTransport } from '../../messaging/transports/window-postmessage-transport';
 
@@ -50,8 +59,8 @@ function initialize(): void {
       if (window.parent && window.parent !== window) {
         window.parent.postMessage({ type: 'RENDER_FRAME_READY' }, '*');
       }
-    } catch {
-      // Ignore
+    } catch (e) {
+      // Ignore errors
     }
   };
 

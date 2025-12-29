@@ -240,10 +240,18 @@ export class BaseI18nService {
 // ============================================================================
 
 /**
- * Base renderer service with common cache integration logic.
- * Platform-specific implementations should extend this.
+ * Render request context for cancellation
  */
-export class BaseRendererService {
+export interface QueueContext {
+  cancelled: boolean;
+  id: number;
+}
+
+/**
+ * Base renderer service with common cache integration logic.
+ * Platform-specific implementations must extend this and implement abstract methods.
+ */
+export abstract class BaseRendererService {
   protected themeConfig: RendererThemeConfig | null = null;
 
   constructor() {
@@ -251,19 +259,16 @@ export class BaseRendererService {
   }
 
   /**
-   * Initialize the renderer
+   * Initialize the renderer (must be implemented by subclass)
    */
-  async init(): Promise<void> {
-    // Override in subclass if needed
-  }
+  abstract init(): Promise<void>;
 
   /**
-   * Set theme configuration
+   * Set theme configuration (must be implemented by subclass)
+   * Should sync theme config to render iframe/worker
    * @param config - Theme configuration
    */
-  async setThemeConfig(config: RendererThemeConfig): Promise<void> {
-    this.themeConfig = config;
-  }
+  abstract setThemeConfig(config: RendererThemeConfig): Promise<void>;
 
   /**
    * Get current theme configuration
@@ -277,9 +282,28 @@ export class BaseRendererService {
    * Render content (must be implemented by subclass)
    * @param type - Render type
    * @param content - Content to render
+   * @param context - Optional queue context for cancellation
    * @returns Render result
    */
-  async render(type: string, content: string | object): Promise<RenderResult> {
-    throw new Error('Not implemented');
-  }
+  abstract render(type: string, content: string | object, context?: QueueContext | null): Promise<RenderResult>;
+
+  /**
+   * Cancel all pending requests (must be implemented by subclass)
+   */
+  abstract cancelPending(): void;
+
+  /**
+   * Get current queue context (must be implemented by subclass)
+   */
+  abstract getQueueContext(): QueueContext;
+
+  /**
+   * Ensure render iframe/worker is ready (must be implemented by subclass)
+   */
+  abstract ensureIframe(): Promise<void>;
+
+  /**
+   * Cleanup resources (must be implemented by subclass)
+   */
+  abstract cleanup(): Promise<void>;
 }

@@ -402,6 +402,27 @@ export class ChromeRendererService extends BaseRendererService {
 
     return result;
   }
+
+  cancelPending(): void {
+    // Chrome renderer uses offscreen document which handles its own lifecycle
+    // No cancellation needed at this level
+  }
+
+  getQueueContext(): { cancelled: boolean; id: number } {
+    // Chrome doesn't use queue context - offscreen document handles serialization
+    return { cancelled: false, id: 0 };
+  }
+
+  async ensureIframe(): Promise<void> {
+    // Chrome uses offscreen document instead of iframe
+    // Just ensure the host is ready
+    this.getHost();
+  }
+
+  async cleanup(): Promise<void> {
+    // Offscreen document cleanup handled by Chrome runtime
+    this.offscreenHost = null;
+  }
 }
 
 // ============================================================================
