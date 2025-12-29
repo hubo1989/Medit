@@ -16,37 +16,18 @@ class LocalizationService {
   String? _userSelectedLocale; // null means auto (system locale)
   bool _initialized = false;
 
-  /// Supported locales with their folder names
-  static const List<String> supportedLocales = [
-    'da', 'de', 'en', 'es', 'fi', 'fr', 'hi', 'id', 'it', 'ja',
-    'ko', 'nl', 'no', 'pl', 'pt_BR', 'pt_PT', 'ru', 'sv', 'th',
-    'tr', 'vi', 'zh_CN', 'zh_TW'
-  ];
+  List<String> _supportedLocales = const [];
+  final Map<String, String> _localeNames = {};
 
-  /// Supported locales mapping (Flutter locale -> _locales folder name)
-  static const Map<String, String> _localeMapping = {
-    'da': 'da',
-    'de': 'de',
-    'en': 'en',
-    'es': 'es',
-    'fi': 'fi',
-    'fr': 'fr',
-    'hi': 'hi',
-    'id': 'id',
-    'it': 'it',
-    'ja': 'ja',
-    'ko': 'ko',
-    'nl': 'nl',
-    'no': 'no',
-    'pl': 'pl',
-    'pt': 'pt_BR', // Portuguese defaults to Brazilian
-    'ru': 'ru',
-    'sv': 'sv',
-    'th': 'th',
-    'tr': 'tr',
-    'vi': 'vi',
-    'zh': 'zh_CN', // Chinese defaults to Simplified
-  };
+  /// Supported locales (ordered) loaded from build/mobile/_locales/registry.json
+  List<String> get supportedLocales => _supportedLocales;
+
+  /// Get locale display name (native) from registry
+  String getLocaleDisplayName(String localeCode) =>
+      _localeNames[localeCode] ?? localeCode;
+
+  /// Note: Do NOT keep a hardcoded locale mapping list.
+  /// We resolve system locale dynamically based on _supportedLocales loaded from registry.json.
 
   /// Get current locale
   String get currentLocale => _currentLocale;
@@ -63,6 +44,8 @@ class LocalizationService {
   /// Initialize with saved or system locale
   Future<void> init() async {
     if (_initialized) return;
+
+    await _loadLocaleRegistry();
 
     // Load saved preference
     final prefs = await SharedPreferences.getInstance();
@@ -81,31 +64,78 @@ class LocalizationService {
     _initialized = true;
   }
 
+  Future<void> _loadLocaleRegistry() async {
+    try {
+      final jsonString = await rootBundle.loadString(
+        'build/mobile/_locales/registry.json',
+      );
+      final Map<String, dynamic> data = jsonDecode(jsonString);
+
+      final locales = (data['locales'] as List<dynamic>? ?? const [])
+          .whereType<Map<String, dynamic>>()
+          .toList();
+
+      _supportedLocales = locales
+          .map((e) => (e['code'] as String?)?.trim())
+          .whereType<String>()
+          .where((e) => e.isNotEmpty)
+          .toList(growable: false);
+
+      _localeNames.clear();
+      for (final entry in locales) {
+        final code = (entry['code'] as String?)?.trim();
+        final name = (entry['name'] as String?)?.trim();
+        if (code != null && code.isNotEmpty && name != null && name.isNotEmpty) {
+          _localeNames[code] = name;
+        }
+      }
+
+      if (_supportedLocales.isEmpty) {
+        _supportedLocales = const ['en'];
+      }
+    } catch (_) {
+      // Fallback to a minimal set if registry is missing.
+      _supportedLocales = const ['en'];
+      _localeNames.clear();
+      _localeNames['en'] = 'English';
+    }
+  }
+
   /// Get system locale code
   String _getSystemLocale() {
     final systemLocale = PlatformDispatcher.instance.locale;
-    String localeCode = systemLocale.languageCode;
+    final languageCode = systemLocale.languageCode;
+    final countryCode = systemLocale.countryCode?.toUpperCase();
 
-    // Handle Chinese variants
-    if (localeCode == 'zh') {
-      final countryCode = systemLocale.countryCode?.toUpperCase();
+    // Handle Chinese variants (zh_TW for TW/HK/MO, zh_CN for others)
+    if (languageCode == 'zh') {
       if (countryCode == 'TW' || countryCode == 'HK' || countryCode == 'MO') {
         return 'zh_TW';
-      } else {
-        return 'zh_CN';
       }
-    } else if (localeCode == 'pt') {
-      // Handle Portuguese variants
-      final countryCode = systemLocale.countryCode?.toUpperCase();
+      return 'zh_CN';
+    }
+
+    // Handle Portuguese variants (pt_PT for Portugal, pt_BR for others)
+    if (languageCode == 'pt') {
       if (countryCode == 'PT') {
         return 'pt_PT';
-      } else {
-        return 'pt_BR';
       }
-    } else {
-      // Map to _locales folder name
-      return _localeMapping[localeCode] ?? 'en';
+      return 'pt_BR';
     }
+
+    // Try exact match first: language_COUNTRY
+    if (countryCode != null && countryCode.isNotEmpty) {
+      final exact = '${languageCode}_$countryCode';
+      if (_supportedLocales.contains(exact)) {
+        return exact;
+      }
+    }
+
+    // Then try language only
+    if (_supportedLocales.contains(languageCode)) {
+      return languageCode;
+    }
+    return 'en';
   }
 
   /// Change locale (null for auto/system locale)
@@ -128,6 +158,9 @@ class LocalizationService {
   /// Load a specific locale
   Future<void> _loadLocale(String localeCode) async {
     try {
+      if (_supportedLocales.isNotEmpty && !_supportedLocales.contains(localeCode)) {
+        localeCode = 'en';
+      }
       final jsonString = await rootBundle.loadString(
         'build/mobile/_locales/$localeCode/messages.json',
       );

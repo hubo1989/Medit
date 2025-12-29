@@ -1445,33 +1445,6 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
   }
 
   void _showLanguagePicker() {
-    // Locale code to translation key mapping
-    const localeKeyMap = {
-      'da': 'settings_language_da',
-      'de': 'settings_language_de',
-      'en': 'settings_language_en',
-      'es': 'settings_language_es',
-      'fi': 'settings_language_fi',
-      'fr': 'settings_language_fr',
-      'hi': 'settings_language_hi',
-      'id': 'settings_language_id',
-      'it': 'settings_language_it',
-      'ja': 'settings_language_ja',
-      'ko': 'settings_language_ko',
-      'nl': 'settings_language_nl',
-      'no': 'settings_language_no',
-      'pl': 'settings_language_pl',
-      'pt_BR': 'settings_language_pt_br',
-      'pt_PT': 'settings_language_pt_pt',
-      'ru': 'settings_language_ru',
-      'sv': 'settings_language_sv',
-      'th': 'settings_language_th',
-      'tr': 'settings_language_tr',
-      'vi': 'settings_language_vi',
-      'zh_CN': 'settings_language_zh_cn',
-      'zh_TW': 'settings_language_zh_tw',
-    };
-
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -1485,7 +1458,6 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
         expand: false,
         builder: (context, scrollController) => _LanguagePickerSheet(
           scrollController: scrollController,
-          localeKeyMap: localeKeyMap,
           onLocaleSelected: (locale) async {
             await localization.setLocale(locale);
             if (mounted) {
@@ -2351,12 +2323,10 @@ class _FontSizeBottomSheetState extends State<_FontSizeBottomSheet> {
 /// Language picker bottom sheet with GetWidget style
 class _LanguagePickerSheet extends StatelessWidget {
   final ScrollController scrollController;
-  final Map<String, String> localeKeyMap;
   final void Function(String?) onLocaleSelected;
 
   const _LanguagePickerSheet({
     required this.scrollController,
-    required this.localeKeyMap,
     required this.onLocaleSelected,
   });
 
@@ -2404,10 +2374,9 @@ class _LanguagePickerSheet extends StatelessWidget {
               ),
               const Divider(height: 1, indent: 56),
               // All supported locales
-              ...LocalizationService.supportedLocales.map((locale) {
-                final key = localeKeyMap[locale] ?? 'settings_language_en';
+              ...localization.supportedLocales.map((locale) {
                 return _LanguageItem(
-                  title: localization.t(key),
+                  title: localization.getLocaleDisplayName(locale),
                   isSelected: currentLocale == locale,
                   onTap: () => onLocaleSelected(locale),
                 );

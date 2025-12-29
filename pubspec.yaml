@@ -49,6 +49,7 @@ flutter:
     # Fonts directory
     - build/mobile/fonts/
     # Locales - all language subdirectories
+    - build/mobile/_locales/registry.json
     - build/mobile/_locales/da/
     - build/mobile/_locales/de/
     - build/mobile/_locales/en/
@@ -60,6 +61,7 @@ flutter:
     - build/mobile/_locales/it/
     - build/mobile/_locales/ja/
     - build/mobile/_locales/ko/
+    - build/mobile/_locales/lt/
     - build/mobile/_locales/nl/
     - build/mobile/_locales/no/
     - build/mobile/_locales/pl/
@@ -69,6 +71,7 @@ flutter:
     - build/mobile/_locales/sv/
     - build/mobile/_locales/th/
     - build/mobile/_locales/tr/
+    - build/mobile/_locales/uk/
     - build/mobile/_locales/vi/
     - build/mobile/_locales/zh_CN/
     - build/mobile/_locales/zh_TW/

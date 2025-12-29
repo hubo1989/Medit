@@ -47,6 +47,22 @@ interface ThemeRegistry {
 }
 
 /**
+ * Locale info from registry
+ */
+interface LocaleInfo {
+  code: string;
+  name: string;
+}
+
+/**
+ * Locale registry structure
+ */
+interface LocaleRegistry {
+  version: string;
+  locales: LocaleInfo[];
+}
+
+/**
  * Supported file extensions
  */
 interface SupportedExtensions {
@@ -113,6 +129,7 @@ export function createSettingsTabManager({
   let currentTheme = 'default';
   let themes: ThemeDefinition[] = [];
   let registry: ThemeRegistry | null = null;
+  let localeRegistry: LocaleRegistry | null = null;
 
   /**
    * Load settings from storage
@@ -157,7 +174,7 @@ export function createSettingsTabManager({
     // Locale selector
     const localeSelect = document.getElementById('interface-language') as HTMLSelectElement | null;
     if (localeSelect) {
-      localeSelect.value = settings.preferredLocale || DEFAULT_SETTING_LOCALE;
+      void loadLocalesIntoSelect(localeSelect);
 
       // Add change listener for immediate language change (only once)
       if (!localeSelect.dataset.listenerAdded) {
@@ -250,6 +267,41 @@ export function createSettingsTabManager({
     if (supportInfographicEl) {
       supportInfographicEl.checked = ext.infographic;
       addExtensionChangeListener(supportInfographicEl, 'infographic');
+    }
+  }
+
+  async function loadLocalesIntoSelect(localeSelect: HTMLSelectElement): Promise<void> {
+    try {
+      if (!localeRegistry) {
+        const url = chrome.runtime.getURL('_locales/registry.json');
+        const response = await fetch(url);
+        localeRegistry = (await response.json()) as LocaleRegistry;
+      }
+
+      // Rebuild options each time to ensure registry order is reflected.
+      localeSelect.innerHTML = '';
+
+      const autoOption = document.createElement('option');
+      autoOption.value = 'auto';
+      autoOption.setAttribute('data-i18n', 'settings_language_auto');
+      localeSelect.appendChild(autoOption);
+
+      (localeRegistry.locales || []).forEach((locale) => {
+        const option = document.createElement('option');
+        option.value = locale.code;
+        option.textContent = locale.name;
+        localeSelect.appendChild(option);
+      });
+
+      // Apply i18n to the auto option.
+      applyI18nText();
+
+      // Set selected value AFTER options exist.
+      localeSelect.value = settings.preferredLocale || DEFAULT_SETTING_LOCALE;
+    } catch (error) {
+      console.error('Failed to load locale registry:', error);
+      // Fallback: keep whatever is currently in the DOM
+      localeSelect.value = settings.preferredLocale || DEFAULT_SETTING_LOCALE;
     }
   }
 

@@ -1,10 +1,10 @@
 # Markdown Viewer
 
-[English](README.en.md) · [简体中文](README.zh-CN.md) · [繁體中文](README.zh-TW.md) · [日本語](README.ja.md) · [한국어](README.ko.md) · [Deutsch](README.de.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Português (BR)](README.pt-BR.md) · [Português (PT)](README.pt-PT.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Русский](README.ru.md) · [Türkçe](README.tr.md) · [ไทย](README.th.md) · [Tiếng Việt](README.vi.md) · [हिन्दी](README.hi.md) · [Bahasa Indonesia](README.id.md) · [Dansk](README.da.md) · [Suomi](README.fi.md) · [Norsk](README.no.md) · [Svenska](README.sv.md)
+[简体中文](README.zh-CN.md) · [繁體中文](README.zh-TW.md) · [English](README.en.md) · [Русский](README.ru.md) · [日本語](README.ja.md) · [한국어](README.ko.md) · [Português (Brasil)](README.pt-BR.md) · [Português (Portugal)](README.pt-PT.md) · [Español](README.es.md) · [Deutsch](README.de.md) · [Français](README.fr.md) · [Українська](README.uk.md) · [Tiếng Việt](README.vi.md) · [Italiano](README.it.md) · [Türkçe](README.tr.md) · [Bahasa Indonesia](README.id.md) · [Lietuvių](README.lt.md) · [Nederlands](README.nl.md) · [Suomi](README.fi.md) · [ไทย](README.th.md) · [Polski](README.pl.md) · [हिन्दी](README.hi.md) · [Svenska](README.sv.md) · [Norsk](README.no.md) · [Dansk](README.da.md)
 
 **用 Markdown 寫文檔，一鍵匯出完美 Word。**
 
-*完全免費 · 本地處理 · 18+ 專業主題 · 支援 23 種語言*
+*完全免費 · 本地處理 · 18+ 專業主題 · 支援 25 種語言*
 
 🚀 **立即安裝:** https://chromewebstore.google.com/detail/markdown-viewer/jekhhoflgcfoikceikgeenibinpojaoi
 
@@ -212,9 +212,9 @@ LaTeX → Word 可編輯公式（不是圖片！）
 **中文：** 宋體 · 黑體 · 混排  
 **創意：** Typewriter · Sakura · Water · Minimal
 
-### 23 種介面語言
+### 25 種介面語言
 
-簡體中文 · 繁體中文 · English · Deutsch · Español · Français · Italiano · Nederlands · Português (BR) · Português (PT) · Polski · Русский · 日本語 · 한국어 · ไทย · Tiếng Việt · हिन्दी · Bahasa Indonesia · Dansk · Suomi · Norsk · Svenska · Türkçe
+简体中文 · 繁體中文 · English · Русский · 日本語 · 한국어 · Português (Brasil) · Português (Portugal) · Español · Deutsch · Français · Українська · Tiếng Việt · Italiano · Türkçe · Bahasa Indonesia · Lietuvių · Nederlands · Suomi · ไทย · Polski · हिन्दी · Svenska · Norsk · Dansk
 
 ---
 

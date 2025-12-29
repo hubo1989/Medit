@@ -1,10 +1,10 @@
 # Markdown Viewer
 
-[English](README.en.md) · [简体中文](README.zh-CN.md) · [繁體中文](README.zh-TW.md) · [日本語](README.ja.md) · [한국어](README.ko.md) · [Deutsch](README.de.md) · [Español](README.es.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Português (BR)](README.pt-BR.md) · [Português (PT)](README.pt-PT.md) · [Nederlands](README.nl.md) · [Polski](README.pl.md) · [Русский](README.ru.md) · [Türkçe](README.tr.md) · [ไทย](README.th.md) · [Tiếng Việt](README.vi.md) · [हिन्दी](README.hi.md) · [Bahasa Indonesia](README.id.md) · [Dansk](README.da.md) · [Suomi](README.fi.md) · [Norsk](README.no.md) · [Svenska](README.sv.md)
+[简体中文](README.zh-CN.md) · [繁體中文](README.zh-TW.md) · [English](README.en.md) · [Русский](README.ru.md) · [日本語](README.ja.md) · [한국어](README.ko.md) · [Português (Brasil)](README.pt-BR.md) · [Português (Portugal)](README.pt-PT.md) · [Español](README.es.md) · [Deutsch](README.de.md) · [Français](README.fr.md) · [Українська](README.uk.md) · [Tiếng Việt](README.vi.md) · [Italiano](README.it.md) · [Türkçe](README.tr.md) · [Bahasa Indonesia](README.id.md) · [Lietuvių](README.lt.md) · [Nederlands](README.nl.md) · [Suomi](README.fi.md) · [ไทย](README.th.md) · [Polski](README.pl.md) · [हिन्दी](README.hi.md) · [Svenska](README.sv.md) · [Norsk](README.no.md) · [Dansk](README.da.md)
 
 **Markdown में लिखें, एक क्लिक से परफेक्ट Word में एक्सपोर्ट करें।**
 
-*पूरी तरह मुफ्त · स्थानीय प्रोसेसिंग · 18+ पेशेवर थीम · 23 भाषाओं का समर्थन*
+*पूरी तरह मुफ्त · स्थानीय प्रोसेसिंग · 18+ पेशेवर थीम · 25 भाषाओं का समर्थन*
 
 🚀 **अभी इंस्टॉल करें:** https://chromewebstore.google.com/detail/markdown-viewer/jekhhoflgcfoikceikgeenibinpojaoi
 
@@ -212,9 +212,9 @@ LaTeX → Word संपादन योग्य समीकरण (छवि�
 **चीनी:** Songti · Heiti · Mixed  
 **रचनात्मक:** Typewriter · Sakura · Water · Minimal
 
-### 23 इंटरफ़ेस भाषाएं
+### 25 इंटरफ़ेस भाषाएं
 
-सरलीकृत चीनी · पारंपरिक चीनी · English · Deutsch · Español · Français · Italiano · Nederlands · Português (BR) · Português (PT) · Polski · Русский · 日本語 · 한국어 · ไทย · Tiếng Việt · हिन्दी · Bahasa Indonesia · Dansk · Suomi · Norsk · Svenska · Türkçe
+简体中文 · 繁體中文 · English · Русский · 日本語 · 한국어 · Português (Brasil) · Português (Portugal) · Español · Deutsch · Français · Українська · Tiếng Việt · Italiano · Türkçe · Bahasa Indonesia · Lietuvių · Nederlands · Suomi · ไทย · Polski · हिन्दी · Svenska · Norsk · Dansk
 
 ---
 

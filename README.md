@@ -1,10 +1,10 @@
 # Markdown Viewer
 
-[English](docs/readme/README.en.md) · [简体中文](docs/readme/README.zh-CN.md) · [繁體中文](docs/readme/README.zh-TW.md) · [日本語](docs/readme/README.ja.md) · [한국어](docs/readme/README.ko.md) · [Deutsch](docs/readme/README.de.md) · [Español](docs/readme/README.es.md) · [Français](docs/readme/README.fr.md) · [Italiano](docs/readme/README.it.md) · [Português (BR)](docs/readme/README.pt-BR.md) · [Português (PT)](docs/readme/README.pt-PT.md) · [Nederlands](docs/readme/README.nl.md) · [Polski](docs/readme/README.pl.md) · [Русский](docs/readme/README.ru.md) · [Türkçe](docs/readme/README.tr.md) · [ไทย](docs/readme/README.th.md) · [Tiếng Việt](docs/readme/README.vi.md) · [हिन्दी](docs/readme/README.hi.md) · [Bahasa Indonesia](docs/readme/README.id.md) · [Dansk](docs/readme/README.da.md) · [Suomi](docs/readme/README.fi.md) · [Norsk](docs/readme/README.no.md) · [Svenska](docs/readme/README.sv.md)
+[简体中文](docs/readme/README.zh-CN.md) · [繁體中文](docs/readme/README.zh-TW.md) · [English](docs/readme/README.en.md) · [Русский](docs/readme/README.ru.md) · [日本語](docs/readme/README.ja.md) · [한국어](docs/readme/README.ko.md) · [Português (Brasil)](docs/readme/README.pt-BR.md) · [Português (Portugal)](docs/readme/README.pt-PT.md) · [Español](docs/readme/README.es.md) · [Deutsch](docs/readme/README.de.md) · [Français](docs/readme/README.fr.md) · [Українська](docs/readme/README.uk.md) · [Tiếng Việt](docs/readme/README.vi.md) · [Italiano](docs/readme/README.it.md) · [Türkçe](docs/readme/README.tr.md) · [Bahasa Indonesia](docs/readme/README.id.md) · [Lietuvių](docs/readme/README.lt.md) · [Nederlands](docs/readme/README.nl.md) · [Suomi](docs/readme/README.fi.md) · [ไทย](docs/readme/README.th.md) · [Polski](docs/readme/README.pl.md) · [हिन्दी](docs/readme/README.hi.md) · [Svenska](docs/readme/README.sv.md) · [Norsk](docs/readme/README.no.md) · [Dansk](docs/readme/README.da.md)
 
 **Write in Markdown, export to perfect Word with one click.**
 
-*Completely Free · Local Processing · 18+ Professional Themes · 23 Languages Support*
+*Completely Free · Local Processing · 18+ Professional Themes · 25 Languages Support*
 
  🚀 **Install Now:** https://chromewebstore.google.com/detail/markdown-viewer/jekhhoflgcfoikceikgeenibinpojaoi
 
@@ -212,9 +212,9 @@ Headings · Paragraphs · Bold · Italic · Strikethrough · Lists · Task lists
 **Chinese:** Songti · Heiti · Mixed  
 **Creative:** Typewriter · Sakura · Water · Minimal
 
-### 23 Interface Languages
+### 25 Interface Languages
 
-Simplified Chinese · Traditional Chinese · English · Deutsch · Español · Français · Italiano · Nederlands · Português (BR) · Português (PT) · Polski · Русский · 日本語 · 한국어 · ไทย · Tiếng Việt · हिन्दी · Bahasa Indonesia · Dansk · Suomi · Norsk · Svenska · Türkçe
+简体中文 · 繁體中文 · English · Русский · 日本語 · 한국어 · Português (Brasil) · Português (Portugal) · Español · Deutsch · Français · Українська · Tiếng Việt · Italiano · Türkçe · Bahasa Indonesia · Lietuvių · Nederlands · Suomi · ไทย · Polski · हिन्दी · Svenska · Norsk · Dansk
 
 ---
 
