@@ -11,8 +11,6 @@ import {
   FALLBACK_LOCALE
 } from '../shared/index';
 
-import { uploadInChunks } from '../../utils/upload-manager';
-
 import type {
   LocaleMessages
 } from '../shared/index';
@@ -27,18 +25,11 @@ import { OffscreenRenderHost } from './hosts/offscreen-render-host';
 
 import { ServiceChannel } from '../../messaging/channels/service-channel';
 import { ChromeRuntimeTransport } from '../../messaging/transports/chrome-runtime-transport';
-import { CacheService, StorageService } from '../../services';
+import { CacheService, StorageService, FileService } from '../../services';
 
 // ============================================================================
 // Type Definitions
 // ============================================================================
-
-/**
- * Chrome download options
- */
-interface DownloadOptions {
-  saveAs?: boolean;
-}
 
 /**
  * Message handler function type
@@ -74,60 +65,7 @@ const serviceChannel = new ServiceChannel(new ChromeRuntimeTransport(), {
 // Unified services (same as Mobile/VSCode)
 const cacheService = new CacheService(serviceChannel);
 const storageService = new StorageService(serviceChannel);
-
-// ============================================================================
-// Chrome File Service
-// Downloads via background script (chrome.downloads not available in content scripts)
-// ============================================================================
-
-export class ChromeFileService {
-  private messageService: ChromeMessageService | null = null;
-
-  setMessageService(messageService: ChromeMessageService): void {
-    this.messageService = messageService;
-  }
-
-  async download(blob: Blob, filename: string, _options: DownloadOptions = {}): Promise<void> {
-    if (!this.messageService) {
-      throw new Error('MessageService not initialized');
-    }
-
-    // Convert blob to base64 and upload in chunks to background
-    const arrayBuffer = await blob.arrayBuffer();
-    const uint8Array = new Uint8Array(arrayBuffer);
-    let binary = '';
-    for (let i = 0; i < uint8Array.length; i++) {
-      binary += String.fromCharCode(uint8Array[i]);
-    }
-    const base64Data = btoa(binary);
-    
-    // Upload file data in chunks
-    const uploadResult = await uploadInChunks({
-      sendMessage: (msg) => this.messageService!.send(msg),
-      purpose: 'docx-download',
-      encoding: 'base64',
-      totalSize: base64Data.length,
-      metadata: {
-        filename,
-        mimeType: blob.type || 'application/octet-stream',
-      },
-      getChunk: (offset, size) => base64Data.slice(offset, offset + size),
-    });
-
-    // Finalize download - trigger chrome.downloads in background
-    const finalizeResponse = await this.messageService.send({
-      id: `${Date.now()}-download-finalize`,
-      type: 'DOCX_DOWNLOAD_FINALIZE',
-      payload: { token: uploadResult.token },
-      timestamp: Date.now(),
-      source: 'file-service',
-    });
-
-    if (!finalizeResponse.ok) {
-      throw new Error(finalizeResponse.error?.message || 'Download finalize failed');
-    }
-  }
-}
+const fileService = new FileService(serviceChannel, { forceChunkedUpload: true }); // Chrome needs chunked upload
 
 // ============================================================================
 // Chrome Resource Service
@@ -414,7 +352,7 @@ export class ChromePlatformAPI {
   
   // Services
   public readonly storage: StorageService;
-  public readonly file: ChromeFileService;
+  public readonly file: FileService;
   public readonly resource: ChromeResourceService;
   public readonly message: ChromeMessageService;
   public readonly cache: CacheService;
@@ -424,15 +362,12 @@ export class ChromePlatformAPI {
   constructor() {
     // Initialize services
     this.storage = storageService; // Use unified storage service
-    this.file = new ChromeFileService();
+    this.file = fileService;       // Use unified file service (with chunked upload)
     this.resource = new ChromeResourceService();
     this.message = new ChromeMessageService();
     this.cache = cacheService; // Use unified cache service
     this.renderer = new ChromeRendererService(this.message, this.cache);
     this.i18n = new ChromeI18nService(this.storage, this.resource);
-    
-    // Inject message service into file service for download functionality
-    this.file.setMessageService(this.message);
   }
 
   async init(): Promise<void> {

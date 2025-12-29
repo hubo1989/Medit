@@ -2,6 +2,7 @@
 .DS_Store
 .idea/
 .vscode/
+temp/
 
 # Local i18n update config (developer-specific)
 scripts/i18n/update-locale-keys.json

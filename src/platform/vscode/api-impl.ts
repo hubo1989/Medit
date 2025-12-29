@@ -26,7 +26,7 @@ import type { PlatformBridgeAPI } from '../../types/index';
 
 import { ServiceChannel } from '../../messaging/channels/service-channel';
 import { VSCodeWebviewTransport } from '../../messaging/transports/vscode-webview-transport';
-import { CacheService, StorageService } from '../../services';
+import { CacheService, StorageService, FileService } from '../../services';
 
 // ============================================================================
 // Service Channel (Extension Host ↔ Webview)
@@ -43,6 +43,9 @@ const cacheService = new CacheService(serviceChannel);
 
 // Unified storage service (same as Chrome/Mobile)
 const storageService = new StorageService(serviceChannel);
+
+// Unified file service (same as Chrome/Mobile)
+const fileService = new FileService(serviceChannel);
 
 // Bridge compatibility layer (matches Mobile pattern)
 const bridge: PlatformBridgeAPI = {
@@ -61,43 +64,6 @@ const bridge: PlatformBridgeAPI = {
 
 // Declare acquireVsCodeApi for TypeScript
 declare function acquireVsCodeApi(): VSCodeAPI;
-
-// ============================================================================
-// VSCode File Service
-// ============================================================================
-
-class VSCodeFileService {
-  async download(data: Blob | string, filename: string, options: { mimeType?: string } = {}): Promise<void> {
-    let base64Data: string;
-    let mimeType = options.mimeType || 'application/octet-stream';
-
-    if (data instanceof Blob) {
-      base64Data = await this.blobToBase64(data);
-      mimeType = data.type || mimeType;
-    } else {
-      base64Data = data;
-    }
-
-    return bridge.sendRequest('DOWNLOAD_FILE', {
-      filename,
-      data: base64Data,
-      mimeType
-    });
-  }
-
-  private async blobToBase64(blob: Blob): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const result = reader.result as string;
-        const base64 = result.split(',')[1];
-        resolve(base64);
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(blob);
-    });
-  }
-}
 
 // ============================================================================
 // VSCode Resource Service
@@ -376,7 +342,7 @@ export class VSCodePlatformAPI {
 
   // Services
   public readonly storage: StorageService;
-  public readonly file: VSCodeFileService;
+  public readonly file: FileService;
   public readonly resource: VSCodeResourceService;
   public readonly cache: CacheService;
   public readonly renderer: VSCodeRendererService;
@@ -384,7 +350,7 @@ export class VSCodePlatformAPI {
 
   constructor() {
     this.storage = storageService; // Use unified storage service
-    this.file = new VSCodeFileService();
+    this.file = fileService;       // Use unified file service
     this.resource = new VSCodeResourceService();
     this.cache = cacheService; // Use unified cache service
     this.renderer = new VSCodeRendererService(this.cache, this.resource);

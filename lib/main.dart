@@ -485,6 +485,18 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
           }
           break;
 
+        case 'UPLOAD_OPERATION':
+          if (payload is Map && isEnvelope) {
+            _handleUploadOperation(Map<String, dynamic>.from(payload), envelopeId!);
+          }
+          break;
+
+        case 'DOCX_DOWNLOAD_FINALIZE':
+          if (payload is Map && isEnvelope) {
+            _handleDocxDownloadFinalize(Map<String, dynamic>.from(payload), envelopeId!);
+          }
+          break;
+
         case 'EXPORT_PROGRESS':
           if (payload is Map) {
             final completed = payload['completed'] as int? ?? 0;
@@ -568,6 +580,149 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
       _respondToWebViewEnvelope(requestId, data: result['data'], ok: result['ok'] as bool);
     } catch (e) {
       debugPrint('[Mobile] Cache operation error: $e');
+      _respondToWebViewEnvelope(requestId, error: e.toString());
+    }
+  }
+
+  // Upload session storage for chunked uploads
+  final Map<String, _UploadSession> _uploadSessions = {};
+
+  Future<void> _handleUploadOperation(Map<String, dynamic> payload, String requestId) async {
+    try {
+      final operation = payload['operation'] as String?;
+      
+      switch (operation) {
+        case 'init':
+          final purpose = payload['purpose'] as String? ?? 'general';
+          final encoding = payload['encoding'] as String? ?? 'text';
+          final expectedSize = payload['expectedSize'] as int?;
+          final chunkSize = payload['chunkSize'] as int? ?? 255 * 1024;
+          final metadata = payload['metadata'] as Map<String, dynamic>? ?? {};
+          
+          final token = '${DateTime.now().millisecondsSinceEpoch}-${_uploadSessions.length}';
+          _uploadSessions[token] = _UploadSession(
+            purpose: purpose,
+            encoding: encoding,
+            expectedSize: expectedSize,
+            chunkSize: chunkSize,
+            metadata: Map<String, dynamic>.from(metadata),
+          );
+          
+          _respondToWebViewEnvelope(requestId, data: {
+            'token': token,
+            'chunkSize': chunkSize,
+          });
+          break;
+          
+        case 'chunk':
+          final token = payload['token'] as String?;
+          final chunk = payload['chunk'] as String?;
+          
+          if (token == null || chunk == null) {
+            _respondToWebViewEnvelope(requestId, error: 'Invalid chunk payload');
+            return;
+          }
+          
+          final session = _uploadSessions[token];
+          if (session == null) {
+            _respondToWebViewEnvelope(requestId, error: 'Upload session not found');
+            return;
+          }
+          
+          session.chunks.add(chunk);
+          _respondToWebViewEnvelope(requestId, data: {});
+          break;
+          
+        case 'finalize':
+          final token = payload['token'] as String?;
+          
+          if (token == null) {
+            _respondToWebViewEnvelope(requestId, error: 'Missing token');
+            return;
+          }
+          
+          final session = _uploadSessions[token];
+          if (session == null) {
+            _respondToWebViewEnvelope(requestId, error: 'Upload session not found');
+            return;
+          }
+          
+          // Concatenate all chunks
+          session.data = session.chunks.join('');
+          session.completed = true;
+          
+          _respondToWebViewEnvelope(requestId, data: {
+            'token': token,
+            'purpose': session.purpose,
+            'bytes': session.data.length,
+            'encoding': session.encoding,
+          });
+          break;
+          
+        case 'abort':
+          final token = payload['token'] as String?;
+          if (token != null) {
+            _uploadSessions.remove(token);
+          }
+          _respondToWebViewEnvelope(requestId, data: {});
+          break;
+          
+        default:
+          _respondToWebViewEnvelope(requestId, error: 'Unknown upload operation: $operation');
+      }
+    } catch (e) {
+      debugPrint('[Mobile] Upload operation error: $e');
+      _respondToWebViewEnvelope(requestId, error: e.toString());
+    }
+  }
+
+  Future<void> _handleDocxDownloadFinalize(Map<String, dynamic> payload, String requestId) async {
+    try {
+      final token = payload['token'] as String?;
+      
+      if (token == null) {
+        _respondToWebViewEnvelope(requestId, error: 'Missing token');
+        return;
+      }
+      
+      final session = _uploadSessions[token];
+      if (session == null) {
+        _respondToWebViewEnvelope(requestId, error: 'Upload session not found');
+        return;
+      }
+      
+      if (!session.completed) {
+        _respondToWebViewEnvelope(requestId, error: 'Upload not finalized');
+        return;
+      }
+      
+      // Update progress to sharing phase
+      _updateExportProgress(_exportProgress, _exportTotal, 'sharing');
+      
+      final filename = session.metadata['filename'] as String? ?? 'document.docx';
+      final mimeType = session.metadata['mimeType'] as String? ?? 
+          'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+      
+      // Decode base64 data
+      final bytes = base64Decode(session.data);
+      final tempDir = await getTemporaryDirectory();
+      final file = File('${tempDir.path}/$filename');
+      await file.writeAsBytes(bytes);
+      
+      _hideExportProgress();
+      
+      await Share.shareXFiles(
+        [XFile(file.path, mimeType: mimeType)],
+        sharePositionOrigin: const Rect.fromLTWH(0, 0, 100, 100),
+      );
+      
+      // Clean up session
+      _uploadSessions.remove(token);
+      
+      _respondToWebViewEnvelope(requestId, data: {'success': true});
+    } catch (e) {
+      _hideExportProgress();
+      debugPrint('[Mobile] DOCX download finalize error: $e');
       _respondToWebViewEnvelope(requestId, error: e.toString());
     }
   }
@@ -2444,4 +2599,24 @@ class _AboutDialog extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Upload session for chunked file uploads
+class _UploadSession {
+  final String purpose;
+  final String encoding;
+  final int? expectedSize;
+  final int chunkSize;
+  final Map<String, dynamic> metadata;
+  final List<String> chunks = [];
+  String data = '';
+  bool completed = false;
+
+  _UploadSession({
+    required this.purpose,
+    required this.encoding,
+    this.expectedSize,
+    required this.chunkSize,
+    required this.metadata,
+  });
 }
