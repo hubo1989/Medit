@@ -31,7 +31,7 @@ import { WindowPostMessageTransport } from '../../messaging/transports/window-po
 import type { RenderHost } from '../../renderers/host/render-host';
 import { IframeRenderHost } from '../../renderers/host/iframe-render-host';
 
-import { CacheService } from '../../services/cache-service';
+import { CacheService, StorageService } from '../../services';
 
 // ============================================================================
 // Type Definitions
@@ -79,6 +79,9 @@ const hostServiceChannel = new ServiceChannel(new FlutterJsChannelTransport(), {
 // Unified cache service (same as Chrome/VSCode)
 const cacheService = new CacheService(hostServiceChannel);
 
+// Unified storage service (same as Chrome/VSCode)
+const storageService = new StorageService(hostServiceChannel);
+
 // Bridge compatibility layer (used by mobile/main.ts and some plugins).
 // NOTE: sendRequest/postMessage now use unified envelopes under the hood.
 export const bridge: PlatformBridgeAPI = {
@@ -94,28 +97,6 @@ export const bridge: PlatformBridgeAPI = {
     });
   },
 };
-
-// ============================================================================
-// Mobile Storage Service
-// ============================================================================
-
-/**
- * Mobile Storage Service
- * Storage operations handled by host app (Flutter).
- */
-class MobileStorageService {
-  async get(keys: string | string[]): Promise<Record<string, unknown>> {
-    return bridge.sendRequest('STORAGE_GET', { keys });
-  }
-
-  async set(items: Record<string, unknown>): Promise<void> {
-    return bridge.sendRequest('STORAGE_SET', { items });
-  }
-
-  async remove(keys: string | string[]): Promise<void> {
-    return bridge.sendRequest('STORAGE_REMOVE', { keys });
-  }
-}
 
 // ============================================================================
 // Mobile File Service
@@ -479,7 +460,7 @@ class MobilePlatformAPI {
   public readonly platform = 'mobile' as const;
   
   // Services
-  public readonly storage: MobileStorageService;
+  public readonly storage: StorageService;
   public readonly file: MobileFileService;
   public readonly resource: MobileResourceService;
   public readonly message: MobileMessageService;
@@ -492,7 +473,7 @@ class MobilePlatformAPI {
 
   constructor() {
     // Initialize services
-    this.storage = new MobileStorageService();
+    this.storage = storageService; // Use unified storage service
     this.file = new MobileFileService();
     this.resource = new MobileResourceService();
     this.message = new MobileMessageService();
@@ -542,7 +523,6 @@ class MobilePlatformAPI {
 export const platform = new MobilePlatformAPI();
 
 export {
-  MobileStorageService,
   MobileFileService,
   MobileResourceService,
   MobileMessageService,

@@ -26,7 +26,7 @@ import type { PlatformBridgeAPI } from '../../types/index';
 
 import { ServiceChannel } from '../../messaging/channels/service-channel';
 import { VSCodeWebviewTransport } from '../../messaging/transports/vscode-webview-transport';
-import { CacheService } from '../../services/cache-service';
+import { CacheService, StorageService } from '../../services';
 
 // ============================================================================
 // Service Channel (Extension Host ↔ Webview)
@@ -40,6 +40,9 @@ const serviceChannel = new ServiceChannel(transport, {
 
 // Unified cache service (same as Chrome/Mobile)
 const cacheService = new CacheService(serviceChannel);
+
+// Unified storage service (same as Chrome/Mobile)
+const storageService = new StorageService(serviceChannel);
 
 // Bridge compatibility layer (matches Mobile pattern)
 const bridge: PlatformBridgeAPI = {
@@ -58,24 +61,6 @@ const bridge: PlatformBridgeAPI = {
 
 // Declare acquireVsCodeApi for TypeScript
 declare function acquireVsCodeApi(): VSCodeAPI;
-
-// ============================================================================
-// VSCode Storage Service
-// ============================================================================
-
-class VSCodeStorageService {
-  async get(keys: string | string[]): Promise<Record<string, unknown>> {
-    return bridge.sendRequest('STORAGE_GET', { keys });
-  }
-
-  async set(items: Record<string, unknown>): Promise<void> {
-    return bridge.sendRequest('STORAGE_SET', { items });
-  }
-
-  async remove(keys: string | string[]): Promise<void> {
-    return bridge.sendRequest('STORAGE_REMOVE', { keys });
-  }
-}
 
 // ============================================================================
 // VSCode File Service
@@ -390,7 +375,7 @@ export class VSCodePlatformAPI {
   public readonly platform = 'vscode' as const;
 
   // Services
-  public readonly storage: VSCodeStorageService;
+  public readonly storage: StorageService;
   public readonly file: VSCodeFileService;
   public readonly resource: VSCodeResourceService;
   public readonly cache: CacheService;
@@ -398,7 +383,7 @@ export class VSCodePlatformAPI {
   public readonly i18n: VSCodeI18nService;
 
   constructor() {
-    this.storage = new VSCodeStorageService();
+    this.storage = storageService; // Use unified storage service
     this.file = new VSCodeFileService();
     this.resource = new VSCodeResourceService();
     this.cache = cacheService; // Use unified cache service

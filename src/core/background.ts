@@ -199,6 +199,70 @@ async function handleScrollOperationEnvelope(
   }
 }
 
+// ============================================================================
+// Storage Operations (unified across all platforms)
+// ============================================================================
+
+async function handleStorageGetEnvelope(
+  message: { id: string; type: string; payload: unknown },
+  sendResponse: (response: unknown) => void
+): Promise<void> {
+  try {
+    const payload = (message.payload || {}) as { keys?: string | string[] };
+    const keys = payload.keys || [];
+
+    const result = await new Promise<Record<string, unknown>>((resolve) => {
+      chrome.storage.local.get(keys, (data) => {
+        resolve(data || {});
+      });
+    });
+
+    sendResponseEnvelope(message.id, sendResponse, { ok: true, data: result });
+  } catch (error) {
+    sendResponseEnvelope(message.id, sendResponse, { ok: false, errorMessage: (error as Error).message });
+  }
+}
+
+async function handleStorageSetEnvelope(
+  message: { id: string; type: string; payload: unknown },
+  sendResponse: (response: unknown) => void
+): Promise<void> {
+  try {
+    const payload = (message.payload || {}) as { items?: Record<string, unknown> };
+    const items = payload.items || {};
+
+    await new Promise<void>((resolve) => {
+      chrome.storage.local.set(items, () => {
+        resolve();
+      });
+    });
+
+    sendResponseEnvelope(message.id, sendResponse, { ok: true, data: { success: true } });
+  } catch (error) {
+    sendResponseEnvelope(message.id, sendResponse, { ok: false, errorMessage: (error as Error).message });
+  }
+}
+
+async function handleStorageRemoveEnvelope(
+  message: { id: string; type: string; payload: unknown },
+  sendResponse: (response: unknown) => void
+): Promise<void> {
+  try {
+    const payload = (message.payload || {}) as { keys?: string | string[] };
+    const keys = payload.keys || [];
+
+    await new Promise<void>((resolve) => {
+      chrome.storage.local.remove(keys, () => {
+        resolve();
+      });
+    });
+
+    sendResponseEnvelope(message.id, sendResponse, { ok: true, data: { success: true } });
+  } catch (error) {
+    sendResponseEnvelope(message.id, sendResponse, { ok: false, errorMessage: (error as Error).message });
+  }
+}
+
 function handleUploadOperationEnvelope(
   message: { id: string; type: string; payload: unknown },
   sendResponse: (response: unknown) => void
@@ -518,6 +582,22 @@ chrome.runtime.onMessage.addListener((message: BackgroundMessage, sender, sendRe
 
   if (isRequestEnvelope(message) && message.type === 'UPLOAD_OPERATION') {
     handleUploadOperationEnvelope(message, sendResponse);
+    return true;
+  }
+
+  // Storage operations (unified across all platforms)
+  if (isRequestEnvelope(message) && message.type === 'STORAGE_GET') {
+    handleStorageGetEnvelope(message, sendResponse);
+    return true;
+  }
+
+  if (isRequestEnvelope(message) && message.type === 'STORAGE_SET') {
+    handleStorageSetEnvelope(message, sendResponse);
+    return true;
+  }
+
+  if (isRequestEnvelope(message) && message.type === 'STORAGE_REMOVE') {
+    handleStorageRemoveEnvelope(message, sendResponse);
     return true;
   }
 

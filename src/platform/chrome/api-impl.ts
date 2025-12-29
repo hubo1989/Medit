@@ -27,16 +27,11 @@ import { OffscreenRenderHost } from './hosts/offscreen-render-host';
 
 import { ServiceChannel } from '../../messaging/channels/service-channel';
 import { ChromeRuntimeTransport } from '../../messaging/transports/chrome-runtime-transport';
-import { CacheService } from '../../services/cache-service';
+import { CacheService, StorageService } from '../../services';
 
 // ============================================================================
 // Type Definitions
 // ============================================================================
-
-/**
- * Storage keys type
- */
-type StorageKeys = string | string[] | Record<string, unknown>;
 
 /**
  * Chrome download options
@@ -68,36 +63,6 @@ function isResponseEnvelopeLike(message: unknown): message is ResponseEnvelopeLi
 }
 
 // ============================================================================
-// Chrome Storage Service
-// ============================================================================
-
-export class ChromeStorageService {
-  async get(keys: StorageKeys): Promise<Record<string, unknown>> {
-    return new Promise((resolve) => {
-      chrome.storage.local.get(keys, (result) => {
-        resolve(result || {});
-      });
-    });
-  }
-
-  async set(data: Record<string, unknown>): Promise<void> {
-    return new Promise((resolve) => {
-      chrome.storage.local.set(data, () => {
-        resolve();
-      });
-    });
-  }
-
-  async remove(keys: string | string[]): Promise<void> {
-    return new Promise((resolve) => {
-      chrome.storage.local.remove(keys, () => {
-        resolve();
-      });
-    });
-  }
-}
-
-// ============================================================================
 // Service Channel (Content Script ↔ Background)
 // ============================================================================
 
@@ -106,8 +71,9 @@ const serviceChannel = new ServiceChannel(new ChromeRuntimeTransport(), {
   timeoutMs: 300000,
 });
 
-// Unified cache service (same as Mobile/VSCode)
+// Unified services (same as Mobile/VSCode)
 const cacheService = new CacheService(serviceChannel);
+const storageService = new StorageService(serviceChannel);
 
 // ============================================================================
 // Chrome File Service
@@ -360,10 +326,10 @@ export class ChromeRendererService extends BaseRendererService {
 // ============================================================================
 
 export class ChromeI18nService extends BaseI18nService {
-  private storageService: ChromeStorageService;
+  private storageService: StorageService;
   private resourceService: ChromeResourceService;
 
-  constructor(storageService: ChromeStorageService, resourceService: ChromeResourceService) {
+  constructor(storageService: StorageService, resourceService: ChromeResourceService) {
     super();
     this.storageService = storageService;
     this.resourceService = resourceService;
@@ -447,7 +413,7 @@ export class ChromePlatformAPI {
   public readonly platform = 'chrome' as const;
   
   // Services
-  public readonly storage: ChromeStorageService;
+  public readonly storage: StorageService;
   public readonly file: ChromeFileService;
   public readonly resource: ChromeResourceService;
   public readonly message: ChromeMessageService;
@@ -457,7 +423,7 @@ export class ChromePlatformAPI {
 
   constructor() {
     // Initialize services
-    this.storage = new ChromeStorageService();
+    this.storage = storageService; // Use unified storage service
     this.file = new ChromeFileService();
     this.resource = new ChromeResourceService();
     this.message = new ChromeMessageService();
