@@ -17,6 +17,7 @@ export class MarkdownPreviewPanel {
   private readonly _cacheService: ExtensionCacheService;
   private _document: vscode.TextDocument | undefined;
   private _disposables: vscode.Disposable[] = [];
+  private _uploadSessions: Map<string, UploadSession> = new Map();
 
   public static createOrShow(
     extensionUri: vscode.Uri,
@@ -151,6 +152,23 @@ export class MarkdownPreviewPanel {
 
         case 'DOWNLOAD_FILE':
           response = await this._handleDownload(payload as { filename: string; data: string; mimeType: string });
+          break;
+
+        case 'UPLOAD_OPERATION':
+          response = await this._handleUploadOperation(payload as {
+            operation: string;
+            token?: string;
+            chunk?: string;
+            purpose?: string;
+            encoding?: string;
+            expectedSize?: number;
+            chunkSize?: number;
+            metadata?: Record<string, unknown>;
+          });
+          break;
+
+        case 'DOCX_DOWNLOAD_FINALIZE':
+          response = await this._handleDocxDownloadFinalize(payload as { token: string });
           break;
 
         case 'FETCH_ASSET':
@@ -293,6 +311,127 @@ export class MarkdownPreviewPanel {
       await vscode.workspace.fs.writeFile(uri, buffer);
       vscode.window.showInformationMessage(`File saved: ${uri.fsPath}`);
     }
+  }
+
+  private async _handleUploadOperation(payload: {
+    operation: string;
+    token?: string;
+    chunk?: string;
+    purpose?: string;
+    encoding?: string;
+    expectedSize?: number;
+    chunkSize?: number;
+    metadata?: Record<string, unknown>;
+  }): Promise<unknown> {
+    const { operation } = payload;
+
+    switch (operation) {
+      case 'init': {
+        const token = `${Date.now()}-${this._uploadSessions.size}`;
+        const chunkSize = payload.chunkSize || 255 * 1024;
+        
+        this._uploadSessions.set(token, {
+          purpose: payload.purpose || 'general',
+          encoding: payload.encoding || 'text',
+          expectedSize: payload.expectedSize,
+          chunkSize,
+          metadata: payload.metadata || {},
+          chunks: [],
+          data: '',
+          completed: false,
+        });
+
+        return { token, chunkSize };
+      }
+
+      case 'chunk': {
+        const { token, chunk } = payload;
+        if (!token || !chunk) {
+          throw new Error('Invalid chunk payload');
+        }
+
+        const session = this._uploadSessions.get(token);
+        if (!session) {
+          throw new Error('Upload session not found');
+        }
+
+        session.chunks.push(chunk);
+        return {};
+      }
+
+      case 'finalize': {
+        const { token } = payload;
+        if (!token) {
+          throw new Error('Missing token');
+        }
+
+        const session = this._uploadSessions.get(token);
+        if (!session) {
+          throw new Error('Upload session not found');
+        }
+
+        session.data = session.chunks.join('');
+        session.completed = true;
+
+        return {
+          token,
+          purpose: session.purpose,
+          bytes: session.data.length,
+          encoding: session.encoding,
+        };
+      }
+
+      case 'abort': {
+        const { token } = payload;
+        if (token) {
+          this._uploadSessions.delete(token);
+        }
+        return {};
+      }
+
+      default:
+        throw new Error(`Unknown upload operation: ${operation}`);
+    }
+  }
+
+  private async _handleDocxDownloadFinalize(payload: { token: string }): Promise<unknown> {
+    const { token } = payload;
+    
+    if (!token) {
+      throw new Error('Missing token');
+    }
+
+    const session = this._uploadSessions.get(token);
+    if (!session) {
+      throw new Error('Upload session not found');
+    }
+
+    if (!session.completed) {
+      throw new Error('Upload not finalized');
+    }
+
+    const filename = (session.metadata.filename as string) || 'document.docx';
+    
+    // Ask user for save location
+    const uri = await vscode.window.showSaveDialog({
+      defaultUri: vscode.Uri.file(filename),
+      filters: {
+        'Word Documents': ['docx'],
+        'All Files': ['*']
+      }
+    });
+
+    if (uri) {
+      // Decode base64 and write file
+      const buffer = Buffer.from(session.data, 'base64');
+      await vscode.workspace.fs.writeFile(uri, buffer);
+      vscode.window.showInformationMessage(`File saved: ${uri.fsPath}`);
+    }
+
+    // Clean up session
+    this._uploadSessions.delete(token);
+
+    return { success: true };
   }
 
   private async _handleFetchAsset(payload: { path: string }): Promise<string> {
@@ -440,4 +579,16 @@ function getNonce(): string {
     text += possible.charAt(Math.floor(Math.random() * possible.length));
   }
   return text;
+}
+
+/** Upload session for chunked file uploads */
+interface UploadSession {
+  purpose: string;
+  encoding: string;
+  expectedSize?: number;
+  chunkSize: number;
+  metadata: Record<string, unknown>;
+  chunks: string[];
+  data: string;
+  completed: boolean;
 }
