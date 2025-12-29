@@ -48,16 +48,11 @@ export function activate(context: vscode.ExtensionContext) {
   // Register export to DOCX command
   context.subscriptions.push(
     vscode.commands.registerCommand('markdownViewer.exportDocx', async () => {
-      const editor = vscode.window.activeTextEditor;
-      if (editor && editor.document.languageId === 'markdown') {
-        const panel = MarkdownPreviewPanel.currentPanel;
-        if (panel) {
-          await panel.exportToDocx();
-        } else {
-          vscode.window.showWarningMessage('Please open the Markdown preview first');
-        }
+      const panel = MarkdownPreviewPanel.currentPanel;
+      if (panel) {
+        await panel.exportToDocx();
       } else {
-        vscode.window.showWarningMessage('Please open a Markdown file first');
+        vscode.window.showWarningMessage('Please open the Markdown preview first');
       }
     })
   );
@@ -68,6 +63,16 @@ export function activate(context: vscode.ExtensionContext) {
       const panel = MarkdownPreviewPanel.currentPanel;
       if (panel) {
         panel.refresh();
+      }
+    })
+  );
+
+  // Register open settings command
+  context.subscriptions.push(
+    vscode.commands.registerCommand('markdownViewer.openSettings', () => {
+      const panel = MarkdownPreviewPanel.currentPanel;
+      if (panel) {
+        panel.openSettings();
       }
     })
   );

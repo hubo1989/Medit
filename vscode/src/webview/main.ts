@@ -27,7 +27,6 @@ import type { PluginRenderer, PlatformAPI } from '../../../src/types/index';
 import type { FontConfigFile } from '../../../src/utils/theme-manager';
 
 // VSCode-specific UI components
-import { createToolbar, type Toolbar } from './toolbar';
 import { createSettingsPanel, type SettingsPanel, type ThemeOption, type LocaleOption } from './settings-panel';
 
 // Declare global types
@@ -51,7 +50,6 @@ let currentTaskManager: AsyncTaskManager | null = null;
 let currentZoomLevel = 1;
 
 // UI components
-let toolbar: Toolbar | null = null;
 let settingsPanel: SettingsPanel | null = null;
 
 /**
@@ -184,6 +182,10 @@ function handleExtensionMessage(message: ExtensionMessage): void {
       handleSetZoom(payload as SetZoomPayload);
       break;
 
+    case 'OPEN_SETTINGS':
+      handleOpenSettings();
+      break;
+
     default:
       // Ignore unknown messages or responses
       break;
@@ -211,11 +213,6 @@ async function handleUpdateContent(payload: UpdateContentPayload): Promise<void>
 
   currentMarkdown = content;
   currentFilename = filename || 'document.md';
-
-  // Update toolbar filename
-  if (toolbar) {
-    toolbar.setFilename(currentFilename);
-  }
 
   try {
     // If theme data is provided with content, apply it (same as Mobile)
@@ -474,13 +471,7 @@ window.exportDocx = () => {
 // ============================================================================
 
 function initializeUI(): void {
-  const toolbarContainer = document.getElementById('vscode-toolbar');
-  if (!toolbarContainer) {
-    console.warn('[VSCode Webview] Toolbar container not found');
-    return;
-  }
-
-  // Create settings panel first (needs to be in DOM for positioning)
+  // Create settings panel (needs to be in DOM for positioning)
   settingsPanel = createSettingsPanel({
     currentTheme: currentThemeId,
     currentLocale: window.VSCODE_CONFIG?.locale as string || 'auto',
@@ -519,25 +510,20 @@ function initializeUI(): void {
     }
   });
   document.body.appendChild(settingsPanel.getElement());
+}
 
-  // Create toolbar
-  toolbar = createToolbar({
-    filename: currentFilename,
-    onDownload: () => {
-      handleExportDocx();
-    },
-    onSettings: () => {
-      const settingsBtn = toolbarContainer.querySelector('[data-action="settings"]') as HTMLElement;
-      if (settingsPanel && settingsBtn) {
-        if (settingsPanel.isVisible()) {
-          settingsPanel.hide();
-        } else {
-          settingsPanel.show(settingsBtn);
-        }
-      }
+/**
+ * Handle open settings command from extension host
+ */
+function handleOpenSettings(): void {
+  if (settingsPanel) {
+    if (settingsPanel.isVisible()) {
+      settingsPanel.hide();
+    } else {
+      // Show settings panel at a fixed position (top-right corner)
+      settingsPanel.showAtPosition(window.innerWidth - 300, 10);
     }
-  });
-  toolbarContainer.appendChild(toolbar.getElement());
+  }
 }
 
 /**

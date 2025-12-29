@@ -216,10 +216,10 @@ function copyAssets() {
   copyDirectory('icons', path.join(outdir, 'icons'));
   console.log('  ✓ icons');
 
-  // Copy toolbar.css for VSCode webview
-  if (fs.existsSync('vscode/src/webview/toolbar.css')) {
-    fs.copyFileSync('vscode/src/webview/toolbar.css', path.join(outdir, 'webview', 'toolbar.css'));
-    console.log('  ✓ toolbar.css');
+  // Copy settings panel styles
+  if (fs.existsSync('vscode/src/webview/settings-panel.css')) {
+    fs.copyFileSync('vscode/src/webview/settings-panel.css', path.join(outdir, 'webview', 'settings-panel.css'));
+    console.log('  ✓ settings-panel.css');
   }
 
   // Copy fonts if they exist

@@ -114,6 +114,12 @@ export class MarkdownPreviewPanel {
     }
   }
 
+  public openSettings(): void {
+    this._panel.webview.postMessage({
+      type: 'OPEN_SETTINGS'
+    });
+  }
+
   public async exportToDocx(): Promise<void> {
     this._panel.webview.postMessage({
       type: 'EXPORT_DOCX'
@@ -508,13 +514,13 @@ export class MarkdownPreviewPanel {
       vscode.Uri.joinPath(this._extensionUri, 'webview', 'styles.css')
     );
 
+    // Settings panel styles
+    const settingsStyleUri = webview.asWebviewUri(
+      vscode.Uri.joinPath(this._extensionUri, 'webview', 'settings-panel.css')
+    );
+
     const nonce = getNonce();
     const config = this._getConfiguration();
-
-    // Get toolbar CSS URI
-    const toolbarStyleUri = webview.asWebviewUri(
-      vscode.Uri.joinPath(this._extensionUri, 'webview', 'toolbar.css')
-    );
 
     // CSP needs to allow iframe for diagram rendering
     return `<!DOCTYPE html>
@@ -524,7 +530,7 @@ export class MarkdownPreviewPanel {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource} 'unsafe-inline'; script-src 'nonce-${nonce}' 'unsafe-eval'; img-src ${webview.cspSource} data: https: blob:; font-src ${webview.cspSource} data:; frame-src ${webview.cspSource} blob:; connect-src ${webview.cspSource};">
   <link rel="stylesheet" href="${styleUri}">
-  <link rel="stylesheet" href="${toolbarStyleUri}">
+  <link rel="stylesheet" href="${settingsStyleUri}">
   <title>Markdown Preview</title>
   <style>
     /* Hide Chrome extension specific UI elements */
@@ -567,7 +573,6 @@ export class MarkdownPreviewPanel {
 </head>
 <body>
   <div id="vscode-root">
-    <div id="vscode-toolbar"></div>
     <div id="vscode-content">
       <div id="markdown-wrapper">
         <div id="markdown-page">

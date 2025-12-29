@@ -1,78 +1,8 @@
 /**
- * VSCode Webview Toolbar Styles
+ * VSCode Settings Panel Styles
  * 
- * Minimal, single-line toolbar following VS Code design language.
+ * Dropdown settings panel for theme, language, and cache management.
  */
-
-/* ============================================================================
- * Toolbar
- * ============================================================================ */
-
-.vscode-toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 22px;
-  padding: 0 8px;
-  background: var(--vscode-editor-background, #1e1e1e);
-  border-bottom: 1px solid var(--vscode-panel-border, #454545);
-  font-size: 12px;
-  font-family: var(--vscode-font-family, -apple-system, BlinkMacSystemFont, sans-serif);
-  color: var(--vscode-foreground, #cccccc);
-  user-select: none;
-  flex-shrink: 0;
-}
-
-.vscode-toolbar-left {
-  display: flex;
-  align-items: center;
-  min-width: 0;
-  flex: 1;
-}
-
-.vscode-toolbar-filename {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  opacity: 0.8;
-}
-
-.vscode-toolbar-right {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  margin-left: 8px;
-}
-
-.vscode-toolbar-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  padding: 0;
-  border: none;
-  border-radius: 3px;
-  background: transparent;
-  color: var(--vscode-foreground, #cccccc);
-  cursor: pointer;
-  opacity: 0.7;
-  transition: opacity 0.1s, background 0.1s;
-}
-
-.vscode-toolbar-btn:hover {
-  opacity: 1;
-  background: var(--vscode-toolbar-hoverBackground, rgba(90, 93, 94, 0.31));
-}
-
-.vscode-toolbar-btn:active {
-  background: var(--vscode-toolbar-activeBackground, rgba(99, 102, 103, 0.31));
-}
-
-.vscode-toolbar-btn svg {
-  width: 16px;
-  height: 16px;
-}
 
 /* ============================================================================
  * Settings Panel
@@ -260,4 +190,3 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
-

@@ -101,19 +101,25 @@
         "command": "markdownViewer.preview",
         "title": "Open Markdown Preview (Advanced)",
         "category": "Markdown Viewer",
-        "icon": "$(book)"
+        "icon": "$(go-to-file)"
       },
       {
         "command": "markdownViewer.previewToSide",
         "title": "Open Markdown Preview to the Side (Advanced)",
         "category": "Markdown Viewer",
-        "icon": "$(book)"
+        "icon": "$(go-to-file)"
       },
       {
         "command": "markdownViewer.exportDocx",
         "title": "Export to DOCX",
         "category": "Markdown Viewer",
-        "icon": "$(file-binary)"
+        "icon": "$(download)"
+      },
+      {
+        "command": "markdownViewer.openSettings",
+        "title": "Open Settings",
+        "category": "Markdown Viewer",
+        "icon": "$(gear)"
       },
       {
         "command": "markdownViewer.refresh",
@@ -128,6 +134,16 @@
           "command": "markdownViewer.previewToSide",
           "when": "editorLangId == markdown",
           "group": "navigation"
+        },
+        {
+          "command": "markdownViewer.exportDocx",
+          "when": "activeWebviewPanelId == markdownViewerAdvanced",
+          "group": "navigation@1"
+        },
+        {
+          "command": "markdownViewer.openSettings",
+          "when": "activeWebviewPanelId == markdownViewerAdvanced",
+          "group": "navigation@2"
         }
       ],
       "editor/context": [

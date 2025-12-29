@@ -33,6 +33,8 @@ export interface SettingsPanelOptions {
 export interface SettingsPanel {
   /** Show the panel */
   show: (anchorEl: HTMLElement) => void;
+  /** Show the panel at a specific position */
+  showAtPosition: (x: number, y: number) => void;
   /** Hide the panel */
   hide: () => void;
   /** Check if panel is visible */
@@ -213,6 +215,35 @@ export function createSettingsPanel(options: SettingsPanelOptions): SettingsPane
     });
   }
 
+  function showAtPosition(x: number, y: number): void {
+    if (visible) return;
+    
+    const panelWidth = 280;
+    
+    // Ensure panel doesn't go off screen
+    let left = x;
+    if (left + panelWidth > window.innerWidth - 8) {
+      left = window.innerWidth - panelWidth - 8;
+    }
+    if (left < 8) left = 8;
+    
+    panel.style.position = 'fixed';
+    panel.style.top = `${y}px`;
+    panel.style.left = `${left}px`;
+    panel.style.right = 'auto';
+    panel.style.display = 'block';
+    panel.style.zIndex = '10000';
+    visible = true;
+
+    // Notify caller to refresh dynamic data (e.g., cache stats)
+    options.onShow?.();
+
+    // Add click outside listener (delayed to avoid immediate close from the same click)
+    requestAnimationFrame(() => {
+      document.addEventListener('click', handleClickOutside);
+    });
+  }
+
   function hide(): void {
     if (!visible) return;
     
@@ -308,6 +339,7 @@ export function createSettingsPanel(options: SettingsPanelOptions): SettingsPane
 
   return {
     show,
+    showAtPosition,
     hide,
     isVisible: () => visible,
     setThemes,
