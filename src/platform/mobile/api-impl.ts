@@ -31,7 +31,7 @@ import { WindowPostMessageTransport } from '../../messaging/transports/window-po
 import type { RenderHost } from '../../renderers/host/render-host';
 import { IframeRenderHost } from '../../renderers/host/iframe-render-host';
 
-import { CacheService, StorageService } from '../../services';
+import { CacheService, StorageService, FileService } from '../../services';
 
 // ============================================================================
 // Type Definitions
@@ -82,6 +82,9 @@ const cacheService = new CacheService(hostServiceChannel);
 // Unified storage service (same as Chrome/VSCode)
 const storageService = new StorageService(hostServiceChannel);
 
+// Unified file service (same as Chrome/VSCode, but without forced chunked upload)
+const fileService = new FileService(hostServiceChannel);
+
 // Bridge compatibility layer (used by mobile/main.ts and some plugins).
 // NOTE: sendRequest/postMessage now use unified envelopes under the hood.
 export const bridge: PlatformBridgeAPI = {
@@ -97,56 +100,6 @@ export const bridge: PlatformBridgeAPI = {
     });
   },
 };
-
-// ============================================================================
-// Mobile File Service
-// ============================================================================
-
-/**
- * Mobile File Service
- * File operations handled by host app (Flutter).
- */
-class MobileFileService {
-  /**
-   * Download/share file - unified interface with Chrome
-   * @param data - Blob or base64 string
-   * @param filename - File name
-   * @param options - Download options
-   */
-  async download(data: Blob | string, filename: string, options: DownloadOptions = {}): Promise<void> {
-    let base64Data: string;
-    let mimeType = options.mimeType || 'application/octet-stream';
-    
-    if (data instanceof Blob) {
-      // Convert Blob to base64 for Flutter
-      base64Data = await this._blobToBase64(data);
-      mimeType = data.type || mimeType;
-    } else {
-      // Assume already base64
-      base64Data = data;
-    }
-    
-    // Use sendRequest to wait for Flutter to finish sharing
-    await bridge.sendRequest('DOWNLOAD_FILE', {
-      filename,
-      data: base64Data,
-      mimeType
-    });
-  }
-
-  private async _blobToBase64(blob: Blob): Promise<string> {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const result = reader.result as string;
-        const base64 = result.split(',')[1];
-        resolve(base64);
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(blob);
-    });
-  }
-}
 
 // ============================================================================
 // Mobile Resource Service
@@ -461,7 +414,7 @@ class MobilePlatformAPI {
   
   // Services
   public readonly storage: StorageService;
-  public readonly file: MobileFileService;
+  public readonly file: FileService;
   public readonly resource: MobileResourceService;
   public readonly message: MobileMessageService;
   public readonly cache: CacheService;
@@ -474,7 +427,7 @@ class MobilePlatformAPI {
   constructor() {
     // Initialize services
     this.storage = storageService; // Use unified storage service
-    this.file = new MobileFileService();
+    this.file = fileService;       // Use unified file service
     this.resource = new MobileResourceService();
     this.message = new MobileMessageService();
     this.cache = cacheService; // Use unified cache service
