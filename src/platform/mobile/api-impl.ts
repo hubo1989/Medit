@@ -5,7 +5,6 @@
  */
 
 import {
-  BaseCacheService,
   BaseI18nService,
   BaseRendererService,
   DEFAULT_SETTING_LOCALE,
@@ -19,9 +18,7 @@ import type {
 
 import type {
   RendererThemeConfig,
-  RenderResult,
-  CacheStats,
-  SimpleCacheStats
+  RenderResult
 } from '../../types/index';
 
 import type { PlatformBridgeAPI } from '../../types/index';
@@ -33,6 +30,8 @@ import { WindowPostMessageTransport } from '../../messaging/transports/window-po
 
 import type { RenderHost } from '../../renderers/host/render-host';
 import { IframeRenderHost } from '../../renderers/host/iframe-render-host';
+
+import { CacheService } from '../../services/cache-service';
 
 // ============================================================================
 // Type Definitions
@@ -64,7 +63,7 @@ declare global {
       postMessage: (message: string) => void;
     };
     __receiveMessageFromHost?: (payload: unknown) => void;
-    __mobilePlatformCache?: MobileCacheService;
+    __mobilePlatformCache?: CacheService;
   }
 }
 
@@ -76,6 +75,9 @@ const hostServiceChannel = new ServiceChannel(new FlutterJsChannelTransport(), {
   source: 'mobile-webview',
   timeoutMs: 30000,
 });
+
+// Unified cache service (same as Chrome/VSCode)
+const cacheService = new CacheService(hostServiceChannel);
 
 // Bridge compatibility layer (used by mobile/main.ts and some plugins).
 // NOTE: sendRequest/postMessage now use unified envelopes under the hood.
@@ -206,113 +208,6 @@ class MobileMessageService {
 
   addListener(callback: (message: unknown) => void): () => void {
     return bridge.addListener(callback);
-  }
-}
-
-// ============================================================================
-// Mobile Cache Service
-// ============================================================================
-
-/**
- * Mobile Cache Service
- * Communicates with Flutter host for persistent storage operations.
- * Extends BaseCacheService for common hash/key generation.
- */
-class MobileCacheService extends BaseCacheService {
-  constructor() {
-    super();
-  }
-
-  async init(): Promise<void> {
-    // Flutter storage is initialized on first use
-  }
-
-  async ensureDB(): Promise<void> {
-    // No-op: Flutter handles storage initialization
-  }
-
-  /**
-   * Get cached item from Flutter storage
-   */
-  async get(key: string): Promise<unknown> {
-    try {
-      const data = await bridge.sendRequest<unknown>('CACHE_OPERATION', {
-        operation: 'get',
-        key,
-      });
-
-      return data ?? null;
-    } catch (error) {
-      console.warn('[MobileCache] Get failed:', error);
-      return null;
-    }
-  }
-
-  /**
-   * Set cached item in Flutter storage
-   */
-  async set(key: string, value: unknown, type: string = 'unknown'): Promise<boolean> {
-    try {
-      const result = await bridge.sendRequest<{ success: boolean }>('CACHE_OPERATION', {
-        operation: 'set',
-        key,
-        value,
-        dataType: type,
-        size: this.estimateSize(value),
-      });
-
-      return result?.success ?? false;
-    } catch (error) {
-      console.warn('[MobileCache] Set failed:', error);
-      return false;
-    }
-  }
-
-  /**
-   * Delete cached item from Flutter storage
-   */
-  async delete(key: string): Promise<boolean> {
-    try {
-      const result = await bridge.sendRequest<{ success: boolean }>('CACHE_OPERATION', {
-        operation: 'delete',
-        key,
-      });
-
-      return result?.success ?? false;
-    } catch {
-      return false;
-    }
-  }
-
-  /**
-   * Clear all cache from Flutter storage
-   */
-  async clear(): Promise<boolean> {
-    try {
-      const result = await bridge.sendRequest<{ success: boolean }>('CACHE_OPERATION', {
-        operation: 'clear',
-      });
-
-      return result?.success ?? false;
-    } catch {
-      return false;
-    }
-  }
-
-  /**
-   * Get cache statistics from Flutter storage
-   */
-  async getStats(): Promise<SimpleCacheStats | null> {
-    try {
-      const stats = await bridge.sendRequest<SimpleCacheStats>('CACHE_OPERATION', {
-        operation: 'getStats',
-        limit: 50,
-      });
-
-      return stats || null;
-    } catch {
-      return null;
-    }
   }
 }
 
@@ -588,7 +483,7 @@ class MobilePlatformAPI {
   public readonly file: MobileFileService;
   public readonly resource: MobileResourceService;
   public readonly message: MobileMessageService;
-  public readonly cache: MobileCacheService;
+  public readonly cache: CacheService;
   public readonly renderer: MobileRendererService;
   public readonly i18n: MobileI18nService;
   
@@ -601,7 +496,7 @@ class MobilePlatformAPI {
     this.file = new MobileFileService();
     this.resource = new MobileResourceService();
     this.message = new MobileMessageService();
-    this.cache = new MobileCacheService();
+    this.cache = cacheService; // Use unified cache service
     this.renderer = new MobileRendererService();
     this.i18n = new MobileI18nService();
     
@@ -651,7 +546,6 @@ export {
   MobileFileService,
   MobileResourceService,
   MobileMessageService,
-  MobileCacheService,
   MobileRendererService,
   MobileI18nService,
   MobilePlatformAPI,

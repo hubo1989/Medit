@@ -6,7 +6,6 @@
  */
 
 import {
-  BaseCacheService,
   BaseI18nService,
   BaseRendererService,
   DEFAULT_SETTING_LOCALE,
@@ -20,164 +19,42 @@ import type {
 
 import type {
   RendererThemeConfig,
-  RenderResult,
-  CacheStats,
-  SimpleCacheStats
+  RenderResult
 } from '../../types/index';
 
-// ============================================================================
-// Type Definitions
-// ============================================================================
+import type { PlatformBridgeAPI } from '../../types/index';
 
-/**
- * VS Code API interface (available in webview)
- */
-interface VSCodeAPI {
-  postMessage(message: unknown): void;
-  getState(): unknown;
-  setState(state: unknown): void;
-}
-
-/**
- * Message from extension host
- */
-interface ExtensionMessage {
-  type: string;
-  requestId?: string;
-  payload?: unknown;
-  error?: string;
-}
-
-/**
- * Pending request entry
- */
-interface PendingRequest {
-  resolve: (value: unknown) => void;
-  reject: (error: Error) => void;
-  timeout: ReturnType<typeof setTimeout>;
-}
+import { ServiceChannel } from '../../messaging/channels/service-channel';
+import { VSCodeWebviewTransport } from '../../messaging/transports/vscode-webview-transport';
+import { CacheService } from '../../services/cache-service';
 
 // ============================================================================
-// VSCode Webview Bridge
+// Service Channel (Extension Host ↔ Webview)
 // ============================================================================
 
-/**
- * Bridge for communication between webview and extension host
- */
-class VSCodeBridge {
-  private vscode: VSCodeAPI | null = null;
-  private pendingRequests = new Map<string, PendingRequest>();
-  private requestCounter = 0;
-  private messageHandlers: ((message: ExtensionMessage) => void)[] = [];
+const transport = new VSCodeWebviewTransport();
+const serviceChannel = new ServiceChannel(transport, {
+  source: 'vscode-webview',
+  timeoutMs: 30000,
+});
 
-  constructor() {
-    this.initVSCodeAPI();
-    this.setupMessageListener();
-  }
+// Unified cache service (same as Chrome/Mobile)
+const cacheService = new CacheService(serviceChannel);
 
-  private initVSCodeAPI(): void {
-    // acquireVsCodeApi is injected by VS Code into webview
-    if (typeof acquireVsCodeApi !== 'undefined') {
-      this.vscode = acquireVsCodeApi();
-    }
-  }
-
-  private setupMessageListener(): void {
-    window.addEventListener('message', (event) => {
-      const message = event.data as ExtensionMessage;
-      
-      // Handle response to pending request
-      if (message.requestId && this.pendingRequests.has(message.requestId)) {
-        const pending = this.pendingRequests.get(message.requestId)!;
-        this.pendingRequests.delete(message.requestId);
-        clearTimeout(pending.timeout);
-        
-        if (message.error) {
-          pending.reject(new Error(message.error));
-        } else {
-          pending.resolve(message.payload);
-        }
-        return;
-      }
-
-      // Notify registered handlers
-      for (const handler of this.messageHandlers) {
-        handler(message);
-      }
+// Bridge compatibility layer (matches Mobile pattern)
+const bridge: PlatformBridgeAPI = {
+  sendRequest: async <T = unknown>(type: string, payload: unknown): Promise<T> => {
+    return (await serviceChannel.send(type, payload)) as T;
+  },
+  postMessage: (type: string, payload: unknown): void => {
+    serviceChannel.post(type, payload);
+  },
+  addListener: (handler: (message: unknown) => void): (() => void) => {
+    return serviceChannel.onAny((message) => {
+      handler(message);
     });
-  }
-
-  private createRequestId(): string {
-    this.requestCounter += 1;
-    return `vscode-${Date.now()}-${this.requestCounter}`;
-  }
-
-  /**
-   * Send request and wait for response
-   */
-  sendRequest<T = unknown>(type: string, payload?: unknown, timeoutMs = 30000): Promise<T> {
-    return new Promise((resolve, reject) => {
-      if (!this.vscode) {
-        reject(new Error('VS Code API not available'));
-        return;
-      }
-
-      const requestId = this.createRequestId();
-      const timeout = setTimeout(() => {
-        this.pendingRequests.delete(requestId);
-        reject(new Error(`Request timeout: ${type}`));
-      }, timeoutMs);
-
-      this.pendingRequests.set(requestId, {
-        resolve: resolve as (value: unknown) => void,
-        reject,
-        timeout
-      });
-
-      this.vscode.postMessage({
-        type,
-        requestId,
-        payload
-      });
-    });
-  }
-
-  /**
-   * Send message without waiting for response
-   */
-  postMessage(type: string, payload?: unknown): void {
-    if (this.vscode) {
-      this.vscode.postMessage({ type, payload });
-    }
-  }
-
-  /**
-   * Add message handler
-   */
-  addHandler(handler: (message: ExtensionMessage) => void): () => void {
-    this.messageHandlers.push(handler);
-    return () => {
-      const index = this.messageHandlers.indexOf(handler);
-      if (index >= 0) {
-        this.messageHandlers.splice(index, 1);
-      }
-    };
-  }
-
-  /**
-   * Get/set webview state
-   */
-  getState(): unknown {
-    return this.vscode?.getState();
-  }
-
-  setState(state: unknown): void {
-    this.vscode?.setState(state);
-  }
-}
-
-// Global bridge instance
-const bridge = new VSCodeBridge();
+  },
+};
 
 // Declare acquireVsCodeApi for TypeScript
 declare function acquireVsCodeApi(): VSCodeAPI;
@@ -262,78 +139,6 @@ class VSCodeResourceService {
 }
 
 // ============================================================================
-// VSCode Cache Service
-// ============================================================================
-
-/**
- * VSCode Cache Service
- * Proxies cache operations to extension host via postMessage.
- * Extension host uses file system (globalStorageUri) for persistent storage.
- */
-class VSCodeCacheService extends BaseCacheService {
-  async init(): Promise<void> {
-    // Initialization handled by extension host
-  }
-
-  async ensureDB(): Promise<void> {
-    // No database needed in webview - extension host handles storage
-  }
-
-  async get(key: string): Promise<unknown> {
-    try {
-      return await bridge.sendRequest('CACHE_GET', { key });
-    } catch {
-      return null;
-    }
-  }
-
-  async set(key: string, value: unknown, type?: string): Promise<boolean> {
-    try {
-      return await bridge.sendRequest<boolean>('CACHE_SET', { key, value, type });
-    } catch {
-      return false;
-    }
-  }
-
-  async delete(key: string): Promise<boolean> {
-    try {
-      return await bridge.sendRequest<boolean>('CACHE_DELETE', { key });
-    } catch {
-      return false;
-    }
-  }
-
-  async clear(): Promise<boolean> {
-    try {
-      return await bridge.sendRequest<boolean>('CACHE_CLEAR', {});
-    } catch {
-      return false;
-    }
-  }
-
-  async getStats(): Promise<SimpleCacheStats> {
-    try {
-      const stats = await bridge.sendRequest<SimpleCacheStats>('CACHE_STATS', {});
-      return stats ?? {
-        itemCount: 0,
-        maxItems: 500,
-        totalSize: 0,
-        totalSizeMB: '0 MB',
-        items: []
-      };
-    } catch {
-      return {
-        itemCount: 0,
-        maxItems: 500,
-        totalSize: 0,
-        totalSizeMB: '0 MB',
-        items: []
-      };
-    }
-  }
-}
-
-// ============================================================================
 // VSCode Renderer Service (uses iframe like Mobile)
 // ============================================================================
 
@@ -358,14 +163,14 @@ interface RenderRequestPayload {
  */
 class VSCodeRendererService extends BaseRendererService {
   private host: RenderHost | null = null;
-  private cache: VSCodeCacheService;
+  private cache: CacheService;
   private resourceService: VSCodeResourceService;
   private requestQueue: Promise<void>;
   private queueContext: QueueContext;
 
-  constructor(cacheService: VSCodeCacheService, resourceService: VSCodeResourceService) {
+  constructor(cache: CacheService, resourceService: VSCodeResourceService) {
     super();
-    this.cache = cacheService;
+    this.cache = cache;
     this.resourceService = resourceService;
     this.requestQueue = Promise.resolve();
     this.queueContext = { cancelled: false, id: 0 };
@@ -588,7 +393,7 @@ export class VSCodePlatformAPI {
   public readonly storage: VSCodeStorageService;
   public readonly file: VSCodeFileService;
   public readonly resource: VSCodeResourceService;
-  public readonly cache: VSCodeCacheService;
+  public readonly cache: CacheService;
   public readonly renderer: VSCodeRendererService;
   public readonly i18n: VSCodeI18nService;
 
@@ -596,7 +401,7 @@ export class VSCodePlatformAPI {
     this.storage = new VSCodeStorageService();
     this.file = new VSCodeFileService();
     this.resource = new VSCodeResourceService();
-    this.cache = new VSCodeCacheService();
+    this.cache = cacheService; // Use unified cache service
     this.renderer = new VSCodeRendererService(this.cache, this.resource);
     this.i18n = new VSCodeI18nService(this.resource);
   }
@@ -622,4 +427,6 @@ export class VSCodePlatformAPI {
 export const vscodePlatform = new VSCodePlatformAPI();
 export { vscodePlatform as platform };
 export { bridge as vscodeBridge };
+export { transport as vscodeTransport };
+export { serviceChannel as vscodeServiceChannel };
 export { DEFAULT_SETTING_LOCALE };

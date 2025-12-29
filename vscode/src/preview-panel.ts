@@ -119,8 +119,10 @@ export class MarkdownPreviewPanel {
     });
   }
 
-  private async _handleMessage(message: { type: string; requestId?: string; payload?: unknown }): Promise<void> {
-    const { type, requestId, payload } = message;
+  private async _handleMessage(message: { id?: string; type: string; requestId?: string; payload?: unknown }): Promise<void> {
+    // Support both old format (requestId) and new envelope format (id)
+    const { type, payload } = message;
+    const requestId = message.id || message.requestId;
 
     try {
       let response: unknown;
@@ -138,24 +140,13 @@ export class MarkdownPreviewPanel {
           response = await this._handleStorageRemove(payload as { keys: string | string[] });
           break;
 
-        case 'CACHE_GET':
-          response = await this._handleCacheGet(payload as { key: string });
-          break;
-
-        case 'CACHE_SET':
-          response = await this._handleCacheSet(payload as { key: string; value: unknown; type?: string });
-          break;
-
-        case 'CACHE_DELETE':
-          response = await this._handleCacheDelete(payload as { key: string });
-          break;
-
-        case 'CACHE_CLEAR':
-          response = await this._handleCacheClear();
-          break;
-
-        case 'CACHE_STATS':
-          response = await this._handleCacheStats();
+        case 'CACHE_OPERATION':
+          response = await this._handleCacheOperation(payload as {
+            operation: 'get' | 'set' | 'delete' | 'clear' | 'getStats';
+            key?: string;
+            value?: unknown;
+            dataType?: string;
+          });
           break;
 
         case 'DOWNLOAD_FILE':
@@ -199,12 +190,13 @@ export class MarkdownPreviewPanel {
           response = null;
       }
 
-      // Send response if requestId exists
+      // Send response using unified ResponseEnvelope format
       if (requestId) {
         this._panel.webview.postMessage({
           type: 'RESPONSE',
           requestId,
-          payload: response
+          ok: true,
+          data: response
         });
       }
     } catch (error) {
@@ -212,7 +204,10 @@ export class MarkdownPreviewPanel {
         this._panel.webview.postMessage({
           type: 'RESPONSE',
           requestId,
-          error: error instanceof Error ? error.message : 'Unknown error'
+          ok: false,
+          error: {
+            message: error instanceof Error ? error.message : 'Unknown error'
+          }
         });
       }
     }
@@ -246,25 +241,39 @@ export class MarkdownPreviewPanel {
     }
   }
 
-  // Cache operation handlers
-  private async _handleCacheGet(payload: { key: string }): Promise<unknown> {
-    return this._cacheService.get(payload.key);
-  }
+  // Unified cache operation handler (same interface as Chrome/Mobile)
+  private async _handleCacheOperation(payload: {
+    operation: 'get' | 'set' | 'delete' | 'clear' | 'getStats';
+    key?: string;
+    value?: unknown;
+    dataType?: string;
+  }): Promise<unknown> {
+    const { operation, key, value, dataType } = payload;
 
-  private async _handleCacheSet(payload: { key: string; value: unknown; type?: string }): Promise<boolean> {
-    return this._cacheService.set(payload.key, payload.value, payload.type);
-  }
+    switch (operation) {
+      case 'get':
+        return key ? this._cacheService.get(key) : null;
 
-  private async _handleCacheDelete(payload: { key: string }): Promise<boolean> {
-    return this._cacheService.delete(payload.key);
-  }
+      case 'set':
+        if (!key) return { success: false };
+        const setResult = await this._cacheService.set(key, value, dataType);
+        return { success: setResult };
 
-  private async _handleCacheClear(): Promise<boolean> {
-    return this._cacheService.clear();
-  }
+      case 'delete':
+        if (!key) return { success: false };
+        const deleteResult = await this._cacheService.delete(key);
+        return { success: deleteResult };
 
-  private async _handleCacheStats(): Promise<unknown> {
-    return this._cacheService.getStats();
+      case 'clear':
+        const clearResult = await this._cacheService.clear();
+        return { success: clearResult };
+
+      case 'getStats':
+        return this._cacheService.getStats();
+
+      default:
+        return null;
+    }
   }
 
   private async _handleDownload(payload: { filename: string; data: string; mimeType: string }): Promise<void> {

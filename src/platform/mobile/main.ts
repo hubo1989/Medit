@@ -120,7 +120,7 @@ async function initialize(): Promise<void> {
 
     // Pre-initialize render iframe (don't wait, let it load in background)
     platform.renderer.ensureIframe().catch((err: Error) => {
-      console.warn('[Mobile] Render frame pre-init failed:', err);
+      console.warn('[Mobile] Render frame pre-init failed:', err?.message, err?.stack);
     });
 
     // Set up message handlers from host app (Flutter)
@@ -310,9 +310,10 @@ async function handleLoadMarkdown(payload: LoadMarkdownPayload): Promise<void> {
     });
 
   } catch (error) {
-    console.error('[Mobile] Markdown processing failed:', error);
+    const err = error as Error;
+    console.error('[Mobile] Markdown processing failed:', err.message, err.stack);
     bridge.postMessage('RENDER_ERROR', {
-      error: (error as Error).message
+      error: err.message
     });
   }
 }

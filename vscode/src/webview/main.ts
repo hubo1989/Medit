@@ -113,12 +113,12 @@ async function initialize(): Promise<void> {
     }
 
     // Listen for messages from extension host
-    vscodeBridge.addHandler((message) => {
-      handleExtensionMessage(message);
+    vscodeBridge.addListener((message) => {
+      handleExtensionMessage(message as ExtensionMessage);
     });
 
     // Notify extension that webview is ready
-    vscodeBridge.postMessage('READY');
+    vscodeBridge.postMessage('READY', {});
   } catch (error) {
     console.error('[VSCode Webview] Init failed:', error);
   }

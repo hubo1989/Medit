@@ -5,7 +5,6 @@
  */
 
 import {
-  BaseCacheService,
   BaseI18nService,
   BaseRendererService,
   DEFAULT_SETTING_LOCALE,
@@ -20,13 +19,15 @@ import type {
 
 import type {
   RendererThemeConfig,
-  RenderResult,
-  CacheStats,
-  SimpleCacheStats
+  RenderResult
 } from '../../types/index';
 
 import type { RenderHost } from '../../renderers/host/render-host';
 import { OffscreenRenderHost } from './hosts/offscreen-render-host';
+
+import { ServiceChannel } from '../../messaging/channels/service-channel';
+import { ChromeRuntimeTransport } from '../../messaging/transports/chrome-runtime-transport';
+import { CacheService } from '../../services/cache-service';
 
 // ============================================================================
 // Type Definitions
@@ -95,6 +96,18 @@ export class ChromeStorageService {
     });
   }
 }
+
+// ============================================================================
+// Service Channel (Content Script ↔ Background)
+// ============================================================================
+
+const serviceChannel = new ServiceChannel(new ChromeRuntimeTransport(), {
+  source: 'chrome-content',
+  timeoutMs: 300000,
+});
+
+// Unified cache service (same as Mobile/VSCode)
+const cacheService = new CacheService(serviceChannel);
 
 // ============================================================================
 // Chrome File Service
@@ -242,90 +255,6 @@ export class ChromeMessageService {
 }
 
 // ============================================================================
-// Chrome Cache Service (Proxy to Background)
-// Extends BaseCacheService for common hash/key generation
-// ============================================================================
-
-export class ChromeCacheService extends BaseCacheService {
-  private messageService: ChromeMessageService;
-
-  constructor(messageService: ChromeMessageService) {
-    super();
-    this.messageService = messageService;
-  }
-
-  async init(): Promise<void> {
-    // No initialization needed, background handles it
-  }
-
-  async ensureDB(): Promise<void> {
-    // No initialization needed, background handles it
-  }
-
-  async get(key: string): Promise<unknown> {
-    try {
-      const response = await this.messageService.sendEnvelope('CACHE_OPERATION', {
-        operation: 'get',
-        key,
-      });
-      if (!response.ok) {
-        return null;
-      }
-      return response.data ?? null;
-    } catch {
-      return null;
-    }
-  }
-
-  async set(key: string, value: unknown, type: string = 'unknown'): Promise<boolean> {
-    try {
-      const response = await this.messageService.sendEnvelope('CACHE_OPERATION', {
-        operation: 'set',
-        key,
-        value,
-        dataType: type,
-      });
-      if (!response.ok) return false;
-      const data = response.data;
-      if (data && typeof data === 'object' && (data as { success?: unknown }).success === false) {
-        return false;
-      }
-      return true;
-    } catch {
-      return false;
-    }
-  }
-
-  async clear(): Promise<boolean> {
-    try {
-      const response = await this.messageService.sendEnvelope('CACHE_OPERATION', {
-        operation: 'clear',
-      });
-      if (!response.ok) return false;
-      const data = response.data;
-      if (data && typeof data === 'object' && (data as { success?: unknown }).success === false) {
-        return false;
-      }
-      return true;
-    } catch {
-      return false;
-    }
-  }
-
-  async getStats(): Promise<CacheStats | SimpleCacheStats | null> {
-    try {
-      const response = await this.messageService.sendEnvelope('CACHE_OPERATION', {
-        operation: 'getStats',
-      });
-      if (!response.ok) return null;
-      return (response.data as CacheStats | SimpleCacheStats) || null;
-    } catch {
-      return null;
-    }
-  }
-}
-
-// ============================================================================
 // Chrome Renderer Service
 // Uses offscreen document for rendering diagrams (mermaid, vega, etc.)
 // ============================================================================
@@ -334,9 +263,9 @@ export class ChromeRendererService extends BaseRendererService {
   private messageService: ChromeMessageService;
   private offscreenHost: RenderHost | null = null;
   private themeDirty = false;
-  private cache: ChromeCacheService;
+  private cache: CacheService;
 
-  constructor(messageService: ChromeMessageService, cacheService: ChromeCacheService) {
+  constructor(messageService: ChromeMessageService, cacheService: CacheService) {
     super();
     this.messageService = messageService;
     this.cache = cacheService;
@@ -522,7 +451,7 @@ export class ChromePlatformAPI {
   public readonly file: ChromeFileService;
   public readonly resource: ChromeResourceService;
   public readonly message: ChromeMessageService;
-  public readonly cache: ChromeCacheService;
+  public readonly cache: CacheService;
   public readonly renderer: ChromeRendererService;
   public readonly i18n: ChromeI18nService;
 
@@ -532,7 +461,7 @@ export class ChromePlatformAPI {
     this.file = new ChromeFileService();
     this.resource = new ChromeResourceService();
     this.message = new ChromeMessageService();
-    this.cache = new ChromeCacheService(this.message);
+    this.cache = cacheService; // Use unified cache service
     this.renderer = new ChromeRendererService(this.message, this.cache);
     this.i18n = new ChromeI18nService(this.storage, this.resource);
     

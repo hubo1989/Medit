@@ -69,12 +69,13 @@ export class IframeRenderHost implements RenderHost {
     iframe.style.height = '10px';
     iframe.style.border = '0';
     iframe.style.opacity = '0';
-    
-    // For VSCode: allow scripts in iframe, but don't allow same-origin to avoid sandbox escape
-    iframe.setAttribute('sandbox', 'allow-scripts');
 
     // Determine how to load iframe content
     if (this.htmlContent || this.fetchHtmlContent) {
+      // For VSCode/srcdoc mode: use sandbox to restrict iframe capabilities
+      // This is safe because we control the HTML content
+      iframe.setAttribute('sandbox', 'allow-scripts');
+      
       // Use srcdoc to create a completely independent iframe document
       // This bypasses parent CSP entirely since srcdoc creates a fresh document
       let html = this.htmlContent;
@@ -94,6 +95,7 @@ export class IframeRenderHost implements RenderHost {
         iframe.src = '';
       }
     } else if (this.iframeUrl) {
+      // For URL mode (Mobile/Chrome): don't use sandbox as it breaks same-origin iframe loading
       iframe.src = this.iframeUrl;
     } else {
       throw new Error('IframeRenderHost: either iframeUrl, htmlContent, or fetchHtmlContent is required');
