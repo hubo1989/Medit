@@ -138,6 +138,7 @@ body.toc-hidden #markdown-wrapper {
   left: 0;
   height: calc(100vh - 50px);
   overflow-y: auto;
+  overscroll-behavior: contain;
   transition: transform 0.3s ease;
   z-index: 1000;
   user-select: none;
