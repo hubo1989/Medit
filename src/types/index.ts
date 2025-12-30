@@ -5,6 +5,9 @@
  * This is the single source of truth for type definitions.
  */
 
+// Import global type declarations for side effects
+import './platform.d';
+
 // =============================================================================
 // Core Types
 // =============================================================================
