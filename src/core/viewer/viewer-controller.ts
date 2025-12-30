@@ -6,8 +6,11 @@ import {
   extractHeadings,
   extractTitle,
   processMarkdownStreaming,
+  processMarkdownToHtml,
   type HeadingInfo,
 } from '../markdown-processor';
+
+import { diffAndPatch, canIncrementalUpdate, clearHtmlCache } from '../dom-differ';
 
 import type { PluginRenderer, TranslateFunction } from '../../types/index';
 
@@ -41,6 +44,12 @@ export type RenderMarkdownOptions = {
    */
   processTasks?: boolean;
 
+  /**
+   * When true, use incremental DOM diffing instead of full re-render.
+   * This preserves already-rendered plugin content when possible.
+   */
+  incrementalUpdate?: boolean;
+
   onHeadings?: (headings: HeadingInfo[]) => void;
   onProgress?: (completed: number, total: number) => void;
   onBeforeTasks?: () => void;
@@ -58,6 +67,7 @@ export async function renderMarkdownDocument(options: RenderMarkdownOptions): Pr
     taskManager: providedTaskManager,
     clearContainer = true,
     processTasks = true,
+    incrementalUpdate = false,
     onHeadings,
     onProgress,
     onBeforeTasks,
@@ -68,8 +78,28 @@ export async function renderMarkdownDocument(options: RenderMarkdownOptions): Pr
 
   const taskManager = providedTaskManager ?? new AsyncTaskManager(translate);
 
+  // Use incremental update if enabled and container has existing content
+  if (incrementalUpdate && canIncrementalUpdate(container)) {
+    return renderMarkdownIncremental({
+      markdown,
+      container,
+      renderer,
+      translate,
+      taskManager,
+      processTasks,
+      onHeadings,
+      onProgress,
+      onBeforeTasks,
+      onAfterTasks,
+      onStreamingComplete,
+      postProcess,
+    });
+  }
+
+  // Full render path
   if (clearContainer) {
     container.innerHTML = '';
+    clearHtmlCache(); // Clear HTML cache when doing full render
   }
 
   // Process and render markdown with streaming
@@ -126,5 +156,77 @@ export async function renderMarkdownDocument(options: RenderMarkdownOptions): Pr
     title: extractTitle(markdown),
     headings,
     taskManager,
+  };
+}
+
+/**
+ * Perform incremental update using DOM diffing.
+ * Preserves already-rendered plugin content when source hash matches.
+ */
+async function renderMarkdownIncremental(options: Omit<RenderMarkdownOptions, 'clearContainer' | 'incrementalUpdate'>): Promise<ViewerRenderResult> {
+  const {
+    markdown,
+    container,
+    renderer,
+    translate,
+    taskManager,
+    processTasks = true,
+    onHeadings,
+    onProgress,
+    onBeforeTasks,
+    onAfterTasks,
+    onStreamingComplete,
+    postProcess,
+  } = options;
+
+  // Process markdown to HTML (not streaming for incremental update)
+  const t0 = performance.now();
+  const html = await processMarkdownToHtml(markdown, {
+    renderer,
+    taskManager: taskManager!,
+    translate,
+  });
+  const t1 = performance.now();
+
+  if (taskManager!.isAborted()) {
+    return {
+      title: extractTitle(markdown),
+      headings: [],
+      taskManager: taskManager!,
+    };
+  }
+
+  // Perform DOM diff and patch
+  diffAndPatch(container, html);
+
+  // Streaming complete (in this case, single pass)
+  onStreamingComplete?.();
+
+  // Update headings
+  const headings = extractHeadings(container);
+  onHeadings?.(headings);
+
+  if (processTasks) {
+    onBeforeTasks?.();
+    await taskManager!.processAll((completed, total) => {
+      onProgress?.(completed, total);
+    });
+    onAfterTasks?.();
+
+    if (taskManager!.isAborted()) {
+      return {
+        title: extractTitle(markdown),
+        headings,
+        taskManager: taskManager!,
+      };
+    }
+
+    await postProcess?.(container);
+  }
+
+  return {
+    title: extractTitle(markdown),
+    headings,
+    taskManager: taskManager!,
   };
 }

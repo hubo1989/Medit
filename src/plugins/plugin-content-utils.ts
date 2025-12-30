@@ -20,9 +20,16 @@ import type {
  * @param pluginType - Plugin type identifier
  * @param isInline - Whether to render inline or block
  * @param translate - Translation function
+ * @param sourceHash - Content hash for DOM diff matching
  * @returns Placeholder HTML
  */
-export function createPlaceholderElement(id: string, pluginType: string, isInline: boolean, translate: TranslateFunction): string {
+export function createPlaceholderElement(
+  id: string,
+  pluginType: string,
+  isInline: boolean,
+  translate: TranslateFunction,
+  sourceHash?: string
+): string {
   // Generate translation key dynamically based on type
   const typeLabelKey = `async_placeholder_type_${pluginType.replace(/-/g, '')}`;
   const typeLabel = translate(typeLabelKey) || '';
@@ -32,8 +39,13 @@ export function createPlaceholderElement(id: string, pluginType: string, isInlin
   const processingText = translate('async_processing_message', [resolvedTypeLabel, ''])
     || `Processing ${resolvedTypeLabel}...`;
 
+  // Data attributes for DOM diff matching
+  const dataAttrs = sourceHash 
+    ? `data-source-hash="${sourceHash}" data-plugin-type="${pluginType}"` 
+    : '';
+
   if (isInline) {
-    return `<span id="${id}" class="async-placeholder ${pluginType}-placeholder inline-placeholder">
+    return `<span id="${id}" class="async-placeholder ${pluginType}-placeholder inline-placeholder" ${dataAttrs}>
       <span class="async-loading">
         <span class="async-spinner"></span>
         <span class="async-text">${processingText}</span>
@@ -41,7 +53,7 @@ export function createPlaceholderElement(id: string, pluginType: string, isInlin
     </span>`;
   }
 
-  return `<div id="${id}" class="async-placeholder ${pluginType}-placeholder">
+  return `<div id="${id}" class="async-placeholder ${pluginType}-placeholder" ${dataAttrs}>
     <div class="async-loading">
       <div class="async-spinner"></div>
       <div class="async-text">${processingText}</div>

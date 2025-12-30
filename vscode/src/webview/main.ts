@@ -48,6 +48,7 @@ let currentFilename = '';
 let currentThemeId = 'default';
 let currentTaskManager: AsyncTaskManager | null = null;
 let currentZoomLevel = 1;
+let lastRenderedFilename = '';  // Track last rendered file for incremental updates
 
 // UI components
 let settingsPanel: SettingsPanel | null = null;
@@ -211,8 +212,12 @@ async function handleUpdateContent(payload: UpdateContentPayload): Promise<void>
     currentTaskManager = null;
   }
 
+  // Check if file changed - reset incremental update flag if different file
+  const newFilename = filename || 'document.md';
+  const fileChanged = currentFilename !== newFilename;
+
   currentMarkdown = content;
-  currentFilename = filename || 'document.md';
+  currentFilename = newFilename;
 
   try {
     // If theme data is provided with content, apply it (same as Mobile)
@@ -245,8 +250,10 @@ async function handleUpdateContent(payload: UpdateContentPayload): Promise<void>
 
     const pluginRenderer = createPluginRenderer();
 
-    // Clear container first, then apply theme (avoids flicker)
-    container.innerHTML = '';
+    // Only clear container when file changes (for incremental update support)
+    if (fileChanged) {
+      container.innerHTML = '';
+    }
 
     // Apply theme CSS if we have theme data
     if (renderThemeData) {
@@ -269,14 +276,19 @@ async function handleUpdateContent(payload: UpdateContentPayload): Promise<void>
       (container as HTMLElement).style.zoom = String(currentZoomLevel);
     }
 
+    // Determine incremental update conditions
+    const shouldIncremental = !fileChanged && container.childNodes.length > 0;
+
     // Render markdown (same as Mobile)
+    // Use incremental update only if same file and container has existing content
     const renderResult = await renderMarkdownDocument({
       markdown: content,
       container: container as HTMLElement,
       renderer: pluginRenderer,
       translate: (key: string, subs?: string | string[]) => Localization.translate(key, subs),
       taskManager,
-      clearContainer: false,
+      clearContainer: fileChanged,  // Clear only when file changes
+      incrementalUpdate: shouldIncremental,  // Only incremental for same file
       processTasks: true,
       onHeadings: (headings) => {
         vscodeBridge.postMessage('HEADINGS_UPDATED', headings);
@@ -290,6 +302,11 @@ async function handleUpdateContent(payload: UpdateContentPayload): Promise<void>
         await postProcessContent(el);
       },
     });
+
+    // Track the file we just rendered
+    if (!taskManager.isAborted()) {
+      lastRenderedFilename = currentFilename;
+    }
 
     if (taskManager.isAborted()) {
       return;

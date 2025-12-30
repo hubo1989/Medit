@@ -11,6 +11,10 @@ import { ExtensionCacheService } from './cache-service';
 let outputChannel: vscode.OutputChannel;
 let cacheService: ExtensionCacheService;
 
+// Debounce timer for document changes
+let updateDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+const UPDATE_DEBOUNCE_MS = 300;
+
 export function activate(context: vscode.ExtensionContext) {
   outputChannel = vscode.window.createOutputChannel('Markdown Viewer Advanced');
   outputChannel.appendLine('Markdown Viewer Advanced is now active');
@@ -77,13 +81,20 @@ export function activate(context: vscode.ExtensionContext) {
     })
   );
 
-  // Auto-update preview on document change
+  // Auto-update preview on document change (with debounce)
   context.subscriptions.push(
     vscode.workspace.onDidChangeTextDocument((e) => {
       if (e.document.languageId === 'markdown') {
         const panel = MarkdownPreviewPanel.currentPanel;
         if (panel && panel.isDocumentMatch(e.document)) {
-          panel.updateContent(e.document.getText());
+          // Debounce updates to avoid excessive re-renders during typing
+          if (updateDebounceTimer) {
+            clearTimeout(updateDebounceTimer);
+          }
+          updateDebounceTimer = setTimeout(() => {
+            updateDebounceTimer = null;
+            panel.updateContent(e.document.getText());
+          }, UPDATE_DEBOUNCE_MS);
         }
       }
     })

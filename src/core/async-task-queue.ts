@@ -4,6 +4,7 @@
  */
 
 import { createPlaceholderElement } from '../plugins/plugin-content-utils';
+import { generateContentHash } from '../utils/hash';
 import type {
   TaskStatus,
   TaskData,
@@ -73,6 +74,10 @@ export function createAsyncTaskQueue(escapeHtml: EscapeHtmlFunction): AsyncTaskQ
 
     asyncTaskQueue.push(task);
 
+    // Generate content hash for DOM diff matching
+    const content = (data.code as string) || '';
+    const sourceHash = generateContentHash(type, content);
+
     // Generate placeholder using utility function
     // Provide fallback translate function if not provided
     const translateFn: TranslateFunction = translate || ((key: string) => key);
@@ -80,7 +85,8 @@ export function createAsyncTaskQueue(escapeHtml: EscapeHtmlFunction): AsyncTaskQ
       placeholderId,
       type,
       plugin?.isInline() || false,
-      translateFn
+      translateFn,
+      sourceHash
     );
 
     return {

@@ -10,9 +10,15 @@ import type { PluginRenderResult, UnifiedRenderResult } from '../types/index';
  * @param id - Placeholder element ID
  * @param renderResult - Unified render result from plugin.renderToCommon()
  * @param pluginType - Plugin type for alt text
+ * @param sourceHash - Content hash for DOM diff matching
  * @returns HTML string
  */
-export function convertPluginResultToHTML(id: string, renderResult: UnifiedRenderResult, pluginType = 'diagram'): string {
+export function convertPluginResultToHTML(
+  id: string,
+  renderResult: UnifiedRenderResult,
+  pluginType = 'diagram',
+  sourceHash?: string
+): string {
   if (renderResult.type === 'empty') {
     return '';
   }
@@ -27,13 +33,18 @@ export function convertPluginResultToHTML(id: string, renderResult: UnifiedRende
     const { inline } = renderResult.display;
     const displayWidth = Math.round((width || 0) / 4);
     
+    // Data attributes for DOM diff matching - mark as rendered
+    const dataAttrs = sourceHash 
+      ? `data-source-hash="${sourceHash}" data-plugin-type="${pluginType}" data-plugin-rendered="true"` 
+      : '';
+    
     if (inline) {
-      return `<span class="diagram-inline" style="display: inline-block;">
+      return `<span class="diagram-inline" style="display: inline-block;" ${dataAttrs}>
         <img src="data:image/png;base64,${base64}" alt="${pluginType} diagram" width="${displayWidth}px" style="vertical-align: middle;" />
       </span>`;
     }
     
-    return `<div class="diagram-block" style="text-align: center; margin: 20px 0;">
+    return `<div class="diagram-block" style="text-align: center; margin: 20px 0;" ${dataAttrs}>
       <img src="data:image/png;base64,${base64}" alt="${pluginType} diagram" width="${displayWidth}px" />
     </div>`;
   }
@@ -51,6 +62,9 @@ export function convertPluginResultToHTML(id: string, renderResult: UnifiedRende
 export function replacePlaceholderWithImage(id: string, result: PluginRenderResult, pluginType: string, isInline: boolean): void {
   const placeholder = document.getElementById(id);
   if (placeholder) {
+    // Preserve source hash from placeholder for DOM diff matching
+    const sourceHash = (placeholder as HTMLElement).dataset?.sourceHash;
+    
     // Convert result to unified format (always PNG)
     const content: UnifiedRenderResult['content'] = { 
       base64: result.base64, 
@@ -66,6 +80,6 @@ export function replacePlaceholderWithImage(id: string, result: PluginRenderResu
         alignment: isInline ? 'left' : 'center'
       }
     };
-    placeholder.outerHTML = convertPluginResultToHTML(id, renderResult, pluginType);
+    placeholder.outerHTML = convertPluginResultToHTML(id, renderResult, pluginType, sourceHash);
   }
 }

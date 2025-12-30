@@ -16,6 +16,7 @@ import rehypeStringify from 'rehype-stringify';
 import { visit } from 'unist-util-visit';
 import { registerRemarkPlugins } from '../plugins/index';
 import { createPlaceholderElement } from '../plugins/plugin-content-utils';
+import { generateContentHash, hashCode } from '../utils/hash';
 import type {
   TranslateFunction,
   TaskStatus,
@@ -69,29 +70,17 @@ export function normalizeMathBlocks(markdown: string): string {
 }
 
 /**
- * Split markdown into logical chunks for incremental rendering.
- * Preserves block boundaries (code blocks, math blocks, tables, lists).
- * Uses adaptive chunk sizing: smaller chunks at the start for faster initial display.
+ * Split markdown into semantic blocks (paragraphs, code blocks, tables, etc.)
+ * Each block is a complete markdown element that can be processed independently.
  * @param markdown - Raw markdown content
- * @returns Array of markdown chunks
+ * @returns Array of markdown blocks
  */
-export function splitMarkdownIntoChunks(markdown: string): string[] {
-  // Adaptive chunk size strategy with exponential growth:
-  // - Chunk 0: 50 lines
-  // - Chunk 1: 100 lines
-  // - Chunk 2: 200 lines
-  // - Chunk 3: 400 lines, and so on (each chunk doubles in size)
-  const INITIAL_CHUNK_SIZE = 50;
-
-  const getTargetChunkSize = (chunkIndex: number): number => {
-    return INITIAL_CHUNK_SIZE * Math.pow(2, chunkIndex);
-  };
-
+export function splitMarkdownIntoBlocks(markdown: string): string[] {
   const lines = markdown.split('\n');
-  const chunks: string[] = [];
+  const blocks: string[] = [];
 
-  let currentChunk: string[] = [];
-  let codeBlockFence = '';  // Store the opening fence (e.g., '```' or '~~~~~~')
+  let currentBlock: string[] = [];
+  let codeBlockFence = '';
   let inMathBlock = false;
   let inTable = false;
   let inBlockquote = false;
@@ -99,10 +88,10 @@ export function splitMarkdownIntoChunks(markdown: string): string[] {
   let inFrontMatter = false;
   let listIndent = -1;
 
-  const flushChunk = () => {
-    if (currentChunk.length > 0) {
-      chunks.push(currentChunk.join('\n'));
-      currentChunk = [];
+  const flushBlock = () => {
+    if (currentBlock.length > 0) {
+      blocks.push(currentBlock.join('\n'));
+      currentBlock = [];
     }
   };
 
@@ -115,11 +104,12 @@ export function splitMarkdownIntoChunks(markdown: string): string[] {
       inFrontMatter = true;
     } else if (inFrontMatter && trimmedLine === '---') {
       inFrontMatter = false;
-      currentChunk.push(line);
+      currentBlock.push(line);
+      flushBlock(); // Front matter is its own block
       continue;
     }
 
-    // Track code blocks (fenced) - handle nested fences like `````` containing ```
+    // Track code blocks (fenced)
     const backtickMatch = trimmedLine.match(/^(`{3,})/);
     const tildeMatch = trimmedLine.match(/^(~{3,})/);
     const fenceMatch = backtickMatch || tildeMatch;
@@ -129,99 +119,148 @@ export function splitMarkdownIntoChunks(markdown: string): string[] {
       const fenceChar = fence[0];
       
       if (!codeBlockFence) {
-        // Opening a new code block
         codeBlockFence = fence;
       } else if (fenceChar === codeBlockFence[0] && fence.length >= codeBlockFence.length) {
-        // Closing fence must use same char and be at least as long
         codeBlockFence = '';
+        currentBlock.push(line);
+        flushBlock(); // Code block complete
+        continue;
       }
-      // Otherwise it's content inside the code block, ignore
     }
 
     const inCodeBlock = codeBlockFence !== '';
 
     // Track math blocks
     if (trimmedLine === '$$') {
-      inMathBlock = !inMathBlock;
+      if (inMathBlock) {
+        inMathBlock = false;
+        currentBlock.push(line);
+        flushBlock(); // Math block complete
+        continue;
+      } else {
+        inMathBlock = true;
+      }
     }
 
-    // Track tables (lines starting with |)
+    // Track tables
     if (trimmedLine.startsWith('|')) {
       inTable = true;
     } else if (inTable && trimmedLine === '') {
       inTable = false;
+      flushBlock(); // Table complete
     }
 
-    // Track blockquotes (lines starting with >)
+    // Track blockquotes
     if (trimmedLine.startsWith('>')) {
       inBlockquote = true;
     } else if (inBlockquote && trimmedLine === '') {
-      // Empty line might end blockquote
       const nextLine = lines[i + 1];
       if (!nextLine || !nextLine.trim().startsWith('>')) {
         inBlockquote = false;
+        flushBlock(); // Blockquote complete
       }
     } else if (inBlockquote && !trimmedLine.startsWith('>')) {
-      // Non-quote line ends blockquote (unless it's a lazy continuation - rare)
       inBlockquote = false;
+      flushBlock(); // Blockquote complete
     }
 
-    // Track indented code blocks (4 spaces or 1 tab, not inside list)
+    // Track indented code blocks
     if (!inCodeBlock && !inMathBlock && listIndent < 0) {
       const isIndentedCode = line.startsWith('    ') || line.startsWith('\t');
       if (isIndentedCode && trimmedLine !== '') {
         inIndentedCode = true;
       } else if (inIndentedCode && trimmedLine === '') {
-        // Empty line might continue or end indented code
         const nextLine = lines[i + 1];
         if (!nextLine || (!nextLine.startsWith('    ') && !nextLine.startsWith('\t'))) {
           inIndentedCode = false;
+          flushBlock(); // Indented code complete
         }
       } else if (inIndentedCode && !isIndentedCode) {
         inIndentedCode = false;
+        flushBlock(); // Indented code complete
       }
     }
 
-    // Track lists (detect list item start with proper regex)
-    // Match unordered (-, *, +) or ordered (1., 2., etc.) list items with proper anchoring
-    const listMatch = line.match(/^(\s*)(?:[-*+]|\d+\.)\s/);
-    if (listMatch) {
-      const indent = listMatch[1]?.length ?? 0;
-      if (listIndent < 0) {
-        // Starting a new list
-        listIndent = indent;
-      } else if (indent <= listIndent) {
-        // Back to base or parent list level - update minimum indent
-        listIndent = indent;
-      } else {
-        // Nested deeper - keep existing listIndent to protect all nesting levels
-      }
-    } else if (listIndent >= 0 && trimmedLine === '') {
-      // Empty line might end the list
-      const nextLine = lines[i + 1];
-      if (!nextLine || !nextLine.match(/^(\s*)(?:[-*+]|\d+\.)\s/)) {
+    // Track lists (only outside code blocks and math blocks)
+    if (!inCodeBlock && !inMathBlock && !inFrontMatter) {
+      const listMatch = line.match(/^(\s*)(?:[-*+]|\d+\.)\s/);
+      if (listMatch) {
+        const indent = listMatch[1]?.length ?? 0;
+        if (listIndent < 0) {
+          listIndent = indent;
+        } else if (indent <= listIndent) {
+          listIndent = indent;
+        }
+      } else if (listIndent >= 0 && trimmedLine === '') {
+        const nextLine = lines[i + 1];
+        if (!nextLine || !nextLine.match(/^(\s*)(?:[-*+]|\d+\.)\s/)) {
+          listIndent = -1;
+          currentBlock.push(line);
+          flushBlock(); // List complete
+          continue;
+        }
+      } else if (listIndent >= 0 && !trimmedLine.startsWith(' '.repeat(listIndent))) {
         listIndent = -1;
+        flushBlock(); // List complete
       }
-    } else if (listIndent >= 0 && !trimmedLine.startsWith(' '.repeat(listIndent))) {
-      // Non-indented content after list - list has ended
-      listIndent = -1;
     }
 
-    currentChunk.push(line);
+    currentBlock.push(line);
 
-    // Check if we can split here
-    const canSplit = !inCodeBlock && !inMathBlock && !inTable && !inBlockquote && !inIndentedCode && !inFrontMatter && listIndent < 0;
-    const isBlockBoundary = trimmedLine === '' || trimmedLine.startsWith('#');
-    const targetSize = getTargetChunkSize(chunks.length);
-    const reachedTarget = currentChunk.length >= targetSize;
-
-    if (canSplit && isBlockBoundary && reachedTarget) {
-      flushChunk();
+    // Check for block boundary (only when not inside special blocks)
+    const inSpecialBlock = inCodeBlock || inMathBlock || inTable || inBlockquote || inIndentedCode || inFrontMatter || listIndent >= 0;
+    
+    if (!inSpecialBlock) {
+      // Heading is its own block
+      if (trimmedLine.startsWith('#')) {
+        flushBlock();
+        continue;
+      }
+      // Empty line ends paragraph
+      if (trimmedLine === '' && currentBlock.length > 1) {
+        flushBlock();
+        continue;
+      }
     }
   }
 
-  // Flush remaining content
-  flushChunk();
+  flushBlock();
+  return blocks;
+}
+
+/**
+ * Split markdown into chunks for streaming rendering.
+ * Each chunk contains multiple blocks, grouped by target line count.
+ * @param markdown - Raw markdown content
+ * @returns Array of chunks, each containing block strings
+ */
+export function splitMarkdownIntoChunks(markdown: string): string[][] {
+  const INITIAL_CHUNK_SIZE = 50;
+  const getTargetChunkSize = (chunkIndex: number): number => {
+    return INITIAL_CHUNK_SIZE * Math.pow(2, chunkIndex);
+  };
+
+  const blocks = splitMarkdownIntoBlocks(markdown);
+  const chunks: string[][] = [];
+  
+  let currentChunk: string[] = [];
+  let currentLineCount = 0;
+
+  for (const block of blocks) {
+    currentChunk.push(block);
+    currentLineCount += block.split('\n').length;
+
+    const targetSize = getTargetChunkSize(chunks.length);
+    if (currentLineCount >= targetSize) {
+      chunks.push(currentChunk);
+      currentChunk = [];
+      currentLineCount = 0;
+    }
+  }
+
+  if (currentChunk.length > 0) {
+    chunks.push(currentChunk);
+  }
 
   return chunks;
 }
@@ -466,6 +505,10 @@ export class AsyncTaskManager {
     const type = plugin?.type || 'unknown';
     // Capture current context reference for this task
     const taskContext = this.context;
+    
+    // Generate content hash for DOM diff matching
+    const content = (data.code as string) || '';
+    const sourceHash = generateContentHash(type, content);
 
     const task: AsyncTask = {
       id: placeholderId,
@@ -485,7 +528,8 @@ export class AsyncTaskManager {
       placeholderId,
       type,
       plugin?.isInline?.() || false,
-      this.translate
+      this.translate,
+      sourceHash
     );
 
     return {
@@ -631,7 +675,103 @@ interface ProcessMarkdownOptions {
 }
 
 /**
- * Process markdown to HTML
+ * Simple LRU cache for processed HTML results.
+ * Key: markdown block hash, Value: processed HTML
+ */
+class HtmlResultCache {
+  private cache = new Map<number, string>();
+  private maxSize: number;
+
+  constructor(maxSize = 500) {  // Increased for block-level caching
+    this.maxSize = maxSize;
+  }
+
+  get(key: number): string | undefined {
+    const value = this.cache.get(key);
+    if (value !== undefined) {
+      // Move to end (most recently used)
+      this.cache.delete(key);
+      this.cache.set(key, value);
+    }
+    return value;
+  }
+
+  set(key: number, value: string): void {
+    // Delete if exists (to update position)
+    if (this.cache.has(key)) {
+      this.cache.delete(key);
+    }
+    // Evict oldest if at capacity
+    if (this.cache.size >= this.maxSize) {
+      const firstKey = this.cache.keys().next().value;
+      if (firstKey !== undefined) {
+        this.cache.delete(firstKey);
+      }
+    }
+    this.cache.set(key, value);
+  }
+
+  clear(): void {
+    this.cache.clear();
+  }
+  
+  get size(): number {
+    return this.cache.size;
+  }
+}
+
+// Global block-level HTML cache (large capacity for big documents)
+const blockHtmlCache = new HtmlResultCache(5000);
+
+/**
+ * Clear the HTML result cache (call when settings change)
+ */
+export function clearHtmlResultCache(): void {
+  blockHtmlCache.clear();
+}
+
+/**
+ * Process a single markdown block to HTML
+ */
+async function processBlockToHtml(
+  block: string,
+  processor: Processor
+): Promise<string> {
+  const cacheKey = hashCode(block);
+  const cached = blockHtmlCache.get(cacheKey);
+  if (cached !== undefined) {
+    return cached;
+  }
+
+  const file = await processor.process(block);
+  let html = String(file);
+  html = processTablesForWordCompatibility(html);
+  html = sanitizeRenderedHtml(html);
+  
+  blockHtmlCache.set(cacheKey, html);
+  return html;
+}
+
+/**
+ * Add block hash attribute to top-level elements in HTML
+ */
+function addBlockHashToHtml(html: string, blockHash: number): string {
+  // Parse HTML and add hash to each top-level element
+  const template = document.createElement('template');
+  template.innerHTML = html;
+  
+  const children = template.content.children;
+  for (let i = 0; i < children.length; i++) {
+    const el = children[i] as HTMLElement;
+    el.setAttribute('data-block-hash', String(blockHash));
+  }
+  
+  return template.innerHTML;
+}
+
+/**
+ * Process markdown to HTML with block-level caching
+ * Each block's top-level elements are tagged with hash for efficient DOM diffing.
  * @param markdown - Raw markdown content
  * @param options - Processing options
  * @returns Processed HTML
@@ -644,19 +784,47 @@ export async function processMarkdownToHtml(
 
   // Pre-process markdown
   const normalizedMarkdown = normalizeMathBlocks(markdown);
-
-  // Create processor
+  
+  // Split into blocks
+  const blocks = splitMarkdownIntoBlocks(normalizedMarkdown);
+  
+  // Create processor (reused for all blocks)
   const processor = createMarkdownProcessor(renderer, taskManager, translate);
+  
+  // Process each block with caching
+  const t0 = performance.now();
+  let cacheHits = 0;
+  const htmlParts: string[] = [];
+  
+  for (let i = 0; i < blocks.length; i++) {
+    const block = blocks[i];
+    const blockHash = hashCode(block);
+    const cached = blockHtmlCache.get(blockHash);
+    
+    let blockHtml: string;
+    if (cached !== undefined) {
+      blockHtml = cached;
+      cacheHits++;
+    } else {
+      const file = await processor.process(block);
+      let html = String(file);
+      html = processTablesForWordCompatibility(html);
+      html = sanitizeRenderedHtml(html);
+      blockHtmlCache.set(blockHash, html);
+      blockHtml = html;
+    }
+    
+    // Add hash to top-level elements for efficient DOM diffing
+    htmlParts.push(addBlockHashToHtml(blockHtml, blockHash));
+  }
+  
+  const t1 = performance.now();
+  // Only log if processing took significant time (> 50ms)
+  if ((t1 - t0) > 50) {
+    console.log(`[Perf] processMarkdownToHtml: ${(t1 - t0).toFixed(1)}ms, blocks: ${blocks.length}, cache hits: ${cacheHits}/${blocks.length}`);
+  }
 
-  // Process markdown
-  const file = await processor.process(normalizedMarkdown);
-  let htmlContent = String(file);
-
-  // Post-process HTML
-  htmlContent = processTablesForWordCompatibility(htmlContent);
-  htmlContent = sanitizeRenderedHtml(htmlContent);
-
-  return htmlContent;
+  return htmlParts.join('\n');
 }
 
 /**
@@ -676,6 +844,7 @@ export interface StreamMarkdownOptions extends ProcessMarkdownOptions {
  * Process markdown to HTML in streaming fashion.
  * Splits markdown into chunks and processes/renders each incrementally.
  * This allows the UI to show content progressively for large documents.
+ * Uses block-level caching for efficient re-rendering.
  *
  * @param markdown - Raw markdown content
  * @param options - Processing options including streaming callbacks
@@ -689,7 +858,7 @@ export async function processMarkdownStreaming(
   // Pre-process markdown
   const normalizedMarkdown = normalizeMathBlocks(markdown);
 
-  // Split into chunks (uses adaptive sizing internally)
+  // Split into chunks (each chunk contains multiple blocks)
   const chunks = splitMarkdownIntoChunks(normalizedMarkdown);
   const totalChunks = chunks.length;
 
@@ -700,30 +869,38 @@ export async function processMarkdownStreaming(
     return;
   }
 
+  // Create processor (reused for all chunks)
+  const processor = createMarkdownProcessor(renderer, taskManager, translate);
+
   // Process each chunk and render incrementally
   for (let i = 0; i < totalChunks; i++) {
-    // Check if aborted
     if (taskManager.isAborted()) {
       return;
     }
 
-    const chunk = chunks[i];
+    const chunkBlocks = chunks[i];
+    const htmlParts: string[] = [];
 
-    // Create a fresh processor for each chunk
-    const processor = createMarkdownProcessor(renderer, taskManager, translate);
+    // Process each block in the chunk with caching
+    for (const block of chunkBlocks) {
+      const cacheKey = hashCode(block);
+      const cached = blockHtmlCache.get(cacheKey);
+      if (cached !== undefined) {
+        htmlParts.push(cached);
+      } else {
+        const file = await processor.process(block);
+        let html = String(file);
+        html = processTablesForWordCompatibility(html);
+        html = sanitizeRenderedHtml(html);
+        blockHtmlCache.set(cacheKey, html);
+        htmlParts.push(html);
+      }
+    }
 
-    // Process chunk
-    const file = await processor.process(chunk);
-    let htmlContent = String(file);
+    const chunkHtml = htmlParts.join('\n');
+    await onChunk?.(chunkHtml, i, totalChunks);
 
-    // Post-process HTML
-    htmlContent = processTablesForWordCompatibility(htmlContent);
-    htmlContent = sanitizeRenderedHtml(htmlContent);
-
-    // Invoke callback to render this chunk
-    await onChunk?.(htmlContent, i, totalChunks);
-
-    // Yield to main thread between chunks to keep UI responsive
+    // Yield to main thread between chunks
     if (i < totalChunks - 1) {
       await new Promise(resolve => setTimeout(resolve, 0));
     }
