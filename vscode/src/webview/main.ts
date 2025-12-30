@@ -163,6 +163,10 @@ interface SetZoomPayload {
   zoom: number;
 }
 
+interface ScrollToLinePayload {
+  line: number;
+}
+
 function handleExtensionMessage(message: ExtensionMessage): void {
   const { type, payload } = message;
 
@@ -185,6 +189,10 @@ function handleExtensionMessage(message: ExtensionMessage): void {
 
     case 'OPEN_SETTINGS':
       handleOpenSettings();
+      break;
+
+    case 'SCROLL_TO_LINE':
+      handleScrollToLine(payload as ScrollToLinePayload);
       break;
 
     default:
@@ -637,11 +645,220 @@ async function loadCacheStats(): Promise<void> {
 }
 
 // ============================================================================
+// Scroll Sync Logic
+// ============================================================================
+
+const CODE_LINE_CLASS = 'code-line';
+
+// Prevent infinite scroll loops
+let scrollSyncDisabled = 0;
+let lastSyncTime = 0;  // Track last sync time to avoid rapid cycles
+
+/**
+ * Get all elements with source line information
+ */
+interface CodeLineElement {
+  element: HTMLElement;
+  line: number;
+  lineCount?: number;  // Number of lines in this block
+}
+
+function getCodeLineElements(): CodeLineElement[] {
+  const elements: CodeLineElement[] = [];
+  
+  for (const el of document.getElementsByClassName(CODE_LINE_CLASS)) {
+    if (!(el instanceof HTMLElement)) continue;
+    
+    const lineAttr = el.getAttribute('data-line');
+    if (!lineAttr) continue;
+    
+    const line = parseInt(lineAttr, 10);
+    if (isNaN(line)) continue;
+    
+    const lineCountAttr = el.getAttribute('data-line-count');
+    const lineCount = lineCountAttr ? parseInt(lineCountAttr, 10) : undefined;
+    
+    elements.push({ element: el, line, lineCount });
+  }
+  
+  // Sort by line number
+  elements.sort((a, b) => a.line - b.line);
+  return elements;
+}
+
+/**
+ * Find elements for a specific source line
+ */
+function getElementsForSourceLine(targetLine: number): { previous?: CodeLineElement; next?: CodeLineElement } {
+  const elements = getCodeLineElements();
+  if (elements.length === 0) return {};
+  
+  let previous = elements[0];
+  
+  for (const entry of elements) {
+    if (entry.line === targetLine) {
+      return { previous: entry };
+    } else if (entry.line > targetLine) {
+      return { previous, next: entry };
+    }
+    previous = entry;
+  }
+  
+  return { previous };
+}
+
+/**
+ * Get line number for current scroll position with fine-grained interpolation
+ */
+function getLineForScrollPosition(container: HTMLElement): number | null {
+  const elements = getCodeLineElements();
+  if (elements.length === 0) return null;
+  
+  const containerRect = container.getBoundingClientRect();
+  const scrollTop = container.scrollTop;
+  
+  // Find elements around current scroll position
+  let previous = elements[0];
+  
+  for (let i = 0; i < elements.length; i++) {
+    const el = elements[i];
+    const rect = el.element.getBoundingClientRect();
+    // Calculate position relative to container's scrollable area
+    const top = rect.top - containerRect.top + scrollTop;
+    
+    if (top > scrollTop) {
+      // Found element below current position
+      if (i === 0) return el.line;
+      
+      // Interpolate between previous and current
+      const prevRect = previous.element.getBoundingClientRect();
+      const prevTop = prevRect.top - containerRect.top + scrollTop;
+      
+      // If previous block has line count info, use fine-grained interpolation
+      if (previous.lineCount && previous.lineCount > 0) {
+        // Interpolate within the block based on height proportion
+        const blockHeight = prevRect.height;
+        if (blockHeight > 0) {
+          const progressInBlock = (scrollTop - prevTop) / blockHeight;
+          return previous.line + progressInBlock * previous.lineCount;
+        }
+      }
+      
+      // Fallback: interpolate between two blocks
+      const progress = (scrollTop - prevTop) / (top - prevTop);
+      return previous.line + progress * (el.line - previous.line);
+    }
+    
+    previous = el;
+  }
+  
+  // Past last element - use fine-grained interpolation if last block has line count
+  if (previous.lineCount && previous.lineCount > 0) {
+    const prevRect = previous.element.getBoundingClientRect();
+    const prevTop = prevRect.top - containerRect.top + scrollTop;
+    const blockHeight = prevRect.height;
+    if (blockHeight > 0) {
+      const progressInBlock = (scrollTop - prevTop) / blockHeight;
+      return previous.line + progressInBlock * previous.lineCount;
+    }
+  }
+  
+  return previous.line;
+}
+
+/**
+ * Scroll preview to reveal source line (Editor → Preview)
+ */
+function handleScrollToLine(payload: ScrollToLinePayload): void {
+  const { line } = payload;
+  
+  const container = document.getElementById('vscode-content');
+  if (!container) return;
+  
+  const { previous, next } = getElementsForSourceLine(line);
+  
+  if (!previous) return;
+  
+  // Calculate position relative to container
+  const containerRect = container.getBoundingClientRect();
+  const rect = previous.element.getBoundingClientRect();
+  const previousTop = rect.top - containerRect.top + container.scrollTop;
+  
+  let scrollTo = 0;
+  
+  if (next && next.line !== previous.line) {
+    // Between two elements - interpolate
+    const progress = (line - previous.line) / (next.line - previous.line);
+    const nextRect = next.element.getBoundingClientRect();
+    const nextTop = nextRect.top - containerRect.top + container.scrollTop;
+    scrollTo = previousTop + progress * (nextTop - previousTop);
+  } else {
+    // At or past element
+    const progress = line - Math.floor(line);
+    scrollTo = previousTop + progress * rect.height;
+  }
+  
+  // Temporarily disable reverse sync to prevent feedback loop
+  scrollSyncDisabled = 2;  // Allow 2 scroll events before re-enabling
+  lastSyncTime = Date.now();
+  
+  container.scrollTo({
+    top: Math.max(0, scrollTo),
+    behavior: 'auto'  // Use instant scroll for sync
+  });
+}
+
+/**
+ * Setup scroll listener to report position to extension (Preview → Editor)
+ */
+function setupScrollSyncListener(): void {
+  let scrollTimeout: ReturnType<typeof setTimeout> | null = null;
+  const DEBOUNCE_MS = 10;  // Minimal debounce to reduce latency
+  const MIN_SYNC_INTERVAL_MS = 30;  // Minimum time between sync messages
+  
+  const contentContainer = document.getElementById('vscode-content');
+  if (!contentContainer) return;
+  
+  contentContainer.addEventListener('scroll', () => {
+    // If sync is disabled, decrement counter
+    if (scrollSyncDisabled > 0) {
+      scrollSyncDisabled--;
+      if (scrollTimeout) clearTimeout(scrollTimeout);
+      scrollTimeout = null;
+      return;
+    }
+    
+    // Debounce scroll events with minimal delay
+    if (scrollTimeout) clearTimeout(scrollTimeout);
+    
+    scrollTimeout = setTimeout(() => {
+      // Check if enough time has passed since last sync to avoid rapid cycles
+      if (Date.now() - lastSyncTime < MIN_SYNC_INTERVAL_MS) {
+        scrollTimeout = null;
+        return;
+      }
+      
+      const line = getLineForScrollPosition(contentContainer);
+      if (line !== null && !isNaN(line)) {
+        // Report scroll to extension for reverse sync
+        lastSyncTime = Date.now();
+        vscodeBridge.postMessage('REVEAL_LINE', { line });
+      }
+      scrollTimeout = null;
+    }, DEBOUNCE_MS);
+  });
+}
+
+// ============================================================================
 // Entry Point
 // ============================================================================
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initialize);
+  document.addEventListener('DOMContentLoaded', () => {
+    initialize();
+    setupScrollSyncListener();
+  });
 } else {
   initialize();
+  setupScrollSyncListener();
 }

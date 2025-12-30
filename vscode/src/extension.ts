@@ -112,6 +112,23 @@ export function activate(context: vscode.ExtensionContext) {
     })
   );
 
+  // Scroll sync: Editor → Preview (when editor visible range changes)
+  context.subscriptions.push(
+    vscode.window.onDidChangeTextEditorVisibleRanges((event) => {
+      if (event.textEditor.document.languageId === 'markdown') {
+        const panel = MarkdownPreviewPanel.currentPanel;
+        if (panel && panel.isDocumentMatch(event.textEditor.document)) {
+          // Get the topmost visible line
+          const visibleRanges = event.visibleRanges;
+          if (visibleRanges.length > 0) {
+            const topLine = visibleRanges[0].start.line;
+            panel.scrollToLine(topLine);
+          }
+        }
+      }
+    })
+  );
+
   outputChannel.appendLine('Commands registered successfully');
 }
 

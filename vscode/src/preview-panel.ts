@@ -18,6 +18,10 @@ export class MarkdownPreviewPanel {
   private _document: vscode.TextDocument | undefined;
   private _disposables: vscode.Disposable[] = [];
   private _uploadSessions: Map<string, UploadSession> = new Map();
+  
+  // Scroll sync state
+  private _isScrolling = false;  // Prevent infinite scroll loop
+  private _scrollSyncEnabled = true;
 
   public static createOrShow(
     extensionUri: vscode.Uri,
@@ -134,6 +138,60 @@ export class MarkdownPreviewPanel {
     });
   }
 
+  /**
+   * Scroll preview to specified source line (Editor → Preview)
+   */
+  public scrollToLine(line: number): void {
+    if (!this._scrollSyncEnabled || this._isScrolling) {
+      this._isScrolling = false;
+      return;
+    }
+    
+    this._panel.webview.postMessage({
+      type: 'SCROLL_TO_LINE',
+      payload: { line }
+    });
+  }
+
+  /**
+   * Handle scroll from preview (Preview → Editor)
+   * Called when webview reports its scroll position
+   */
+  private _onPreviewScroll(line: number): void {
+    if (!this._scrollSyncEnabled || !this._document) {
+      return;
+    }
+
+    // Find matching editor
+    for (const editor of vscode.window.visibleTextEditors) {
+      if (editor.document.uri.toString() === this._document.uri.toString()) {
+        this._isScrolling = true;
+        this._scrollEditorToLine(line, editor);
+        break;
+      }
+    }
+  }
+
+  /**
+   * Scroll editor to specified line
+   */
+  private _scrollEditorToLine(line: number, editor: vscode.TextEditor): void {
+    const sourceLine = Math.max(0, Math.floor(line));
+    const lineCount = editor.document.lineCount;
+    
+    if (sourceLine >= lineCount) {
+      const lastLine = lineCount - 1;
+      editor.revealRange(
+        new vscode.Range(lastLine, 0, lastLine, 0),
+        vscode.TextEditorRevealType.AtTop
+      );
+      return;
+    }
+
+    const range = new vscode.Range(sourceLine, 0, sourceLine + 1, 0);
+    editor.revealRange(range, vscode.TextEditorRevealType.AtTop);
+  }
+
   private async _handleMessage(message: { id?: string; type: string; requestId?: string; payload?: unknown }): Promise<void> {
     // Support both old format (requestId) and new envelope format (id)
     const { type, payload } = message;
@@ -215,6 +273,13 @@ export class MarkdownPreviewPanel {
 
         case 'RENDER_COMPLETE':
           // Rendering completed - no action needed
+          break;
+
+        case 'REVEAL_LINE':
+          // Preview scrolled, sync editor (Preview → Editor)
+          if (payload && typeof (payload as { line: number }).line === 'number') {
+            this._onPreviewScroll((payload as { line: number }).line);
+          }
           break;
 
         default:
