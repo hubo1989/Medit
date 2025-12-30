@@ -71,10 +71,11 @@ export class MarkdownPreviewPanel {
 
     // Handle view state changes
     this._panel.onDidChangeViewState(
-      () => {
-        if (this._panel.visible) {
-          this._update();
-        }
+      (e) => {
+        // NOTE: Do NOT call _update() here. The webview context is retained when hidden 
+        // (retainContextWhenHidden: true), so we only need to update the content when 
+        // it actually changes (via updateContent()), not when visibility changes.
+        // Calling _update() here would cause unnecessary full page reloads.
       },
       null,
       this._disposables
@@ -89,6 +90,13 @@ export class MarkdownPreviewPanel {
   }
 
   public setDocument(document: vscode.TextDocument): void {
+    const isSameDocument = this._document?.uri.toString() === document.uri.toString();
+    
+    // If same document, skip update to avoid unnecessary refresh
+    if (isSameDocument) {
+      return;
+    }
+    
     this._document = document;
     this._panel.title = `Preview: ${path.basename(document.fileName)}`;
     this.updateContent(document.getText());
