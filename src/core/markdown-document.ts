@@ -338,6 +338,25 @@ export class MarkdownDocument {
       stats.removed++;
     }
 
+    // Check if kept blocks maintain their relative order
+    // If not, we need to treat out-of-order blocks as needing repositioning
+    const keepOpsSortedByNew = [...keepOps].sort((a, b) => a.newIndex - b.newIndex);
+    const keptOldIndicesInNewOrder = keepOpsSortedByNew.map(op => op.oldIndex);
+    
+    // Find which kept blocks are out of order (need to be moved)
+    // A block needs moving if its oldIndex breaks the increasing sequence
+    const needsMove = new Set<number>(); // newIndex of blocks that need moving
+    let maxOldIndexSeen = -1;
+    for (const op of keepOpsSortedByNew) {
+      if (op.oldIndex < maxOldIndexSeen) {
+        // This block was originally after a block that now comes before it
+        // It needs to be moved
+        needsMove.add(op.newIndex);
+      } else {
+        maxOldIndexSeen = op.oldIndex;
+      }
+    }
+
     // Build the final ordered list and generate insert commands
     // Process new blocks in order to generate correct insertBefore references
     for (let i = 0; i < newBlocks.length; i++) {
@@ -347,8 +366,8 @@ export class MarkdownDocument {
       // Check if this is a kept block
       const keepOp = keepOps.find(op => op.newIndex === i);
       
-      if (keepOp) {
-        // Block is kept - check if line attrs need updating
+      if (keepOp && !needsMove.has(i)) {
+        // Block is kept and in correct relative order - just update attrs if needed
         const oldBlock = oldBlocks[keepOp.oldIndex];
         if (oldBlock.startLine !== block.startLine || oldBlock.lineCount !== block.lineCount) {
           commands.push({
@@ -361,22 +380,31 @@ export class MarkdownDocument {
           });
         }
       } else {
-        // New block - need to insert
-        // Find the next sibling that exists in DOM (a kept block after this one)
+        // New block OR kept block that needs repositioning
+        // Find the next sibling that exists in DOM and doesn't need moving
         let refId: string | null = null;
         for (let j = i + 1; j < newBlocks.length; j++) {
           const futureKeepOp = keepOps.find(op => op.newIndex === j);
-          if (futureKeepOp) {
+          if (futureKeepOp && !needsMove.has(j)) {
             refId = newBlocks[j].id;
             break;
           }
+        }
+        
+        if (keepOp && needsMove.has(i)) {
+          // This is a kept block that needs to be moved
+          // Remove it first, then insert at correct position
+          commands.push({ type: 'remove', blockId: block.id });
+          stats.removed++;
+          stats.kept--; // Adjust stats since we're re-inserting
+          stats.inserted++;
         }
         
         if (refId) {
           commands.push({
             type: 'insertBefore',
             blockId: block.id,
-            html: '', // HTML will be set after rendering
+            html: keepOp ? (oldBlocks[keepOp.oldIndex].html || '') : '', // Preserve HTML for moved blocks
             refId,
             attrs,
           });
@@ -384,7 +412,7 @@ export class MarkdownDocument {
           commands.push({
             type: 'append',
             blockId: block.id,
-            html: '', // HTML will be set after rendering
+            html: keepOp ? (oldBlocks[keepOp.oldIndex].html || '') : '', // Preserve HTML for moved blocks
             attrs,
           });
         }
