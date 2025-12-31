@@ -57,19 +57,15 @@ interface LayoutConfigs {
 }
 
 async function initializeMain(): Promise<void> {
-  console.log('[Firefox Main] initializeMain started');
   const translate = (key: string, substitutions?: string | string[]): string =>
     Localization.translate(key, substitutions);
 
   // Initialize cache manager with platform
-  console.log('[Firefox Main] Creating cache manager');
   const cacheManager = new BackgroundCacheManagerProxy(platform);
 
   // Use platform.renderer for iframe-based rendering (same as mobile)
-  console.log('[Firefox Main] Creating pluginRenderer');
   const pluginRenderer: PluginRenderer = {
     render: async (type, content, _context) => {
-      console.log('[Firefox Main] pluginRenderer.render called:', type, 'content length:', content?.length);
       const result = await platform.renderer.render(type, content);
 
       if (result && (result as { error?: string }).error) {
@@ -93,46 +89,35 @@ async function initializeMain(): Promise<void> {
   };
 
   // Initialize DOCX exporter
-  console.log('[Firefox Main] Creating DocxExporter');
   const docxExporter = new DocxExporter(pluginRenderer);
 
   // Store exporter for plugins and debugging
   window.docxExporter = docxExporter;
 
   // Initialize file state manager
-  console.log('[Firefox Main] Creating file state manager');
   const { saveFileState, getFileState } = createFileStateManager(platform);
 
   // Initialize scroll manager
-  console.log('[Firefox Main] Creating scroll manager');
   const scrollManager = createScrollManager(platform, getCurrentDocumentUrl);
   const { cancelScrollRestore, restoreScrollPosition, getSavedScrollPosition } = scrollManager;
 
   // Initialize TOC manager
-  console.log('[Firefox Main] Creating TOC manager');
   const tocManager = createTocManager(saveFileState, getFileState);
   const { generateTOC, setupTocToggle, updateActiveTocItem, setupResponsiveToc } = tocManager;
 
   // Get the raw markdown content
-  console.log('[Firefox Main] Getting raw content');
   const rawContent = document.body.textContent || '';
-  console.log('[Firefox Main] Raw content length:', rawContent.length);
   
   // Get the current document URL to determine file type
   const currentUrl = getCurrentDocumentUrl();
-  console.log('[Firefox Main] Current URL:', currentUrl);
   
   // Wrap non-markdown file content (e.g., mermaid, vega) in markdown format
   const rawMarkdown = wrapFileContent(rawContent, currentUrl);
-  console.log('[Firefox Main] Wrapped markdown length:', rawMarkdown.length);
 
   // Get saved state early to prevent any flashing
-  console.log('[Firefox Main] Getting initial file state...');
   const initialState = await getFileState();
-  console.log('[Firefox Main] Initial state retrieved:', initialState);
 
   // Layout configurations
-  console.log('[Firefox Main] Setting up layout configs...');
   const layoutTitles: LayoutTitles = {
     normal: translate('toolbar_layout_title_normal'),
     fullscreen: translate('toolbar_layout_title_fullscreen'),
@@ -180,7 +165,6 @@ async function initializeMain(): Promise<void> {
   toolbarManager.setInitialZoom(initialZoom);
 
   // UI layout (Firefox-specific, same as Chrome)
-  console.log('[Firefox Main] Generating toolbar HTML...');
   document.body.innerHTML = generateToolbarHTML({
     translate,
     escapeHtml,
@@ -188,24 +172,18 @@ async function initializeMain(): Promise<void> {
     initialMaxWidth,
     initialZoom,
   });
-  console.log('[Firefox Main] Toolbar HTML generated');
 
   if (!initialTocVisible) {
     document.body.classList.add('toc-hidden');
   }
 
   // Wait a bit for DOM to be ready, then start processing
-  console.log('[Firefox Main] Starting setTimeout for render...');
   setTimeout(async () => {
-    console.log('[Firefox Main] setTimeout callback started');
     const savedScrollPosition = await getSavedScrollPosition();
-    console.log('[Firefox Main] Got saved scroll position:', savedScrollPosition);
 
     toolbarManager.initializeToolbar();
-    console.log('[Firefox Main] Toolbar initialized, starting render...');
 
     await renderMarkdown(rawMarkdown, savedScrollPosition);
-    console.log('[Firefox Main] renderMarkdown completed');
 
     await saveToHistory(platform);
     setupTocToggle();

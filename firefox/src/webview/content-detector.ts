@@ -113,11 +113,9 @@ function injectContentScript(): void {
     source: 'content-detector',
   };
 
-  console.log('[Markdown Viewer] Sending INJECT_CONTENT_SCRIPT request:', request);
-  
   browser.runtime.sendMessage(request)
-    .then((response) => {
-      console.log('[Markdown Viewer] INJECT_CONTENT_SCRIPT response:', response);
+    .then(() => {
+      // Content script injection requested
     })
     .catch((error) => {
       console.error('[Markdown Viewer] INJECT_CONTENT_SCRIPT failed:', error);

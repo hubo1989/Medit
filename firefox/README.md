@@ -160,26 +160,24 @@ Document with 50 Mermaid diagrams:
 
 ## 🚀 Quick Start - 3 Steps
 
-### Step 1: Install App (30 seconds)
+### Step 1: Install Extension (30 seconds)
 
-**iOS:**
-1. Open App Store
-2. Search "Markdown Viewer"
-3. Tap "Get"
-4. ✅ Installation complete
+1. Open Firefox browser
+2. Visit Firefox Add-ons Store
+3. Search "Markdown Viewer"
+4. Click "Add to Firefox"
+5. ✅ Installation complete
 
-**Android:**
-1. Open Google Play Store
-2. Search "Markdown Viewer"
-3. Tap "Install"
-4. ✅ Installation complete
+### Step 2: Use with Local Files (1 minute)
 
-### Step 2: Import Markdown Files (1 minute)
+**To open local .md files:**
 
-**Open documents:**
-- Use the file manager to select .md files
-- Or import from cloud storage (iCloud, Google Drive, OneDrive)
-- Or use the app's built-in file browser
+1. Open `about:addons` in Firefox
+2. Find Markdown Viewer and click "Preferences" or "Options"
+3. Enable "Allow access to file URLs" if available
+4. ✅ Now you can open local Markdown files with Firefox
+
+**Alternative:** Drag and drop .md files directly into Firefox window
 
 **Not needed if:**
 - Only viewing online docs (GitHub, blogs, etc.)
@@ -187,13 +185,13 @@ Document with 50 Mermaid diagrams:
 
 ### Quick Start
 
-**Open documents:** Tap file manager icon → Select .md file → View instantly
+**Open documents:** Drag .md files to Firefox · Or right-click → Open with → Markdown Viewer · GitHub docs auto-rendered
 
-**Export to Word:** Tap share button → Choose format → Export to Files app or email
+**Export to Word:** Click download button or `Ctrl + S` → See progress → Auto-save
 
-**Switch themes:** Tap settings → Choose theme → Apply instantly
+**Switch themes:** Click toolbar → Choose theme → Apply instantly
 
-**Adjust view:** Pinch to zoom · Swipe to navigate · Tap menu for TOC
+**Adjust view:** `Ctrl + +` / `Ctrl + -` zoom · Layout switch · `Ctrl + B` TOC
 
 ---
 
@@ -264,8 +262,8 @@ A: No. Progressive loading + smart cache, text displays instantly, diagrams rend
 **Q: Does cache take up much space?**  
 A: Default max 1000 items, approximately 500 MB, adjustable or clearable in settings.
 
-**Q: Which platforms are supported?**  
-A: iOS 13+ and Android 8.0+.
+**Q: Which browsers are supported?**  
+A: Firefox 78 and above.
 
 **Q: Which Word versions can open the exported file?**  
 A: Word 2016+ fully supported, Word 2013 also works. Fully compatible with WPS Office.
@@ -305,11 +303,10 @@ A: Use ````vega-lite` code block in Markdown with JSON format chart specificatio
 
 **Install in 30 seconds, start using immediately:**
 
-1. Download from App Store (iOS) or Google Play Store (Android)
-2. Install the app
-3. Open Files app and select your .md file
-4. Or import from cloud storage
-5. ✅ Start using instantly
+1. Visit Firefox Add-ons → Search "Markdown Viewer"
+2. Click "Add to Firefox"
+3. Drag `.md` files into Firefox window
+4. ✅ Start using
 
 **You'll get:** Markdown → Word one-click conversion · Mermaid auto-convert · LaTeX editable formulas · 100+ languages syntax highlighting · 18+ themes · Smart cache · Completely free
 
@@ -329,4 +326,5 @@ This project is open source under ISC license. Welcome to Star, report issues, s
 
 **Focus on writing, let Markdown Viewer handle everything else**
 
-*Completely Free · Local Processing · Privacy Protected*
+🚀 **Install Now:** https://chromewebstore.google.com/detail/markdown-viewer/jekhhoflgcfoikceikgeenibinpojaoi
+

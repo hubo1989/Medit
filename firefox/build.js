@@ -83,10 +83,6 @@ try {
     for (const bundle of bundles) {
       console.log(`  ${bundle.name}: ${(bundle.size / 1024 / 1024).toFixed(2)} MB`);
     }
-    
-    // Write metafile for detailed analysis
-    fs.writeFileSync(path.join(outdir, 'metafile.json'), JSON.stringify(result.metafile, null, 2));
-    console.log('\n📄 Metafile saved to dist/firefox/metafile.json');
   }
   
   console.log('✅ Firefox build complete');

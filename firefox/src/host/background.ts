@@ -65,7 +65,6 @@ browser.webRequest.onHeadersReceived.addListener(
       value: "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: moz-extension: https: http:; img-src * data: blob:; style-src 'self' 'unsafe-inline' moz-extension:; font-src 'self' data: moz-extension:; script-src 'self' 'unsafe-inline' 'unsafe-eval' moz-extension:;"
     });
 
-    console.log('[Firefox Background] Modified CSP for:', details.url);
     return { responseHeaders: newHeaders };
   },
   { urls: ['<all_urls>'], types: ['main_frame'] },
@@ -97,11 +96,9 @@ const renderWorker = bootstrapRenderWorker(renderChannel, {
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
     renderWorker.init();
-    console.log('[Firefox Background] Render worker initialized');
   });
 } else {
   renderWorker.init();
-  console.log('[Firefox Background] Render worker initialized (immediate)');
 }
 
 // Envelope helpers
@@ -229,8 +226,6 @@ async function handleScrollOperationAsync(
     const operation = payload.operation as string | undefined;
     const url = typeof payload.url === 'string' ? payload.url : '';
 
-    console.log('[Background] handleScrollOperationAsync:', { operation, url });
-
     if (!url) {
       return createResponseEnvelope(message.id, { ok: false, errorMessage: 'Missing url' });
     }
@@ -241,7 +236,6 @@ async function handleScrollOperationAsync(
         const position = typeof (state as { scrollPosition?: unknown }).scrollPosition === 'number' 
           ? (state as { scrollPosition?: number }).scrollPosition || 0 
           : 0;
-        console.log('[Background] SCROLL_OPERATION get result:', position);
         return createResponseEnvelope(message.id, { ok: true, data: position });
       }
       case 'clear': {
@@ -604,60 +598,26 @@ initGlobalCacheManager();
 // ============================================================================
 
 async function handleContentScriptInjection(tabId: number): Promise<void> {
-  console.log('[Firefox Background] handleContentScriptInjection starting for tab:', tabId);
-  
   try {
-    // Try direct file injection first (not affected by page CSP)
-    console.log('[Firefox Background] Trying direct JS file injection...');
-    await browser.tabs.executeScript(tabId, {
-      file: '/core/main.js',
-      runAt: 'document_end'
+    // MV3 uses scripting API instead of tabs.executeScript
+    await browser.scripting.executeScript({
+      target: { tabId },
+      files: ['/core/main.js']
     });
-    console.log('[Firefox Background] Direct JS injection succeeded');
     
-    // CSS injection - try with cssOrigin user
+    // CSS injection via scripting API
     try {
-      await browser.tabs.insertCSS(tabId, {
-        file: '/ui/styles.css',
-        cssOrigin: 'user',
-        runAt: 'document_start'
+      await browser.scripting.insertCSS({
+        target: { tabId },
+        files: ['/ui/styles.css'],
+        origin: 'USER'
       });
-      console.log('[Firefox Background] CSS injection succeeded');
     } catch (cssError) {
-      console.warn('[Firefox Background] CSS injection failed, will rely on JS to inject styles:', cssError);
+      // CSS injection failed, will rely on JS to inject styles
     }
   } catch (error) {
-    console.error('[Firefox Background] Direct injection failed:', (error as Error).message);
-    
-    // Fallback: inject via DOM manipulation (for pages with strict CSP that somehow block executeScript)
-    console.log('[Firefox Background] Trying fallback injection via code...');
-    const injectionCode = `
-      (function() {
-        if (window.__markdownViewerInjected) return;
-        window.__markdownViewerInjected = true;
-        
-        var extUrl = '${browser.runtime.getURL('')}';
-        
-        // Try to load CSS
-        var link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = extUrl + 'ui/styles.css';
-        (document.head || document.documentElement).appendChild(link);
-        
-        // Load JS - this may be blocked by CSP
-        var script = document.createElement('script');
-        script.src = extUrl + 'core/main.js';
-        (document.head || document.documentElement).appendChild(script);
-        
-        console.log('[Markdown Viewer] Fallback injection attempted');
-      })();
-    `;
-    
-    await browser.tabs.executeScript(tabId, {
-      code: injectionCode,
-      runAt: 'document_end'
-    });
-    console.log('[Firefox Background] Fallback injection code executed');
+    console.error('[Firefox Background] Scripting injection failed:', (error as Error).message);
+    throw error;
   }
 }
 
@@ -688,30 +648,23 @@ function createResponseEnvelope(
 
 // Firefox supports returning Promise from message listener
 browser.runtime.onMessage.addListener((message: BackgroundMessage, sender): Promise<object> | undefined => {
-  console.log('[Firefox Background] Received message:', message.type || message);
-  
   if (!isRequestEnvelope(message)) {
-    console.log('[Firefox Background] Message is not a request envelope, ignoring');
     return undefined;
   }
 
   // Content script injection request
   if (message.type === 'INJECT_CONTENT_SCRIPT') {
     const tabId = sender.tab?.id;
-    console.log('[Firefox Background] INJECT_CONTENT_SCRIPT for tab:', tabId);
     
     if (!tabId || tabId <= 0) {
-      console.error('[Firefox Background] Invalid tab ID:', tabId);
       return Promise.resolve(createResponseEnvelope(message.id, { ok: false, errorMessage: 'Invalid tab ID' }));
     }
     
     return handleContentScriptInjection(tabId)
       .then(() => {
-        console.log('[Firefox Background] Content script injected successfully for tab:', tabId);
         return createResponseEnvelope(message.id, { ok: true, data: { success: true } });
       })
       .catch((error) => {
-        console.error('[Firefox Background] Content script injection failed:', error);
         return createResponseEnvelope(message.id, { ok: false, errorMessage: (error as Error).message });
       });
   }
@@ -988,8 +941,7 @@ async function handleDocxDownloadFinalizeAsync(
       url: blobUrl,
       filename,
       saveAs: true,
-    }).then((downloadId) => {
-      console.log('[Firefox Background] Download started with ID:', downloadId);
+    }).then(() => {
       URL.revokeObjectURL(blobUrl);
     }).catch((error) => {
       console.error('[Firefox Background] Download failed:', error);
