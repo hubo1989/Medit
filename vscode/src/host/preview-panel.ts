@@ -22,8 +22,6 @@ export class MarkdownPreviewPanel {
   // Scroll sync state
   private _isScrolling = false;  // Prevent infinite scroll loop
   private _scrollSyncEnabled = true;
-  private _ignorePreviewScroll = false;  // Ignore preview scroll after file switch
-  private _ignoreEditorScroll = false;  // Ignore editor scroll during file switch
 
   // Progress callbacks
   private _exportProgressCallback: ((progress: number) => void) | null = null;

@@ -129,6 +129,10 @@ export function activate(context: vscode.ExtensionContext) {
       if (editor && isSupportedDocument(editor.document)) {
         const panel = MarkdownPreviewPanel.createOrShow(context.extensionUri, editor.document, cacheService);
         panel.setRenderProgressCallback(updateRenderProgress);
+        // Send initial scroll position from editor
+        const initialLine = topmostLineMonitor.getLineForEditor(editor);
+        outputChannel.appendLine(`[DEBUG] Preview command: sending initial scroll to line ${initialLine}`);
+        panel.scrollToLine(initialLine);
       } else {
         vscode.window.showWarningMessage('Please open a supported file (Markdown, Mermaid, Vega, GraphViz, or Infographic)');
       }
@@ -142,6 +146,9 @@ export function activate(context: vscode.ExtensionContext) {
       if (editor && isSupportedDocument(editor.document)) {
         const panel = MarkdownPreviewPanel.createOrShow(context.extensionUri, editor.document, cacheService, vscode.ViewColumn.Beside);
         panel.setRenderProgressCallback(updateRenderProgress);
+        // Send initial scroll position from editor
+        const initialLine = topmostLineMonitor.getLineForEditor(editor);
+        panel.scrollToLine(initialLine);
       } else {
         vscode.window.showWarningMessage('Please open a supported file (Markdown, Mermaid, Vega, GraphViz, or Infographic)');
       }

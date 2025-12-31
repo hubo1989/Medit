@@ -92,6 +92,12 @@ function createPluginRenderer(): PluginRenderer {
 
 async function initialize(): Promise<void> {
   try {
+    // Listen for messages from extension host FIRST - before any async operations
+    // This ensures we don't miss early messages like SCROLL_TO_LINE
+    vscodeBridge.addListener((message) => {
+      handleExtensionMessage(message as ExtensionMessage);
+    });
+
     // Set resource base URI
     if (window.VSCODE_WEBVIEW_BASE_URI) {
       platform.setResourceBaseUri(window.VSCODE_WEBVIEW_BASE_URI);
@@ -127,11 +133,6 @@ async function initialize(): Promise<void> {
     loadThemesForSettings();
     loadLocalesForSettings();
     loadCacheStats();
-
-    // Listen for messages from extension host
-    vscodeBridge.addListener((message) => {
-      handleExtensionMessage(message as ExtensionMessage);
-    });
 
     // Notify extension that webview is ready
     vscodeBridge.postMessage('READY', {});
@@ -265,16 +266,9 @@ async function handleUpdateContent(payload: UpdateContentPayload): Promise<void>
     // Only clear container when file changes (for incremental update support)
     if (fileChanged) {
       container.innerHTML = '';
-      // Immediately scroll to top after resetting container
-      // This ensures:
-      // 1. Subsequent SCROLL_TO_LINE starts from top, avoiding position conflicts
-      // 2. When line is 0, preview is already at top
-      const scrollContainer = document.getElementById('vscode-content');
-      if (scrollContainer) {
-        scrollContainer.scrollTo({ top: 0, behavior: 'auto' });
-      }
-      // Reset scroll sync state for new file
-      resetScrollSync();
+      // Note: Don't reset scroll position here - the host will send SCROLL_TO_LINE
+      // with the correct position for the new file. The scrollSyncController will
+      // reposition after rendering is complete.
     }
 
     // Apply theme CSS if we have theme data
@@ -339,6 +333,12 @@ async function handleUpdateContent(payload: UpdateContentPayload): Promise<void>
     // Clear task manager reference
     if (currentTaskManager === taskManager) {
       currentTaskManager = null;
+    }
+
+    // Reposition scroll after content is rendered
+    // This handles the case where SCROLL_TO_LINE arrived before content was ready
+    if (scrollSyncController) {
+      scrollSyncController.reposition();
     }
 
     // Notify extension host
@@ -680,7 +680,10 @@ let scrollSyncController: ScrollSyncController | null = null;
  */
 function initScrollSyncController(): void {
   const container = document.getElementById('vscode-content');
-  if (!container) return;
+  if (!container) {
+    console.warn('[WebView] vscode-content container not found!');
+    return;
+  }
   
   // Dispose previous controller if exists
   scrollSyncController?.dispose();
@@ -709,23 +712,18 @@ function handleScrollToLine(payload: ScrollToLinePayload): void {
   }
 }
 
-/**
- * Reset scroll sync on file change
- */
-function resetScrollSync(): void {
-  scrollSyncController?.resetUserScroll();
-}
-
 // ============================================================================
 // Entry Point
 // ============================================================================
 
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
-    initialize();
+    // Initialize scroll sync controller FIRST so it's ready for early messages
     initScrollSyncController();
+    initialize();
   });
 } else {
-  initialize();
+  // Initialize scroll sync controller FIRST so it's ready for early messages
   initScrollSyncController();
+  initialize();
 }
