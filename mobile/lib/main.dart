@@ -14,6 +14,8 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 // Import for Android features
 import 'package:webview_flutter_android/webview_flutter_android.dart';
+// Import for iOS/macOS features
+import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 
 import 'services/cache_service.dart';
 import 'services/localization_service.dart';
@@ -95,13 +97,13 @@ class MarkdownViewerHome extends StatefulWidget {
 class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
   late final WebViewController _controller;
   String? _currentFilename;
+  String? _currentFilePath;  // Track current file path for scroll position save
   String _currentTheme = 'default';
   bool _webViewReady = false;
   bool _hasContent = false;
   String? _pendingContent;
   String? _pendingFilename;
   String? _currentFileDir;
-  String? _currentFilePath;
   List<Map<String, dynamic>> _headings = [];
   
   // Export progress state
@@ -164,6 +166,13 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
       androidController.setMixedContentMode(MixedContentMode.alwaysAllow);
       // Other settings
       androidController.setMediaPlaybackRequiresUserGesture(false);
+    }
+
+    // Configure iOS/macOS-specific settings
+    if (_controller.platform is WebKitWebViewController) {
+      // Enable Safari Web Inspector for debugging (set to true when needed)
+      // final webkitController = _controller.platform as WebKitWebViewController;
+      // webkitController.setInspectable(true);
     }
 
     _initWebView();
@@ -513,6 +522,17 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(error)),
             );
+          }
+          break;
+
+        case 'SCROLL_LINE_CHANGED':
+          // Save scroll position (line number) for current file
+          if (payload is Map && _currentFilePath != null) {
+            final lineValue = payload['line'];
+            final line = (lineValue is num) ? lineValue.toDouble() : null;
+            if (line != null) {
+              settingsService.setScrollPosition(_currentFilePath!, line);
+            }
           }
           break;
       }
@@ -1004,8 +1024,13 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
       final themeJson = jsonEncode(themeData);
       final escapedTheme = themeJson.replaceAll('\\', '\\\\').replaceAll("'", "\\'");
       
+      // Get saved scroll position for this file
+      final savedScrollLine = _currentFilePath != null 
+          ? settingsService.getScrollPosition(_currentFilePath!)
+          : 0;
+      
       await _controller.runJavaScript(
-        "if(window.loadMarkdown){window.loadMarkdown('$escaped','$filename','$escapedTheme');}else{console.error('loadMarkdown not defined');}",
+        "if(window.loadMarkdown){window.loadMarkdown('$escaped','$filename','$escapedTheme',$savedScrollLine);}else{console.error('loadMarkdown not defined');}",
       );
       setState(() {
         _hasContent = true;

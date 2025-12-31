@@ -25,7 +25,8 @@ export type EscapeHtmlFunction = (str: string) => string;
  * Per-file UI state (scroll position, TOC visibility, zoom, etc.)
  */
 export interface FileState {
-  scrollPosition?: number;
+  /** Line-based scroll position (stable during content changes) */
+  scrollLine?: number;
   tocVisible?: boolean;
   zoom?: number;
   layoutMode?: string;

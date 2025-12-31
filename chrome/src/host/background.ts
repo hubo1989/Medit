@@ -174,14 +174,14 @@ async function handleScrollOperationEnvelope(
     switch (operation) {
       case 'get': {
         const state = await getFileState(url);
-        const position = typeof (state as { scrollPosition?: unknown }).scrollPosition === 'number' ? (state as { scrollPosition?: number }).scrollPosition || 0 : 0;
-        sendResponseEnvelope(message.id, sendResponse, { ok: true, data: position });
+        const line = typeof (state as { scrollLine?: unknown }).scrollLine === 'number' ? (state as { scrollLine?: number }).scrollLine || 0 : 0;
+        sendResponseEnvelope(message.id, sendResponse, { ok: true, data: line });
         return;
       }
       case 'clear': {
         const currentState = await getFileState(url);
-        if ((currentState as { scrollPosition?: unknown }).scrollPosition !== undefined) {
-          delete (currentState as { scrollPosition?: unknown }).scrollPosition;
+        if ((currentState as { scrollLine?: unknown }).scrollLine !== undefined) {
+          delete (currentState as { scrollLine?: unknown }).scrollLine;
           if (Object.keys(currentState).length === 0) {
             await clearFileState(url);
           } else {

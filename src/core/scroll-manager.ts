@@ -1,16 +1,21 @@
 // Scroll Position Manager
-// Handles saving and restoring scroll positions for markdown documents
+// Handles saving and restoring scroll positions using line numbers
 
 import type { PlatformAPI, ResponseEnvelope } from '../types/index';
+import { getLineForScrollPosition, scrollToLine } from './line-based-scroll';
 
 interface ScrollManager {
   cancelScrollRestore(): void;
-  restoreScrollPosition(scrollPosition: number): void;
-  getSavedScrollPosition(): Promise<number>;
+  restoreScrollPosition(scrollLine: number): void;
+  getSavedScrollLine(): Promise<number>;
+  getCurrentScrollLine(): number;
 }
 
 /**
  * Creates a scroll manager for handling scroll position persistence.
+ * Uses line numbers instead of pixel positions for stability during
+ * streaming/async rendering.
+ * 
  * @param platform - Platform API for messaging
  * @param getCurrentDocumentUrl - Function to get current document URL
  * @returns Scroll manager instance
@@ -47,6 +52,13 @@ export function createScrollManager(platform: PlatformAPI, getCurrentDocumentUrl
   };
 
   /**
+   * Get current scroll position as line number
+   */
+  function getCurrentScrollLine(): number {
+    return getLineForScrollPosition({ useWindowScroll: true }) ?? 0;
+  }
+
+  /**
    * Stop the automatic scroll position restoration
    */
   function cancelScrollRestore(): void {
@@ -54,15 +66,15 @@ export function createScrollManager(platform: PlatformAPI, getCurrentDocumentUrl
   }
 
   /**
-   * Restore scroll position after rendering
-   * @param scrollPosition - The saved scroll position to restore
+   * Restore scroll position after rendering using line number
+   * @param scrollLine - The saved line number to restore
    */
-  function restoreScrollPosition(scrollPosition: number): void {
+  function restoreScrollPosition(scrollLine: number): void {
     // Reset flag for new restoration
     stopScrollRestore = false;
 
-    if (scrollPosition === 0) {
-      // For position 0, just scroll to top immediately
+    if (scrollLine <= 0) {
+      // For line 0, just scroll to top immediately
       window.scrollTo(0, 0);
       platform.message
         .send({
@@ -134,7 +146,8 @@ export function createScrollManager(platform: PlatformAPI, getCurrentDocumentUrl
       // Schedule scroll after 100ms of no changes
       scrollTimer = setTimeout(() => {
         if (!stopScrollRestore) {
-          window.scrollTo(0, scrollPosition);
+          // Use line-based scrolling
+          scrollToLine(scrollLine, { useWindowScroll: true });
         }
       }, 100);
     };
@@ -177,38 +190,33 @@ export function createScrollManager(platform: PlatformAPI, getCurrentDocumentUrl
   }
 
   /**
-   * Get saved scroll position from background script
-   * @returns Saved scroll position
+   * Get saved scroll line from background script
+   * @returns Saved scroll line number
    */
-  async function getSavedScrollPosition(): Promise<number> {
-    let currentScrollPosition = 0;
+  async function getSavedScrollLine(): Promise<number> {
+    const currentScrollLine = getCurrentScrollLine();
 
-    try {
-      currentScrollPosition = window.scrollY || window.pageYOffset || 0;
-    } catch (e) {
-      // Window access blocked, use default position
-    }
-
-    // Get saved scroll position from background script
+    // Get saved scroll line from background script
     try {
       const data = await sendScrollOperation({
         operation: 'get',
         url: getCurrentDocumentUrl(),
       });
 
-      if (typeof data === 'number' && currentScrollPosition === 0) {
+      if (typeof data === 'number' && currentScrollLine === 0) {
         return data;
       }
     } catch (e) {
       // Failed to get saved position, use default
     }
 
-    return currentScrollPosition;
+    return currentScrollLine;
   }
 
   return {
     cancelScrollRestore,
     restoreScrollPosition,
-    getSavedScrollPosition
+    getSavedScrollLine,
+    getCurrentScrollLine
   };
 }

@@ -62,7 +62,7 @@ export function createFileStateManager(platform: PlatformAPI): FileStateManager 
 
   /**
    * Save file state to background script
-   * @param state - State object containing scrollPosition, tocVisible, zoom, layoutMode
+   * @param state - State object containing scrollLine, tocVisible, zoom, layoutMode
    */
   function saveFileState(state: FileState): void {
     try {

@@ -16,6 +16,7 @@ import {
 } from '../../../src/utils/theme-to-css';
 import { AsyncTaskManager } from '../../../src/core/markdown-processor';
 import { renderMarkdownDocument } from '../../../src/core/viewer/viewer-controller';
+import { createScrollSyncController, type ScrollSyncController } from '../../../src/core/line-based-scroll';
 import type { PluginRenderer } from '../../../src/types/index';
 import type { PlatformBridgeAPI } from '../../../src/types/index';
 import type { FontConfigFile } from '../../../src/utils/theme-manager';
@@ -35,6 +36,7 @@ let currentFilename = '';
 let currentThemeData: ThemeData | null = null; // Store theme data for applying during render
 let currentTaskManager: AsyncTaskManager | null = null; // Track current task manager for cancellation
 let currentZoomLevel = 1; // Store current zoom level for applying after content render
+let scrollSyncController: ScrollSyncController | null = null; // Scroll sync controller
 
 /**
  * Theme data from Flutter
@@ -70,6 +72,7 @@ interface LoadMarkdownPayload {
   content: string;
   filename?: string;
   themeDataJson?: string;
+  scrollLine?: number;  // Saved scroll position (line number)
 }
 
 /**
@@ -176,7 +179,7 @@ function setupMessageHandlers(): void {
  * Handle loading Markdown content
  */
 async function handleLoadMarkdown(payload: LoadMarkdownPayload): Promise<void> {
-  const { content, filename, themeDataJson } = payload;
+  const { content, filename, themeDataJson, scrollLine } = payload;
 
   // Cancel any pending renderer requests from previous render
   if (platform.renderer.cancelPending) {
@@ -188,9 +191,16 @@ async function handleLoadMarkdown(payload: LoadMarkdownPayload): Promise<void> {
     currentTaskManager.abort();
     currentTaskManager = null;
   }
+  
+  // Reset scroll sync controller for new file
+  scrollSyncController?.dispose();
+  scrollSyncController = null;
 
   currentMarkdown = content;
   currentFilename = filename || 'document.md';
+  
+  // Saved scroll position (line number)
+  const savedScrollLine = scrollLine ?? 0;
 
   try {
     // If theme data is provided with content, set it first (avoids race condition)
@@ -296,6 +306,24 @@ async function handleLoadMarkdown(payload: LoadMarkdownPayload): Promise<void> {
       }
 
       titleForHost = renderResult.title || currentFilename;
+      
+      // Initialize scroll sync controller after content is rendered
+      scrollSyncController = createScrollSyncController({
+        container: document.documentElement,
+        useWindowScroll: true,
+        onUserScroll: (line) => {
+          bridge.postMessage('SCROLL_LINE_CHANGED', { line });
+        },
+      });
+      scrollSyncController.start();
+      
+      // Restore saved scroll position
+      if (savedScrollLine > 0) {
+        // Delay to ensure DOM is fully rendered
+        requestAnimationFrame(() => {
+          scrollSyncController?.setTargetLine(savedScrollLine);
+        });
+      }
     }
 
     // Clear task manager reference after successful completion
@@ -463,7 +491,7 @@ async function handleSetLocale(payload: SetLocalePayload): Promise<void> {
 // Extend Window interface for mobile API
 declare global {
   interface Window {
-    loadMarkdown: (content: string, filename?: string, themeDataJson?: string) => void;
+    loadMarkdown: (content: string, filename?: string, themeDataJson?: string, scrollLine?: number) => void;
     setTheme: (themeId: string) => void;
     applyThemeData: (jsonString: string) => void;
     exportDocx: () => void;
@@ -475,8 +503,8 @@ declare global {
 }
 
 // Expose API to window for host app to call (e.g. via runJavaScript)
-window.loadMarkdown = (content: string, filename?: string, themeDataJson?: string) => {
-  handleLoadMarkdown({ content, filename, themeDataJson });
+window.loadMarkdown = (content: string, filename?: string, themeDataJson?: string, scrollLine?: number) => {
+  handleLoadMarkdown({ content, filename, themeDataJson, scrollLine });
 };
 
 window.setTheme = (themeId: string) => {

@@ -107,32 +107,14 @@ export class MarkdownPreviewPanel {
       return;
     }
     
-    // Temporarily disable scroll sync in both directions during file switch
-    this._ignorePreviewScroll = true;
-    this._ignoreEditorScroll = true;
-    
     this._document = document;
     this._panel.title = `Preview: ${path.basename(document.fileName)}`;
     this.updateContent(document.getText());
     
-    // Scroll to saved position after content update, then re-enable sync
-    if (typeof initialLine === 'number' && initialLine > 0) {
-      // Use a delay to ensure content is rendered before scrolling
-      setTimeout(() => {
-        this.scrollToLine(initialLine, true);  // Force scroll, bypassing _ignoreEditorScroll
-        // Re-enable sync after scroll completes
-        setTimeout(() => {
-          this._ignorePreviewScroll = false;
-          this._ignoreEditorScroll = false;
-        }, 200);
-      }, 100);
-    } else {
-      // No initial scroll, just re-enable sync after a delay
-      setTimeout(() => {
-        this._ignorePreviewScroll = false;
-        this._ignoreEditorScroll = false;
-      }, 500);
-    }
+    // Send scroll position immediately - ScrollSyncController will handle
+    // waiting for content to render and repositioning automatically
+    const line = typeof initialLine === 'number' ? initialLine : 0;
+    this.scrollToLine(line);
   }
 
   public isDocumentMatch(document: vscode.TextDocument): boolean {
@@ -190,16 +172,10 @@ export class MarkdownPreviewPanel {
   /**
    * Scroll preview to specified source line (Editor → Preview)
    * @param line - The line number to scroll to
-   * @param force - If true, bypass _ignoreEditorScroll check (used during file switch)
    */
-  public scrollToLine(line: number, force = false): void {
+  public scrollToLine(line: number): void {
     if (!this._scrollSyncEnabled || this._isScrolling) {
       this._isScrolling = false;
-      return;
-    }
-    
-    // Skip if ignoring editor scroll (during file switch), unless forced
-    if (this._ignoreEditorScroll && !force) {
       return;
     }
     
@@ -214,7 +190,7 @@ export class MarkdownPreviewPanel {
    * Called when webview reports its scroll position
    */
   private _onPreviewScroll(line: number): void {
-    if (!this._scrollSyncEnabled || !this._document || this._ignorePreviewScroll) {
+    if (!this._scrollSyncEnabled || !this._document) {
       return;
     }
 

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Service for persisting user settings
@@ -11,6 +12,8 @@ class SettingsService {
   static const String _keySupportVegaLite = 'supportVegaLite';
   static const String _keySupportDot = 'supportDot';
   static const String _keySupportInfographic = 'supportInfographic';
+  static const String _keyScrollPositions = 'scrollPositions';
+  static const int _maxScrollPositions = 100; // Limit stored positions
 
   SharedPreferences? _prefs;
 
@@ -78,6 +81,57 @@ class SettingsService {
       'supportDot': supportDot,
       'supportInfographic': supportInfographic,
     };
+  }
+
+  // Scroll position memory (file path -> line number, using double for precision)
+  Map<String, double> _scrollPositionsCache = {};
+  bool _scrollPositionsLoaded = false;
+
+  /// Load scroll positions from storage
+  void _loadScrollPositions() {
+    if (_scrollPositionsLoaded) return;
+    _scrollPositionsLoaded = true;
+    
+    final json = _prefs?.getString(_keyScrollPositions);
+    if (json != null) {
+      try {
+        final decoded = jsonDecode(json) as Map<String, dynamic>;
+        _scrollPositionsCache = decoded.map((k, v) => MapEntry(k, (v as num).toDouble()));
+      } catch (e) {
+        _scrollPositionsCache = {};
+      }
+    }
+  }
+
+  /// Save scroll positions to storage
+  void _saveScrollPositions() {
+    // Limit the number of stored positions
+    if (_scrollPositionsCache.length > _maxScrollPositions) {
+      final entries = _scrollPositionsCache.entries.toList();
+      _scrollPositionsCache = Map.fromEntries(
+        entries.sublist(entries.length - _maxScrollPositions),
+      );
+    }
+    _prefs?.setString(_keyScrollPositions, jsonEncode(_scrollPositionsCache));
+  }
+
+  /// Get scroll position for a file
+  double getScrollPosition(String filePath) {
+    _loadScrollPositions();
+    return _scrollPositionsCache[filePath] ?? 0;
+  }
+
+  /// Save scroll position for a file
+  void setScrollPosition(String filePath, double line) {
+    _loadScrollPositions();
+    if (line > 0) {
+      _scrollPositionsCache[filePath] = line;
+      _saveScrollPositions();
+    } else if (_scrollPositionsCache.containsKey(filePath)) {
+      // Remove if scrolled to top
+      _scrollPositionsCache.remove(filePath);
+      _saveScrollPositions();
+    }
   }
 }
 

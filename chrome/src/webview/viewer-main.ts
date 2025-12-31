@@ -104,9 +104,9 @@ export async function initializeViewerMain(options: ViewerMainOptions): Promise<
   // Initialize file state manager
   const { saveFileState, getFileState } = createFileStateManager(platform);
 
-  // Initialize scroll manager
+  // Initialize scroll manager (line-based)
   const scrollManager = createScrollManager(platform, getCurrentDocumentUrl);
-  const { cancelScrollRestore, restoreScrollPosition, getSavedScrollPosition } = scrollManager;
+  const { cancelScrollRestore, restoreScrollPosition, getSavedScrollLine, getCurrentScrollLine } = scrollManager;
 
   // Initialize TOC manager
   const tocManager = createTocManager(saveFileState, getFileState);
@@ -186,11 +186,11 @@ export async function initializeViewerMain(options: ViewerMainOptions): Promise<
 
   // Wait a bit for DOM to be ready, then start processing
   setTimeout(async () => {
-    const savedScrollPosition = await getSavedScrollPosition();
+    const savedScrollLine = await getSavedScrollLine();
 
     toolbarManager.initializeToolbar();
 
-    await renderMarkdown(rawMarkdown, savedScrollPosition);
+    await renderMarkdown(rawMarkdown, savedScrollLine);
 
     await saveToHistory(platform);
     setupTocToggle();
@@ -198,18 +198,18 @@ export async function initializeViewerMain(options: ViewerMainOptions): Promise<
     await setupResponsiveToc();
   }, 100);
 
-  // Listen for scroll events and save position to background script
+  // Listen for scroll events and save line number to background script
   let scrollTimeout: ReturnType<typeof setTimeout>;
   window.addEventListener('scroll', () => {
     updateActiveTocItem();
     clearTimeout(scrollTimeout);
     scrollTimeout = setTimeout(() => {
-      const currentPosition = window.scrollY || window.pageYOffset;
-      saveFileState({ scrollPosition: currentPosition });
+      const currentLine = getCurrentScrollLine();
+      saveFileState({ scrollLine: currentLine });
     }, 300);
   });
 
-  async function renderMarkdown(markdown: string, savedScrollPosition = 0): Promise<void> {
+  async function renderMarkdown(markdown: string, savedScrollLine = 0): Promise<void> {
     const contentDiv = document.getElementById('markdown-content') as HTMLElement | null;
     if (!contentDiv) {
       // eslint-disable-next-line no-console
@@ -248,9 +248,9 @@ export async function initializeViewerMain(options: ViewerMainOptions): Promise<
       },
       onStreamingComplete: () => {
         // Streaming is complete, all initial DOM content is ready
-        // Apply zoom and restore scroll position now
+        // Apply zoom and restore scroll line now
         toolbarManager.applyZoom(toolbarManager.getZoomLevel(), false);
-        restoreScrollPosition(savedScrollPosition);
+        restoreScrollPosition(savedScrollLine);
         setTimeout(updateActiveTocItem, 100);
       },
     });
