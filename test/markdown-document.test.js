@@ -102,10 +102,11 @@ Para 3`);
       it('should handle reordering', () => {
         const doc = new MarkdownDocument('Block A\n\nBlock B\n\nBlock C');
         const diff = doc.update('Block C\n\nBlock B\n\nBlock A');
-        // All blocks still exist, just reordered
-        assert.strictEqual(diff.stats.kept, 3);
-        assert.strictEqual(diff.stats.removed, 0);
-        assert.strictEqual(diff.stats.inserted, 0);
+        // A->C, B->B, C->A: B stays, A and C need to be moved
+        // Moved blocks are removed and re-inserted to ensure correct DOM order
+        assert.strictEqual(diff.stats.kept, 1); // Only B stays in place
+        assert.strictEqual(diff.stats.removed, 2); // A and C moved
+        assert.strictEqual(diff.stats.inserted, 2); // A and C re-inserted
       });
     });
 
@@ -500,6 +501,71 @@ Para 4`);
       
       assert.strictEqual(diff.stats.kept, 2); // Title and Content
       assert.strictEqual(diff.stats.inserted, 1); // New intro
+    });
+
+    it('should correctly handle block reordering with insertions', () => {
+      // Bug: when kept blocks change order AND new blocks are inserted,
+      // the generated commands may produce incorrect DOM order
+      
+      const initialContent = `# Block A
+
+# Block B
+
+# Block C
+
+# Block D
+
+# Block E`;
+
+      const doc = new MarkdownDocument(initialContent);
+      const initialIds = doc.getBlocks().map(b => ({ id: b.id, content: b.content }));
+      
+      // blockA=1, blockB=2, blockC=3, blockD=4, blockE=5
+      
+      // Update: Reorder to A, D, X(new), B, E (C deleted, D moved before B)
+      const result = doc.update(`# Block A
+
+# Block D
+
+# New Block X
+
+# Block B
+
+# Block E`);
+      
+      // Expected order after update: A(1), D(4), X(new), B(2), E(5)
+      const newBlocks = doc.getBlocks();
+      assert.strictEqual(newBlocks.length, 5);
+      assert.strictEqual(newBlocks[0].content, '# Block A');
+      assert.strictEqual(newBlocks[1].content, '# Block D');
+      assert.strictEqual(newBlocks[2].content, '# New Block X');
+      assert.strictEqual(newBlocks[3].content, '# Block B');
+      assert.strictEqual(newBlocks[4].content, '# Block E');
+      
+      // Verify IDs are preserved for kept blocks
+      assert.strictEqual(newBlocks[0].id, initialIds[0].id); // A kept
+      assert.strictEqual(newBlocks[1].id, initialIds[3].id); // D kept (was at index 3)
+      assert.strictEqual(newBlocks[3].id, initialIds[1].id); // B kept (was at index 1)
+      assert.strictEqual(newBlocks[4].id, initialIds[4].id); // E kept (was at index 4)
+      
+      // Verify stats
+      // A, D, E stay in relative order; B needs to move (was before D, now after D)
+      assert.strictEqual(result.stats.kept, 3); // A, D, E (B moved)
+      assert.strictEqual(result.stats.removed, 2); // C deleted + B moved
+      assert.strictEqual(result.stats.inserted, 2); // X new + B re-inserted
+      
+      // Key verification: commands should produce correct order when applied
+      // Since B also needs to move (it was before D originally, now after D),
+      // X's refId will be E (the next stable block that doesn't need moving)
+      const insertCommands = result.commands.filter(c => c.type === 'insertBefore');
+      if (insertCommands.length > 0) {
+        const xInsert = insertCommands.find(c => c.blockId === newBlocks[2].id);
+        if (xInsert && xInsert.type === 'insertBefore') {
+          // X should be inserted before E (newBlocks[4]) since B also moves
+          assert.strictEqual(xInsert.refId, newBlocks[4].id, 
+            'New block X should be inserted before block E (next stable block)');
+        }
+      }
     });
   });
 });
