@@ -1,47 +1,61 @@
 /**
- * ChromeRuntimeTransport
+ * BrowserRuntimeTransport
  *
- * Raw transport for chrome.runtime messaging.
+ * Raw transport for browser extension runtime messaging.
+ * Supports both Chrome (chrome.*) and Firefox (browser.*) APIs.
  */
 
 import type { MessageTransport, TransportMeta, Unsubscribe } from '../../../src/messaging/transports/transport';
+
+// Use browser API if available (Firefox), otherwise use chrome API
+const runtime = typeof browser !== 'undefined' ? browser : chrome;
 
 export class ChromeRuntimeTransport implements MessageTransport {
   private listener?: (
     message: unknown,
     sender: chrome.runtime.MessageSender,
     sendResponse: (response?: unknown) => void
-  ) => void | boolean;
+  ) => void | boolean | Promise<unknown>;
 
-  send(message: unknown): Promise<unknown> {
-    return new Promise((resolve, reject) => {
-      chrome.runtime.sendMessage(message, (response) => {
-        if (chrome.runtime.lastError) {
-          reject(new Error(chrome.runtime.lastError.message));
-          return;
-        }
-        resolve(response);
+  async send(message: unknown): Promise<unknown> {
+    // Firefox browser.runtime.sendMessage returns a Promise
+    // Chrome also supports Promise in modern versions
+    try {
+      return await runtime.runtime.sendMessage(message);
+    } catch (error) {
+      // Fallback for older Chrome callback style
+      return new Promise((resolve, reject) => {
+        chrome.runtime.sendMessage(message, (response) => {
+          if (chrome.runtime.lastError) {
+            reject(new Error(chrome.runtime.lastError.message));
+            return;
+          }
+          resolve(response);
+        });
       });
-    });
+    }
   }
 
   onMessage(handler: (message: unknown, meta?: TransportMeta) => void): Unsubscribe {
-    this.listener = (message, sender, _sendResponse) => {
+    this.listener = (message, sender, sendResponse) => {
       const meta: TransportMeta = {
         raw: sender,
-        respond: _sendResponse,
+        respond: sendResponse,
       };
       handler(message, meta);
       return true;
     };
 
-    chrome.runtime.onMessage.addListener(this.listener);
+    runtime.runtime.onMessage.addListener(this.listener);
 
     return () => {
       if (this.listener) {
-        chrome.runtime.onMessage.removeListener(this.listener);
+        runtime.runtime.onMessage.removeListener(this.listener);
         this.listener = undefined;
       }
     };
   }
 }
+
+// Export alias for Firefox compatibility
+export { ChromeRuntimeTransport as BrowserRuntimeTransport };

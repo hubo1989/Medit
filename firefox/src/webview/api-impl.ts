@@ -16,7 +16,7 @@ import type { LocaleMessages } from '../../../src/services';
 import type { PlatformBridgeAPI } from '../../../src/types/index';
 
 import { ServiceChannel } from '../../../src/messaging/channels/service-channel';
-import { BrowserRuntimeTransport } from '../transports/browser-runtime-transport';
+import { BrowserRuntimeTransport } from '../../../chrome/src/transports/chrome-runtime-transport';
 
 import { BackgroundRenderHost } from './hosts/background-render-host';
 

@@ -53,7 +53,7 @@ const copyFileIfExists = (sourcePath, targetPath, logMessage) => {
 export const createBuildConfig = () => {
   const config = {
     entryPoints: {
-      'core/content-detector': 'firefox/src/webview/content-detector.ts',
+      'core/content-detector': 'chrome/src/webview/content-detector.ts',
       'core/main': 'firefox/src/webview/main.ts',
       'core/background': 'firefox/src/host/background.ts',
       'ui/popup/popup': 'firefox/src/popup/popup.ts',  // Firefox popup with Firefox platform

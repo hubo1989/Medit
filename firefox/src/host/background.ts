@@ -12,7 +12,7 @@ import ExtensionCacheManager from '../../../src/utils/cache-manager';
 import { toSimpleCacheStats } from '../../../chrome/src/cache-stats';
 import { bootstrapRenderWorker } from '../../../src/renderers/worker/worker-bootstrap';
 import { RenderChannel } from '../../../src/messaging/channels/render-channel';
-import { BrowserRuntimeTransport } from '../transports/browser-runtime-transport';
+import { BrowserRuntimeTransport } from '../../../chrome/src/transports/chrome-runtime-transport';
 import type {
   FileState,
   AllFileStates,
