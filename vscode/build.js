@@ -228,9 +228,9 @@ function copyAssets() {
     console.log('  ✓ fonts');
   }
 
-  // Copy README
-  if (fs.existsSync('README.md')) {
-    fs.copyFileSync('README.md', path.join(outdir, 'README.md'));
+  // Copy README from vscode directory
+  if (fs.existsSync('vscode/README.md')) {
+    fs.copyFileSync('vscode/README.md', path.join(outdir, 'README.md'));
     console.log('  ✓ README.md');
   }
 
