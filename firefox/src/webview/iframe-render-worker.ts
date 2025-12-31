@@ -2,19 +2,13 @@
 // Entry point for the render iframe in Firefox content script
 // Based on mobile/src/iframe-render-worker.ts
 
-console.log('[Firefox IframeWorker] Script started');
-
 // Send ready message immediately before any imports fail
 try {
-  console.log('[Firefox IframeWorker] Sending early RENDER_FRAME_READY to parent');
   if (window.parent && window.parent !== window) {
     window.parent.postMessage({ type: 'RENDER_FRAME_READY' }, '*');
-    console.log('[Firefox IframeWorker] Early RENDER_FRAME_READY sent');
-  } else {
-    console.log('[Firefox IframeWorker] window.parent not available or same as window');
   }
 } catch (e) {
-  console.error('[Firefox IframeWorker] Error sending early ready:', e);
+  // Ignore errors
 }
 
 import { RenderChannel } from '../../../src/messaging/channels/render-channel';
@@ -28,12 +22,10 @@ type ReadyAckMessage = {
 };
 
 function initialize(): void {
-  console.log('[Firefox IframeWorker] initialize() called');
   let isReady = false;
   let readyAcknowledged = false;
   let readyInterval: ReturnType<typeof setInterval> | null = null;
 
-  console.log('[Firefox IframeWorker] Creating RenderChannel');
   const renderChannel = new RenderChannel(
     new WindowPostMessageTransport(window.parent, {
       targetOrigin: '*',
@@ -52,9 +44,7 @@ function initialize(): void {
 
   window.addEventListener('message', (event: MessageEvent<ReadyAckMessage>) => {
     const message = event.data;
-    console.log('[Firefox IframeWorker] Received message:', message?.type);
     if (message && (message.type === MessageTypes.READY_ACK || message.type === 'READY_ACK')) {
-      console.log('[Firefox IframeWorker] READY_ACK received!');
       readyAcknowledged = true;
       if (readyInterval) {
         clearInterval(readyInterval);
@@ -65,28 +55,23 @@ function initialize(): void {
 
   const sendReady = (): void => {
     if (readyAcknowledged) {
-      console.log('[Firefox IframeWorker] sendReady skipped - already acknowledged');
       return;
     }
 
     try {
       if (window.parent && window.parent !== window) {
-        console.log('[Firefox IframeWorker] Sending RENDER_FRAME_READY');
         window.parent.postMessage({ type: 'RENDER_FRAME_READY' }, '*');
       }
     } catch (e) {
-      console.error('[Firefox IframeWorker] Error in sendReady:', e);
+      // Ignore errors
     }
   };
 
-  console.log('[Firefox IframeWorker] Calling worker.init()');
   worker.init();
   isReady = true;
-  console.log('[Firefox IframeWorker] Worker initialized, isReady=true');
 
   sendReady();
   readyInterval = setInterval(sendReady, 100);
-  console.log('[Firefox IframeWorker] Started sendReady interval');
 
   // Stop sending ready after 10 seconds
   setTimeout(() => {

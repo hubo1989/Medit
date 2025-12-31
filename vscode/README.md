@@ -160,26 +160,20 @@ Document with 50 Mermaid diagrams:
 
 ## 🚀 Quick Start - 3 Steps
 
-### Step 1: Install App (30 seconds)
+### Step 1: Install Extension (30 seconds)
 
-**iOS:**
-1. Open App Store
-2. Search "Markdown Viewer"
-3. Tap "Get"
-4. ✅ Installation complete
+1. Open VS Code
+2. Go to Extensions (Ctrl+Shift+X / Cmd+Shift+X)
+3. Search "Markdown Viewer"
+4. Click "Install"
+5. ✅ Installation complete
 
-**Android:**
-1. Open Google Play Store
-2. Search "Markdown Viewer"
-3. Tap "Install"
-4. ✅ Installation complete
+### Step 2: Preview Markdown (Instant)
 
-### Step 2: Import Markdown Files (1 minute)
-
-**Open documents:**
-- Use the file manager to select .md files
-- Or import from cloud storage (iCloud, Google Drive, OneDrive)
-- Or use the app's built-in file browser
+**Preview documents:**
+1. Open a .md file in VS Code
+2. Click the preview button in top-right corner (or Ctrl+Shift+V / Cmd+Shift+V)
+3. ✅ Side-by-side preview with full formatting
 
 **Not needed if:**
 - Only viewing online docs (GitHub, blogs, etc.)
@@ -187,13 +181,15 @@ Document with 50 Mermaid diagrams:
 
 ### Quick Start
 
-**Open documents:** Tap file manager icon → Select .md file → View instantly
+**Open documents:** File → Open or drag .md file to workspace
 
-**Export to Word:** Tap share button → Choose format → Export to Files app or email
+**Preview:** Ctrl+Shift+V (Cmd+Shift+V on Mac) → View live preview
 
-**Switch themes:** Tap settings → Choose theme → Apply instantly
+**Export to Word:** Click export icon in preview → Auto-save to project folder
 
-**Adjust view:** Pinch to zoom · Swipe to navigate · Tap menu for TOC
+**Switch themes:** Command palette → Select theme → Apply instantly
+
+**Adjust view:** Ctrl/Cmd + +/- zoom · Preview pane layout options
 
 ---
 
@@ -264,8 +260,8 @@ A: No. Progressive loading + smart cache, text displays instantly, diagrams rend
 **Q: Does cache take up much space?**  
 A: Default max 1000 items, approximately 500 MB, adjustable or clearable in settings.
 
-**Q: Which platforms are supported?**  
-A: iOS 13+ and Android 8.0+.
+**Q: Which VS Code versions are supported?**  
+A: VS Code 1.60 and above.
 
 **Q: Which Word versions can open the exported file?**  
 A: Word 2016+ fully supported, Word 2013 also works. Fully compatible with WPS Office.
@@ -305,11 +301,11 @@ A: Use ````vega-lite` code block in Markdown with JSON format chart specificatio
 
 **Install in 30 seconds, start using immediately:**
 
-1. Download from App Store (iOS) or Google Play Store (Android)
-2. Install the app
-3. Open Files app and select your .md file
-4. Or import from cloud storage
-5. ✅ Start using instantly
+1. Open VS Code → Extensions (Ctrl+Shift+X)
+2. Search "Markdown Viewer" and install
+3. Open any .md file in your workspace
+4. Press Ctrl+Shift+V to open preview
+5. ✅ Start using immediately
 
 **You'll get:** Markdown → Word one-click conversion · Mermaid auto-convert · LaTeX editable formulas · 100+ languages syntax highlighting · 18+ themes · Smart cache · Completely free
 
@@ -329,4 +325,5 @@ This project is open source under ISC license. Welcome to Star, report issues, s
 
 **Focus on writing, let Markdown Viewer handle everything else**
 
-*Completely Free · Local Processing · Privacy Protected*
+🚀 **Install Now:** https://chromewebstore.google.com/detail/markdown-viewer/jekhhoflgcfoikceikgeenibinpojaoi
+
