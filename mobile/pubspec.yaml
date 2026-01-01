@@ -1,6 +1,6 @@
 name: markdown_viewer_mobile
 
-description: Flutter wrapper for markdown-viewer WebView
+description: "Markdown to perfect Word in one click — Mermaid, Graphviz, Vega, Infographic, LaTeX (editable), code highlighting, local processing"
 publish_to: 'none'
 
 version: 1.4.0+1

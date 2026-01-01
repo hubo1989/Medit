@@ -2,7 +2,7 @@
   "name": "markdown-viewer-extension",
   "displayName": "Markdown Viewer",
   "version": "1.4.0",
-  "description": "Advanced Markdown viewer with Mermaid, KaTeX, Vega, GraphViz and more",
+  "description": "Markdown to perfect Word in one click — Mermaid, Graphviz, Vega, Infographic, LaTeX (editable), code highlighting, local processing",
   "type": "module",
   "main": "src/content.js",
   "scripts": {

@@ -2,9 +2,9 @@
 
 [English](README.en.md) · [简体中文](README.zh-CN.md) · [繁體中文](README.zh-TW.md) · [Русский](README.ru.md) · [日本語](README.ja.md) · [हिन्दी](README.hi.md) · [한국어](README.ko.md) · [Deutsch](README.de.md) · [Português (Brasil)](README.pt-BR.md) · [Português (Portugal)](README.pt-PT.md) · [Nederlands](README.nl.md) · [Українська](README.uk.md) · [Tiếng Việt](README.vi.md) · [Беларуская](README.be.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Bahasa Indonesia](README.id.md) · [Español](README.es.md) · [ไทย](README.th.md) · [Svenska](README.sv.md) · [Türkçe](README.tr.md) · [Eesti](README.et.md) · [Bahasa Melayu](README.ms.md) · [Polski](README.pl.md) · [Suomi](README.fi.md) · [Lietuvių](README.lt.md) · [Norsk](README.no.md) · [Dansk](README.da.md)
 
-**用 Markdown 寫文檔，一鍵匯出完美 Word。**
+**Markdown 一鍵匯出完美 Word — Mermaid 流程圖、Graphviz、Vega 圖表、資訊圖、LaTeX 公式自動轉為可編輯格式，程式碼高亮，本地處理**
 
-*完全免費 · 本地處理 · 18+ 專業主題 · 支援 28 種語言*
+*完全免費 · 18+ 專業主題 · 支援 28 種語言*
 
 🚀 **立即安裝:** https://chromewebstore.google.com/detail/markdown-viewer/jekhhoflgcfoikceikgeenibinpojaoi
 

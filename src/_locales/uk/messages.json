@@ -196,7 +196,7 @@
     "description": "Fallback message when DOCX export fails"
   },
   "extensionDescription": {
-    "message": "Перегляд Markdown-файлів з підсвічуванням синтаксису та інструментами експорту",
+    "message": "Markdown у ідеальний Word одним кліком — Mermaid, Graphviz, Vega, інфографіка, LaTeX (редагований), підсвітка коду, локальна обробка",
     "description": "Extension description shown in Chrome Web Store"
   },
   "extensionName": {

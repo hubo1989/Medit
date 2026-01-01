@@ -196,7 +196,7 @@
     "description": "Toast shown during export"
   },
   "extensionDescription": {
-    "message": "Vis Markdown-filer med syntaksfremhævning og smarte eksportværktøjer",
+    "message": "Markdown til perfekt Word med ét klik — Mermaid, Graphviz, Vega, infografik, LaTeX (redigerbar), kodefremhævning, lokal behandling",
     "description": "Extension description shown in Chrome Web Store"
   },
   "extensionName": {

@@ -196,7 +196,7 @@
     "description": "Toast shown during export"
   },
   "extensionDescription": {
-    "message": "ดูไฟล์ Markdown ด้วยการไฮไลท์ไวยากรณ์และเครื่องมือส่งออกที่ชาญฉลาด",
+    "message": "Markdown สู่ Word สมบูรณ์แบบในคลิกเดียว — Mermaid, Graphviz, Vega, อินโฟกราฟิก, LaTeX (แก้ไขได้), ไฮไลท์โค้ด, ประมวลผลในเครื่อง",
     "description": "Extension description shown in Chrome Web Store"
   },
   "extensionName": {

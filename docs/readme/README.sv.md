@@ -2,9 +2,9 @@
 
 [English](README.en.md) · [简体中文](README.zh-CN.md) · [繁體中文](README.zh-TW.md) · [Русский](README.ru.md) · [日本語](README.ja.md) · [हिन्दी](README.hi.md) · [한국어](README.ko.md) · [Deutsch](README.de.md) · [Português (Brasil)](README.pt-BR.md) · [Português (Portugal)](README.pt-PT.md) · [Nederlands](README.nl.md) · [Українська](README.uk.md) · [Tiếng Việt](README.vi.md) · [Беларуская](README.be.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Bahasa Indonesia](README.id.md) · [Español](README.es.md) · [ไทย](README.th.md) · [Svenska](README.sv.md) · [Türkçe](README.tr.md) · [Eesti](README.et.md) · [Bahasa Melayu](README.ms.md) · [Polski](README.pl.md) · [Suomi](README.fi.md) · [Lietuvių](README.lt.md) · [Norsk](README.no.md) · [Dansk](README.da.md)
 
-**Skriv dokument i Markdown, exportera till perfekt Word med ett klick.**
+**Markdown till perfekt Word med ett klick — Mermaid, Graphviz, Vega, infografik, LaTeX (redigerbar), kodmarkering, lokal bearbetning**
 
-*Helt gratis · Lokal bearbetning · 18+ professionella teman · 28 språk*
+*Helt gratis · 18+ professionella teman · 28 språk*
 
 🚀 **Installera nu:** https://chromewebstore.google.com/detail/markdown-viewer/jekhhoflgcfoikceikgeenibinpojaoi
 

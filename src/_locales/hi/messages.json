@@ -196,7 +196,7 @@
     "description": "Toast shown during export"
   },
   "extensionDescription": {
-    "message": "सिंटैक्स हाइलाइटिंग और स्मार्ट एक्सपोर्ट टूल के साथ Markdown फाइलें देखें",
+    "message": "एक क्लिक में Markdown से परफेक्ट Word — Mermaid, Graphviz, Vega, इन्फोग्राफिक, LaTeX (संपादन योग्य), कोड हाइलाइटिंग, स्थानीय प्रोसेसिंग",
     "description": "Extension description shown in Chrome Web Store"
   },
   "extensionName": {

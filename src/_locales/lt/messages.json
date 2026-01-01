@@ -196,7 +196,7 @@
     "description": "Fallback message when DOCX export fails"
   },
   "extensionDescription": {
-    "message": "Peržiūrėkite Markdown failus su sintaksės pažyminimu ir išmaniaisiais eksportavimo įrankiais",
+    "message": "Markdown į tobulą Word vienu spustelėjimu — Mermaid, Graphviz, Vega, infografika, LaTeX (redaguojamas), kodo paryškinimas, vietinis apdorojimas",
     "description": "Extension description shown in Chrome Web Store"
   },
   "extensionName": {

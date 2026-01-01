@@ -1,8 +1,8 @@
 # Markdown Viewer
 
-**Write in Markdown, export to perfect Word with one click.**
+**Markdown to perfect Word in one click — Mermaid, Graphviz, Vega, Infographic, LaTeX (editable), code highlighting, local processing**
 
-*Completely Free · Local Processing · 18+ Professional Themes · 28 Languages Support*
+*Completely Free · 18+ Professional Themes · 28 Languages Support*
 
 ---
 

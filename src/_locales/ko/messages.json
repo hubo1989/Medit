@@ -196,7 +196,7 @@
     "description": "Toast shown during export"
   },
   "extensionDescription": {
-    "message": "Markdown 파일을 구문 강조와 스마트 내보내기 도구와 함께 보여 줍니다",
+    "message": "Markdown을 클릭 한 번으로 완벽한 Word로 — Mermaid, Graphviz, Vega, 인포그래픽, LaTeX(편집 가능), 코드 강조, 로컬 처리",
     "description": "Chrome 웹 스토어에 표시되는 설명"
   },
   "extensionName": {

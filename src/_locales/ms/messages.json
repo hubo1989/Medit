@@ -196,7 +196,7 @@
     "description": "Fallback message when DOCX export fails"
   },
   "extensionDescription": {
-    "message": "Lihat fail Markdown dengan penyerlahan sintaks dan alat eksport pintar",
+    "message": "Markdown ke Word sempurna dengan satu klik — Mermaid, Graphviz, Vega, infografik, LaTeX (boleh diedit), penyerlahan kod, pemprosesan tempatan",
     "description": "Extension description shown in Chrome Web Store"
   },
   "extensionName": {

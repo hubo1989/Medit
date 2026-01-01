@@ -2,9 +2,9 @@
 
 [English](README.en.md) · [简体中文](README.zh-CN.md) · [繁體中文](README.zh-TW.md) · [Русский](README.ru.md) · [日本語](README.ja.md) · [हिन्दी](README.hi.md) · [한국어](README.ko.md) · [Deutsch](README.de.md) · [Português (Brasil)](README.pt-BR.md) · [Português (Portugal)](README.pt-PT.md) · [Nederlands](README.nl.md) · [Українська](README.uk.md) · [Tiếng Việt](README.vi.md) · [Беларуская](README.be.md) · [Français](README.fr.md) · [Italiano](README.it.md) · [Bahasa Indonesia](README.id.md) · [Español](README.es.md) · [ไทย](README.th.md) · [Svenska](README.sv.md) · [Türkçe](README.tr.md) · [Eesti](README.et.md) · [Bahasa Melayu](README.ms.md) · [Polski](README.pl.md) · [Suomi](README.fi.md) · [Lietuvių](README.lt.md) · [Norsk](README.no.md) · [Dansk](README.da.md)
 
-**Markdown으로 작성하고, 클릭 한 번으로 완벽한 Word 문서로 내보내기.**
+**Markdown을 클릭 한 번으로 완벽한 Word로 — Mermaid, Graphviz, Vega, 인포그래픽, LaTeX(편집 가능), 코드 강조, 로컬 처리**
 
-*완전 무료 · 로컬 처리 · 18+ 전문 테마 · 28개 언어 지원*
+*완전 무료 · 18+ 전문 테마 · 28개 언어 지원*
 
 🚀 **지금 설치:** https://chromewebstore.google.com/detail/markdown-viewer/jekhhoflgcfoikceikgeenibinpojaoi
 

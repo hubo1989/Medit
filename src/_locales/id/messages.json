@@ -196,7 +196,7 @@
     "description": "Toast shown during export"
   },
   "extensionDescription": {
-    "message": "Lihat file Markdown dengan penyorotan sintaks dan alat ekspor cerdas",
+    "message": "Markdown ke Word sempurna dalam satu klik — Mermaid, Graphviz, Vega, infografis, LaTeX (dapat diedit), penyorotan kode, pemrosesan lokal",
     "description": "Extension description shown in Chrome Web Store"
   },
   "extensionName": {

@@ -196,7 +196,7 @@
     "description": "Toast shown during export"
   },
   "extensionDescription": {
-    "message": "Bekijk Markdown-bestanden met syntaxisaccentuering en slimme exporttools",
+    "message": "Markdown naar perfect Word met één klik — Mermaid, Graphviz, Vega, infographic, LaTeX (bewerkbaar), code-accentuering, lokale verwerking",
     "description": "Extension description shown in Chrome Web Store"
   },
   "extensionName": {

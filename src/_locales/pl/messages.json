@@ -196,7 +196,7 @@
     "description": "Toast shown during export"
   },
   "extensionDescription": {
-    "message": "Przeglądaj pliki Markdown z podświetlaniem składni i inteligentnymi narzędziami eksportu",
+    "message": "Markdown do perfekcyjnego Worda jednym kliknięciem — Mermaid, Graphviz, Vega, infografika, LaTeX (edytowalny), podświetlanie kodu, lokalne przetwarzanie",
     "description": "Extension description shown in Chrome Web Store"
   },
   "extensionName": {
