@@ -64,6 +64,15 @@ export interface FileStateManager {
 
 /**
  * Background script message
+ * 
+ * @deprecated Use RequestEnvelope from src/types/messaging.ts instead.
+ * This flat message format is being phased out in favor of the standardized
+ * envelope format: { id, type, payload, timestamp, source? }
+ * 
+ * Migration guide:
+ * - Move all flat fields (action, url, state, etc.) into the `payload` object
+ * - Use ServiceChannel.send() or ServiceChannel.post() for message passing
+ * - See docs/dev/messaging-audit.md for details
  */
 export interface BackgroundMessage {
   type?: string;
@@ -92,16 +101,6 @@ export interface BackgroundMessage {
   };
   token?: string;
   chunk?: string;
-}
-
-/**
- * Content script message
- */
-export interface ContentMessage {
-  type: string;
-  themeId?: string;
-  locale?: string;
-  [key: string]: unknown;
 }
 
 /**

@@ -75,13 +75,11 @@ export interface ViewerMainOptions {
 }
 
 /**
- * Message listener interface
+ * Incoming message from background (broadcast events)
  */
-interface ContentMessage {
+interface IncomingBroadcastMessage {
   type?: string;
-  locale?: string;
   payload?: unknown;
-  themeId?: string;
 }
 
 /**
@@ -305,7 +303,7 @@ export function setupMessageListener(platform: PlatformAPI): void {
       return;
     }
 
-    const msg = message as ContentMessage;
+    const msg = message as IncomingBroadcastMessage;
 
     const nextLocale = (locale: string) => {
       Localization.setPreferredLocale(locale)

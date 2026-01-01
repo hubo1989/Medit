@@ -63,18 +63,6 @@ const port = chrome.runtime.connect({ name: 'offscreen' });
 // Notify background script that offscreen document is ready
 sendOffscreenLifecycle('OFFSCREEN_READY');
 
-/**
- * Render message from background script
- */
-interface RenderMessage {
-  type?: string;
-  action?: string;
-  renderType?: string;
-  input?: string;
-  themeConfig?: RendererThemeConfig;
-  config?: RendererThemeConfig;
-}
-
 // Render RPC channel (offscreen only handles messages targeted to it)
 // Uses willRespond: true because offscreen needs to send async responses
 const renderChannel = new RenderChannel(new ChromeRuntimeTransport({ willRespond: true }), {

@@ -23,6 +23,9 @@ export class MarkdownPreviewPanel {
   private _isScrolling = false;  // Prevent infinite scroll loop
   private _scrollSyncEnabled = true;
 
+  // Message ID counter for envelope format
+  private _messageIdCounter = 0;
+
   // Progress callbacks
   private _exportProgressCallback: ((progress: number) => void) | null = null;
   private _renderProgressCallback: ((completed: number, total: number) => void) | null = null;
@@ -136,6 +139,27 @@ export class MarkdownPreviewPanel {
     return this._document?.uri.toString() === document.uri.toString();
   }
 
+  /**
+   * Generate unique message ID for envelope format
+   */
+  private _nextMessageId(): string {
+    this._messageIdCounter += 1;
+    return `host-${Date.now()}-${this._messageIdCounter}`;
+  }
+
+  /**
+   * Send message to webview using unified envelope format
+   */
+  private _postToWebview(type: string, payload?: unknown): void {
+    this._panel.webview.postMessage({
+      id: this._nextMessageId(),
+      type,
+      payload,
+      timestamp: Date.now(),
+      source: 'vscode-host',
+    });
+  }
+
   public updateContent(content: string): void {
     // Calculate document directory webview URI for resolving relative paths
     let documentBaseUri: string | undefined;
@@ -144,13 +168,10 @@ export class MarkdownPreviewPanel {
       documentBaseUri = this._panel.webview.asWebviewUri(docDir).toString();
     }
 
-    this._panel.webview.postMessage({
-      type: 'UPDATE_CONTENT',
-      payload: {
-        content,
-        filename: this._document ? path.basename(this._document.fileName) : 'untitled.md',
-        documentBaseUri
-      }
+    this._postToWebview('UPDATE_CONTENT', {
+      content,
+      filename: this._document ? path.basename(this._document.fileName) : 'untitled.md',
+      documentBaseUri
     });
   }
 
@@ -161,9 +182,7 @@ export class MarkdownPreviewPanel {
   }
 
   public openSettings(): void {
-    this._panel.webview.postMessage({
-      type: 'OPEN_SETTINGS'
-    });
+    this._postToWebview('OPEN_SETTINGS');
   }
 
   // Export result resolver (for async export completion)
@@ -179,9 +198,7 @@ export class MarkdownPreviewPanel {
         resolve(success);
       };
       
-      this._panel.webview.postMessage({
-        type: 'EXPORT_DOCX'
-      });
+      this._postToWebview('EXPORT_DOCX');
     });
   }
 
@@ -202,10 +219,7 @@ export class MarkdownPreviewPanel {
       return;
     }
     
-    this._panel.webview.postMessage({
-      type: 'SCROLL_TO_LINE',
-      payload: { line }
-    });
+    this._postToWebview('SCROLL_TO_LINE', { line });
   }
 
   /**
@@ -247,10 +261,8 @@ export class MarkdownPreviewPanel {
     editor.revealRange(range, vscode.TextEditorRevealType.AtTop);
   }
 
-  private async _handleMessage(message: { id?: string; type: string; requestId?: string; payload?: unknown }): Promise<void> {
-    // Support both old format (requestId) and new envelope format (id)
-    const { type, payload } = message;
-    const requestId = message.id || message.requestId;
+  private async _handleMessage(message: { id?: string; type: string; payload?: unknown }): Promise<void> {
+    const { type, payload, id: requestId } = message;
 
     try {
       let response: unknown;

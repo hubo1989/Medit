@@ -20,7 +20,6 @@ export type {
   HistoryEntry,
   FileStateManager,
   BackgroundMessage,
-  ContentMessage,
   MessageHandler,
   UploadSession,
 } from './core';

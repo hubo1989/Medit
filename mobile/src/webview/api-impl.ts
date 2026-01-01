@@ -28,15 +28,6 @@ import { CacheService, StorageService, FileService, RendererService } from '../.
 // ============================================================================
 
 /**
- * Pending request entry
- */
-interface HostMessage {
-  type?: string;
-  payload?: unknown;
-  [key: string]: unknown;
-}
-
-/**
  * Download options
  */
 interface DownloadOptions {
@@ -331,18 +322,6 @@ class MobilePlatformAPI {
    */
   notifyReady(): void {
     bridge.postMessage('WEBVIEW_READY', {});
-  }
-
-  /**
-   * Request file download (triggers system share sheet)
-   * @deprecated Use platform.file.download() instead
-   */
-  downloadFile(filename: string, data: string, mimeType: string): void {
-    bridge.postMessage('DOWNLOAD_FILE', {
-      filename,
-      data, // base64 encoded
-      mimeType
-    });
   }
 }
 

@@ -366,9 +366,8 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
 
       final type = decoded['type'];
       final payload = decoded['payload'];
-      final legacyRequestId = decoded['_requestId'] as int?;
 
-      // New unified envelope (WebView -> Host)
+      // Unified envelope format (WebView -> Host)
       final envelopeId = decoded['id']?.toString();
       final isEnvelope = envelopeId != null && decoded.containsKey('timestamp');
 
@@ -422,41 +421,29 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
           break;
 
         case 'DOWNLOAD_FILE':
-          if (payload is Map) {
-            if (isEnvelope) {
-              _handleDownloadFileEnvelope(
-                Map<String, dynamic>.from(payload),
-                envelopeId!,
-              );
-            } else {
-              _handleDownloadFile(Map<String, dynamic>.from(payload), legacyRequestId);
-            }
+          if (payload is Map && isEnvelope) {
+            _handleDownloadFileEnvelope(
+              Map<String, dynamic>.from(payload),
+              envelopeId!,
+            );
           }
           break;
 
         case 'READ_RELATIVE_FILE':
-          if (payload is Map) {
-            if (isEnvelope) {
-              _handleReadRelativeFileEnvelope(
-                Map<String, dynamic>.from(payload),
-                envelopeId!,
-              );
-            } else if (legacyRequestId != null) {
-              _handleReadRelativeFile(Map<String, dynamic>.from(payload), legacyRequestId);
-            }
+          if (payload is Map && isEnvelope) {
+            _handleReadRelativeFileEnvelope(
+              Map<String, dynamic>.from(payload),
+              envelopeId!,
+            );
           }
           break;
 
         case 'FETCH_ASSET':
-          if (payload is Map) {
-            if (isEnvelope) {
-              _handleFetchAssetEnvelope(
-                Map<String, dynamic>.from(payload),
-                envelopeId!,
-              );
-            } else if (legacyRequestId != null) {
-              _handleFetchAsset(Map<String, dynamic>.from(payload), legacyRequestId);
-            }
+          if (payload is Map && isEnvelope) {
+            _handleFetchAssetEnvelope(
+              Map<String, dynamic>.from(payload),
+              envelopeId!,
+            );
           }
           break;
 
@@ -747,33 +734,6 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
     }
   }
 
-  Future<void> _handleDownloadFile(Map<String, dynamic> payload, int? requestId) async {
-    try {
-      final data = payload['data'] as String?;
-      final filename = payload['filename'] as String?;
-      final mimeType = payload['mimeType'] as String?;
-
-      if (data == null || filename == null) {
-        _respondToWebView(requestId, error: 'Invalid download request');
-        return;
-      }
-
-      final bytes = base64Decode(data);
-      final tempDir = await getTemporaryDirectory();
-      final file = File('${tempDir.path}/$filename');
-      await file.writeAsBytes(bytes);
-
-      await Share.shareXFiles(
-        [XFile(file.path, mimeType: mimeType)],
-        sharePositionOrigin: const Rect.fromLTWH(0, 0, 100, 100),
-      );
-
-      _respondToWebView(requestId, result: {'success': true});
-    } catch (e) {
-      _respondToWebView(requestId, error: e.toString());
-    }
-  }
-
   Future<void> _handleDownloadFileEnvelope(
     Map<String, dynamic> payload,
     String requestId,
@@ -808,55 +768,6 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
     } catch (e) {
       _hideExportProgress();
       _respondToWebViewEnvelope(requestId, error: e.toString());
-    }
-  }
-
-  Future<void> _handleReadRelativeFile(Map<String, dynamic> payload, int requestId) async {
-    try {
-      final relativePath = payload['path'] as String?;
-      final binary = payload['binary'] as bool? ?? false;
-
-      if (relativePath == null || relativePath.isEmpty) {
-        _respondToWebView(requestId, error: 'No path provided');
-        return;
-      }
-
-      if (_currentFileDir == null) {
-        _respondToWebView(requestId, error: 'No markdown file opened');
-        return;
-      }
-
-      String absolutePath;
-      if (relativePath.startsWith('./')) {
-        absolutePath = '$_currentFileDir/${relativePath.substring(2)}';
-      } else if (relativePath.startsWith('../')) {
-        final baseDir = Directory(_currentFileDir!);
-        absolutePath = '${baseDir.path}/$relativePath';
-        absolutePath = File(absolutePath).absolute.path;
-      } else if (relativePath.startsWith('/')) {
-        absolutePath = relativePath;
-      } else {
-        absolutePath = '$_currentFileDir/$relativePath';
-      }
-
-      final file = File(absolutePath);
-      if (!await file.exists()) {
-        _respondToWebView(requestId, error: 'File not found: $absolutePath');
-        return;
-      }
-
-      if (binary) {
-        // Read as binary and return base64 encoded
-        final bytes = await file.readAsBytes();
-        final base64Content = base64Encode(bytes);
-        _respondToWebView(requestId, result: {'content': base64Content});
-      } else {
-        final content = await file.readAsString();
-        _respondToWebView(requestId, result: {'content': content});
-      }
-    } catch (e) {
-      debugPrint('[Mobile] READ_RELATIVE_FILE error: $e');
-      _respondToWebView(requestId, error: e.toString());
     }
   }
 
@@ -914,22 +825,6 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
 
   /// Handle FETCH_ASSET request from WebView
   /// Loads asset from Flutter's asset bundle
-  Future<void> _handleFetchAsset(Map<String, dynamic> payload, int requestId) async {
-    try {
-      final path = payload['path'] as String?;
-      if (path == null) {
-        _respondToWebView(requestId, error: 'Missing path parameter');
-        return;
-      }
-
-      final content = await rootBundle.loadString('build/mobile/$path');
-      _respondToWebView(requestId, result: content);
-    } catch (e) {
-      debugPrint('[Mobile] FETCH_ASSET error for ${payload['path']}: $e');
-      _respondToWebView(requestId, error: e.toString());
-    }
-  }
-
   Future<void> _handleFetchAssetEnvelope(
     Map<String, dynamic> payload,
     String requestId,
@@ -953,21 +848,6 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
     final json = jsonEncode(message);
     final js = 'window.__receiveMessageFromHost($json);';
     await _controller.runJavaScript(js);
-  }
-
-  void _respondToWebView(int? requestId, {dynamic result, String? error}) {
-    if (requestId == null) return;
-
-    final response = <String, dynamic>{
-      '_responseId': requestId,
-    };
-    if (error != null) {
-      response['error'] = error;
-    } else {
-      response['result'] = result;
-    }
-
-    _sendToWebView(response);
   }
 
   void _respondToWebViewEnvelope(String requestId, {dynamic data, String? error, bool? ok}) {

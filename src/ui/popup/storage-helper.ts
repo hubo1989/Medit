@@ -10,14 +10,34 @@ function generateId(): string {
 }
 
 /**
+ * Standard ResponseEnvelope from background
+ */
+interface ResponseEnvelope<T = unknown> {
+  type: 'RESPONSE';
+  requestId: string;
+  ok: boolean;
+  data?: T;
+  error?: { message: string };
+}
+
+/**
+ * Type guard for ResponseEnvelope
+ */
+function isResponseEnvelope<T>(response: unknown): response is ResponseEnvelope<T> {
+  if (!response || typeof response !== 'object') return false;
+  const obj = response as Record<string, unknown>;
+  return obj.type === 'RESPONSE' && typeof obj.requestId === 'string' && typeof obj.ok === 'boolean';
+}
+
+/**
  * Send message to background and wait for response
  */
 function sendToBackground<T>(type: string, payload: unknown): Promise<T> {
   return new Promise((resolve, reject) => {
     const id = generateId();
     chrome.runtime.sendMessage(
-      { id, type, payload },
-      (response: { ok: boolean; data?: T; errorMessage?: string } | undefined) => {
+      { id, type, payload, timestamp: Date.now(), source: 'popup-storage' },
+      (response: unknown) => {
         if (chrome.runtime.lastError) {
           reject(new Error(chrome.runtime.lastError.message));
           return;
@@ -26,11 +46,17 @@ function sendToBackground<T>(type: string, payload: unknown): Promise<T> {
           reject(new Error('No response from background'));
           return;
         }
-        if (response.ok) {
-          resolve(response.data as T);
-        } else {
-          reject(new Error(response.errorMessage || 'Unknown error'));
+        // Handle standard ResponseEnvelope format
+        if (isResponseEnvelope<T>(response)) {
+          if (response.ok) {
+            resolve(response.data as T);
+          } else {
+            reject(new Error(response.error?.message || 'Unknown error'));
+          }
+          return;
         }
+        // Unexpected response format
+        reject(new Error('Unexpected response format (expected ResponseEnvelope)'));
       }
     );
   });
