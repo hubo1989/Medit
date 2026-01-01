@@ -814,6 +814,7 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
   Future<void> _handleReadRelativeFile(Map<String, dynamic> payload, int requestId) async {
     try {
       final relativePath = payload['path'] as String?;
+      final binary = payload['binary'] as bool? ?? false;
 
       if (relativePath == null || relativePath.isEmpty) {
         _respondToWebView(requestId, error: 'No path provided');
@@ -844,8 +845,15 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
         return;
       }
 
-      final content = await file.readAsString();
-      _respondToWebView(requestId, result: {'content': content});
+      if (binary) {
+        // Read as binary and return base64 encoded
+        final bytes = await file.readAsBytes();
+        final base64Content = base64Encode(bytes);
+        _respondToWebView(requestId, result: {'content': base64Content});
+      } else {
+        final content = await file.readAsString();
+        _respondToWebView(requestId, result: {'content': content});
+      }
     } catch (e) {
       debugPrint('[Mobile] READ_RELATIVE_FILE error: $e');
       _respondToWebView(requestId, error: e.toString());
@@ -858,6 +866,7 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
   ) async {
     try {
       final relativePath = payload['path'] as String?;
+      final binary = payload['binary'] as bool? ?? false;
 
       if (relativePath == null || relativePath.isEmpty) {
         _respondToWebViewEnvelope(requestId, error: 'No path provided');
@@ -888,8 +897,15 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
         return;
       }
 
-      final content = await file.readAsString();
-      _respondToWebViewEnvelope(requestId, data: {'content': content});
+      if (binary) {
+        // Read as binary and return base64 encoded
+        final bytes = await file.readAsBytes();
+        final base64Content = base64Encode(bytes);
+        _respondToWebViewEnvelope(requestId, data: {'content': base64Content});
+      } else {
+        final content = await file.readAsString();
+        _respondToWebViewEnvelope(requestId, data: {'content': content});
+      }
     } catch (e) {
       debugPrint('[Mobile] READ_RELATIVE_FILE error: $e');
       _respondToWebViewEnvelope(requestId, error: e.toString());

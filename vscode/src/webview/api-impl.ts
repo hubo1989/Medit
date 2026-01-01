@@ -58,6 +58,98 @@ const bridge: PlatformBridgeAPI = {
 };
 
 // ============================================================================
+// VSCode Document Service
+// ============================================================================
+
+import { BaseDocumentService } from '../../../src/services/document-service';
+import type { ReadFileOptions } from '../../../src/types/platform';
+
+/**
+ * VS Code Document Service Implementation
+ * 
+ * Key differences from Chrome/Firefox:
+ * - window.location.href is vscode-webview:// URL, NOT the file path
+ * - Document path is provided by extension host
+ * - Must use READ_LOCAL_FILE message for all file reads (host resolves paths)
+ * - Must use FETCH_REMOTE_IMAGE for remote resources (CSP blocks direct fetch)
+ * - Image URIs need rewriting to vscode-webview-resource:// URLs
+ */
+class VSCodeDocumentService extends BaseDocumentService {
+  protected override _needsUriRewrite = true;
+  private _webviewBaseUri = '';
+
+  constructor() {
+    super();
+  }
+
+  /**
+   * Set document path and webview base URI.
+   * Called by main.ts when receiving UPDATE_CONTENT from host.
+   */
+  override setDocumentPath(path: string, webviewBaseUri?: string): void {
+    super.setDocumentPath(path);
+    if (webviewBaseUri) {
+      this._webviewBaseUri = webviewBaseUri;
+      this._baseUrl = webviewBaseUri;
+    }
+  }
+
+  async readFile(absolutePath: string, options?: ReadFileOptions): Promise<string> {
+    // VS Code: Send path to host, host reads the file
+    const response = await serviceChannel.send('READ_LOCAL_FILE', {
+      filePath: absolutePath,
+      binary: options?.binary
+    });
+    
+    const result = response as { content: string; contentType?: string };
+    return result.content;
+  }
+
+  async readRelativeFile(relativePath: string, options?: ReadFileOptions): Promise<string> {
+    // VS Code: Send relative path directly, host resolves from document directory
+    const response = await serviceChannel.send('READ_LOCAL_FILE', {
+      filePath: relativePath,
+      binary: options?.binary
+    });
+    
+    const result = response as { content: string; contentType?: string };
+    return result.content;
+  }
+
+  async fetchRemote(url: string): Promise<Uint8Array> {
+    // VS Code: Must proxy through host due to CSP restrictions
+    const response = await serviceChannel.send('FETCH_REMOTE_IMAGE', { url });
+    const { content } = response as { content: string; contentType: string };
+    
+    // Decode base64 to Uint8Array
+    const binaryString = atob(content);
+    const bytes = new Uint8Array(binaryString.length);
+    for (let i = 0; i < binaryString.length; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+    return bytes;
+  }
+
+  override resolvePath(relativePath: string): string {
+    // For VS Code, return relative path as-is - host will resolve
+    // This differs from Chrome/Firefox where we can resolve locally
+    return relativePath;
+  }
+
+  override toResourceUrl(absolutePath: string): string {
+    // Convert to VS Code webview resource URL
+    if (this._webviewBaseUri) {
+      return `${this._webviewBaseUri}${encodeURIComponent(absolutePath)}`;
+    }
+    // Fallback: return as-is (shouldn't happen if properly initialized)
+    return absolutePath;
+  }
+}
+
+// Create singleton instance
+const vsCodeDocumentService = new VSCodeDocumentService();
+
+// ============================================================================
 // VSCode Resource Service
 // ============================================================================
 
@@ -184,6 +276,7 @@ export class VSCodePlatformAPI {
   public readonly renderer: RendererService;
   public readonly i18n: VSCodeI18nService;
   public readonly message: VSCodeMessageService;
+  public readonly document: VSCodeDocumentService;
 
   constructor() {
     this.storage = storageService; // Use unified storage service
@@ -191,6 +284,7 @@ export class VSCodePlatformAPI {
     this.resource = new VSCodeResourceService();
     this.cache = cacheService; // Use unified cache service
     this.message = new VSCodeMessageService(); // Message service for plugins
+    this.document = vsCodeDocumentService; // Unified document service
     
     // Get nonce from parent window (set by preview-panel.ts)
     const nonce = (window as unknown as { VSCODE_NONCE?: string }).VSCODE_NONCE;
@@ -223,6 +317,13 @@ export class VSCodePlatformAPI {
    */
   setResourceBaseUri(uri: string): void {
     this.resource.setBaseUri(uri);
+  }
+
+  /**
+   * Set document path and base URI (called when document changes)
+   */
+  setDocumentPath(path: string, baseUri?: string): void {
+    this.document.setDocumentPath(path, baseUri);
   }
 }
 

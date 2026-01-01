@@ -71,6 +71,62 @@ export const bridge: PlatformBridgeAPI = {
 };
 
 // ============================================================================
+// Firefox Document Service
+// ============================================================================
+
+import { BaseDocumentService } from '../../../src/services/document-service';
+import type { ReadFileOptions } from '../../../src/types/platform';
+
+/**
+ * Firefox Document Service Implementation
+ * 
+ * Firefox has strict CORS restrictions that prevent extensions from reading file:// URLs.
+ * This is a browser-level security policy that cannot be bypassed via manifest.json.
+ * 
+ * Supported:
+ * - fetchRemote(): Works for http/https URLs
+ * - readRelativeFile(): Works for http/https documents (resolves relative to document URL)
+ * 
+ * Not supported:
+ * - readFile(): Cannot read file:// URLs due to Firefox CORS restrictions
+ * - readRelativeFile() on file:// pages: Cannot read local files
+ */
+class FirefoxDocumentService extends BaseDocumentService {
+  async readFile(_absolutePath: string, _options?: ReadFileOptions): Promise<string> {
+    // Firefox cannot read file:// URLs from extension context due to CORS
+    throw new Error('Firefox does not support reading local files from extensions');
+  }
+
+  async readRelativeFile(relativePath: string, options?: ReadFileOptions): Promise<string> {
+    // Resolve relative path based on current document location and fetch
+    const absoluteUrl = new URL(relativePath, window.location.href).href;
+    const data = await this.fetchRemote(absoluteUrl);
+    
+    // Convert to string (base64 for binary, text otherwise)
+    if (options?.binary) {
+      let binaryString = '';
+      for (let i = 0; i < data.byteLength; i++) {
+        binaryString += String.fromCharCode(data[i]);
+      }
+      return btoa(binaryString);
+    }
+    return new TextDecoder().decode(data);
+  }
+
+  async fetchRemote(url: string): Promise<Uint8Array> {
+    // Network URLs can be fetched directly from content script
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    return new Uint8Array(await response.arrayBuffer());
+  }
+}
+
+// Create singleton instance
+const firefoxDocumentService = new FirefoxDocumentService();
+
+// ============================================================================
 // Firefox Resource Service
 // ============================================================================
 
@@ -210,6 +266,7 @@ class FirefoxPlatformAPI {
   public readonly cache: CacheService;
   public readonly renderer: RendererService;
   public readonly i18n: FirefoxI18nService;
+  public readonly document: FirefoxDocumentService;
   
   // Internal bridge reference (for advanced usage)
   public readonly _bridge: PlatformBridgeAPI;
@@ -221,6 +278,7 @@ class FirefoxPlatformAPI {
     this.resource = new FirefoxResourceService();
     this.message = new FirefoxMessageService();
     this.cache = cacheService;
+    this.document = firefoxDocumentService; // Unified document service
     
     // Unified renderer service with BackgroundRenderHost
     // Firefox MV2 background page has DOM access (like Chrome's Offscreen API)

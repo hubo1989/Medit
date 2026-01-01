@@ -221,9 +221,11 @@ async function handleUpdateContent(payload: UpdateContentPayload): Promise<void>
   // Store document base URI for resolving relative paths
   currentDocumentBaseUri = documentBaseUri || '';
 
-  // Set global variable for rehype-image-uri plugin to use during markdown processing
-  // This allows the plugin to rewrite relative image paths to webview URIs
-  globalThis.__MARKDOWN_VIEWER_IMAGE_BASE_URI__ = documentBaseUri || undefined;
+  // Update DocumentService with document path and base URI
+  // This enables rehype-image-uri plugin to rewrite relative image paths
+  if (filename && platform.document) {
+    platform.document.setDocumentPath(filename, documentBaseUri);
+  }
 
   // Cancel any pending async tasks from previous render
   if (currentTaskManager) {

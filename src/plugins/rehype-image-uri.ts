@@ -4,16 +4,12 @@
  * This plugin is primarily used in VS Code webview context where relative
  * image paths need to be converted to vscode-webview-resource: URIs.
  * 
- * The base URI is obtained from a global variable set by the platform.
+ * The base URI is obtained from DocumentService.
  */
 
 import { visit } from 'unist-util-visit';
 import type { Root, Element } from 'hast';
-
-// Global variable for document base URI (set by VS Code webview)
-declare global {
-  var __MARKDOWN_VIEWER_IMAGE_BASE_URI__: string | undefined;
-}
+import type { DocumentService } from '../types/platform';
 
 /**
  * Check if a URL is relative (not absolute)
@@ -44,17 +40,26 @@ function normalizePath(path: string): string {
 }
 
 /**
+ * Get DocumentService from platform
+ */
+function getDocumentService(): DocumentService | undefined {
+  return (globalThis.platform as { document?: DocumentService } | undefined)?.document;
+}
+
+/**
  * Rehype plugin to rewrite image src attributes
  */
 export default function rehypeImageUri() {
   return (tree: Root) => {
-    // Get base URI from global variable
-    const baseUri = globalThis.__MARKDOWN_VIEWER_IMAGE_BASE_URI__;
+    // Get DocumentService
+    const doc = getDocumentService();
     
-    // Skip if no base URI is set (not in VS Code context)
-    if (!baseUri) {
+    // Skip if DocumentService is not available or doesn't need URI rewrite
+    if (!doc?.needsUriRewrite) {
       return;
     }
+
+    const baseUri = doc.baseUrl;
 
     visit(tree, 'element', (node: Element) => {
       if (node.tagName !== 'img') {

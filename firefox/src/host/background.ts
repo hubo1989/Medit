@@ -970,6 +970,8 @@ async function handleDocxDownloadFinalizeAsync(
   }
 }
 
+// ============================================================================
+// Read Local File Handler
 // Listen for settings changes to update cache manager
 browser.storage.onChanged.addListener((changes, areaName) => {
   if (areaName === 'local' && changes.markdownViewerSettings) {
