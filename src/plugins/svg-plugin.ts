@@ -117,39 +117,31 @@ export class SvgPlugin extends BasePlugin {
     }
 
     // Handle local file:// URLs or relative paths
-    // Check if we're in mobile environment (no chrome.runtime)
-    if (typeof chrome === 'undefined' || !chrome.runtime || !chrome.runtime.sendMessage) {
-      // In mobile WebView, request Flutter to read the file
-      // The file path is relative to the currently opened markdown file
-      const bridgeApi: PlatformBridgeAPI | undefined = globalThis.bridge as PlatformBridgeAPI | undefined;
-      if (bridgeApi) {
-        try {
-          const result = await bridgeApi.sendRequest<{ content?: string }>('READ_RELATIVE_FILE', { path: url });
-          // Flutter returns { content: string }
-          if (result && typeof result === 'object' && result.content) {
-            return result.content;
-          }
-          throw new Error('Invalid response from Flutter: ' + JSON.stringify(result));
-        } catch (e) {
-          console.error('[SVG Plugin] Failed to read file via Flutter:', e);
-          throw new Error(`Cannot load SVG file: ${url} - ${(e as Error).message}`);
-        }
-      }
-      throw new Error(`Cannot load relative SVG file in mobile: ${url}`);
-    }
-
-    // Chrome extension: use platform messaging when available (preferred)
-    const baseUrl = window.location.href;
-    const absoluteUrl = new URL(url, baseUrl).href;
-
     const createRequestId = (): string => {
       const maybeCrypto = globalThis.crypto as Crypto | undefined;
       if (maybeCrypto?.randomUUID) return maybeCrypto.randomUUID();
       return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
     };
 
+    // First, try platform.message.send (works for Chrome extension and VS Code)
     const platform = globalThis.platform as { message?: { send?: (msg: Record<string, unknown>) => Promise<unknown> } } | undefined;
     if (platform?.message?.send) {
+      // For VS Code, use the document base URI (file path) if available
+      // For Chrome, use window.location.href
+      const documentBaseUri = (globalThis as unknown as { __MARKDOWN_VIEWER_IMAGE_BASE_URI__?: string }).__MARKDOWN_VIEWER_IMAGE_BASE_URI__;
+      let absoluteUrl: string;
+      
+      if (documentBaseUri) {
+        // VS Code: documentBaseUri is like "https://file+.vscode-resource.../path/to/dir"
+        // We need to extract the actual file path and resolve relative to it
+        // Send the relative path directly, let host resolve it
+        absoluteUrl = url;
+      } else {
+        // Chrome: resolve relative to current page URL
+        const baseUrl = window.location.href;
+        absoluteUrl = new URL(url, baseUrl).href;
+      }
+      
       const response = await platform.message.send({
         id: createRequestId(),
         type: 'READ_LOCAL_FILE',
@@ -158,18 +150,35 @@ export class SvgPlugin extends BasePlugin {
         source: 'svg-plugin',
       });
 
-      if (isResponseEnvelopeLike(response)) {
-        if (!response.ok) {
-          throw new Error(response.error?.message || 'READ_LOCAL_FILE failed');
-        }
-        const data = response.data as { content?: unknown } | undefined;
-        return typeof data?.content === 'string' ? data.content : '';
+      if (!isResponseEnvelopeLike(response)) {
+        throw new Error('Unexpected READ_LOCAL_FILE response shape');
       }
-
-      throw new Error('Unexpected READ_LOCAL_FILE response shape');
+      
+      if (!response.ok) {
+        throw new Error(response.error?.message || 'READ_LOCAL_FILE failed');
+      }
+      
+      const data = response.data as { content?: unknown } | undefined;
+      return typeof data?.content === 'string' ? data.content : '';
     }
 
-    throw new Error('Platform messaging not available');
+    // Fallback: try mobile bridge API
+    const bridgeApi: PlatformBridgeAPI | undefined = globalThis.bridge as PlatformBridgeAPI | undefined;
+    if (bridgeApi) {
+      try {
+        const result = await bridgeApi.sendRequest<{ content?: string }>('READ_RELATIVE_FILE', { path: url });
+        // Flutter returns { content: string }
+        if (result && typeof result === 'object' && result.content) {
+          return result.content;
+        }
+        throw new Error('Invalid response from Flutter: ' + JSON.stringify(result));
+      } catch (e) {
+        console.error('[SVG Plugin] Failed to read file via Flutter:', e);
+        throw new Error(`Cannot load SVG file: ${url} - ${(e as Error).message}`);
+      }
+    }
+
+    throw new Error(`Cannot load local SVG file: ${url} - no platform messaging available`);
   }
 
   /**

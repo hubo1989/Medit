@@ -14,6 +14,7 @@ import rehypeKatex from 'rehype-katex';
 import rehypeHighlight from 'rehype-highlight';
 import rehypeStringify from 'rehype-stringify';
 import { visit } from 'unist-util-visit';
+import rehypeImageUri from '../plugins/rehype-image-uri';
 import { registerRemarkPlugins } from '../plugins/index';
 import { createPlaceholderElement } from '../plugins/plugin-content-utils';
 import { generateContentHash, hashCode } from '../utils/hash';
@@ -500,6 +501,7 @@ export function createMarkdownProcessor(
   processor
     .use(remarkRehype, { allowDangerousHtml: true })
     .use(rehypeSlug)
+    .use(rehypeImageUri)  // Rewrite relative image paths for VS Code webview
     .use(rehypeHighlight)
     .use(rehypeKatex)
     .use(rehypeStringify, { allowDangerousHtml: true });

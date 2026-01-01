@@ -43,6 +43,25 @@ export class MarkdownPreviewPanel {
     }
 
     // Create new panel
+    // Include workspace folders and document directory in localResourceRoots
+    // so that relative images can be loaded
+    const resourceRoots: vscode.Uri[] = [
+      vscode.Uri.joinPath(extensionUri, 'webview')
+    ];
+    
+    // Add all workspace folders
+    if (vscode.workspace.workspaceFolders) {
+      for (const folder of vscode.workspace.workspaceFolders) {
+        resourceRoots.push(folder.uri);
+      }
+    }
+    
+    // Add document directory (in case it's outside workspace)
+    const docDir = vscode.Uri.file(path.dirname(document.uri.fsPath));
+    if (!resourceRoots.some(root => docDir.fsPath.startsWith(root.fsPath))) {
+      resourceRoots.push(docDir);
+    }
+
     const panel = vscode.window.createWebviewPanel(
       MarkdownPreviewPanel.viewType,
       'Markdown Preview',
@@ -50,9 +69,7 @@ export class MarkdownPreviewPanel {
       {
         enableScripts: true,
         retainContextWhenHidden: true,
-        localResourceRoots: [
-          vscode.Uri.joinPath(extensionUri, 'webview')
-        ]
+        localResourceRoots: resourceRoots
       }
     );
 
@@ -120,11 +137,19 @@ export class MarkdownPreviewPanel {
   }
 
   public updateContent(content: string): void {
+    // Calculate document directory webview URI for resolving relative paths
+    let documentBaseUri: string | undefined;
+    if (this._document) {
+      const docDir = vscode.Uri.file(path.dirname(this._document.uri.fsPath));
+      documentBaseUri = this._panel.webview.asWebviewUri(docDir).toString();
+    }
+
     this._panel.webview.postMessage({
       type: 'UPDATE_CONTENT',
       payload: {
         content,
-        filename: this._document ? path.basename(this._document.fileName) : 'untitled.md'
+        filename: this._document ? path.basename(this._document.fileName) : 'untitled.md',
+        documentBaseUri
       }
     });
   }
@@ -342,6 +367,14 @@ export class MarkdownPreviewPanel {
           response = { success: true };
           break;
 
+        case 'READ_LOCAL_FILE':
+          // Read local file content (for SVG plugin, etc.)
+          response = await this._handleReadLocalFile(payload as { filePath: string });
+          break;
+        case 'FETCH_REMOTE_IMAGE':
+          // Fetch remote image (for DOCX export, bypasses webview CSP)
+          response = await this._handleFetchRemoteImage(payload as { url: string });
+          break;
         case 'OPEN_RELATIVE_FILE':
           // Open relative file in VS Code
           if (payload && (payload as { path: string }).path && this._document) {
@@ -649,6 +682,73 @@ export class MarkdownPreviewPanel {
     return {
       error: 'Server-side rendering not implemented. Please use client-side rendering.'
     };
+  }
+
+  /**
+   * Handle READ_LOCAL_FILE request - read file relative to current document
+   */
+  private async _handleReadLocalFile(payload: { filePath: string; binary?: boolean }): Promise<{ content: string; contentType?: string }> {
+    const { filePath, binary } = payload;
+    
+    if (!this._document) {
+      throw new Error('No document open');
+    }
+
+    let targetUri: vscode.Uri;
+    
+    // Handle different path formats
+    if (filePath.startsWith('file://')) {
+      // file:// URL - convert to URI
+      targetUri = vscode.Uri.parse(filePath);
+    } else if (path.isAbsolute(filePath)) {
+      // Absolute path
+      targetUri = vscode.Uri.file(filePath);
+    } else {
+      // Relative path - resolve from document directory
+      const documentDir = vscode.Uri.joinPath(this._document.uri, '..');
+      targetUri = vscode.Uri.joinPath(documentDir, filePath);
+    }
+
+    // Read file content
+    const data = await vscode.workspace.fs.readFile(targetUri);
+    
+    // Determine content type from extension
+    const ext = path.extname(targetUri.fsPath).toLowerCase().slice(1);
+    const contentTypeMap: Record<string, string> = {
+      'png': 'image/png', 'jpg': 'image/jpeg', 'jpeg': 'image/jpeg',
+      'gif': 'image/gif', 'bmp': 'image/bmp', 'webp': 'image/webp',
+      'svg': 'image/svg+xml', 'ico': 'image/x-icon'
+    };
+    const contentType = contentTypeMap[ext];
+    
+    if (binary) {
+      // Return base64 encoded content for binary files (images, etc.)
+      const content = Buffer.from(data).toString('base64');
+      return { content, contentType };
+    } else {
+      // Return UTF-8 text content
+      const content = Buffer.from(data).toString('utf-8');
+      return { content, contentType };
+    }
+  }
+
+  /**
+   * Handle FETCH_REMOTE_IMAGE request - fetch image from URL (bypasses webview CSP)
+   */
+  private async _handleFetchRemoteImage(payload: { url: string }): Promise<{ content: string; contentType: string }> {
+    const { url } = payload;
+    
+    // Use Node.js https/http modules to fetch the image
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    
+    const arrayBuffer = await response.arrayBuffer();
+    const content = Buffer.from(arrayBuffer).toString('base64');
+    const contentType = response.headers.get('content-type') || 'image/png';
+    
+    return { content, contentType };
   }
 
   private _getConfiguration(): Record<string, unknown> {

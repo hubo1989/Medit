@@ -1,4 +1,4 @@
-# Markdown Viewer
+# ![Markdown Viewer](icons/icon48.png) Markdown Viewer
 
 [English](docs/readme/README.en.md) · [简体中文](docs/readme/README.zh-CN.md) · [繁體中文](docs/readme/README.zh-TW.md) · [Русский](docs/readme/README.ru.md) · [日本語](docs/readme/README.ja.md) · [हिन्दी](docs/readme/README.hi.md) · [한국어](docs/readme/README.ko.md) · [Deutsch](docs/readme/README.de.md) · [Português (Brasil)](docs/readme/README.pt-BR.md) · [Português (Portugal)](docs/readme/README.pt-PT.md) · [Nederlands](docs/readme/README.nl.md) · [Українська](docs/readme/README.uk.md) · [Tiếng Việt](docs/readme/README.vi.md) · [Беларуская](docs/readme/README.be.md) · [Français](docs/readme/README.fr.md) · [Italiano](docs/readme/README.it.md) · [Bahasa Indonesia](docs/readme/README.id.md) · [Español](docs/readme/README.es.md) · [ไทย](docs/readme/README.th.md) · [Svenska](docs/readme/README.sv.md) · [Türkçe](docs/readme/README.tr.md) · [Eesti](docs/readme/README.et.md) · [Bahasa Melayu](docs/readme/README.ms.md) · [Polski](docs/readme/README.pl.md) · [Suomi](docs/readme/README.fi.md) · [Lietuvių](docs/readme/README.lt.md) · [Norsk](docs/readme/README.no.md) · [Dansk](docs/readme/README.da.md)
 
@@ -6,7 +6,12 @@
 
 *Completely Free · Local Processing · 18+ Professional Themes · 28 Languages Support*
 
- 🚀 **Install Now:** https://chromewebstore.google.com/detail/markdown-viewer/jekhhoflgcfoikceikgeenibinpojaoi
+![Install](icons/icon16.png) 🚀 **Install Now (Choose Your Platform):**
+
+- **Chrome / Chromium:** https://chromewebstore.google.com/detail/markdown-viewer/jekhhoflgcfoikceikgeenibinpojaoi
+- **Firefox:** https://addons.mozilla.org/firefox/addon/markdown-viewer/
+- **VS Code:** Search "Markdown Viewer" in Extensions, or run `code --install-extension markdown-viewer`
+- **Mobile (iOS/Android):** See [Mobile App](docs/platforms/mobile.md)
 
 ---
 
@@ -34,6 +39,19 @@ Click to download and get a perfect Word document:
 **Spend time on writing, not on formatting.**
 
 ---
+
+## 🌍 Available Platforms
+
+Markdown Viewer is not just a Chrome extension anymore — it's a unified rendering + export engine shipped across multiple platforms.
+
+| Platform | Best for | Docs |
+|---|---|---|
+| **Chrome Extension** | Reading local/online Markdown in browser + export | [docs/platforms/chrome.md](docs/platforms/chrome.md) |
+| **Firefox Extension** | Firefox users, same core features | [docs/platforms/firefox.md](docs/platforms/firefox.md) |
+| **VS Code Extension** | Writing + live preview + export inside editor | [docs/platforms/vscode.md](docs/platforms/vscode.md) |
+| **Mobile App** | Reading/export on the go (iOS/Android) | [docs/platforms/mobile.md](docs/platforms/mobile.md) |
+
+See the full feature matrix: [docs/platforms/platform-comparison.md](docs/platforms/platform-comparison.md)
 
 ## 💫 See It in Action
 
@@ -164,22 +182,25 @@ Document with 50 Mermaid diagrams:
 
 ## 🚀 Quick Start - 3 Steps
 
-### Step 1: Install Extension (30 seconds)
+### Step 1: Install (30 seconds)
 
-1. Open Chrome browser
-2. Visit Chrome Web Store
-3. Search "Markdown Viewer"
-4. Click "Add to Chrome"
-5. ✅ Installation complete
+Pick one platform and install:
 
-### Step 2: Allow File Access (1 minute)
+- **Chrome / Chromium:** Chrome Web Store link above
+- **Firefox:** Firefox Add-ons link above
+- **VS Code:** Extensions panel → search "Markdown Viewer" (or `code --install-extension markdown-viewer`)
+- **Mobile:** Open App Store / Google Play and search "Markdown Viewer"
 
-**If you want to open local .md files:**
+### Step 2: Open a Markdown file (1 minute)
 
-1. Open `chrome://extensions/`
-2. Find Markdown Viewer
-3. Enable "Allow access to file URLs"
-4. ✅ Now you can double-click to open local Markdown files
+**Browser (Chrome / Firefox) — local files:**
+
+1. Enable local file access in your browser extension settings
+2. ✅ Now you can double-click to open local `.md` files
+
+**VS Code:** Open any `.md` file → run the preview command (see [VS Code Extension](docs/platforms/vscode.md))
+
+**Mobile:** Use file picker or open from cloud drive (details in [Mobile App](docs/platforms/mobile.md))
 
 **Not needed if:**
 - Only viewing online docs (GitHub, blogs, etc.)
@@ -187,7 +208,7 @@ Document with 50 Mermaid diagrams:
 
 ### Quick Start
 
-**Open documents:** Double-click .md files, or drag to browser · GitHub docs auto-rendered
+**Open documents:** Local `.md` files / supported diagram files (`.mermaid` `.dot` `.vega` `.vl` `.infographic`) depending on platform
 
 **Export to Word:** Click download button or `Ctrl/Cmd + S` → See progress → Auto-save
 
@@ -265,7 +286,7 @@ A: No. Progressive loading + smart cache, text displays instantly, diagrams rend
 A: Default max 1000 items, approximately 500 MB, adjustable or clearable in settings.
 
 **Q: Which browsers are supported?**  
-A: Chrome and Chromium-based browsers (Edge, Brave, Opera).
+A: Chrome/Chromium-based browsers (Edge, Brave, Opera, etc.) and Firefox.
 
 **Q: Which Word versions can open the exported file?**  
 A: Word 2016+ fully supported, Word 2013 also works. Fully compatible with WPS Office.
@@ -289,7 +310,7 @@ A: Use ````vega-lite` code block in Markdown with JSON format chart specificatio
 - ✅ All processing done locally, never uploaded
 - ✅ No tracking, no personal data collection
 - ✅ Open source code, auditable and transparent
-- ✅ Chrome Web Store security approved (Manifest V3)
+- ✅ Browser extensions use modern platform standards (Manifest V3)
 
 **Your privacy is 100% protected.**
 
@@ -305,11 +326,10 @@ A: Use ````vega-lite` code block in Markdown with JSON format chart specificatio
 
 **Install in 30 seconds, start using immediately:**
 
-1. Visit Chrome Web Store → Search "Markdown Viewer"
-2. Click "Add to Chrome"
-3. Click "Manage Extensions" , Enable "Allow access to file URLs"
-4. Drag `.md` files to browser
-5. ✅ Start using
+1. Install on Chrome / Firefox / VS Code / Mobile (links above)
+2. Open a Markdown file
+3. Preview and click export (or use `Ctrl/Cmd + S` where supported)
+4. ✅ Get a clean, ready-to-share Word document
 
 **You'll get:** Markdown → Word one-click conversion · Mermaid auto-convert · LaTeX editable formulas · 100+ languages syntax highlighting · 18+ themes · Smart cache · Completely free
 

@@ -50,6 +50,7 @@ let currentThemeId = 'default';
 let currentTaskManager: AsyncTaskManager | null = null;
 let currentZoomLevel = 1;
 let lastRenderedFilename = '';  // Track last rendered file for incremental updates
+let currentDocumentBaseUri = '';  // Base URI for resolving relative paths (images, links)
 
 // UI components
 let settingsPanel: SettingsPanel | null = null;
@@ -154,6 +155,7 @@ interface UpdateContentPayload {
   content: string;
   filename?: string;
   themeDataJson?: string;
+  documentBaseUri?: string;
 }
 
 interface SetThemePayload {
@@ -208,13 +210,20 @@ function handleExtensionMessage(message: ExtensionMessage): void {
 // ============================================================================
 
 async function handleUpdateContent(payload: UpdateContentPayload): Promise<void> {
-  const { content, filename, themeDataJson } = payload;
+  const { content, filename, themeDataJson, documentBaseUri } = payload;
   const container = document.getElementById('markdown-content');
   
   if (!container) {
     console.error('[VSCode Webview] Content container not found');
     return;
   }
+
+  // Store document base URI for resolving relative paths
+  currentDocumentBaseUri = documentBaseUri || '';
+
+  // Set global variable for rehype-image-uri plugin to use during markdown processing
+  // This allows the plugin to rewrite relative image paths to webview URIs
+  globalThis.__MARKDOWN_VIEWER_IMAGE_BASE_URI__ = documentBaseUri || undefined;
 
   // Cancel any pending async tasks from previous render
   if (currentTaskManager) {

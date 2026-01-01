@@ -130,6 +130,46 @@ class VSCodeI18nService extends BaseI18nService {
 }
 
 // ============================================================================
+// VSCode Message Service
+// ============================================================================
+
+class VSCodeMessageService {
+  async send(message: Record<string, unknown>): Promise<unknown> {
+    // Extract type and requestId from message
+    const { type, payload, id, ...rest } = message;
+    const requestId = (id ?? rest.requestId) as string | undefined;
+    
+    if (typeof type !== 'string') {
+      throw new Error('Message must have a type field');
+    }
+    
+    try {
+      const data = await serviceChannel.send(type, payload ?? rest);
+      // Wrap response in ResponseEnvelope format for consistency with Chrome extension
+      return {
+        type: 'RESPONSE',
+        requestId: requestId ?? '',
+        ok: true,
+        data
+      };
+    } catch (error) {
+      return {
+        type: 'RESPONSE',
+        requestId: requestId ?? '',
+        ok: false,
+        error: {
+          message: error instanceof Error ? error.message : 'Unknown error'
+        }
+      };
+    }
+  }
+
+  addListener(handler: (message: unknown) => void): void {
+    serviceChannel.onAny(handler);
+  }
+}
+
+// ============================================================================
 // VSCode Platform API
 // ============================================================================
 
@@ -143,12 +183,14 @@ export class VSCodePlatformAPI {
   public readonly cache: CacheService;
   public readonly renderer: RendererService;
   public readonly i18n: VSCodeI18nService;
+  public readonly message: VSCodeMessageService;
 
   constructor() {
     this.storage = storageService; // Use unified storage service
     this.file = fileService;       // Use unified file service
     this.resource = new VSCodeResourceService();
     this.cache = cacheService; // Use unified cache service
+    this.message = new VSCodeMessageService(); // Message service for plugins
     
     // Get nonce from parent window (set by preview-panel.ts)
     const nonce = (window as unknown as { VSCODE_NONCE?: string }).VSCODE_NONCE;

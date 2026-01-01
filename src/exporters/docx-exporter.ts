@@ -99,6 +99,24 @@ class DocxExporter {
     this.baseUrl = url;
   }
 
+  /**
+   * Resolve local URL for file loading
+   * In VS Code, return relative path directly (host will resolve it)
+   * In browser extension, resolve relative to baseUrl
+   */
+  private resolveLocalUrl(url: string): string {
+    // Check if we're in VS Code environment (has document base URI set)
+    const documentBaseUri = (globalThis as unknown as { __MARKDOWN_VIEWER_IMAGE_BASE_URI__?: string }).__MARKDOWN_VIEWER_IMAGE_BASE_URI__;
+    
+    if (documentBaseUri) {
+      // VS Code: return relative path directly, host will resolve it
+      return url;
+    }
+    
+    // Browser extension: resolve relative to baseUrl
+    return this.baseUrl ? new URL(url, this.baseUrl).href : url;
+  }
+
   async initializeMathJax(): Promise<void> {
     if (!this.mathJaxInitialized) {
       await mathJaxReady();
@@ -718,8 +736,33 @@ class DocxExporter {
 
     const absoluteUrl = (url.startsWith('http://') || url.startsWith('https://'))
       ? url
-      : (this.baseUrl ? new URL(url, this.baseUrl).href : url);
+      : this.resolveLocalUrl(url);
 
+    const isNetworkUrl = absoluteUrl.startsWith('http://') || absoluteUrl.startsWith('https://');
+
+    // Check if we're in VS Code environment (has CSP restrictions for network requests)
+    const isVSCode = !!(globalThis as unknown as { __MARKDOWN_VIEWER_IMAGE_BASE_URI__?: string }).__MARKDOWN_VIEWER_IMAGE_BASE_URI__;
+
+    // For network URLs in non-VS Code environments (Chrome/Firefox), use direct fetch
+    if (isNetworkUrl && !isVSCode) {
+      try {
+        const response = await fetch(absoluteUrl);
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        const arrayBuffer = await response.arrayBuffer();
+        const bytes = new Uint8Array(arrayBuffer);
+        const contentType = response.headers.get('content-type') || 'image/png';
+        
+        const result: ImageBufferResult = { buffer: bytes, contentType };
+        this.imageCache.set(url, result);
+        return result;
+      } catch (error) {
+        throw new Error(`Failed to fetch image: ${absoluteUrl} - ${(error as Error).message}`);
+      }
+    }
+
+    // For VS Code or local files, use platform messaging
     const createRequestId = (): string => {
       const maybeCrypto = globalThis.crypto as Crypto | undefined;
       if (maybeCrypto?.randomUUID) return maybeCrypto.randomUUID();
@@ -731,11 +774,14 @@ class DocxExporter {
     return new Promise((resolve, reject) => {
       const send = async (): Promise<unknown> => {
         if (platform?.message?.send) {
+          // Use different message type for network vs local files
+          const messageType = isNetworkUrl ? 'FETCH_REMOTE_IMAGE' : 'READ_LOCAL_FILE';
           return platform.message.send({
             id: createRequestId(),
-            type: 'READ_LOCAL_FILE',
+            type: messageType,
             payload: {
               filePath: absoluteUrl,
+              url: absoluteUrl,
               binary: true,
             },
             timestamp: Date.now(),
