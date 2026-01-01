@@ -69,9 +69,7 @@ class PopupManager {
     const extensionTitle = document.getElementById('extension-title');
     if (extensionTitle) {
       extensionTitle.addEventListener('click', () => {
-        chrome.tabs.create({
-          url: 'https://chromewebstore.google.com/detail/markdown-viewer/jekhhoflgcfoikceikgeenibinpojaoi'
-        });
+        window.open('https://xicilion.gitbook.io/markdown-viewer-extension/', '_blank');
       });
     }
 
@@ -80,9 +78,7 @@ class PopupManager {
     if (reviewLink) {
       reviewLink.addEventListener('click', (e) => {
         e.preventDefault();
-        chrome.tabs.create({
-          url: 'https://chromewebstore.google.com/detail/markdown-viewer/jekhhoflgcfoikceikgeenibinpojaoi/reviews'
-        });
+        window.open('https://chromewebstore.google.com/detail/markdown-viewer/jekhhoflgcfoikceikgeenibinpojaoi/reviews', '_blank');
       });
     }
 
