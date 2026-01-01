@@ -157,7 +157,7 @@ export async function checkFileAccess(): Promise<void> {
         if (link) {
           link.addEventListener('click', (e) => {
             e.preventDefault();
-            chrome.tabs.create({ url: extensionUrl });
+            window.open(extensionUrl, '_blank');
           });
         }
       }
