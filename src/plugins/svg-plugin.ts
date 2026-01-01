@@ -4,21 +4,7 @@
  * Handles SVG code blocks and SVG image files in content script and DOCX export
  */
 import { BasePlugin } from './base-plugin';
-import type { PlatformBridgeAPI } from '../types/index';
-
-type ResponseEnvelopeLike = {
-  type: 'RESPONSE';
-  requestId: string;
-  ok: boolean;
-  data?: unknown;
-  error?: { message?: string };
-};
-
-function isResponseEnvelopeLike(message: unknown): message is ResponseEnvelopeLike {
-  if (!message || typeof message !== 'object') return false;
-  const obj = message as Record<string, unknown>;
-  return obj.type === 'RESPONSE' && typeof obj.requestId === 'string' && typeof obj.ok === 'boolean';
-}
+import type { DocumentService } from '../types/platform';
 
 /**
  * AST node interface for SVG plugin
@@ -90,11 +76,12 @@ export class SvgPlugin extends BasePlugin {
 
   /**
    * Fetch SVG content from URL
-   * @param url - URL to fetch (http://, https://, file://, or data:)
+   * Uses DocumentService for unified file access across all platforms.
+   * @param url - URL to fetch (http://, https://, file://, data:, or relative path)
    * @returns SVG content
    */
   async fetchContent(url: string): Promise<string> {
-    // Handle data: URLs
+    // Handle data: URLs (no platform API needed)
     if (url.startsWith('data:image/svg+xml')) {
       const base64Match = url.match(/^data:image\/svg\+xml;base64,(.+)$/);
       if (base64Match) {
@@ -107,78 +94,28 @@ export class SvgPlugin extends BasePlugin {
       throw new Error('Unsupported SVG data URL format');
     }
 
+    // Get DocumentService from platform
+    const doc = (globalThis.platform as { document?: DocumentService } | undefined)?.document;
+    if (!doc) {
+      throw new Error('DocumentService not available - platform not initialized');
+    }
+
     // Handle http:// and https:// URLs
     if (url.startsWith('http://') || url.startsWith('https://')) {
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-      return await response.text();
+      // Use DocumentService.fetchRemote for CSP-safe remote fetch
+      const data = await doc.fetchRemote(url);
+      return new TextDecoder().decode(data);
     }
 
     // Handle local file:// URLs or relative paths
-    const createRequestId = (): string => {
-      const maybeCrypto = globalThis.crypto as Crypto | undefined;
-      if (maybeCrypto?.randomUUID) return maybeCrypto.randomUUID();
-      return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-    };
-
-    // First, try platform.message.send (works for Chrome extension and VS Code)
-    const platform = globalThis.platform as { message?: { send?: (msg: Record<string, unknown>) => Promise<unknown> } } | undefined;
-    if (platform?.message?.send) {
-      // For VS Code, use the document base URI (file path) if available
-      // For Chrome, use window.location.href
-      const documentBaseUri = (globalThis as unknown as { __MARKDOWN_VIEWER_IMAGE_BASE_URI__?: string }).__MARKDOWN_VIEWER_IMAGE_BASE_URI__;
-      let absoluteUrl: string;
-      
-      if (documentBaseUri) {
-        // VS Code: documentBaseUri is like "https://file+.vscode-resource.../path/to/dir"
-        // We need to extract the actual file path and resolve relative to it
-        // Send the relative path directly, let host resolve it
-        absoluteUrl = url;
-      } else {
-        // Chrome: resolve relative to current page URL
-        const baseUrl = window.location.href;
-        absoluteUrl = new URL(url, baseUrl).href;
-      }
-      
-      const response = await platform.message.send({
-        id: createRequestId(),
-        type: 'READ_LOCAL_FILE',
-        payload: { filePath: absoluteUrl },
-        timestamp: Date.now(),
-        source: 'svg-plugin',
-      });
-
-      if (!isResponseEnvelopeLike(response)) {
-        throw new Error('Unexpected READ_LOCAL_FILE response shape');
-      }
-      
-      if (!response.ok) {
-        throw new Error(response.error?.message || 'READ_LOCAL_FILE failed');
-      }
-      
-      const data = response.data as { content?: unknown } | undefined;
-      return typeof data?.content === 'string' ? data.content : '';
+    // Strip file:// prefix if present
+    const filePath = url.startsWith('file://') ? url.slice(7) : url;
+    
+    try {
+      return await doc.readRelativeFile(filePath);
+    } catch (error) {
+      throw new Error(`Cannot load SVG file: ${url} - ${(error as Error).message}`);
     }
-
-    // Fallback: try mobile bridge API
-    const bridgeApi: PlatformBridgeAPI | undefined = globalThis.bridge as PlatformBridgeAPI | undefined;
-    if (bridgeApi) {
-      try {
-        const result = await bridgeApi.sendRequest<{ content?: string }>('READ_RELATIVE_FILE', { path: url });
-        // Flutter returns { content: string }
-        if (result && typeof result === 'object' && result.content) {
-          return result.content;
-        }
-        throw new Error('Invalid response from Flutter: ' + JSON.stringify(result));
-      } catch (e) {
-        console.error('[SVG Plugin] Failed to read file via Flutter:', e);
-        throw new Error(`Cannot load SVG file: ${url} - ${(e as Error).message}`);
-      }
-    }
-
-    throw new Error(`Cannot load local SVG file: ${url} - no platform messaging available`);
   }
 
   /**

@@ -92,6 +92,85 @@ export const bridge: PlatformBridgeAPI = {
 };
 
 // ============================================================================
+// Mobile Document Service
+// ============================================================================
+
+import { BaseDocumentService } from '../../../src/services/document-service';
+import type { ReadFileOptions } from '../../../src/types/platform';
+
+/**
+ * Mobile Document Service Implementation
+ * 
+ * Key differences from Chrome/Firefox:
+ * - Document path is provided by Flutter host
+ * - Uses READ_RELATIVE_FILE message for file reads (Flutter resolves paths)
+ * - Direct fetch for remote resources (no CSP restrictions)
+ * - Enables URI rewrite for network documents (relative images need absolute URLs)
+ */
+class MobileDocumentService extends BaseDocumentService {
+  constructor() {
+    super();
+  }
+
+  async readFile(absolutePath: string, options?: ReadFileOptions): Promise<string> {
+    // For absolute paths, use READ_RELATIVE_FILE with full path
+    // Flutter's handler supports absolute paths starting with /
+    const result = await hostServiceChannel.send('READ_RELATIVE_FILE', {
+      path: absolutePath,
+      binary: options?.binary
+    });
+    
+    return (result as { content: string }).content;
+  }
+
+  async readRelativeFile(relativePath: string, options?: ReadFileOptions): Promise<string> {
+    // Send relative path to Flutter, it will resolve from document directory
+    const result = await hostServiceChannel.send('READ_RELATIVE_FILE', {
+      path: relativePath,
+      binary: options?.binary
+    });
+    
+    return (result as { content: string }).content;
+  }
+
+  async fetchRemote(url: string): Promise<Uint8Array> {
+    // Mobile has no CSP restrictions, direct fetch
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    return new Uint8Array(await response.arrayBuffer());
+  }
+
+  override resolvePath(relativePath: string): string {
+    // For Mobile, return relative path as-is - Flutter will resolve
+    // This is similar to VS Code behavior
+    return relativePath;
+  }
+
+  override toResourceUrl(absolutePath: string): string {
+    // Mobile uses file:// URLs
+    if (absolutePath.startsWith('file://')) {
+      return absolutePath;
+    }
+    return `file://${absolutePath}`;
+  }
+
+  override setDocumentPath(path: string, baseUrl?: string): void {
+    super.setDocumentPath(path, baseUrl);
+    
+    // Always enable URI rewrite - relative paths need to be resolved
+    this._needsUriRewrite = true;
+    if (baseUrl) {
+      this._baseUrl = baseUrl;
+    }
+  }
+}
+
+// Create singleton instance
+const mobileDocumentService = new MobileDocumentService();
+
+// ============================================================================
 // Mobile Resource Service
 // ============================================================================
 
@@ -209,6 +288,7 @@ class MobilePlatformAPI {
   public readonly cache: CacheService;
   public readonly renderer: RendererService;
   public readonly i18n: MobileI18nService;
+  public readonly document: MobileDocumentService;
   
   // Internal bridge reference (for advanced usage)
   public readonly _bridge: PlatformBridgeAPI;
@@ -220,6 +300,7 @@ class MobilePlatformAPI {
     this.resource = new MobileResourceService();
     this.message = new MobileMessageService();
     this.cache = cacheService; // Use unified cache service
+    this.document = mobileDocumentService; // Unified document service
     
     // Unified renderer service with IframeRenderHost
     this.renderer = new RendererService({

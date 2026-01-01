@@ -30,6 +30,7 @@ import { loadThemeForDOCX } from './theme-to-docx';
 import themeManager from '../utils/theme-manager';
 import { getPluginForNode, convertNodeToDOCX } from '../plugins/index';
 import type { PluginRenderer } from '../types/plugin';
+import type { DocumentService } from '../types/platform';
 import type {
   DOCXThemeStyles,
   DOCXHeadingStyle,
@@ -97,24 +98,20 @@ class DocxExporter {
 
   setBaseUrl(url: string): void {
     this.baseUrl = url;
+    // Update DocumentService with document path
+    const doc = this.getDocumentService();
+    if (doc) {
+      // Extract file path from file:// URL
+      const filePath = url.startsWith('file://') ? url.replace('file://', '') : url;
+      doc.setDocumentPath(filePath);
+    }
   }
 
   /**
-   * Resolve local URL for file loading
-   * In VS Code, return relative path directly (host will resolve it)
-   * In browser extension, resolve relative to baseUrl
+   * Get DocumentService from platform
    */
-  private resolveLocalUrl(url: string): string {
-    // Check if we're in VS Code environment (has document base URI set)
-    const documentBaseUri = (globalThis as unknown as { __MARKDOWN_VIEWER_IMAGE_BASE_URI__?: string }).__MARKDOWN_VIEWER_IMAGE_BASE_URI__;
-    
-    if (documentBaseUri) {
-      // VS Code: return relative path directly, host will resolve it
-      return url;
-    }
-    
-    // Browser extension: resolve relative to baseUrl
-    return this.baseUrl ? new URL(url, this.baseUrl).href : url;
+  private getDocumentService(): DocumentService | undefined {
+    return (globalThis.platform as { document?: DocumentService } | undefined)?.document;
   }
 
   async initializeMathJax(): Promise<void> {
@@ -718,6 +715,7 @@ class DocxExporter {
       return this.imageCache.get(url)!;
     }
 
+    // Handle data: URLs directly
     if (url.startsWith('data:')) {
       const match = url.match(/^data:([^;,]+)[^,]*,(.+)$/);
       if (!match) throw new Error('Invalid data URL format');
@@ -734,117 +732,49 @@ class DocxExporter {
       return result;
     }
 
-    const absoluteUrl = (url.startsWith('http://') || url.startsWith('https://'))
-      ? url
-      : this.resolveLocalUrl(url);
+    const doc = this.getDocumentService();
+    if (!doc) {
+      throw new Error('DocumentService not available - platform not initialized');
+    }
 
-    const isNetworkUrl = absoluteUrl.startsWith('http://') || absoluteUrl.startsWith('https://');
+    const isNetworkUrl = url.startsWith('http://') || url.startsWith('https://');
 
-    // Check if we're in VS Code environment (has CSP restrictions for network requests)
-    const isVSCode = !!(globalThis as unknown as { __MARKDOWN_VIEWER_IMAGE_BASE_URI__?: string }).__MARKDOWN_VIEWER_IMAGE_BASE_URI__;
-
-    // For network URLs in non-VS Code environments (Chrome/Firefox), use direct fetch
-    if (isNetworkUrl && !isVSCode) {
-      try {
-        const response = await fetch(absoluteUrl);
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-        }
-        const arrayBuffer = await response.arrayBuffer();
-        const bytes = new Uint8Array(arrayBuffer);
-        const contentType = response.headers.get('content-type') || 'image/png';
-        
+    try {
+      if (isNetworkUrl) {
+        // Use DocumentService.fetchRemote (handles CSP transparently)
+        const bytes = await doc.fetchRemote(url);
+        const contentType = this.guessContentType(url);
         const result: ImageBufferResult = { buffer: bytes, contentType };
         this.imageCache.set(url, result);
         return result;
-      } catch (error) {
-        throw new Error(`Failed to fetch image: ${absoluteUrl} - ${(error as Error).message}`);
-      }
-    }
-
-    // For VS Code or local files, use platform messaging
-    const createRequestId = (): string => {
-      const maybeCrypto = globalThis.crypto as Crypto | undefined;
-      if (maybeCrypto?.randomUUID) return maybeCrypto.randomUUID();
-      return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-    };
-
-    const platform = globalThis.platform as { message?: { send?: (msg: Record<string, unknown>) => Promise<unknown> } } | undefined;
-
-    return new Promise((resolve, reject) => {
-      const send = async (): Promise<unknown> => {
-        if (platform?.message?.send) {
-          // Use different message type for network vs local files
-          const messageType = isNetworkUrl ? 'FETCH_REMOTE_IMAGE' : 'READ_LOCAL_FILE';
-          return platform.message.send({
-            id: createRequestId(),
-            type: messageType,
-            payload: {
-              filePath: absoluteUrl,
-              url: absoluteUrl,
-              binary: true,
-            },
-            timestamp: Date.now(),
-            source: 'docx-exporter',
-          });
-        }
-
-        throw new Error('Platform messaging not available');
-      };
-
-      void send().then((raw: unknown) => {
-        let content: string | undefined;
-        let contentType: string | undefined;
-
-        const envelope = raw as { type?: unknown; ok?: unknown; data?: unknown; error?: unknown };
-        if (envelope && envelope.type === 'RESPONSE' && typeof envelope.ok === 'boolean') {
-          if (!envelope.ok) {
-            const message = (envelope.error as { message?: unknown } | undefined)?.message;
-            reject(new Error(typeof message === 'string' ? message : 'READ_LOCAL_FILE failed'));
-            return;
-          }
-          const data = envelope.data as { content?: unknown; contentType?: unknown } | undefined;
-          content = typeof data?.content === 'string' ? data.content : undefined;
-          contentType = typeof data?.contentType === 'string' ? data.contentType : undefined;
-        } else if (raw && typeof raw === 'object' && ('success' in (raw as Record<string, unknown>) || 'result' in (raw as Record<string, unknown>) || 'error' in (raw as Record<string, unknown>))) {
-          const msg = raw as { success?: unknown; result?: unknown; error?: unknown };
-          if (typeof msg.error === 'string' && msg.error.length > 0) {
-            reject(new Error(msg.error));
-            return;
-          }
-          if (msg.success === false) {
-            reject(new Error('READ_LOCAL_FILE failed'));
-            return;
-          }
-          const data = msg.result as { content?: unknown; contentType?: unknown } | undefined;
-          content = typeof data?.content === 'string' ? data.content : undefined;
-          contentType = typeof data?.contentType === 'string' ? data.contentType : undefined;
-        } else {
-          reject(new Error('Unexpected READ_LOCAL_FILE response shape'));
-          return;
-        }
-
-        const binaryString = atob(content || '');
+      } else {
+        // Use DocumentService.readRelativeFile for local files
+        const content = await doc.readRelativeFile(url, { binary: true });
+        const binaryString = atob(content);
         const bytes = new Uint8Array(binaryString.length);
         for (let i = 0; i < binaryString.length; i++) {
           bytes[i] = binaryString.charCodeAt(i);
         }
-
-        let resolvedContentType = contentType;
-        if (!contentType) {
-          const ext = url.split('.').pop()?.toLowerCase().split('?')[0] || '';
-          const map: Record<string, string> = {
-            'png': 'image/png', 'jpg': 'image/jpeg', 'jpeg': 'image/jpeg',
-            'gif': 'image/gif', 'bmp': 'image/bmp', 'webp': 'image/webp', 'svg': 'image/svg+xml'
-          };
-          resolvedContentType = map[ext] || 'image/png';
-        }
-
-        const result: ImageBufferResult = { buffer: bytes, contentType: resolvedContentType || 'image/png' };
+        const contentType = this.guessContentType(url);
+        const result: ImageBufferResult = { buffer: bytes, contentType };
         this.imageCache.set(url, result);
-        resolve(result);
-      }).catch((err) => reject(err));
-    });
+        return result;
+      }
+    } catch (error) {
+      throw new Error(`Failed to fetch image: ${url} - ${(error as Error).message}`);
+    }
+  }
+
+  /**
+   * Guess content type from URL extension
+   */
+  private guessContentType(url: string): string {
+    const ext = url.split('.').pop()?.toLowerCase().split('?')[0] || '';
+    const map: Record<string, string> = {
+      'png': 'image/png', 'jpg': 'image/jpeg', 'jpeg': 'image/jpeg',
+      'gif': 'image/gif', 'bmp': 'image/bmp', 'webp': 'image/webp', 'svg': 'image/svg+xml'
+    };
+    return map[ext] || 'image/png';
   }
 }
 

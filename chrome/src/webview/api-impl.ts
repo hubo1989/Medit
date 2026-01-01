@@ -62,6 +62,100 @@ const storageService = new StorageService(serviceChannel);
 const fileService = new FileService(serviceChannel);
 
 // ============================================================================
+// Chrome Document Service
+// ============================================================================
+
+import { BaseDocumentService } from '../../../src/services/document-service';
+import type { ReadFileOptions } from '../../../src/types/platform';
+
+/**
+ * Chrome Document Service Implementation
+ * 
+ * Chrome content script can directly fetch both network URLs and relative paths.
+ * For relative paths, the browser resolves them based on the current page's file:// URL.
+ * No need to send messages to background for file reading.
+ */
+export class ChromeDocumentService extends BaseDocumentService {
+  constructor() {
+    super();
+    // Initialize from current page URL for file:// pages
+    this._initFromLocation();
+  }
+
+  private _initFromLocation(): void {
+    const href = window.location.href;
+    if (href.startsWith('file://')) {
+      // Extract file path from file:// URL
+      const filePath = decodeURIComponent(href.replace('file://', ''));
+      this.setDocumentPath(filePath);
+    }
+  }
+
+  async readFile(absolutePath: string, options?: ReadFileOptions): Promise<string> {
+    // Convert to file:// URL if needed
+    const fileUrl = absolutePath.startsWith('file://') ? absolutePath : `file://${absolutePath}`;
+    
+    const response = await fetch(fileUrl);
+    if (!response.ok) {
+      throw new Error(`Failed to read file: ${response.status} ${response.statusText}`);
+    }
+    
+    if (options?.binary) {
+      const arrayBuffer = await response.arrayBuffer();
+      const bytes = new Uint8Array(arrayBuffer);
+      let binaryString = '';
+      for (let i = 0; i < bytes.byteLength; i++) {
+        binaryString += String.fromCharCode(bytes[i]);
+      }
+      return btoa(binaryString);
+    }
+    
+    return response.text();
+  }
+
+  async readRelativeFile(relativePath: string, options?: ReadFileOptions): Promise<string> {
+    // Chrome content script can directly fetch relative paths
+    // The browser resolves them based on current page URL
+    const response = await fetch(relativePath);
+    if (!response.ok) {
+      throw new Error(`Failed to read file: ${response.status} ${response.statusText}`);
+    }
+    
+    if (options?.binary) {
+      const arrayBuffer = await response.arrayBuffer();
+      const bytes = new Uint8Array(arrayBuffer);
+      let binaryString = '';
+      for (let i = 0; i < bytes.byteLength; i++) {
+        binaryString += String.fromCharCode(bytes[i]);
+      }
+      return btoa(binaryString);
+    }
+    
+    return response.text();
+  }
+
+  async fetchRemote(url: string): Promise<Uint8Array> {
+    // Chrome content script can directly fetch network URLs
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    return new Uint8Array(await response.arrayBuffer());
+  }
+
+  override setDocumentPath(path: string, baseUrl?: string): void {
+    super.setDocumentPath(path, baseUrl);
+    // Chrome uses file:// URLs directly
+    if (!baseUrl) {
+      this._baseUrl = `file://${this._documentDir}`;
+    }
+  }
+}
+
+// Create singleton instance
+const documentService = new ChromeDocumentService();
+
+// ============================================================================
 // Chrome Resource Service
 // ============================================================================
 
@@ -252,6 +346,7 @@ export class ChromePlatformAPI {
   public readonly cache: CacheService;
   public readonly renderer: RendererService;
   public readonly i18n: ChromeI18nService;
+  public readonly document: ChromeDocumentService;
 
   constructor() {
     // Initialize services
@@ -260,6 +355,7 @@ export class ChromePlatformAPI {
     this.resource = new ChromeResourceService();
     this.message = new ChromeMessageService();
     this.cache = cacheService; // Use unified cache service
+    this.document = documentService; // Unified document service
     
     // Unified renderer service with OffscreenRenderHost
     // Chrome offscreen document handles serialization internally, so no request queue needed

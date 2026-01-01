@@ -135,6 +135,96 @@ export interface MessageService {
 }
 
 // =============================================================================
+// Document Service Interface (Phase 1)
+// =============================================================================
+
+/**
+ * Read file options
+ */
+export interface ReadFileOptions {
+  /** If true, returns base64-encoded content for binary files */
+  binary?: boolean;
+}
+
+/**
+ * Unified document service for file operations and document context.
+ * Replaces scattered platform detection and file reading logic.
+ * 
+ * Platform implementations:
+ * - Chrome/Firefox: Uses window.location.href as base, READ_LOCAL_FILE message
+ * - VS Code: Uses host-provided paths, READ_LOCAL_FILE/FETCH_REMOTE_IMAGE messages
+ * - Mobile: Uses Flutter bridge, READ_RELATIVE_FILE message
+ */
+export interface DocumentService {
+  // === Context Information ===
+  
+  /** Absolute path to the current document (e.g., /Users/x/doc.md) */
+  readonly documentPath: string;
+  
+  /** Directory containing the document (e.g., /Users/x/) */
+  readonly documentDir: string;
+  
+  /** Base URL for resolving relative paths (platform-specific) */
+  readonly baseUrl: string;
+  
+  /** Whether relative image paths need URI rewriting (VS Code only) */
+  readonly needsUriRewrite: boolean;
+  
+  // === File Operations ===
+  
+  /**
+   * Read a local file by absolute path.
+   * @param absolutePath - Full path to the file
+   * @param options - Read options (binary mode, etc.)
+   * @returns File content (string or base64 if binary)
+   */
+  readFile(absolutePath: string, options?: ReadFileOptions): Promise<string>;
+  
+  /**
+   * Read a file relative to the current document.
+   * @param relativePath - Path relative to documentDir
+   * @param options - Read options (binary mode, etc.)
+   * @returns File content (string or base64 if binary)
+   */
+  readRelativeFile(relativePath: string, options?: ReadFileOptions): Promise<string>;
+  
+  /**
+   * Fetch a remote resource (HTTP/HTTPS).
+   * On VS Code, this bypasses CSP by proxying through the host.
+   * @param url - Remote URL
+   * @returns Binary content as Uint8Array
+   */
+  fetchRemote(url: string): Promise<Uint8Array>;
+  
+  // === Path Resolution ===
+  
+  /**
+   * Resolve a relative path to an absolute path.
+   * @param relativePath - Path relative to documentDir
+   * @returns Absolute file path
+   */
+  resolvePath(relativePath: string): string;
+  
+  /**
+   * Convert a local file path to a URL suitable for the current platform.
+   * - Chrome/Firefox: file:// URL
+   * - VS Code: vscode-webview-resource:// URL
+   * - Mobile: file:// URL
+   */
+  toResourceUrl(absolutePath: string): string;
+  
+  // === Context Management ===
+  
+  /**
+   * Set the current document path.
+   * Called by the platform when a new document is opened.
+   * @param path - Absolute path to the document
+   * @param baseUrl - Optional base URL for resource loading (VS Code)
+   */
+  setDocumentPath(path: string, baseUrl?: string): void;
+}
+
+// =============================================================================
 // Platform API Interface
 // =============================================================================
 
@@ -150,4 +240,7 @@ export interface PlatformAPI {
   resource: ResourceService;
   i18n: I18nService;
   message: MessageService;
+  
+  /** Unified document service for file operations (Phase 1) */
+  document?: DocumentService;
 }
