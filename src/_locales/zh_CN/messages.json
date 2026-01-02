@@ -19,6 +19,14 @@
     "message": "未知错误",
     "description": "错误信息缺失时的提示"
   },
+  "heading_h2_format": {
+    "message": "第{0}章",
+    "description": "Format for h2 headings. {0} is the chapter number."
+  },
+  "heading_h2_numerals": {
+    "message": "chinese",
+    "description": "Numeral system for h2: chinese, arabic, roman"
+  },
   "cache_clear": {
     "message": "清空缓存",
     "description": "清空按钮"

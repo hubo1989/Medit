@@ -19,6 +19,14 @@
     "message": "Unknown error",
     "description": "Fallback when error message missing"
   },
+  "heading_h2_format": {
+    "message": "Chapter {0}",
+    "description": "Format for h2 headings. {0} is the chapter number."
+  },
+  "heading_h2_numerals": {
+    "message": "arabic",
+    "description": "Numeral system for h2: chinese, arabic, roman"
+  },
   "cache_clear": {
     "message": "Clear cache",
     "description": "Clear cache button"

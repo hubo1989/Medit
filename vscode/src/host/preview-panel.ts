@@ -12,6 +12,17 @@ export class MarkdownPreviewPanel {
   public static currentPanel: MarkdownPreviewPanel | undefined;
   public static readonly viewType = 'markdownViewerAdvanced';
 
+  // Static global state for settings storage
+  private static _globalState: vscode.Memento | undefined;
+
+  /**
+   * Initialize the panel with extension context
+   * Must be called once before using createOrShow
+   */
+  public static initialize(context: vscode.ExtensionContext): void {
+    MarkdownPreviewPanel._globalState = context.globalState;
+  }
+
   private readonly _panel: vscode.WebviewPanel;
   private readonly _extensionUri: vscode.Uri;
   private readonly _cacheService: ExtensionCacheService;
@@ -29,6 +40,13 @@ export class MarkdownPreviewPanel {
   // Progress callbacks
   private _exportProgressCallback: ((progress: number) => void) | null = null;
   private _renderProgressCallback: ((completed: number, total: number) => void) | null = null;
+
+  // Webview ready state
+  private _isWebviewReady = false;
+  private _pendingOperations: Array<() => void> = [];
+
+  // Flag to open settings after webview is ready
+  private _openSettingsOnReady = false;
 
   public static createOrShow(
     extensionUri: vscode.Uri,
@@ -78,6 +96,37 @@ export class MarkdownPreviewPanel {
 
     MarkdownPreviewPanel.currentPanel = new MarkdownPreviewPanel(panel, extensionUri, document, cacheService);
     return MarkdownPreviewPanel.currentPanel;
+  }
+
+  /**
+   * Create or show panel and open settings popup
+   * If panel exists and webview is ready, open settings immediately
+   * If panel is new or webview not ready, open settings when ready
+   */
+  public static createOrShowWithSettings(
+    extensionUri: vscode.Uri,
+    document: vscode.TextDocument,
+    cacheService: ExtensionCacheService,
+    column?: vscode.ViewColumn
+  ): void {
+    // If panel exists and webview is ready, just open settings
+    if (MarkdownPreviewPanel.currentPanel) {
+      MarkdownPreviewPanel.currentPanel._panel.reveal(column || vscode.ViewColumn.Beside);
+      MarkdownPreviewPanel.currentPanel.setDocument(document);
+      
+      if (MarkdownPreviewPanel.currentPanel._isWebviewReady) {
+        // Webview is ready, open settings immediately
+        MarkdownPreviewPanel.currentPanel.openSettings();
+      } else {
+        // Webview not ready yet, set flag to open when ready
+        MarkdownPreviewPanel.currentPanel._openSettingsOnReady = true;
+      }
+      return;
+    }
+
+    // Create new panel with flag set
+    const panel = MarkdownPreviewPanel.createOrShow(extensionUri, document, cacheService, column);
+    panel._openSettingsOnReady = true;
   }
 
   private constructor(
@@ -182,7 +231,15 @@ export class MarkdownPreviewPanel {
   }
 
   public openSettings(): void {
-    this._postToWebview('OPEN_SETTINGS');
+    // If webview is ready, send message immediately
+    if (this._isWebviewReady) {
+      this._postToWebview('OPEN_SETTINGS');
+    } else {
+      // Queue the operation for when webview is ready
+      this._pendingOperations.push(() => {
+        this._postToWebview('OPEN_SETTINGS');
+      });
+    }
   }
 
   // Export result resolver (for async export completion)
@@ -323,10 +380,30 @@ export class MarkdownPreviewPanel {
           break;
 
         case 'READY':
-          // Webview is ready, send initial content
+          // Webview is ready, mark it and process any pending operations
+          this._isWebviewReady = true;
+          
+          // Process pending operations
+          const operations = this._pendingOperations;
+          this._pendingOperations = [];
+          for (const op of operations) {
+            op();
+          }
+          
+          // Send initial content
           if (this._document) {
             this.updateContent(this._document.getText());
           }
+          
+          // Check if we should open settings
+          if (this._openSettingsOnReady) {
+            this._openSettingsOnReady = false;
+            // Delay slightly to ensure content is rendered
+            setTimeout(() => {
+              this._postToWebview('OPEN_SETTINGS');
+            }, 100);
+          }
+          
           response = { success: true };
           break;
 
@@ -409,6 +486,39 @@ export class MarkdownPreviewPanel {
           response = { success: true };
           break;
 
+        case 'SAVE_SETTING':
+          // Save setting to extension global state
+          if (payload) {
+            const { key, value } = payload as { key: string; value: unknown };
+
+            // Persist under markdownViewerSettings to match the unified storage contract
+            // (used by Localization.init() and other shared modules).
+            const globalState = MarkdownPreviewPanel._globalState;
+            if (globalState) {
+              const existing = (globalState.get<Record<string, unknown>>('storage.markdownViewerSettings') ?? {});
+              const next = { ...existing };
+
+              if (key === 'locale') {
+                next.preferredLocale = value;
+              } else if (key === 'preferredLocale') {
+                next.preferredLocale = value;
+              } else if (key === 'theme') {
+                next.theme = value;
+              } else if (key === 'docxHrAsPageBreak') {
+                next.docxHrAsPageBreak = value;
+              } else {
+                (next as Record<string, unknown>)[key] = value;
+              }
+
+              await globalState.update('storage.markdownViewerSettings', next);
+            } else {
+              // Fallback for unexpected initialization issues
+              await this._handleStorageSet({ items: { [key]: value } });
+            }
+          }
+          response = { success: true };
+          break;
+
         default:
           console.warn(`Unknown message type: ${type}`);
           response = null;
@@ -438,30 +548,65 @@ export class MarkdownPreviewPanel {
   }
 
   private async _handleStorageGet(payload: { keys: string | string[] }): Promise<Record<string, unknown>> {
-    const config = vscode.workspace.getConfiguration('markdownViewer');
+    const globalState = MarkdownPreviewPanel._globalState;
     const result: Record<string, unknown> = {};
     const keys = Array.isArray(payload.keys) ? payload.keys : [payload.keys];
     
     for (const key of keys) {
-      result[key] = config.get(key);
+      if (key === 'markdownViewerSettings') {
+        // Unified settings container used across platforms.
+        // Also migrate legacy VSCode-only keys (storage.locale/theme/...) if present.
+        const stored = globalState?.get<Record<string, unknown>>('storage.markdownViewerSettings');
+        if (stored && typeof stored === 'object') {
+          result[key] = stored;
+        } else {
+          const migrated: Record<string, unknown> = {};
+          const legacyLocale = globalState?.get<unknown>('storage.locale');
+          const legacyTheme = globalState?.get<unknown>('storage.theme');
+          const legacyDocx = globalState?.get<unknown>('storage.docxHrAsPageBreak');
+
+          if (typeof legacyLocale === 'string' && legacyLocale) {
+            migrated.preferredLocale = legacyLocale;
+          }
+          if (typeof legacyTheme === 'string' && legacyTheme) {
+            migrated.theme = legacyTheme;
+          }
+          if (typeof legacyDocx === 'boolean') {
+            migrated.docxHrAsPageBreak = legacyDocx;
+          }
+
+          result[key] = migrated;
+
+          // Best-effort: persist migrated container so next init reads correctly.
+          if (globalState && Object.keys(migrated).length > 0) {
+            await globalState.update('storage.markdownViewerSettings', migrated);
+          }
+        }
+      } else {
+        result[key] = globalState?.get(`storage.${key}`);
+      }
     }
     
     return result;
   }
 
   private async _handleStorageSet(payload: { items: Record<string, unknown> }): Promise<void> {
-    const config = vscode.workspace.getConfiguration('markdownViewer');
+    const globalState = MarkdownPreviewPanel._globalState;
+    if (!globalState) return;
+    
     for (const [key, value] of Object.entries(payload.items)) {
-      await config.update(key, value, vscode.ConfigurationTarget.Global);
+      await globalState.update(`storage.${key}`, value);
     }
   }
 
   private async _handleStorageRemove(payload: { keys: string | string[] }): Promise<void> {
-    const config = vscode.workspace.getConfiguration('markdownViewer');
+    const globalState = MarkdownPreviewPanel._globalState;
+    if (!globalState) return;
+    
     const keys = Array.isArray(payload.keys) ? payload.keys : [payload.keys];
     
     for (const key of keys) {
-      await config.update(key, undefined, vscode.ConfigurationTarget.Global);
+      await globalState.update(`storage.${key}`, undefined);
     }
   }
 
@@ -764,9 +909,19 @@ export class MarkdownPreviewPanel {
   }
 
   private _getConfiguration(): Record<string, unknown> {
+    const globalState = MarkdownPreviewPanel._globalState;
     const config = vscode.workspace.getConfiguration('markdownViewer');
+    
+    // Get theme/locale from unified settings container first
+    const settings = globalState?.get<Record<string, unknown>>('storage.markdownViewerSettings') ?? {};
+    const theme = (typeof settings.theme === 'string' && settings.theme) ? settings.theme : (globalState?.get<string>('storage.theme') || config.get('theme', 'default'));
+    const locale = (typeof settings.preferredLocale === 'string' && settings.preferredLocale) ? settings.preferredLocale : (globalState?.get<string>('storage.locale') || 'auto');
+    const docxHrAsPageBreak = (typeof settings.docxHrAsPageBreak === 'boolean') ? settings.docxHrAsPageBreak : (globalState?.get<boolean>('storage.docxHrAsPageBreak') ?? true);
+    
     return {
-      theme: config.get('theme', 'default'),
+      theme,
+      locale,
+      docxHrAsPageBreak,
       fontSize: config.get('fontSize', 16),
       fontFamily: config.get('fontFamily', ''),
       lineNumbers: config.get('lineNumbers', true),

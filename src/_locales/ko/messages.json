@@ -19,6 +19,14 @@
     "message": "알 수 없는 오류",
     "description": "세부 정보가 없을 때 문구"
   },
+  "heading_h2_format": {
+    "message": "제{0}장",
+    "description": "Format for h2 headings. {0} is the chapter number."
+  },
+  "heading_h2_numerals": {
+    "message": "arabic",
+    "description": "Numeral system for h2: chinese, arabic, roman"
+  },
   "cache_clear": {
     "message": "캐시 비우기",
     "description": "캐시 비우기 버튼"

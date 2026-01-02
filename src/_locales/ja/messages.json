@@ -19,6 +19,14 @@
     "message": "不明なエラー",
     "description": "詳細がない場合の文言"
   },
+  "heading_h2_format": {
+    "message": "第{0}章",
+    "description": "Format for h2 headings. {0} is the chapter number."
+  },
+  "heading_h2_numerals": {
+    "message": "arabic",
+    "description": "Numeral system for h2: chinese, arabic, roman"
+  },
   "cache_clear": {
     "message": "キャッシュをクリア",
     "description": "キャッシュクリアボタン"

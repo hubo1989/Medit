@@ -7,6 +7,7 @@
 import * as vscode from 'vscode';
 import { MarkdownPreviewPanel } from './preview-panel';
 import { ExtensionCacheService } from './cache-service';
+import { registerNumberHeadingsCommand } from './markdown-tools';
 
 let outputChannel: vscode.OutputChannel;
 let cacheService: ExtensionCacheService;
@@ -19,6 +20,13 @@ const UPDATE_DEBOUNCE_MS = 300;
 
 // Supported language IDs for preview
 const SUPPORTED_LANGUAGES = ['markdown', 'mermaid', 'vega', 'graphviz', 'infographic'];
+
+/**
+ * Helper to check if a document is supported for preview
+ */
+export const isSupportedDocument = (document: vscode.TextDocument): boolean => {
+  return SUPPORTED_LANGUAGES.includes(document.languageId);
+};
 
 /**
  * Tracks the topmost visible line for each document
@@ -86,10 +94,8 @@ export function activate(context: vscode.ExtensionContext) {
   // Initialize the monitor with current active editor
   topmostLineMonitor.setActiveEditor(vscode.window.activeTextEditor);
 
-  // Helper to check if a document is supported for preview
-  const isSupportedDocument = (document: vscode.TextDocument): boolean => {
-    return SUPPORTED_LANGUAGES.includes(document.languageId);
-  };
+  // Initialize preview panel with context for storage
+  MarkdownPreviewPanel.initialize(context);
 
   // Initialize cache service
   cacheService = new ExtensionCacheService(context);
@@ -205,6 +211,9 @@ export function activate(context: vscode.ExtensionContext) {
       }
     })
   );
+
+  // Register Markdown tools
+  registerNumberHeadingsCommand(context, cacheService);
 
   // Auto-update preview on document change (with debounce)
   context.subscriptions.push(

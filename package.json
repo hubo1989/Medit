@@ -62,6 +62,7 @@
     "esbuild": "^0.25.11",
     "eventemitter3": "^5.0.1",
     "katex": "^0.16.25",
+    "markdownlint": "^0.40.0",
     "mathjax-full": "^3.2.2",
     "mermaid": "^11.12.1",
     "rehype-highlight": "^7.0.2",
@@ -108,8 +109,14 @@
     "languages": [
       {
         "id": "mermaid",
-        "aliases": ["Mermaid", "mermaid"],
-        "extensions": [".mermaid", ".mmd"],
+        "aliases": [
+          "Mermaid",
+          "mermaid"
+        ],
+        "extensions": [
+          ".mermaid",
+          ".mmd"
+        ],
         "icon": {
           "light": "icons/mermaid.svg",
           "dark": "icons/mermaid.svg"
@@ -117,8 +124,17 @@
       },
       {
         "id": "vega",
-        "aliases": ["Vega", "vega", "Vega-Lite", "vega-lite"],
-        "extensions": [".vega", ".vl", ".vega-lite"],
+        "aliases": [
+          "Vega",
+          "vega",
+          "Vega-Lite",
+          "vega-lite"
+        ],
+        "extensions": [
+          ".vega",
+          ".vl",
+          ".vega-lite"
+        ],
         "icon": {
           "light": "icons/vega.svg",
           "dark": "icons/vega.svg"
@@ -126,8 +142,16 @@
       },
       {
         "id": "graphviz",
-        "aliases": ["GraphViz", "graphviz", "DOT", "dot"],
-        "extensions": [".gv", ".dot"],
+        "aliases": [
+          "GraphViz",
+          "graphviz",
+          "DOT",
+          "dot"
+        ],
+        "extensions": [
+          ".gv",
+          ".dot"
+        ],
         "icon": {
           "light": "icons/graphviz.svg",
           "dark": "icons/graphviz.svg"
@@ -135,12 +159,24 @@
       },
       {
         "id": "infographic",
-        "aliases": ["Infographic", "infographic"],
-        "extensions": [".infographic"],
+        "aliases": [
+          "Infographic",
+          "infographic"
+        ],
+        "extensions": [
+          ".infographic"
+        ],
         "icon": {
           "light": "icons/infographic.svg",
           "dark": "icons/infographic.svg"
         }
+      }
+    ],
+    "submenus": [
+      {
+        "id": "markdownViewer.toolsMenu",
+        "label": "%toolsMenu.label%",
+        "icon": "$(tools)"
       }
     ],
     "commands": [
@@ -173,10 +209,141 @@
         "title": "Refresh Preview",
         "category": "Markdown Viewer",
         "icon": "$(refresh)"
+      },
+      {
+        "command": "markdownViewer.tools.numberHeadings",
+        "title": "%command.numberHeadings.title%",
+        "category": "%category.markdownTools%"
+      },
+      {
+        "command": "markdownViewer.tools.removeHeadingNumbers",
+        "title": "%command.removeHeadingNumbers.title%",
+        "category": "%category.markdownTools%"
+      },
+      {
+        "command": "markdownViewer.tools.fixAll",
+        "title": "%command.fixAll.title%",
+        "category": "%category.markdownTools%"
+      },
+      {
+        "command": "markdownViewer.tools.fixWhitespace",
+        "title": "%command.fixWhitespace.title%",
+        "category": "%category.markdownTools%"
+      },
+      {
+        "command": "markdownViewer.tools.fixHeadings",
+        "title": "%command.fixHeadings.title%",
+        "category": "%category.markdownTools%"
+      },
+      {
+        "command": "markdownViewer.tools.fixLists",
+        "title": "%command.fixLists.title%",
+        "category": "%category.markdownTools%"
+      },
+      {
+        "command": "markdownViewer.tools.fixCode",
+        "title": "%command.fixCode.title%",
+        "category": "%category.markdownTools%"
+      },
+      {
+        "command": "markdownViewer.tools.fixLinks",
+        "title": "%command.fixLinks.title%",
+        "category": "%category.markdownTools%"
+      },
+      {
+        "command": "markdownViewer.tools.fixEmphasis",
+        "title": "%command.fixEmphasis.title%",
+        "category": "%category.markdownTools%"
+      },
+      {
+        "command": "markdownViewer.tools.fixTables",
+        "title": "%command.fixTables.title%",
+        "category": "%category.markdownTools%"
+      },
+      {
+        "command": "markdownViewer.tools.fixBlockquotes",
+        "title": "%command.fixBlockquotes.title%",
+        "category": "%category.markdownTools%"
+      },
+      {
+        "command": "markdownViewer.tools.fixProperNames",
+        "title": "%command.fixProperNames.title%",
+        "category": "%category.markdownTools%"
+      },
+      {
+        "command": "markdownViewer.tools.showDiagnostics",
+        "title": "%command.showDiagnostics.title%",
+        "category": "%category.markdownTools%"
+      },
+      {
+        "command": "markdownViewer.tools.openSettings",
+        "title": "%command.openSettings.title%",
+        "category": "%category.markdownTools%",
+        "icon": "$(gear)"
       }
     ],
     "menus": {
+      "markdownViewer.toolsMenu": [
+        {
+          "command": "markdownViewer.tools.numberHeadings"
+        },
+        {
+          "command": "markdownViewer.tools.removeHeadingNumbers"
+        },
+        {
+          "command": "markdownViewer.tools.fixAll",
+          "group": "fix"
+        },
+        {
+          "command": "markdownViewer.tools.fixWhitespace",
+          "group": "fix"
+        },
+        {
+          "command": "markdownViewer.tools.fixHeadings",
+          "group": "fix"
+        },
+        {
+          "command": "markdownViewer.tools.fixLists",
+          "group": "fix"
+        },
+        {
+          "command": "markdownViewer.tools.fixCode",
+          "group": "fix"
+        },
+        {
+          "command": "markdownViewer.tools.fixLinks",
+          "group": "fix"
+        },
+        {
+          "command": "markdownViewer.tools.fixEmphasis",
+          "group": "fix"
+        },
+        {
+          "command": "markdownViewer.tools.fixTables",
+          "group": "fix"
+        },
+        {
+          "command": "markdownViewer.tools.fixBlockquotes",
+          "group": "fix"
+        },
+        {
+          "command": "markdownViewer.tools.fixProperNames",
+          "group": "fix"
+        },
+        {
+          "command": "markdownViewer.tools.showDiagnostics",
+          "group": "diagnostics"
+        },
+        {
+          "command": "markdownViewer.tools.openSettings"
+        }
+      ],
       "editor/title": [
+        {
+          "submenu": "markdownViewer.toolsMenu",
+          "when": "editorLangId == markdown",
+          "group": "navigation@0"
+        },
         {
           "command": "markdownViewer.previewToSide",
           "when": "editorLangId == markdown || editorLangId == mermaid || editorLangId == vega || editorLangId == graphviz || editorLangId == infographic",
@@ -251,6 +418,21 @@
           "type": "boolean",
           "default": true,
           "description": "Synchronize scrolling between editor and preview"
+        },
+        "markdownViewer.markdownViewerSettings": {
+          "type": "object",
+          "default": {},
+          "description": "Internal settings storage for Markdown Viewer (managed by the extension)"
+        },
+        "markdownViewer.selectedTheme": {
+          "type": "string",
+          "default": "default",
+          "description": "Selected theme identifier"
+        },
+        "markdownViewer.markdownHistory": {
+          "type": "array",
+          "default": [],
+          "description": "Recent file history"
         }
       }
     },

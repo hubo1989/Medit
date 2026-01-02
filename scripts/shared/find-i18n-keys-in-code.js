@@ -21,7 +21,7 @@ const SCAN_DIRS = {
  * Recursively scans code for i18n key usages.
  *
  * Supported call sites / patterns:
- * - translate('key')
+ * - translate(key)
  * - chrome.i18n.getMessage('key')
  * - data-i18n="key"
  * - __MSG_key__ (manifest)

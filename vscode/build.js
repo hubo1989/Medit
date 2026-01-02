@@ -189,6 +189,16 @@ function copyAssets() {
   );
   console.log('  • package.json');
 
+  // Copy package.nls*.json files for VSCode menu localization
+  const nlsSourceDir = path.join(projectRoot, 'vscode', '_locales');
+  if (fs.existsSync(nlsSourceDir)) {
+    const nlsFiles = fs.readdirSync(nlsSourceDir).filter(f => f.startsWith('package.nls') && f.endsWith('.json'));
+    for (const nlsFile of nlsFiles) {
+      fs.copyFileSync(path.join(nlsSourceDir, nlsFile), path.join(outdir, nlsFile));
+    }
+    console.log(`  • package.nls*.json (${nlsFiles.length} files)`);
+  }
+
   // Copy locales
   copyDirectory('src/_locales', path.join(outdir, 'webview', '_locales'));
   console.log('  • _locales');
