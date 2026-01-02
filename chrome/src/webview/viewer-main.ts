@@ -59,7 +59,7 @@ interface LayoutConfigs {
  * Renderer interface for theme configuration
  */
 interface ThemeConfigurable {
-  setThemeConfig(config: RendererThemeConfig): Promise<void>;
+  setThemeConfig(config: RendererThemeConfig): void;
 }
 
 /**
@@ -254,7 +254,7 @@ export async function initializeViewerMain(options: ViewerMainOptions): Promise<
         const fontFamily = themeManager.buildFontFamily(theme.fontScheme.body.fontFamily);
         const fontSize = parseFloat(theme.fontScheme.body.fontSize);
         const themeConfig: RendererThemeConfig = { fontFamily, fontSize };
-        await themeConfigRenderer.setThemeConfig(themeConfig);
+        themeConfigRenderer.setThemeConfig(themeConfig);
       }
     } catch (error) {
       // eslint-disable-next-line no-console
