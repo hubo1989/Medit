@@ -126,60 +126,6 @@ class _SettingsPageState extends State<SettingsPage> {
             },
           ),
           const Divider(),
-
-          // Supported file formats section
-          _SectionHeader(title: localization.t('settings_supported_formats_title')),
-          _SwitchTile(
-            title: localization.t('settings_support_mermaid'),
-            iconData: Icons.account_tree_outlined,
-            value: settingsService.supportMermaid,
-            onChanged: (value) {
-              setState(() {
-                settingsService.supportMermaid = value;
-              });
-            },
-          ),
-          _SwitchTile(
-            title: localization.t('settings_support_vega'),
-            iconData: Icons.bar_chart_outlined,
-            value: settingsService.supportVega,
-            onChanged: (value) {
-              setState(() {
-                settingsService.supportVega = value;
-              });
-            },
-          ),
-          _SwitchTile(
-            title: localization.t('settings_support_vega_lite'),
-            iconData: Icons.show_chart_outlined,
-            value: settingsService.supportVegaLite,
-            onChanged: (value) {
-              setState(() {
-                settingsService.supportVegaLite = value;
-              });
-            },
-          ),
-          _SwitchTile(
-            title: localization.t('settings_support_dot'),
-            iconData: Icons.hub_outlined,
-            value: settingsService.supportDot,
-            onChanged: (value) {
-              setState(() {
-                settingsService.supportDot = value;
-              });
-            },
-          ),
-          _SwitchTile(
-            title: localization.t('settings_support_infographic'),
-            iconData: Icons.info_outline,
-            value: settingsService.supportInfographic,
-            onChanged: (value) {
-              setState(() {
-                settingsService.supportInfographic = value;
-              });
-            },
-          ),
-          const Divider(),
           GFListTile(
             avatar: GFAvatar(
               backgroundColor: Theme.of(context).colorScheme.primaryContainer,
@@ -266,20 +212,24 @@ class _SettingsPageState extends State<SettingsPage> {
     if (selectedTheme == null || selectedTheme == settingsService.theme) return;
 
     settingsService.theme = selectedTheme;
-    setState(() {});
 
     final controller = widget.webViewController;
-    if (controller == null) return;
+    if (controller != null) {
+      try {
+        final themeData = await themeAssetService.getCompleteThemeData(selectedTheme);
+        final json = jsonEncode(themeData);
+        final escaped = json.replaceAll('\\', '\\\\').replaceAll("'", "\\'");
+        await controller.runJavaScript(
+          "if(window.applyThemeData){window.applyThemeData('$escaped');}",
+        );
+      } catch (e) {
+        debugPrint('[Settings] Failed to apply theme: $e');
+      }
+    }
 
-    try {
-      final themeData = await themeAssetService.getCompleteThemeData(selectedTheme);
-      final json = jsonEncode(themeData);
-      final escaped = json.replaceAll('\\', '\\\\').replaceAll("'", "\\'");
-      await controller.runJavaScript(
-        "if(window.applyThemeData){window.applyThemeData('$escaped');}",
-      );
-    } catch (e) {
-      debugPrint('[Settings] Failed to apply theme: $e');
+    // Close settings page after theme selection
+    if (mounted) {
+      Navigator.pop(context);
     }
   }
 
@@ -309,14 +259,19 @@ class _SettingsPageState extends State<SettingsPage> {
           onLocaleSelected: (locale) async {
             await localization.setLocale(locale);
             if (mounted) {
+              // Close language picker first
               Navigator.pop(context);
-              setState(() {});
+              // Apply locale to webview
               final controller = widget.webViewController;
               if (controller != null) {
                 final localeToSend = locale ?? localization.currentLocale;
                 controller.runJavaScript(
                   "if(window.setLocale){window.setLocale('$localeToSend');}",
                 );
+              }
+              // Close settings page
+              if (mounted) {
+                Navigator.pop(context);
               }
             }
           },

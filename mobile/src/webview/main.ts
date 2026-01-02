@@ -493,32 +493,36 @@ async function handleSetLocale(payload: SetLocalePayload): Promise<void> {
   try {
     await Localization.setPreferredLocale(payload.locale);
     bridge.postMessage('LOCALE_CHANGED', { locale: payload.locale });
+    
+    // Re-render content with new locale (for translated error messages, etc.)
+    if (currentMarkdown) {
+      await handleLoadMarkdown({ content: currentMarkdown, filename: currentFilename || '' });
+    }
   } catch (error) {
     console.error('[Mobile] Locale change failed:', error);
   }
 }
 
 // Extend Window interface for mobile API
+// Most functionality is now on platform object, only expose minimal API for Flutter calls
 declare global {
   interface Window {
+    // Content loading
     loadMarkdown: (content: string, filename?: string, themeDataJson?: string, scrollLine?: number) => void;
-    setTheme: (themeId: string) => void;
+    // Theme (Flutter sends complete theme data)
     applyThemeData: (jsonString: string) => void;
+    // Export
     exportDocx: () => void;
-    getAvailableThemes: () => Promise<unknown>;
-    clearCache: () => Promise<boolean>;
-    getCacheStats: () => Promise<string | null>;
-    setFontSize: (size: number) => Promise<void>;
+    // Display settings
+    setFontSize: (size: number) => void;
+    setLocale: (locale: string) => void;
+    // Platform object has all services: platform.cache, platform.i18n, etc.
   }
 }
 
 // Expose API to window for host app to call (e.g. via runJavaScript)
 window.loadMarkdown = (content: string, filename?: string, themeDataJson?: string, scrollLine?: number) => {
   handleLoadMarkdown({ content, filename, themeDataJson, scrollLine });
-};
-
-window.setTheme = (themeId: string) => {
-  handleSetTheme({ themeId });
 };
 
 // Apply theme data from Flutter (Flutter loads JSON, sends to WebView)
@@ -530,31 +534,7 @@ window.exportDocx = () => {
   handleExportDocx();
 };
 
-window.getAvailableThemes = async () => {
-  return themeManager.getAvailableThemes();
-};
-
-window.clearCache = async () => {
-  try {
-    await platform.cache.clear();
-    return true;
-  } catch (error) {
-    console.error('[Mobile] Failed to clear cache:', error);
-    return false;
-  }
-};
-
-window.getCacheStats = async () => {
-  try {
-    const stats = await platform.cache.getStats();
-    return JSON.stringify(stats);
-  } catch (error) {
-    console.error('[Mobile] Failed to get cache stats:', error);
-    return null;
-  }
-};
-
-window.setFontSize = async (size: number) => {
+window.setFontSize = (size: number) => {
   try {
     // Use zoom like Chrome extension (size is treated as percentage base)
     // 16pt = 100%, 12pt = 75%, 24pt = 150%
@@ -566,6 +546,10 @@ window.setFontSize = async (size: number) => {
   } catch (error) {
     console.error('[Mobile] Failed to set font size:', error);
   }
+};
+
+window.setLocale = (locale: string) => {
+  handleSetLocale({ locale });
 };
 
 // Initialize when DOM is ready
