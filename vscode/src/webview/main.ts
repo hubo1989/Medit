@@ -123,9 +123,23 @@ async function initialize(): Promise<void> {
       currentThemeId = 'default';
     }
 
-    // Try to load and apply initial theme
+    // Try to load and apply initial theme, and set up currentThemeData for renderer
     try {
+      const theme = await themeManager.loadTheme(currentThemeId);
       await loadAndApplyTheme(currentThemeId);
+      
+      // Store theme data for renderer (same pattern as Chrome)
+      if (theme) {
+        currentThemeData = { theme };
+        
+        // Set renderer theme config for diagrams
+        if (theme.fontScheme?.body) {
+          const fontFamily = themeManager.buildFontFamily(theme.fontScheme.body.fontFamily);
+          const fontSize = parseFloat(theme.fontScheme.body.fontSize || '16');
+          console.log('[VSCode Webview] Initial theme config:', { fontFamily, fontSize });
+          platform.renderer.setThemeConfig({ fontFamily, fontSize });
+        }
+      }
     } catch (error) {
       console.warn('[VSCode Webview] Failed to load theme, using defaults:', error);
     }
@@ -156,6 +170,7 @@ interface UpdateContentPayload {
   filename?: string;
   themeDataJson?: string;
   documentBaseUri?: string;
+  forceRender?: boolean;
 }
 
 interface SetThemePayload {
@@ -210,7 +225,7 @@ function handleExtensionMessage(message: ExtensionMessage): void {
 // ============================================================================
 
 async function handleUpdateContent(payload: UpdateContentPayload): Promise<void> {
-  const { content, filename, themeDataJson, documentBaseUri } = payload;
+  const { content, filename, themeDataJson, documentBaseUri, forceRender } = payload;
   const container = document.getElementById('markdown-content');
   
   if (!container) {
@@ -276,8 +291,8 @@ async function handleUpdateContent(payload: UpdateContentPayload): Promise<void>
 
     const pluginRenderer = createPluginRenderer();
 
-    // Only clear container when file changes (for incremental update support)
-    if (fileChanged) {
+    // Clear container if file changed OR if forceRender is true (e.g., theme change)
+    if (fileChanged || forceRender) {
       // Check if this is a real file switch (has existing content) vs initial load
       const isRealFileSwitch = container.childNodes.length > 0;
       
@@ -286,7 +301,7 @@ async function handleUpdateContent(payload: UpdateContentPayload): Promise<void>
       // Only reset scroll state on real file switch, not initial load
       // Initial load: SCROLL_TO_LINE arrives before UPDATE_CONTENT, targetLine already set
       // File switch: need to reset to avoid old targetLine interfering with new document
-      if (isRealFileSwitch) {
+      if (isRealFileSwitch && fileChanged) {
         scrollSyncController?.resetTargetLine();
       }
     }
@@ -303,7 +318,7 @@ async function handleUpdateContent(payload: UpdateContentPayload): Promise<void>
       if (theme?.fontScheme?.body) {
         const fontFamily = themeManager.buildFontFamily(theme.fontScheme.body.fontFamily);
         const fontSize = parseFloat(theme.fontScheme.body.fontSize || '16');
-        await platform.renderer.setThemeConfig({ fontFamily, fontSize });
+        platform.renderer.setThemeConfig({ fontFamily, fontSize });
       }
     }
 
@@ -378,20 +393,33 @@ async function handleSetTheme(payload: SetThemePayload): Promise<void> {
     if (themeData) {
       // Use provided theme data (same as Mobile applyThemeData)
       currentThemeData = themeData;
+      console.log('[VSCode Webview] Using provided themeData:', themeData);
 
       if (themeData.fontConfig && typeof themeData.fontConfig === 'object' && 'fonts' in themeData.fontConfig) {
         themeManager.initializeWithData(themeData.fontConfig as unknown as FontConfigFile);
       }
     } else {
       // Load theme from resources (same as Chrome)
+      console.log('[VSCode Webview] Loading theme from resources:', themeId);
       await loadAndApplyTheme(themeId);
+      
+      // Also load the full theme data to get fontScheme for renderer
+      try {
+        const theme = await themeManager.loadTheme(themeId);
+        if (theme) {
+          currentThemeData = { theme };
+          console.log('[VSCode Webview] Loaded theme data:', theme);
+        }
+      } catch (e) {
+        console.warn('[VSCode Webview] Failed to load full theme data:', e);
+      }
     }
 
     vscodeBridge.postMessage('THEME_CHANGED', { themeId });
 
-    // Re-render if we have content
+    // Re-render if we have content - force render to regenerate diagrams
     if (currentMarkdown) {
-      await handleUpdateContent({ content: currentMarkdown, filename: currentFilename });
+      await handleUpdateContent({ content: currentMarkdown, filename: currentFilename, forceRender: true });
     }
   } catch (error) {
     console.error('[VSCode Webview] Theme change failed:', error);

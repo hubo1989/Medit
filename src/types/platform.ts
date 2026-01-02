@@ -88,7 +88,7 @@ export interface CacheService {
  */
 export interface RendererService {
   init(): Promise<void>;
-  setThemeConfig(config: RendererThemeConfig): Promise<void>;
+  setThemeConfig(config: RendererThemeConfig): void;
   getThemeConfig(): RendererThemeConfig | null;
   render(type: string, content: string | object): Promise<RenderResult>;
 }

@@ -136,11 +136,12 @@ export class RendererService {
 
   /**
    * Set theme configuration for rendering
+   * Note: Theme is not applied immediately to support lazy iframe initialization.
+   * It will be applied on the first render via applyThemeIfNeeded().
    */
-  async setThemeConfig(config: RendererThemeConfig): Promise<void> {
+  setThemeConfig(config: RendererThemeConfig): void {
     this.themeConfig = config;
     this.themeDirty = true;
-    await this.applyThemeIfNeeded();
   }
 
   /**

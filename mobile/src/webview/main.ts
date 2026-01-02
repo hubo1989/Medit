@@ -282,7 +282,7 @@ async function handleLoadMarkdown(payload: LoadMarkdownPayload): Promise<void> {
         if (theme && theme.fontScheme && theme.fontScheme.body) {
           const fontFamily = themeManager.buildFontFamily(theme.fontScheme.body.fontFamily);
           const fontSize = parseFloat(theme.fontScheme.body.fontSize || '16');
-          await platform.renderer.setThemeConfig({
+          platform.renderer.setThemeConfig({
             fontFamily: fontFamily,
             fontSize: fontSize
           });
