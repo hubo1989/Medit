@@ -122,10 +122,8 @@ export interface IPlugin {
 export interface PluginRenderer {
   render(
     type: string,
-    content: string | object,
-    context?: unknown
+    content: string | object
   ): Promise<PluginRenderResult | null>;
-  getQueueContext?(): unknown;
 }
 
 /**

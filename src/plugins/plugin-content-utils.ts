@@ -114,9 +114,7 @@ export function createRemarkPlugin(
             async (data: TaskData) => {
               const { id, code } = data;
               try {
-                // Pass renderer's queue context for cancellation support on mobile
-                const renderContext = renderer.getQueueContext ? renderer.getQueueContext() : null;
-                const renderResult = await renderer.render(plugin.type, code || '', renderContext);
+                const renderResult = await renderer.render(plugin.type, code || '');
                 
                 // If renderer returns null (e.g., empty content), skip rendering
                 if (renderResult) {

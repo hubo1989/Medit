@@ -51,7 +51,7 @@ interface ThemeData {
 
 function createPluginRenderer(): PluginRenderer {
   return {
-    render: async (type, content, _context) => {
+    render: async (type: string, content: string | object) => {
       const result = await platform.renderer.render(type, content);
 
       return {
@@ -253,10 +253,9 @@ async function handleLoadMarkdown(payload: LoadMarkdownPayload): Promise<void> {
     // This ensures we use the correct theme even if it changes during async operations
     const renderThemeData = currentThemeData;
 
-    // Create task manager with onAbort callback to cancel pending renderer requests
+    // Create task manager
     const taskManager = new AsyncTaskManager(
-      (key: string, subs?: string | string[]) => Localization.translate(key, subs),
-      { onAbort: () => platform.renderer.cancelPending?.() }
+      (key: string, subs?: string | string[]) => Localization.translate(key, subs)
     );
     currentTaskManager = taskManager;
 

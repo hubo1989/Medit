@@ -286,7 +286,6 @@ class FirefoxPlatformAPI {
     this.renderer = new RendererService({
       createHost: () => new BackgroundRenderHost('firefox-renderer'),
       cache: this.cache,
-      useRequestQueue: false,  // Background handles serialization
     });
     
     this.i18n = new FirefoxI18nService();

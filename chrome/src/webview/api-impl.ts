@@ -342,7 +342,6 @@ export class ChromePlatformAPI {
     this.renderer = new RendererService({
       createHost: () => new OffscreenRenderHost(this.message, 'chrome-renderer'),
       cache: this.cache,
-      useRequestQueue: false,
     });
     
     this.i18n = new ChromeI18nService(this.storage, this.resource);

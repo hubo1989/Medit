@@ -301,7 +301,6 @@ export class VSCodePlatformAPI {
         source: 'vscode-parent',
       }),
       cache: this.cache,
-      useRequestQueue: true,
     });
     
     this.i18n = new VSCodeI18nService(this.resource);

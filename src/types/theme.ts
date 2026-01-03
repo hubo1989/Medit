@@ -126,9 +126,9 @@ export interface Theme {
   author?: string;
   version?: string;
   fontScheme: FontScheme;
-  tableStyle: TableStyleConfig;
+  tableStyle: string;  // Reference to table style
   codeTheme: string;  // Reference to code theme
-  spacing: SpacingScheme;
+  spacing: string;  // Reference to spacing scheme
 }
 
 /**

@@ -132,9 +132,7 @@ export function registerRemarkPlugins(
                 }
                 
                 try {
-                  // Get render context for cancellation support if available
-                  const renderContext = renderer.getQueueContext ? renderer.getQueueContext() : null;
-                  const renderResult = await renderer.render(plugin.type, code || '', renderContext);
+                  const renderResult = await renderer.render(plugin.type, code || '');
                   
                   if (renderResult) {
                     replacePlaceholderWithImage(id, renderResult, plugin.type, plugin.isInline());
