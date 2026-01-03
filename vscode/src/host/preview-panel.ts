@@ -904,7 +904,7 @@ export class MarkdownPreviewPanel {
     
     // Get theme/locale from unified settings container first
     const settings = globalState?.get<Record<string, unknown>>('storage.markdownViewerSettings') ?? {};
-    const theme = (typeof settings.theme === 'string' && settings.theme) ? settings.theme : (globalState?.get<string>('storage.theme') || config.get('theme', 'default'));
+    const theme = (typeof settings.theme === 'string' && settings.theme) ? settings.theme : (globalState?.get<string>('storage.theme') || config.get('theme') || 'default');
     const locale = (typeof settings.preferredLocale === 'string' && settings.preferredLocale) ? settings.preferredLocale : (globalState?.get<string>('storage.locale') || 'auto');
     const docxHrAsPageBreak = (typeof settings.docxHrAsPageBreak === 'boolean') ? settings.docxHrAsPageBreak : (globalState?.get<boolean>('storage.docxHrAsPageBreak') ?? true);
     

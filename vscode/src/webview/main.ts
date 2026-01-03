@@ -116,12 +116,9 @@ async function initialize(): Promise<void> {
     // Render iframe is lazily created on first render request
     // No pre-initialization needed - ensureReady() is called in render()
 
-    // Load saved theme from config (default to 'default' theme)
-    if (window.VSCODE_CONFIG?.theme && window.VSCODE_CONFIG.theme !== 'auto') {
-      currentThemeId = window.VSCODE_CONFIG.theme as string;
-    } else {
-      currentThemeId = 'default';
-    }
+    // Load saved theme using shared themeManager (same as Chrome)
+    // This reads 'selectedTheme' from platform.storage
+    currentThemeId = await themeManager.loadSelectedTheme();
 
     // Try to load and apply initial theme, and set up currentThemeData for renderer
     try {
@@ -414,6 +411,9 @@ async function handleSetTheme(payload: SetThemePayload): Promise<void> {
       }
     }
 
+    // Save selected theme using shared themeManager (same as Chrome)
+    await themeManager.saveSelectedTheme(themeId);
+
     vscodeBridge.postMessage('THEME_CHANGED', { themeId });
 
     // Re-render if we have content - force render to regenerate diagrams
@@ -549,9 +549,8 @@ function initializeUI(): void {
     currentLocale: window.VSCODE_CONFIG?.locale as string || 'auto',
     docxHrAsPageBreak: window.VSCODE_CONFIG?.docxHrAsPageBreak !== false,
     onThemeChange: async (themeId) => {
+      // handleSetTheme saves via themeManager.saveSelectedTheme (same as Chrome)
       await handleSetTheme({ themeId });
-      // Save to extension settings
-      vscodeBridge.postMessage('SAVE_SETTING', { key: 'theme', value: themeId });
     },
     onLocaleChange: async (locale) => {
       await Localization.setPreferredLocale(locale);
