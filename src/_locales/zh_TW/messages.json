@@ -299,10 +299,6 @@
     "message": "語言",
     "description": "Menu item for language"
   },
-  "mobile_settings_language_auto": {
-    "message": "跟隨系統語言",
-    "description": "Mobile settings: label for auto language selection (follow system language)"
-  },
   "more": {
     "message": "更多",
     "description": "More options menu"
@@ -376,7 +372,7 @@
     "description": "最大快取輸入無效提示"
   },
   "settings_language_auto": {
-    "message": "跟隨 Chrome 語言",
+    "message": "跟隨系統語言",
     "description": "自動語言選項"
   },
   "settings_language_changed": {
@@ -388,7 +384,7 @@
     "description": "語言選擇標籤"
   },
   "settings_language_note": {
-    "message": "設定後將覆蓋瀏覽器介面語言，僅影響擴充功能介面。",
+    "message": "設定後將覆蓋系統介面語言，僅影響擴充功能介面。",
     "description": "語言選擇說明"
   },
   "settings_max_cache_label": {

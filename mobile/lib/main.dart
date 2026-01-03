@@ -25,7 +25,6 @@ import 'services/settings_service.dart';
 import 'services/theme_asset_service.dart';
 import 'services/theme_registry_service.dart';
 import 'pages/settings_page.dart';
-import 'widgets/theme_picker.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -124,6 +123,9 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
     
     // Listen to recent files changes
     recentFilesService.addListener(_onRecentFilesChanged);
+    
+    // Listen to locale changes for UI rebuild
+    localization.addListener(_onLocaleChanged);
     
     // Set up file receiving handler
     _setupFileReceiver();
@@ -304,11 +306,19 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
   @override
   void dispose() {
     recentFilesService.removeListener(_onRecentFilesChanged);
+    localization.removeListener(_onLocaleChanged);
     super.dispose();
   }
 
   /// Called when recent files list changes
   void _onRecentFilesChanged() {
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  /// Called when locale changes to rebuild UI
+  void _onLocaleChanged() {
     if (mounted) {
       setState(() {});
     }
@@ -424,7 +434,7 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
           if (payload is Map && isEnvelope) {
             _handleDownloadFileEnvelope(
               Map<String, dynamic>.from(payload),
-              envelopeId!,
+              envelopeId,
             );
           }
           break;
@@ -433,7 +443,7 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
           if (payload is Map && isEnvelope) {
             _handleReadRelativeFileEnvelope(
               Map<String, dynamic>.from(payload),
-              envelopeId!,
+              envelopeId,
             );
           }
           break;
@@ -442,7 +452,7 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
           if (payload is Map && isEnvelope) {
             _handleFetchAssetEnvelope(
               Map<String, dynamic>.from(payload),
-              envelopeId!,
+              envelopeId,
             );
           }
           break;
@@ -465,31 +475,31 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
 
         case 'STORAGE_GET':
           if (payload is Map && isEnvelope) {
-            _handleStorageGet(Map<String, dynamic>.from(payload), envelopeId!);
+            _handleStorageGet(Map<String, dynamic>.from(payload), envelopeId);
           }
           break;
 
         case 'STORAGE_SET':
           if (payload is Map && isEnvelope) {
-            _handleStorageSet(Map<String, dynamic>.from(payload), envelopeId!);
+            _handleStorageSet(Map<String, dynamic>.from(payload), envelopeId);
           }
           break;
 
         case 'CACHE_OPERATION':
           if (payload is Map && isEnvelope) {
-            _handleCacheOperation(Map<String, dynamic>.from(payload), envelopeId!);
+            _handleCacheOperation(Map<String, dynamic>.from(payload), envelopeId);
           }
           break;
 
         case 'UPLOAD_OPERATION':
           if (payload is Map && isEnvelope) {
-            _handleUploadOperation(Map<String, dynamic>.from(payload), envelopeId!);
+            _handleUploadOperation(Map<String, dynamic>.from(payload), envelopeId);
           }
           break;
 
         case 'DOCX_DOWNLOAD_FINALIZE':
           if (payload is Map && isEnvelope) {
-            _handleDocxDownloadFinalize(Map<String, dynamic>.from(payload), envelopeId!);
+            _handleDocxDownloadFinalize(Map<String, dynamic>.from(payload), envelopeId);
           }
           break;
 
@@ -718,9 +728,11 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
       
       _hideExportProgress();
       
-      await Share.shareXFiles(
-        [XFile(file.path, mimeType: mimeType)],
-        sharePositionOrigin: const Rect.fromLTWH(0, 0, 100, 100),
+      await SharePlus.instance.share(
+        ShareParams(
+          files: [XFile(file.path, mimeType: mimeType)],
+          sharePositionOrigin: const Rect.fromLTWH(0, 0, 100, 100),
+        ),
       );
       
       // Clean up session
@@ -759,9 +771,11 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
 
       _hideExportProgress();
       
-      await Share.shareXFiles(
-        [XFile(file.path, mimeType: mimeType)],
-        sharePositionOrigin: const Rect.fromLTWH(0, 0, 100, 100),
+      await SharePlus.instance.share(
+        ShareParams(
+          files: [XFile(file.path, mimeType: mimeType)],
+          sharePositionOrigin: const Rect.fromLTWH(0, 0, 100, 100),
+        ),
       );
 
       _respondToWebViewEnvelope(requestId, data: {'success': true});
@@ -1105,22 +1119,6 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
     }
   }
 
-  Future<void> _applyTheme(String themeId) async {
-    // Use _sendThemeData instead of asking WebView to fetch
-    await _sendThemeData(themeId);
-  }
-
-  Future<void> _showThemePicker() async {
-    final selectedTheme = await ThemePicker.show(context, _currentTheme);
-    if (selectedTheme != null && selectedTheme != _currentTheme) {
-      await _applyTheme(selectedTheme);
-      setState(() {
-        _currentTheme = selectedTheme;
-      });
-      settingsService.theme = selectedTheme;
-    }
-  }
-
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   /// Go back to empty state, clearing current document
@@ -1151,24 +1149,6 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
     _scaffoldKey.currentState?.openDrawer();
   }
 
-  void _showFontSizeSlider() {
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (context) => _FontSizeBottomSheet(
-        initialSize: settingsService.fontSize,
-        onChanged: (size) {
-          settingsService.fontSize = size;
-          _controller.runJavaScript(
-            "if(window.setFontSize){window.setFontSize($size);}",
-          );
-        },
-      ),
-    );
-  }
-
   Future<void> _shareFile() async {
     if (_currentFilePath == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -1178,9 +1158,11 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
     }
 
     try {
-      await Share.shareXFiles(
-        [XFile(_currentFilePath!)],
-        sharePositionOrigin: const Rect.fromLTWH(0, 0, 100, 100),
+      await SharePlus.instance.share(
+        ShareParams(
+          files: [XFile(_currentFilePath!)],
+          sharePositionOrigin: const Rect.fromLTWH(0, 0, 100, 100),
+        ),
       );
     } catch (e) {
       if (mounted) {
@@ -1235,25 +1217,6 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
     }
   }
 
-  Future<void> _clearCache() async {
-    try {
-      await _controller.runJavaScript(
-        "if(window.clearCache){window.clearCache();}",
-      );
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(localization.t('cache_clear_success'))),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(localization.t('cache_clear_failed'))),
-        );
-      }
-    }
-  }
-
   void _showRecentFiles() {
     final recentFiles = recentFilesService.getAll();
     
@@ -1284,7 +1247,7 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: Theme.of(context).hintColor.withOpacity(0.3),
+                  color: Theme.of(context).hintColor.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -1363,36 +1326,6 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
       return '.../${parts.sublist(parts.length - 3).join('/')}';
     }
     return path;
-  }
-
-  void _showLanguagePicker() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (context) => DraggableScrollableSheet(
-        initialChildSize: 0.6,
-        minChildSize: 0.4,
-        maxChildSize: 0.9,
-        expand: false,
-        builder: (context, scrollController) => _LanguagePickerSheet(
-          scrollController: scrollController,
-          onLocaleSelected: (locale) async {
-            await localization.setLocale(locale);
-            if (mounted) {
-              Navigator.pop(context);
-              setState(() {});
-              final localeToSend = locale ?? localization.currentLocale;
-              _controller.runJavaScript(
-                "if(window.setLocale){window.setLocale('$localeToSend');}",
-              );
-            }
-          },
-        ),
-      ),
-    );
   }
 
   void _showAbout() async {
@@ -1868,7 +1801,7 @@ class _RecentFileItem extends StatelessWidget {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: Theme.of(context).hintColor.withOpacity(0.3),
+                color: Theme.of(context).hintColor.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -2237,100 +2170,6 @@ class _FontSizeBottomSheetState extends State<_FontSizeBottomSheet> {
           ],
         ),
       ),
-    );
-  }
-}
-
-/// Language picker bottom sheet with GetWidget style
-class _LanguagePickerSheet extends StatelessWidget {
-  final ScrollController scrollController;
-  final void Function(String?) onLocaleSelected;
-
-  const _LanguagePickerSheet({
-    required this.scrollController,
-    required this.onLocaleSelected,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final currentLocale = localization.userSelectedLocale;
-    
-    return Column(
-      children: [
-        // Header
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          decoration: BoxDecoration(
-            border: Border(
-              bottom: BorderSide(color: Theme.of(context).dividerColor),
-            ),
-          ),
-          child: Row(
-            children: [
-              const Icon(Icons.language_outlined),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  localization.t('language'),
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-                ),
-              ),
-              IconButton(
-                icon: const Icon(Icons.close),
-                onPressed: () => Navigator.pop(context),
-              ),
-            ],
-          ),
-        ),
-        // Language list
-        Expanded(
-          child: ListView(
-            controller: scrollController,
-            children: [
-              // Auto option
-              _LanguageItem(
-                title: localization.t('mobile_settings_language_auto'),
-                isSelected: currentLocale == null,
-                onTap: () => onLocaleSelected(null),
-              ),
-              const Divider(height: 1, indent: 56),
-              // All supported locales
-              ...localization.supportedLocales.map((locale) {
-                return _LanguageItem(
-                  title: localization.getLocaleDisplayName(locale),
-                  isSelected: currentLocale == locale,
-                  onTap: () => onLocaleSelected(locale),
-                );
-              }),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-/// Single language item with GetWidget style
-class _LanguageItem extends StatelessWidget {
-  final String title;
-  final bool isSelected;
-  final VoidCallback onTap;
-
-  const _LanguageItem({
-    required this.title,
-    required this.isSelected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GFListTile(
-      avatar: isSelected
-          ? Icon(Icons.check, color: Theme.of(context).colorScheme.primary, size: 20)
-          : const SizedBox(width: 20),
-      titleText: title,
-      onTap: onTap,
-      selected: isSelected,
     );
   }
 }

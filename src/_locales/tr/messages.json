@@ -299,10 +299,6 @@
     "message": "Dil",
     "description": "Menu item for language"
   },
-  "mobile_settings_language_auto": {
-    "message": "Sistem dili",
-    "description": "Mobile settings: label for auto language selection (follow system language)"
-  },
   "more": {
     "message": "More",
     "description": "More menu tooltip"
@@ -376,7 +372,7 @@
     "description": "Shown when max cache input is invalid"
   },
   "settings_language_auto": {
-    "message": "Chrome dilini kullan",
+    "message": "Sistem dili",
     "description": "Option for automatic locale"
   },
   "settings_language_changed": {
@@ -388,7 +384,7 @@
     "description": "Label for language selector"
   },
   "settings_language_note": {
-    "message": "Bunu değiştirmek uzantı için Chrome'un arayüz dilini geçersiz kılar.",
+    "message": "Bunu değiştirmek uzantı için sistemin arayüz dilini geçersiz kılar.",
     "description": "Helper note for language selector"
   },
   "settings_max_cache_label": {

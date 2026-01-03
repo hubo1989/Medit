@@ -299,10 +299,6 @@
     "message": "Sprog",
     "description": "Menu item for language"
   },
-  "mobile_settings_language_auto": {
-    "message": "Systemets sprog",
-    "description": "Mobile settings: label for auto language selection (follow system language)"
-  },
   "more": {
     "message": "More",
     "description": "More menu tooltip"
@@ -376,7 +372,7 @@
     "description": "Shown when max cache input is invalid"
   },
   "settings_language_auto": {
-    "message": "Tilpas Chromes sprog",
+    "message": "Systemsprog",
     "description": "Mulighed for automatisk sprog"
   },
   "settings_language_changed": {
@@ -388,7 +384,7 @@
     "description": "Settings label for interface language"
   },
   "settings_language_note": {
-    "message": "Bemærk: Sprogskift træder i kraft med det samme og gemmes automatisk",
+    "message": "Ændring af dette tilsidesætter systemsproget for udvidelsen.",
     "description": "Note explaining language changes take effect immediately"
   },
   "settings_max_cache_label": {

@@ -19,14 +19,6 @@
     "message": "不明なエラー",
     "description": "詳細がない場合の文言"
   },
-  "heading_h2_format": {
-    "message": "第{0}章",
-    "description": "Format for h2 headings. {0} is the chapter number."
-  },
-  "heading_h2_numerals": {
-    "message": "arabic",
-    "description": "Numeral system for h2: chinese, arabic, roman"
-  },
   "cache_clear": {
     "message": "キャッシュをクリア",
     "description": "キャッシュクリアボタン"
@@ -255,6 +247,14 @@
     "message": "URLをコピーしました。アドレスバーに貼り付けて開いてください。",
     "description": "Message shown when file URL is copied to clipboard in Firefox"
   },
+  "heading_h2_format": {
+    "message": "第{0}章",
+    "description": "Format for h2 headings. {0} is the chapter number."
+  },
+  "heading_h2_numerals": {
+    "message": "arabic",
+    "description": "Numeral system for h2: chinese, arabic, roman"
+  },
   "history_clear": {
     "message": "履歴をクリア",
     "description": "履歴クリアボタン"
@@ -298,10 +298,6 @@
   "language": {
     "message": "言語",
     "description": "Menu item for language"
-  },
-  "mobile_settings_language_auto": {
-    "message": "システムの言語",
-    "description": "Mobile settings: label for auto language selection (follow system language)"
   },
   "more": {
     "message": "その他",
@@ -376,7 +372,7 @@
     "description": "不正な値のメッセージ"
   },
   "settings_language_auto": {
-    "message": "Chrome の言語と一致",
+    "message": "システム言語",
     "description": "自動言語のオプション"
   },
   "settings_language_changed": {
@@ -388,7 +384,7 @@
     "description": "言語選択のラベル"
   },
   "settings_language_note": {
-    "message": "ここでの変更は拡張機能の UI にのみ適用され、Chrome 本体の言語は変わりません。",
+    "message": "ここでの変更は拡張機能の UI にのみ適用されます。",
     "description": "言語選択の補足"
   },
   "settings_max_cache_label": {

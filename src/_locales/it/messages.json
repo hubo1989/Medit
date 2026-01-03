@@ -299,10 +299,6 @@
     "message": "Lingua",
     "description": "Menu item for language"
   },
-  "mobile_settings_language_auto": {
-    "message": "Lingua di sistema",
-    "description": "Mobile settings: label for auto language selection (follow system language)"
-  },
   "more": {
     "message": "Altro",
     "description": "More menu tooltip"
@@ -376,7 +372,7 @@
     "description": "Shown when max cache input is invalid"
   },
   "settings_language_auto": {
-    "message": "Usa lingua di Chrome",
+    "message": "Lingua di sistema",
     "description": "Opzione per lingua automatica"
   },
   "settings_language_changed": {
@@ -388,7 +384,7 @@
     "description": "Label for language selector"
   },
   "settings_language_note": {
-    "message": "Modificare questa impostazione sostituisce la lingua dell'interfaccia di Chrome per l'estensione.",
+    "message": "La modifica sostituisce la lingua di sistema per l'estensione.",
     "description": "Helper note for language selector"
   },
   "settings_max_cache_label": {

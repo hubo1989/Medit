@@ -236,7 +236,7 @@ class _SettingsPageState extends State<SettingsPage> {
   String _getCurrentLanguageDisplayName() {
     final selected = localization.userSelectedLocale;
     if (selected == null) {
-      return localization.t('mobile_settings_language_auto');
+      return localization.t('settings_language_auto');
     }
     // Use display name from registry.json
     return localization.getLocaleDisplayName(selected);
@@ -329,7 +329,7 @@ class _LanguagePickerSheet extends StatelessWidget {
             children: [
               // Auto option
               _LanguageItem(
-                title: localization.t('mobile_settings_language_auto'),
+                title: localization.t('settings_language_auto'),
                 isSelected: currentLocale == null,
                 onTap: () => onLocaleSelected(null),
               ),

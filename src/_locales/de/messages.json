@@ -299,10 +299,6 @@
     "message": "Sprache",
     "description": "Menu item for language"
   },
-  "mobile_settings_language_auto": {
-    "message": "Systemsprache",
-    "description": "Mobile settings: label for auto language selection (follow system language)"
-  },
   "more": {
     "message": "Mehr",
     "description": "More menu tooltip"
@@ -376,7 +372,7 @@
     "description": "Meldung bei ungültigem Wert"
   },
   "settings_language_auto": {
-    "message": "Chrome-Sprache übernehmen",
+    "message": "Systemsprache",
     "description": "Option für automatische Spracheinstellung"
   },
   "settings_language_changed": {
@@ -388,7 +384,7 @@
     "description": "Beschriftung für Sprachauswahl"
   },
   "settings_language_note": {
-    "message": "Diese Einstellung überschreibt die Chrome-Sprache nur für die Erweiterungsoberfläche.",
+    "message": "Durch Ändern wird die Systemsprache für die Erweiterung überschrieben.",
     "description": "Hinweis zur Sprachauswahl"
   },
   "settings_max_cache_label": {

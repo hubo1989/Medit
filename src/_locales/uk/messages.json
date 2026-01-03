@@ -299,10 +299,6 @@
     "message": "Мова",
     "description": "Menu item for language"
   },
-  "mobile_settings_language_auto": {
-    "message": "Мова системи",
-    "description": "Mobile settings: label for auto language selection (follow system language)"
-  },
   "more": {
     "message": "Більше",
     "description": "More options menu"
@@ -376,7 +372,7 @@
     "description": "Shown when max cache input is invalid"
   },
   "settings_language_auto": {
-    "message": "Відповідати мові Chrome",
+    "message": "Мова системи",
     "description": "Option for automatic locale"
   },
   "settings_language_changed": {
@@ -388,7 +384,7 @@
     "description": "Label for language selector"
   },
   "settings_language_note": {
-    "message": "Зміна цього параметра перевизначає мову інтерфейсу Chrome для розширення.",
+    "message": "Зміна цього параметра замінює мову системи для розширення.",
     "description": "Helper note for language selector"
   },
   "settings_max_cache_label": {
