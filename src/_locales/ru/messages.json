@@ -299,10 +299,6 @@
     "message": "Язык",
     "description": "Menu item for language"
   },
-  "mobile_settings_language_auto": {
-    "message": "Язык системы",
-    "description": "Mobile settings: label for auto language selection (follow system language)"
-  },
   "more": {
     "message": "Ещё",
     "description": "More menu tooltip"
@@ -376,7 +372,7 @@
     "description": "Сообщение при недопустимом значении"
   },
   "settings_language_auto": {
-    "message": "Использовать язык Chrome",
+    "message": "Системный язык",
     "description": "Опция для автоматического определения языка"
   },
   "settings_language_changed": {
@@ -388,7 +384,7 @@
     "description": "Подпись выбора языка"
   },
   "settings_language_note": {
-    "message": "Это значение переопределяет язык Chrome только для интерфейса расширения.",
+    "message": "Изменение этого параметра переопределяет системный язык интерфейса для расширения.",
     "description": "Примечание к выбору языка"
   },
   "settings_max_cache_label": {

@@ -299,10 +299,6 @@
     "message": "Kalba",
     "description": "Menu item for language"
   },
-  "mobile_settings_language_auto": {
-    "message": "Sistemos kalba",
-    "description": "Mobile settings: label for auto language selection (follow system language)"
-  },
   "more": {
     "message": "Daugiau",
     "description": "More options menu"
@@ -376,7 +372,7 @@
     "description": "Shown when max cache input is invalid"
   },
   "settings_language_auto": {
-    "message": "Derinti prie Chrome kalbos",
+    "message": "Sistemos kalba",
     "description": "Option for automatic locale"
   },
   "settings_language_changed": {
@@ -388,7 +384,7 @@
     "description": "Label for language selector"
   },
   "settings_language_note": {
-    "message": "Pakeitus šį nustatymą, bus nepaisoma Chrome sąsajos kalbos plėtiniui.",
+    "message": "Pakeitus tai, sistemos kalba bus perrašyta plėtinyje.",
     "description": "Helper note for language selector"
   },
   "settings_max_cache_label": {

@@ -1,10 +1,10 @@
 import 'dart:convert';
-import 'dart:ui';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Localization service that loads translations from WebView's _locales
-class LocalizationService {
+class LocalizationService extends ChangeNotifier {
   static final LocalizationService _instance = LocalizationService._internal();
   factory LocalizationService() => _instance;
   LocalizationService._internal();
@@ -153,6 +153,9 @@ class LocalizationService {
       _userSelectedLocale = localeCode;
       await _loadLocale(localeCode);
     }
+    
+    // Notify listeners to rebuild UI
+    notifyListeners();
   }
 
   /// Load a specific locale

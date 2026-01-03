@@ -19,14 +19,6 @@
     "message": "알 수 없는 오류",
     "description": "세부 정보가 없을 때 문구"
   },
-  "heading_h2_format": {
-    "message": "제{0}장",
-    "description": "Format for h2 headings. {0} is the chapter number."
-  },
-  "heading_h2_numerals": {
-    "message": "arabic",
-    "description": "Numeral system for h2: chinese, arabic, roman"
-  },
   "cache_clear": {
     "message": "캐시 비우기",
     "description": "캐시 비우기 버튼"
@@ -255,6 +247,14 @@
     "message": "URL이 복사되었습니다. 주소창에 붙여넣어 열어주세요.",
     "description": "Message shown when file URL is copied to clipboard in Firefox"
   },
+  "heading_h2_format": {
+    "message": "제{0}장",
+    "description": "Format for h2 headings. {0} is the chapter number."
+  },
+  "heading_h2_numerals": {
+    "message": "arabic",
+    "description": "Numeral system for h2: chinese, arabic, roman"
+  },
   "history_clear": {
     "message": "기록 지우기",
     "description": "기록 지우기 버튼"
@@ -298,10 +298,6 @@
   "language": {
     "message": "언어",
     "description": "Menu item for language"
-  },
-  "mobile_settings_language_auto": {
-    "message": "시스템 언어",
-    "description": "Mobile settings: label for auto language selection (follow system language)"
   },
   "more": {
     "message": "더 보기",
@@ -376,7 +372,7 @@
     "description": "잘못된 값 메시지"
   },
   "settings_language_auto": {
-    "message": "Chrome 언어와 일치",
+    "message": "시스템 언어",
     "description": "자동 언어 옵션"
   },
   "settings_language_changed": {
@@ -388,7 +384,7 @@
     "description": "언어 선택 라벨"
   },
   "settings_language_note": {
-    "message": "이 설정은 확장 프로그램 UI에만 적용되며 Chrome 전체 언어는 변경되지 않습니다.",
+    "message": "이 설정을 변경하면 확장 프로그램의 UI 언어만 변경됩니다.",
     "description": "언어 선택 안내"
   },
   "settings_max_cache_label": {

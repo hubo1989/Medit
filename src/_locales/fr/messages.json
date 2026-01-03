@@ -299,10 +299,6 @@
     "message": "Langue",
     "description": "Menu item for language"
   },
-  "mobile_settings_language_auto": {
-    "message": "Langue du système",
-    "description": "Mobile settings: label for auto language selection (follow system language)"
-  },
   "more": {
     "message": "Plus",
     "description": "More menu tooltip"
@@ -376,7 +372,7 @@
     "description": "Message quand la taille n'est pas valide"
   },
   "settings_language_auto": {
-    "message": "Suivre la langue de Chrome",
+    "message": "Langue du système",
     "description": "Option pour langue automatique"
   },
   "settings_language_changed": {
@@ -388,7 +384,7 @@
     "description": "Libellé pour le sélecteur de langue"
   },
   "settings_language_note": {
-    "message": "Ce réglage remplace la langue de Chrome uniquement pour l'interface de l'extension.",
+    "message": "Cette modification remplace la langue système pour l'extension.",
     "description": "Note d'aide pour le sélecteur"
   },
   "settings_max_cache_label": {

@@ -19,14 +19,6 @@
     "message": "Unknown error",
     "description": "Fallback when error message missing"
   },
-  "heading_h2_format": {
-    "message": "Chapter {0}",
-    "description": "Format for h2 headings. {0} is the chapter number."
-  },
-  "heading_h2_numerals": {
-    "message": "arabic",
-    "description": "Numeral system for h2: chinese, arabic, roman"
-  },
   "cache_clear": {
     "message": "Clear cache",
     "description": "Clear cache button"
@@ -251,6 +243,18 @@
     "message": "Removed from list",
     "description": "Toast when file is removed from list"
   },
+  "file_url_copied": {
+    "message": "URL copied. Paste in address bar to open.",
+    "description": "Message shown when file URL is copied to clipboard in Firefox"
+  },
+  "heading_h2_format": {
+    "message": "Chapter {0}",
+    "description": "Format for h2 headings. {0} is the chapter number."
+  },
+  "heading_h2_numerals": {
+    "message": "arabic",
+    "description": "Numeral system for h2: chinese, arabic, roman"
+  },
   "history_clear": {
     "message": "Clear history",
     "description": "Clear history button"
@@ -283,10 +287,6 @@
     "message": "Failed to open document",
     "description": "Open history document failed message"
   },
-  "file_url_copied": {
-    "message": "URL copied. Paste in address bar to open.",
-    "description": "Message shown when file URL is copied to clipboard in Firefox"
-  },
   "history_refresh": {
     "message": "Refresh",
     "description": "Refresh history button"
@@ -298,10 +298,6 @@
   "language": {
     "message": "Language",
     "description": "Menu item for language"
-  },
-  "mobile_settings_language_auto": {
-    "message": "System language",
-    "description": "Mobile settings: label for auto language selection (follow system language)"
   },
   "more": {
     "message": "More",
@@ -376,7 +372,7 @@
     "description": "Shown when max cache input is invalid"
   },
   "settings_language_auto": {
-    "message": "Match Chrome language",
+    "message": "System language",
     "description": "Option for automatic locale"
   },
   "settings_language_changed": {
@@ -388,7 +384,7 @@
     "description": "Label for language selector"
   },
   "settings_language_note": {
-    "message": "Changing this overrides Chrome's UI language for the extension.",
+    "message": "Changing this overrides the system UI language for the extension.",
     "description": "Helper note for language selector"
   },
   "settings_max_cache_label": {

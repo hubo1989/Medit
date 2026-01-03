@@ -299,10 +299,6 @@
     "message": "Taal",
     "description": "Menu item for language"
   },
-  "mobile_settings_language_auto": {
-    "message": "Systeemtaal",
-    "description": "Mobile settings: label for auto language selection (follow system language)"
-  },
   "more": {
     "message": "More",
     "description": "More menu tooltip"
@@ -376,7 +372,7 @@
     "description": "Shown when max cache input is invalid"
   },
   "settings_language_auto": {
-    "message": "Chrome-taal volgen",
+    "message": "Systeemtaal",
     "description": "Optie voor automatische taal"
   },
   "settings_language_changed": {
@@ -388,7 +384,7 @@
     "description": "Label for language selector"
   },
   "settings_language_note": {
-    "message": "Het wijzigen hiervan overschrijft de Chrome UI-taal voor de extensie.",
+    "message": "Dit verandert de systeemtaal voor de extensie.",
     "description": "Helper note for language selector"
   },
   "settings_max_cache_label": {

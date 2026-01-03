@@ -299,10 +299,6 @@
     "message": "Ngôn ngữ",
     "description": "Menu item for language"
   },
-  "mobile_settings_language_auto": {
-    "message": "Ngôn ngữ hệ thống",
-    "description": "Mobile settings: label for auto language selection (follow system language)"
-  },
   "more": {
     "message": "More",
     "description": "More menu tooltip"
@@ -376,7 +372,7 @@
     "description": "Shown when max cache input is invalid"
   },
   "settings_language_auto": {
-    "message": "Khớp với ngôn ngữ Chrome",
+    "message": "Ngôn ngữ hệ thống",
     "description": "Tùy chọn ngôn ngữ tự động"
   },
   "settings_language_changed": {
@@ -388,7 +384,7 @@
     "description": "Label for language selector"
   },
   "settings_language_note": {
-    "message": "Thay đổi này sẽ ghi đè ngôn ngữ giao diện Chrome cho tiện ích.",
+    "message": "Thay đổi này sẽ ghi đè ngôn ngữ hệ thống cho tiện ích mở rộng.",
     "description": "Helper note for language selector"
   },
   "settings_max_cache_label": {
