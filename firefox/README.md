@@ -325,6 +325,3 @@ This project is open source under ISC license. Welcome to Star, report issues, s
 **Stop wasting time on formatting**
 
 **Focus on writing, let Markdown Viewer handle everything else**
-
-🚀 **Install Now:** https://chromewebstore.google.com/detail/markdown-viewer/jekhhoflgcfoikceikgeenibinpojaoi
-

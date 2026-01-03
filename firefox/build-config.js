@@ -56,6 +56,7 @@ export const createBuildConfig = () => {
       'core/content-detector': 'chrome/src/webview/content-detector.ts',
       'core/main': 'firefox/src/webview/main.ts',
       'core/background': 'firefox/src/host/background.ts',
+      'core/render-worker': 'firefox/src/host/render-worker.ts',
       'ui/popup/popup': 'firefox/src/popup/popup.ts',  // Firefox popup with Firefox platform
       'ui/styles': 'src/ui/styles.css'
     },
