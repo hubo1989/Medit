@@ -857,9 +857,9 @@ xychart
 ### 横向 XY 图表
 
 ```mermaid
-xychart horizontal
+xychart-beta
     title "部门预算分配"
-    x-axis [研发, 市场, 销售, 运维, 人事]
+    x-axis ["研发", "市场", "销售", "运维", "人事"]
     y-axis "预算(万)" 0 --> 500
     bar [450, 320, 280, 180, 120]
 ```
@@ -903,19 +903,21 @@ block
 ### 数据库架构
 
 ```mermaid
-block
-columns 1
+block-beta
+  columns 1
   db(("DB"))
-  blockArrowId6<["&nbsp;&nbsp;&nbsp;"]>(down)
+  space
   block:ID
-    A
+    A["Replica 1"]
     B["Primary Replica"]
-    C
+    C["Replica 2"]
   end
   space
   D["Backup"]
+
+  db --> ID
   ID --> D
-  C --> D
+
   style B fill:#969,stroke:#333,stroke-width:4px
 ```
 
@@ -1127,11 +1129,11 @@ radar-beta
 radar-beta
   title 产品能力雷达图
   axis perf["性能"], stab["稳定性"], use["易用性"]
-  axis doc["文档"], eco["生态"],
+  axis doc["文档"], eco["生态"]
 
-  curve a["产品 A"]{4, 3, 2, 4}
-  curve b["产品 B"]{3, 4, 3, 3}
-  curve c["产品 C"]{2, 3, 4, 2}
+  curve a["产品 A"]{4, 3, 2, 4, 3}
+  curve b["产品 B"]{3, 4, 3, 3, 4}
+  curve c["产品 C"]{2, 3, 4, 2, 3}
 
   graticule polygon
   max 5
