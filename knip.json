@@ -1,0 +1,29 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "entry": [
+    "chrome/src/webview/content-detector.ts",
+    "chrome/src/webview/main.ts",
+    "chrome/src/webview/viewer-main.ts",
+    "chrome/src/webview/offscreen-render-worker.ts",
+    "chrome/src/webview/render-worker.ts",
+    "chrome/src/host/background.ts",
+    "chrome/src/popup/popup.ts",
+    "firefox/src/webview/main.ts",
+    "firefox/src/host/background.ts",
+    "firefox/src/popup/popup.ts",
+    "mobile/src/webview/main.ts",
+    "mobile/src/iframe-render-worker.ts",
+    "mobile/src/webview/iframe-render-worker.ts",
+    "vscode/src/webview/main.ts",
+    "vscode/src/host/extension.ts",
+    "scripts/*.js",
+    "test/*.test.{js,ts}"
+  ],
+  "ignore": [
+    "temp/**",
+    "mobile/build/**"
+  ],
+  "ignoreDependencies": [
+    "@anthropic-ai/tokenizer"
+  ]
+}
