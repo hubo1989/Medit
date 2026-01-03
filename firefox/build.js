@@ -92,7 +92,28 @@ try {
     }
   }
   
-  console.log(`\n✅ Build complete! Output: dist/firefox/`);
+  // Create ZIP file for Firefox Add-ons submission
+  const zipPath = path.join(projectRoot, 'dist', `firefox-v${version}.zip`);
+  console.log('\n📦 Creating ZIP package...');
+  
+  // Remove existing zip if present
+  if (fs.existsSync(zipPath)) {
+    fs.unlinkSync(zipPath);
+  }
+  
+  // Create zip from inside the firefox directory (so manifest.json is at root)
+  await execAsync(`cd "${outdir}" && zip -r "${zipPath}" .`);
+  
+  // Show zip file size
+  const zipStats = fs.statSync(zipPath);
+  const zipSize = zipStats.size >= 1024 * 1024
+    ? `${(zipStats.size / 1024 / 1024).toFixed(2)} MB`
+    : `${(zipStats.size / 1024).toFixed(2)} KB`;
+  console.log(`   firefox-v${version}.zip: ${zipSize}`);
+  
+  console.log(`\n✅ Build complete!`);
+  console.log(`   Output: dist/firefox/`);
+  console.log(`   Package: dist/firefox-v${version}.zip`);
 } catch (error) {
   console.error('❌ Build failed:', error);
   process.exit(1);
