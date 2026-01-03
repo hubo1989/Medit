@@ -130,7 +130,9 @@ async function buildWebview() {
       '.woff': 'dataurl',
       '.woff2': 'dataurl',
       '.ttf': 'dataurl'
-    }
+    },
+    // Mermaid is loaded separately to keep bundle size manageable
+    external: ['mermaid']
   });
 
   // Build CSS bundle separately
@@ -208,6 +210,8 @@ function copyAssets() {
   console.log('  • themes');
 
   // Create iframe-render.html with inlined JS (for diagram rendering)
+  // Mermaid is inlined first, then the worker script
+  const mermaidJs = fs.readFileSync(path.join(projectRoot, 'node_modules/mermaid/dist/mermaid.min.js'), 'utf8');
   const iframeWorkerJs = fs.readFileSync(path.join(outdir, 'webview', 'iframe-render-worker.js'), 'utf8');
   const iframeHtml = `<!DOCTYPE html>
 <html lang="en">
@@ -224,6 +228,7 @@ function copyAssets() {
 <body>
   <div id="render-container"></div>
   <canvas id="png-canvas"></canvas>
+  <script>${mermaidJs}</script>
   <script>${iframeWorkerJs}</script>
 </body>
 </html>`;

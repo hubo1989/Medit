@@ -198,6 +198,14 @@ function copyResources() {
   copyFile('mobile/src/webview/iframe-render.html', `${DIST_DIR}/iframe-render.html`);
   console.log('  • iframe-render.html');
 
+  // Copy mermaid library (loaded separately via script tag)
+  const libsDir = `${DIST_DIR}/libs`;
+  if (!fs.existsSync(libsDir)) {
+    fs.mkdirSync(libsDir, { recursive: true });
+  }
+  copyFile('node_modules/mermaid/dist/mermaid.min.js', `${libsDir}/mermaid.min.js`);
+  console.log('  • libs/mermaid.min.js');
+
   // Copy themes
   copyDirectory('src/themes', `${DIST_DIR}/themes`);
   console.log('  • themes');

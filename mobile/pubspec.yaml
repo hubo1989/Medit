@@ -46,6 +46,8 @@ flutter:
     - build/mobile/icons/
     # Core webview files
     - build/mobile/
+    # Pre-bundled libraries (mermaid loaded separately)
+    - build/mobile/libs/
     # Fonts directory
     - build/mobile/fonts/
     # Locales - all language subdirectories

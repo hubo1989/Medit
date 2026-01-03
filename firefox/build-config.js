@@ -50,13 +50,18 @@ const copyFileIfExists = (sourcePath, targetPath, logMessage) => {
   return true;
 };
 
+// Pre-bundled library files to copy (these are loaded separately via <script> tags)
+// Only mermaid needs to be separate (2.6MB) to keep each file under 5MB limit
+const PREBUNDLED_LIBS = [
+  { src: 'node_modules/mermaid/dist/mermaid.min.js', dest: 'libs/mermaid.min.js' },
+];
+
 export const createBuildConfig = () => {
   const config = {
     entryPoints: {
       'core/content-detector': 'chrome/src/webview/content-detector.ts',
       'core/main': 'firefox/src/webview/main.ts',
       'core/background': 'firefox/src/host/background.ts',
-      'core/render-worker': 'firefox/src/host/render-worker.ts',
       'ui/popup/popup': 'firefox/src/popup/popup.ts',  // Firefox popup with Firefox platform
       'ui/styles': 'src/ui/styles.css'
     },
@@ -66,6 +71,10 @@ export const createBuildConfig = () => {
     target: ['firefox109'],
     treeShaking: true,
     metafile: true,
+    // Only mermaid is external (2.6MB) - loaded via separate script tag
+    external: [
+      'mermaid',
+    ],
     define: {
       'process.env.NODE_ENV': '"production"',
       'global': 'globalThis',
@@ -97,6 +106,15 @@ export const createBuildConfig = () => {
               fileCopies.push(...copyDirectory('icons', 'dist/firefox/icons'));
               fileCopies.push(...copyDirectory('src/_locales', 'dist/firefox/_locales'));
               fileCopies.push(...copyDirectory('src/themes', 'dist/firefox/themes'));
+
+              // Copy pre-bundled library files
+              for (const lib of PREBUNDLED_LIBS) {
+                fileCopies.push({ 
+                  src: lib.src, 
+                  dest: `dist/firefox/${lib.dest}`,
+                  log: `📦 Copied ${lib.dest}`
+                });
+              }
 
               fileCopies.forEach(({ src, dest, log }) => copyFileIfExists(src, dest, log));
 

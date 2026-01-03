@@ -17,6 +17,8 @@
   <div id="render-container"></div>
   <canvas id="png-canvas"></canvas>
   
-  <script type="module" src="../core/offscreen-render-worker.js"></script>
+  <!-- Mermaid loaded separately to keep bundle size manageable -->
+  <script src="../libs/mermaid.min.js"></script>
+  <script src="../core/offscreen-render-worker.js"></script>
 </body>
 </html>

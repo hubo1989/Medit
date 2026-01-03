@@ -1,11 +1,25 @@
 /**
  * Mermaid Renderer
  * 
- * Renders Mermaid diagrams to PNG images using direct DOM capture
+ * Renders Mermaid diagrams to PNG images using direct DOM capture.
+ * Mermaid library is loaded separately via lib-mermaid.ts and exposed as window.mermaid
  */
 import { BaseRenderer } from './base-renderer';
-import mermaid from 'mermaid';
 import type { RendererThemeConfig, RenderResult } from '../types/index';
+
+// Get mermaid from global scope (loaded by lib-mermaid.ts)
+type MermaidAPI = {
+  initialize: (config: object) => void;
+  render: (id: string, code: string) => Promise<{ svg: string }>;
+};
+
+function getMermaid(): MermaidAPI {
+  const mermaid = (window as unknown as { mermaid?: MermaidAPI }).mermaid;
+  if (!mermaid) {
+    throw new Error('Mermaid library not loaded. Ensure lib-mermaid.js is loaded before render-worker.js');
+  }
+  return mermaid;
+}
 
 export class MermaidRenderer extends BaseRenderer {
   constructor() {
@@ -31,7 +45,7 @@ export class MermaidRenderer extends BaseRenderer {
     // Use theme font or fallback to default
     const fontFamily = themeConfig?.fontFamily || "'SimSun', 'Times New Roman', Times, serif";
 
-    mermaid.initialize({
+    getMermaid().initialize({
       startOnLoad: false,
       securityLevel: 'loose',
       themeVariables: {
@@ -83,7 +97,7 @@ export class MermaidRenderer extends BaseRenderer {
 
     // Use unique ID with timestamp + random string to support parallel rendering
     const diagramId = 'mermaid-diagram-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
-    const { svg } = await mermaid.render(diagramId, code);
+    const { svg } = await getMermaid().render(diagramId, code);
 
     // Validate SVG content
     if (!svg || svg.length < 100) {

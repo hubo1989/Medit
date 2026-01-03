@@ -81,6 +81,8 @@ export const createBuildConfig = () => {
       '.eot': 'empty'
     },
     assetNames: '[name]', // Use original filename without hash
+    // Mermaid is loaded separately via script tag to keep bundle size manageable
+    external: ['mermaid'],
     minify: true,
     sourcemap: false,
     plugins: [
@@ -100,6 +102,13 @@ export const createBuildConfig = () => {
               fileCopies.push(...copyDirectory('icons', 'dist/chrome/icons'));
               fileCopies.push(...copyDirectory('src/_locales', 'dist/chrome/_locales'));
               fileCopies.push(...copyDirectory('src/themes', 'dist/chrome/themes'));
+
+              // Copy mermaid library (loaded separately via script tag)
+              fileCopies.push({ 
+                src: 'node_modules/mermaid/dist/mermaid.min.js', 
+                dest: 'dist/chrome/libs/mermaid.min.js',
+                log: '📦 Copied libs/mermaid.min.js'
+              });
 
               fileCopies.forEach(({ src, dest, log }) => copyFileIfExists(src, dest, log));
 
