@@ -204,17 +204,14 @@ export class MarkdownDocument {
   } | null {
     if (this.blocks.length === 0 || line < 0) return null;
 
-    // Subtract 0.5 line offset to compensate for block gap (inverse of getLineFromBlockId)
-    const adjustedLine = Math.max(0, line - 0.5);
-
     // Find the block containing this line
     for (let i = 0; i < this.blocks.length; i++) {
       const block = this.blocks[i];
       const blockEnd = block.startLine + block.lineCount;
       
-      if (adjustedLine < blockEnd) {
+      if (line < blockEnd) {
         // Calculate progress within block
-        const lineOffset = adjustedLine - block.startLine;
+        const lineOffset = line - block.startLine;
         const progress = block.lineCount > 0 
           ? Math.max(0, Math.min(1, lineOffset / block.lineCount))
           : 0;
@@ -281,8 +278,7 @@ export class MarkdownDocument {
     if (!block) return null;
     
     const clampedProgress = Math.max(0, Math.min(1, progress));
-    // Add 0.5 line offset to compensate for block gap
-    return block.startLine + clampedProgress * block.lineCount + 0.5;
+    return block.startLine + clampedProgress * block.lineCount;
   }
 
   /**
