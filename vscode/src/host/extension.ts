@@ -14,10 +14,6 @@ let cacheService: ExtensionCacheService;
 let renderStatusBarItem: vscode.StatusBarItem;
 let renderStatusTimeout: ReturnType<typeof setTimeout> | null = null;
 
-// Debounce timer for document changes
-let updateDebounceTimer: ReturnType<typeof setTimeout> | null = null;
-const UPDATE_DEBOUNCE_MS = 300;
-
 // Supported language IDs for preview
 const SUPPORTED_LANGUAGES = ['markdown', 'mermaid', 'vega', 'graphviz', 'infographic'];
 
@@ -215,20 +211,13 @@ export function activate(context: vscode.ExtensionContext) {
   // Register Markdown tools
   registerNumberHeadingsCommand(context, cacheService);
 
-  // Auto-update preview on document change (with debounce)
+  // Auto-update preview on document change
   context.subscriptions.push(
     vscode.workspace.onDidChangeTextDocument((e) => {
       if (isSupportedDocument(e.document)) {
         const panel = MarkdownPreviewPanel.currentPanel;
         if (panel && panel.isDocumentMatch(e.document)) {
-          // Debounce updates to avoid excessive re-renders during typing
-          if (updateDebounceTimer) {
-            clearTimeout(updateDebounceTimer);
-          }
-          updateDebounceTimer = setTimeout(() => {
-            updateDebounceTimer = null;
-            panel.updateContent(e.document.getText());
-          }, UPDATE_DEBOUNCE_MS);
+          panel.updateContent(e.document.getText());
         }
       }
     })

@@ -29,10 +29,6 @@ export class MarkdownPreviewPanel {
   private _document: vscode.TextDocument | undefined;
   private _disposables: vscode.Disposable[] = [];
   private _uploadSessions: Map<string, UploadSession> = new Map();
-  
-  // Scroll sync state
-  private _isScrolling = false;  // Prevent infinite scroll loop
-  private _scrollSyncEnabled = true;
 
   // Message ID counter for envelope format
   private _messageIdCounter = 0;
@@ -271,11 +267,6 @@ export class MarkdownPreviewPanel {
    * @param line - The line number to scroll to
    */
   public scrollToLine(line: number): void {
-    if (!this._scrollSyncEnabled || this._isScrolling) {
-      this._isScrolling = false;
-      return;
-    }
-    
     this._postToWebview('SCROLL_TO_LINE', { line });
   }
 
@@ -284,14 +275,13 @@ export class MarkdownPreviewPanel {
    * Called when webview reports its scroll position
    */
   private _onPreviewScroll(line: number): void {
-    if (!this._scrollSyncEnabled || !this._document) {
+    if (!this._document) {
       return;
     }
 
     // Find matching editor
     for (const editor of vscode.window.visibleTextEditors) {
       if (editor.document.uri.toString() === this._document.uri.toString()) {
-        this._isScrolling = true;
         this._scrollEditorToLine(line, editor);
         break;
       }
