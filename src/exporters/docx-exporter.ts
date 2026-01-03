@@ -131,10 +131,9 @@ class DocxExporter {
       ? {
           render: async (
             type: string,
-            content: string,
-            options?: Record<string, unknown>
+            content: string
           ): Promise<{ base64: string; width: number; height: number; format: string }> => {
-            const result = await this.renderer!.render(type, content, options);
+            const result = await this.renderer!.render(type, content);
             if (!result) {
               throw new Error('Renderer returned empty result');
             }
@@ -475,10 +474,9 @@ class DocxExporter {
       ? {
           render: async (
             type: string,
-            content: string | object,
-            context?: unknown
+            content: string | object
           ) => {
-            const result = await this.renderer!.render(type, content, context);
+            const result = await this.renderer!.render(type, content);
             if (!result) {
               throw new Error('Plugin renderer returned empty result');
             }

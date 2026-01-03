@@ -343,7 +343,7 @@ export function createPluginRenderer(
   }>
 ): PluginRenderer {
   return {
-    render: async (type, content, _context) => {
+    render: async (type: string, content: string | object) => {
       const contentStr = typeof content === 'string' ? content : JSON.stringify(content);
       const result = await renderFn(type, contentStr);
 

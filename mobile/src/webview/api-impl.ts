@@ -300,7 +300,6 @@ class MobilePlatformAPI {
         source: 'mobile-parent',
       }),
       cache: this.cache,
-      useRequestQueue: true,
     });
     
     this.i18n = new MobileI18nService();

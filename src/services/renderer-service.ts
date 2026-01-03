@@ -23,14 +23,6 @@ import type { RendererThemeConfig, RenderResult } from '../types/index';
 // ============================================================================
 
 /**
- * Render request context for cancellation
- */
-export interface QueueContext {
-  cancelled: boolean;
-  id: number;
-}
-
-/**
  * Factory function to create RenderHost (for lazy initialization)
  */
 export type RenderHostFactory = () => RenderHost;
@@ -48,13 +40,6 @@ export interface RendererServiceOptions {
    * Optional CacheService for caching render results
    */
   cache?: CacheService;
-  
-  /**
-   * Whether to use request queue serialization (Mobile/VSCode)
-   * Chrome offscreen document handles serialization internally
-   * @default true
-   */
-  useRequestQueue?: boolean;
 }
 
 // ============================================================================
@@ -63,27 +48,19 @@ export interface RendererServiceOptions {
 
 /**
  * Unified renderer service using RenderHost for backend communication.
- * Supports request queue serialization and cache integration.
- * RenderHost is lazily initialized on first use.
+ * Supports cache integration. RenderHost is lazily initialized on first use.
  */
 export class RendererService {
   private createHost: RenderHostFactory;
   private host: RenderHost | null = null;
   private cache: CacheService | null;
-  private useRequestQueue: boolean;
   
   private themeConfig: RendererThemeConfig | null = null;
   private themeDirty = true;
-  private requestQueue: Promise<void>;
-  private queueContext: QueueContext;
 
   constructor(options: RendererServiceOptions) {
     this.createHost = options.createHost;
     this.cache = options.cache ?? null;
-    this.useRequestQueue = options.useRequestQueue ?? true;
-    
-    this.requestQueue = Promise.resolve();
-    this.queueContext = { cancelled: false, id: 0 };
   }
 
   /**
@@ -101,23 +78,6 @@ export class RendererService {
    */
   async init(): Promise<void> {
     // Renderer initialization handled by RenderHost on first use
-  }
-
-  /**
-   * Cancel all pending requests and create new queue context
-   * Called when starting a new render to cancel previous requests
-   */
-  cancelPending(): void {
-    this.queueContext.cancelled = true;
-    this.queueContext = { cancelled: false, id: this.queueContext.id + 1 };
-    this.requestQueue = Promise.resolve();
-  }
-
-  /**
-   * Get current queue context for requests to reference
-   */
-  getQueueContext(): QueueContext {
-    return this.queueContext;
   }
 
   /**
@@ -158,78 +118,15 @@ export class RendererService {
   }
 
   /**
-   * Send request to render host
-   * If useRequestQueue is true, requests are serialized
-   */
-  private sendRequest<T = unknown>(
-    type: string,
-    payload: unknown = {},
-    timeout: number = 60000,
-    context: QueueContext | null = null
-  ): Promise<T> {
-    const requestContext = context || this.queueContext;
-    
-    if (requestContext.cancelled) {
-      return Promise.reject(new Error('Request cancelled'));
-    }
-    
-    if (!this.useRequestQueue) {
-      // Direct send without queue (Chrome offscreen handles serialization)
-      return this.getHost().send<T>(type, payload, timeout);
-    }
-    
-    // Queue-based send for Mobile/VSCode
-    const request = this.requestQueue.then(() => {
-      if (requestContext.cancelled) {
-        return Promise.reject(new Error('Request cancelled'));
-      }
-      return this.doSendRequest<T>(type, payload, timeout, requestContext);
-    });
-    
-    this.requestQueue = request.catch(() => {}) as Promise<void>;
-    
-    return request;
-  }
-  
-  /**
-   * Actually send the request and wait for response
-   */
-  private doSendRequest<T>(
-    type: string,
-    payload: unknown,
-    timeout: number,
-    context: QueueContext
-  ): Promise<T> {
-    if (context.cancelled) {
-      return Promise.reject(new Error('Request cancelled'));
-    }
-
-    return this.getHost().send<T>(type, payload, timeout).then((data) => {
-      if (context.cancelled) {
-        throw new Error('Request cancelled');
-      }
-      return data as T;
-    });
-  }
-
-  /**
    * Render content using the render host
    * @param type - Render type (mermaid, vega, dot, etc.)
    * @param input - Content to render (string or object)
-   * @param context - Optional queue context for cancellation
    * @returns Render result with base64 image data
    */
   async render(
     type: string,
-    input: string | object,
-    context: QueueContext | null = null
+    input: string | object
   ): Promise<RenderResult> {
-    const renderContext = context || this.queueContext;
-    
-    if (renderContext.cancelled) {
-      throw new Error('Render cancelled');
-    }
-    
     // Generate cache key
     const inputString = typeof input === 'string' ? input : JSON.stringify(input);
     const cacheType = `${type.toUpperCase()}_PNG`;
@@ -242,19 +139,15 @@ export class RendererService {
         return cached as RenderResult;
       }
       
-      if (renderContext.cancelled) {
-        throw new Error('Render cancelled');
-      }
-      
       // Apply theme if needed
       await this.applyThemeIfNeeded();
       
       // Render via host
-      const result = await this.sendRequest<RenderResult>('RENDER_DIAGRAM', {
+      const result = await this.getHost().send<RenderResult>('RENDER_DIAGRAM', {
         renderType: type,
         input,
         themeConfig: this.themeConfig
-      }, 60000, renderContext);
+      }, 60000);
       
       // Cache the result asynchronously (don't wait)
       this.cache.set(cacheKey, result, cacheType).catch(() => {});
@@ -263,26 +156,19 @@ export class RendererService {
     }
     
     // No cache - render directly
-    if (renderContext.cancelled) {
-      throw new Error('Render cancelled');
-    }
-    
     await this.applyThemeIfNeeded();
     
-    return this.sendRequest<RenderResult>('RENDER_DIAGRAM', {
+    return this.getHost().send<RenderResult>('RENDER_DIAGRAM', {
       renderType: type,
       input,
       themeConfig: this.themeConfig
-    }, 60000, renderContext);
+    }, 60000);
   }
 
   /**
    * Cleanup resources
    */
   async cleanup(): Promise<void> {
-    // Cancel pending requests first (clear the print queue before shutting down)
-    this.cancelPending();
-    
     if (this.host) {
       await this.host.cleanup?.();
       this.host = null;
