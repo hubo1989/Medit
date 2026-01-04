@@ -44,6 +44,9 @@ export class MarkdownPreviewPanel {
   // Flag to open settings after webview is ready
   private _openSettingsOnReady = false;
 
+  // Flag to prevent scroll feedback loop (Preview → Editor → Preview)
+  private _isScrolling = false;
+
   public static createOrShow(
     extensionUri: vscode.Uri,
     document: vscode.TextDocument,
@@ -267,6 +270,11 @@ export class MarkdownPreviewPanel {
    * @param line - The line number to scroll to
    */
   public scrollToLine(line: number): void {
+    // Skip if this scroll was triggered by preview scrolling editor
+    if (this._isScrolling) {
+      this._isScrolling = false;
+      return;
+    }
     this._postToWebview('SCROLL_TO_LINE', { line });
   }
 
@@ -292,6 +300,9 @@ export class MarkdownPreviewPanel {
    * Scroll editor to specified line
    */
   private _scrollEditorToLine(line: number, editor: vscode.TextEditor): void {
+    // Set flag to prevent feedback loop
+    this._isScrolling = true;
+    
     const sourceLine = Math.max(0, Math.floor(line));
     const lineCount = editor.document.lineCount;
     
