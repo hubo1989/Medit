@@ -196,7 +196,7 @@
         "command": "markdownViewer.exportDocx",
         "title": "Export to DOCX",
         "category": "Markdown Viewer",
-        "icon": "$(download)"
+        "icon": "$(save-as)"
       },
       {
         "command": "markdownViewer.openSettings",
