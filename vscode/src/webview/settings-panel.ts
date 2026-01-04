@@ -190,18 +190,16 @@ export function createSettingsPanel(options: SettingsPanelOptions): SettingsPane
   function show(anchorEl: HTMLElement): void {
     if (visible) return;
     
-    // Position panel below anchor, aligned to right edge
+    // Position panel below anchor, fixed to right edge of page
     const rect = anchorEl.getBoundingClientRect();
-    const panelWidth = 280;
     
-    // Calculate left position: align panel right edge with button right edge
-    let left = rect.right - panelWidth;
-    if (left < 8) left = 8; // Don't go off left edge
+    // Fixed position relative to page right edge
+    const rightMargin = 13; // Margin from page right edge
     
     panel.style.position = 'fixed';
     panel.style.top = `${rect.bottom + 4}px`;
-    panel.style.left = `${left}px`;
-    panel.style.right = 'auto';
+    panel.style.left = 'auto';
+    panel.style.right = `${rightMargin}px`;
     panel.style.display = 'block';
     panel.style.zIndex = '10000';
     visible = true;
@@ -218,19 +216,13 @@ export function createSettingsPanel(options: SettingsPanelOptions): SettingsPane
   function showAtPosition(x: number, y: number): void {
     if (visible) return;
     
-    const panelWidth = 280;
-    
-    // Ensure panel doesn't go off screen
-    let left = x;
-    if (left + panelWidth > window.innerWidth - 8) {
-      left = window.innerWidth - panelWidth - 8;
-    }
-    if (left < 8) left = 8;
+    // Fixed position relative to page right edge
+    const rightMargin = 13; // Margin from page right edge
     
     panel.style.position = 'fixed';
     panel.style.top = `${y}px`;
-    panel.style.left = `${left}px`;
-    panel.style.right = 'auto';
+    panel.style.left = 'auto';
+    panel.style.right = `${rightMargin}px`;
     panel.style.display = 'block';
     panel.style.zIndex = '10000';
     visible = true;
