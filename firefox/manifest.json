@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "__MSG_extensionName__",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "default_locale": "en",
   "description": "__MSG_extensionDescription__",
   "browser_specific_settings": {
@@ -9,7 +9,9 @@
       "id": "markdown-viewer@xicilion",
       "strict_min_version": "140.0",
       "data_collection_permissions": {
-        "required": ["none"]
+        "required": [
+          "none"
+        ]
       }
     }
   },
