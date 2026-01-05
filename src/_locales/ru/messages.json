@@ -355,6 +355,22 @@
     "message": "Сбросить",
     "description": "Reset button"
   },
+  "settings_docx_emoji_style": {
+    "message": "Стиль эмодзи",
+    "description": "Label for the emoji style selector in DOCX export settings"
+  },
+  "settings_docx_emoji_style_apple": {
+    "message": "Стиль Apple",
+    "description": "Option for Apple emoji style"
+  },
+  "settings_docx_emoji_style_note": {
+    "message": "Выберите стиль шрифта эмодзи для экспорта DOCX",
+    "description": "Note explaining the emoji style setting"
+  },
+  "settings_docx_emoji_style_windows": {
+    "message": "Стиль Windows",
+    "description": "Option for Windows emoji style"
+  },
   "settings_docx_hr_page_break": {
     "message": "DOCX: Считать горизонтальные линии разрывами страницы",
     "description": "Checkbox label for exporting Markdown horizontal rules (---) as page breaks in DOCX"

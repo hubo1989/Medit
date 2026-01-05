@@ -549,6 +549,7 @@ function initializeUI(): void {
     currentTheme: currentThemeId,
     currentLocale: window.VSCODE_CONFIG?.locale as string || 'auto',
     docxHrAsPageBreak: window.VSCODE_CONFIG?.docxHrAsPageBreak !== false,
+    docxEmojiStyle: (window.VSCODE_CONFIG?.docxEmojiStyle as 'apple' | 'windows') || 'windows',
     onThemeChange: async (themeId) => {
       // handleSetTheme saves via themeManager.saveSelectedTheme (same as Chrome)
       await handleSetTheme({ themeId });
@@ -570,6 +571,9 @@ function initializeUI(): void {
     },
     onDocxSettingChange: (hrAsPageBreak) => {
       vscodeBridge.postMessage('SAVE_SETTING', { key: 'docxHrAsPageBreak', value: hrAsPageBreak });
+    },
+    onDocxEmojiStyleChange: (style) => {
+      vscodeBridge.postMessage('SAVE_SETTING', { key: 'docxEmojiStyle', value: style });
     },
     onClearCache: async () => {
       await platform.cache.clear();

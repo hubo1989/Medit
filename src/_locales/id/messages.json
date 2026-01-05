@@ -355,6 +355,22 @@
     "message": "Atur ulang",
     "description": "Reset button"
   },
+  "settings_docx_emoji_style": {
+    "message": "Gaya Emoji",
+    "description": "Label for the emoji style selector in DOCX export settings"
+  },
+  "settings_docx_emoji_style_apple": {
+    "message": "Gaya Apple",
+    "description": "Option for Apple emoji style"
+  },
+  "settings_docx_emoji_style_note": {
+    "message": "Pilih gaya font emoji untuk ekspor DOCX",
+    "description": "Note explaining the emoji style setting"
+  },
+  "settings_docx_emoji_style_windows": {
+    "message": "Gaya Windows",
+    "description": "Option for Windows emoji style"
+  },
   "settings_docx_hr_page_break": {
     "message": "DOCX: Perlakukan garis horizontal sebagai pemisah halaman",
     "description": "Checkbox label for exporting Markdown horizontal rules (---) as page breaks in DOCX"

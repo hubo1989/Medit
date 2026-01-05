@@ -355,6 +355,22 @@
     "message": "Đặt lại",
     "description": "Reset button"
   },
+  "settings_docx_emoji_style": {
+    "message": "Kiểu emoji",
+    "description": "Label for the emoji style selector in DOCX export settings"
+  },
+  "settings_docx_emoji_style_apple": {
+    "message": "Kiểu Apple",
+    "description": "Option for Apple emoji style"
+  },
+  "settings_docx_emoji_style_note": {
+    "message": "Chọn kiểu phông chữ emoji cho xuất DOCX",
+    "description": "Note explaining the emoji style setting"
+  },
+  "settings_docx_emoji_style_windows": {
+    "message": "Kiểu Windows",
+    "description": "Option for Windows emoji style"
+  },
   "settings_docx_hr_page_break": {
     "message": "DOCX: Xem đường kẻ ngang như ngắt trang",
     "description": "Checkbox label for exporting Markdown horizontal rules (---) as page breaks in DOCX"

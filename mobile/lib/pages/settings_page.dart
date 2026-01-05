@@ -124,6 +124,18 @@ class _SettingsPageState extends State<SettingsPage> {
               });
               // Settings are read via platform storage abstraction when exporting
             },
+          ),          GFListTile(
+            avatar: GFAvatar(
+              backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+              child: Icon(
+                Icons.emoji_emotions_outlined,
+                color: Theme.of(context).colorScheme.onPrimaryContainer,
+              ),
+            ),
+            titleText: localization.t('settings_docx_emoji_style'),
+            subTitleText: _getEmojiStyleDisplayName(),
+            icon: const Icon(Icons.chevron_right),
+            onTap: _pickEmojiStyle,
           ),
           const Divider(),
           GFListTile(
@@ -277,6 +289,65 @@ class _SettingsPageState extends State<SettingsPage> {
           },
         ),
       ),
+    );
+  }
+
+  String _getEmojiStyleDisplayName() {
+    final style = settingsService.emojiStyle;
+    switch (style) {
+      case 'apple':
+        return localization.t('settings_docx_emoji_style_apple');
+      case 'windows':
+        return localization.t('settings_docx_emoji_style_windows');
+      default:
+        return localization.t('settings_docx_emoji_style_windows');
+    }
+  }
+
+  void _pickEmojiStyle() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildEmojiStyleOption('windows'),
+              _buildEmojiStyleOption('apple'),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildEmojiStyleOption(String style) {
+    final isSelected = settingsService.emojiStyle == style;
+    String displayName;
+    switch (style) {
+      case 'apple':
+        displayName = localization.t('settings_docx_emoji_style_apple');
+        break;
+      case 'windows':
+        displayName = localization.t('settings_docx_emoji_style_windows');
+        break;
+      default:
+        displayName = style;
+    }
+
+    return ListTile(
+      title: Text(displayName),
+      trailing: isSelected ? const Icon(Icons.check, color: Colors.blue) : null,
+      onTap: () {
+        setState(() {
+          settingsService.emojiStyle = style;
+        });
+        Navigator.pop(context);
+      },
     );
   }
 }

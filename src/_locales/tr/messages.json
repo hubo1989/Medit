@@ -355,6 +355,22 @@
     "message": "Sıfırla",
     "description": "Reset button"
   },
+  "settings_docx_emoji_style": {
+    "message": "Emoji Stili",
+    "description": "Label for the emoji style selector in DOCX export settings"
+  },
+  "settings_docx_emoji_style_apple": {
+    "message": "Apple stili",
+    "description": "Option for Apple emoji style"
+  },
+  "settings_docx_emoji_style_note": {
+    "message": "DOCX dışa aktarma için emoji yazı tipi stilini seçin",
+    "description": "Note explaining the emoji style setting"
+  },
+  "settings_docx_emoji_style_windows": {
+    "message": "Windows stili",
+    "description": "Option for Windows emoji style"
+  },
   "settings_docx_hr_page_break": {
     "message": "DOCX: Yatay çizgileri sayfa sonu olarak işle",
     "description": "Checkbox label for exporting Markdown horizontal rules (---) as page breaks in DOCX"

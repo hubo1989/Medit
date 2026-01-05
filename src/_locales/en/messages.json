@@ -355,6 +355,22 @@
     "message": "Reset",
     "description": "Reset button"
   },
+  "settings_docx_emoji_style": {
+    "message": "Emoji Style",
+    "description": "Label for emoji style selector in DOCX export settings"
+  },
+  "settings_docx_emoji_style_apple": {
+    "message": "Apple style",
+    "description": "Option to use Apple Color Emoji"
+  },
+  "settings_docx_emoji_style_note": {
+    "message": "Select the emoji font style for DOCX export",
+    "description": "Helper note for the emoji style option"
+  },
+  "settings_docx_emoji_style_windows": {
+    "message": "Windows style",
+    "description": "Option to use Segoe UI Emoji"
+  },
   "settings_docx_hr_page_break": {
     "message": "DOCX: Treat horizontal rules as page breaks",
     "description": "Checkbox label for exporting Markdown horizontal rules (---) as page breaks in DOCX"

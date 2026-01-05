@@ -355,6 +355,22 @@
     "message": "รีเซ็ต",
     "description": "Reset button"
   },
+  "settings_docx_emoji_style": {
+    "message": "สไตล์อิโมจิ",
+    "description": "Label for the emoji style selector in DOCX export settings"
+  },
+  "settings_docx_emoji_style_apple": {
+    "message": "สไตล์ Apple",
+    "description": "Option for Apple emoji style"
+  },
+  "settings_docx_emoji_style_note": {
+    "message": "เลือกสไตล์ฟอนต์อิโมจิสำหรับการส่งออก DOCX",
+    "description": "Note explaining the emoji style setting"
+  },
+  "settings_docx_emoji_style_windows": {
+    "message": "สไตล์ Windows",
+    "description": "Option for Windows emoji style"
+  },
   "settings_docx_hr_page_break": {
     "message": "DOCX: ใช้เส้นคั่นเป็นการขึ้นหน้าใหม่",
     "description": "Checkbox label for exporting Markdown horizontal rules (---) as page breaks in DOCX"

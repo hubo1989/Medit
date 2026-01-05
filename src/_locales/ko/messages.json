@@ -355,6 +355,22 @@
     "message": "재설정",
     "description": "Reset button"
   },
+  "settings_docx_emoji_style": {
+    "message": "이모지 스타일",
+    "description": "Label for the emoji style selector in DOCX export settings"
+  },
+  "settings_docx_emoji_style_apple": {
+    "message": "Apple 스타일",
+    "description": "Option for Apple emoji style"
+  },
+  "settings_docx_emoji_style_note": {
+    "message": "DOCX 내보내기용 이모지 글꼴 스타일 선택",
+    "description": "Note explaining the emoji style setting"
+  },
+  "settings_docx_emoji_style_windows": {
+    "message": "Windows 스타일",
+    "description": "Option for Windows emoji style"
+  },
   "settings_docx_hr_page_break": {
     "message": "DOCX: 가로줄을 페이지 나눔으로 처리",
     "description": "Checkbox label for exporting Markdown horizontal rules (---) as page breaks in DOCX"

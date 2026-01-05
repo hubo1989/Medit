@@ -124,6 +124,7 @@ interface Settings {
   maxCacheItems: number;
   preferredLocale: string;
   docxHrAsPageBreak: boolean;
+  docxEmojiStyle?: 'apple' | 'windows';
   supportedExtensions?: SupportedExtensions;
 }
 
@@ -162,6 +163,7 @@ export function createSettingsTabManager({
     maxCacheItems: 1000,
     preferredLocale: DEFAULT_SETTING_LOCALE,
     docxHrAsPageBreak: true,
+    docxEmojiStyle: 'windows',
     supportedExtensions: {
       mermaid: true,
       vega: true,
@@ -267,6 +269,21 @@ export function createSettingsTabManager({
         docxHrPageBreakEl.dataset.listenerAdded = 'true';
         docxHrPageBreakEl.addEventListener('change', async () => {
           settings.docxHrAsPageBreak = docxHrPageBreakEl.checked;
+          await saveSettingsToStorage();
+        });
+      }
+    }
+
+    // DOCX: Emoji style
+    const docxEmojiStyleEl = document.getElementById('docx-emoji-style') as HTMLSelectElement | null;
+    if (docxEmojiStyleEl) {
+      docxEmojiStyleEl.value = settings.docxEmojiStyle || 'windows';
+      
+      // Add change listener for immediate save
+      if (!docxEmojiStyleEl.dataset.listenerAdded) {
+        docxEmojiStyleEl.dataset.listenerAdded = 'true';
+        docxEmojiStyleEl.addEventListener('change', async () => {
+          settings.docxEmojiStyle = docxEmojiStyleEl.value as 'apple' | 'windows';
           await saveSettingsToStorage();
         });
       }
@@ -550,6 +567,11 @@ export function createSettingsTabManager({
         settings.docxHrAsPageBreak = Boolean(docxHrPageBreakEl.checked);
       }
 
+      const docxEmojiStyleEl = document.getElementById('docx-emoji-style') as HTMLSelectElement | null;
+      if (docxEmojiStyleEl) {
+        settings.docxEmojiStyle = docxEmojiStyleEl.value as 'apple' | 'windows';
+      }
+
       // Load supported file extensions from checkboxes
       const supportMermaidEl = document.getElementById('support-mermaid') as HTMLInputElement | null;
       const supportVegaEl = document.getElementById('support-vega') as HTMLInputElement | null;
@@ -599,6 +621,7 @@ export function createSettingsTabManager({
         maxCacheItems: 1000,
         preferredLocale: DEFAULT_SETTING_LOCALE,
         docxHrAsPageBreak: true,
+        docxEmojiStyle: 'windows',
         supportedExtensions: {
           mermaid: true,
           vega: true,

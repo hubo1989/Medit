@@ -6,6 +6,7 @@ class SettingsService {
   static const String _keyTheme = 'theme';
   static const String _keyFontSize = 'fontSize';
   static const String _keyHrPageBreak = 'hrPageBreak';
+  static const String _keyEmojiStyle = 'emojiStyle';
   static const String _keyLocale = 'locale';
   static const String _keySupportMermaid = 'supportMermaid';
   static const String _keySupportVega = 'supportVega';
@@ -33,6 +34,10 @@ class SettingsService {
   // HR as page break in DOCX export
   bool get hrPageBreak => _prefs?.getBool(_keyHrPageBreak) ?? true;
   set hrPageBreak(bool value) => _prefs?.setBool(_keyHrPageBreak, value);
+
+  // Emoji style in DOCX export: 'apple' or 'windows'
+  String get emojiStyle => _prefs?.getString(_keyEmojiStyle) ?? 'windows';
+  set emojiStyle(String value) => _prefs?.setString(_keyEmojiStyle, value);
 
   // Locale
   String get locale => _prefs?.getString(_keyLocale) ?? 'system';
@@ -74,6 +79,7 @@ class SettingsService {
       'theme': theme,
       'fontSize': fontSize,
       'hrPageBreak': hrPageBreak,
+      'emojiStyle': emojiStyle,
       'locale': locale,
       'supportMermaid': supportMermaid,
       'supportVega': supportVega,

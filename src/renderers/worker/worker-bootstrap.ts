@@ -30,7 +30,7 @@ export type RenderWorkerChannel = {
    * Optional: Send request to host (for proxy services)
    * Only needed when using ProxyFetchService
    */
-  send?: <T>(type: string, payload: unknown) => Promise<T>;
+  send?: (type: string, payload: unknown) => Promise<unknown>;
 };
 
 export type BootstrapOptions = {

@@ -24,6 +24,7 @@ import remarkParse from 'remark-parse';
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
 import remarkMath from 'remark-math';
+import remarkGemoji from 'remark-gemoji';
 import remarkSuperSub from '../plugins/remark-super-sub';
 import { visit } from 'unist-util-visit';
 import { loadThemeForDOCX } from './theme-to-docx';
@@ -42,6 +43,7 @@ import type {
   DOCXTableNode,
   DOCXProgressCallback,
   DOCXExportResult,
+  EmojiStyle,
 } from '../types/docx';
 
 // Import refactored modules
@@ -85,6 +87,7 @@ class DocxExporter {
   private processedResources = 0;
 
   private docxHrAsPageBreak = true;
+  private docxEmojiStyle: EmojiStyle = 'windows';
   
   // Converters (initialized in exportToDocx)
   private tableConverter: TableConverter | null = null;
@@ -161,6 +164,7 @@ class DocxExporter {
       reportResourceProgress: () => this.reportResourceProgress(),
       linkDefinitions: this.linkDefinitions,
       renderer: rendererAdapter,
+      emojiStyle: this.docxEmojiStyle,
     });
 
     // Create other converters
@@ -205,6 +209,8 @@ class DocxExporter {
           const userSettings = (result as any)?.markdownViewerSettings as Record<string, unknown> | undefined;
           const value = userSettings?.docxHrAsPageBreak;
           this.docxHrAsPageBreak = typeof value === 'boolean' ? value : true;
+          const emojiValue = userSettings?.docxEmojiStyle;
+          this.docxEmojiStyle = (emojiValue === 'apple' || emojiValue === 'windows') ? emojiValue : 'windows';
         } else {
           this.docxHrAsPageBreak = true;
         }
@@ -362,6 +368,7 @@ class DocxExporter {
       .use(remarkGfm, { singleTilde: false })
       .use(remarkBreaks)
       .use(remarkMath)
+      .use(remarkGemoji)
       .use(remarkSuperSub);
 
     const ast = processor.parse(markdown);

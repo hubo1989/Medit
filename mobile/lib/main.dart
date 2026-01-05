@@ -554,6 +554,7 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
           // Return all viewer settings for DOCX export and other features
           result['markdownViewerSettings'] = {
             'docxHrAsPageBreak': settingsService.hrPageBreak,
+            'docxEmojiStyle': settingsService.emojiStyle,
           };
         }
         // Add more keys as needed
@@ -578,6 +579,9 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
           if (viewerSettings != null) {
             if (viewerSettings.containsKey('docxHrAsPageBreak')) {
               settingsService.hrPageBreak = viewerSettings['docxHrAsPageBreak'] as bool;
+            }
+            if (viewerSettings.containsKey('docxEmojiStyle')) {
+              settingsService.emojiStyle = viewerSettings['docxEmojiStyle'] as String;
             }
           }
         }

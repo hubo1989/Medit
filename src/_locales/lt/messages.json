@@ -355,6 +355,22 @@
     "message": "Atstatyti",
     "description": "Reset button"
   },
+  "settings_docx_emoji_style": {
+    "message": "Emoji stilius",
+    "description": "Label for the emoji style selector in DOCX export settings"
+  },
+  "settings_docx_emoji_style_apple": {
+    "message": "Apple stilius",
+    "description": "Option for Apple emoji style"
+  },
+  "settings_docx_emoji_style_note": {
+    "message": "Pasirinkite emoji šrifto stilių DOCX eksportui",
+    "description": "Note explaining the emoji style setting"
+  },
+  "settings_docx_emoji_style_windows": {
+    "message": "Windows stilius",
+    "description": "Option for Windows emoji style"
+  },
   "settings_docx_hr_page_break": {
     "message": "DOCX: Horizontalias linijas traktuoti kaip puslapių lūžius",
     "description": "Checkbox label for exporting Markdown horizontal rules (---) as page breaks in DOCX"

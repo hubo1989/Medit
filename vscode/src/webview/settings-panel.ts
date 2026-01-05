@@ -16,12 +16,16 @@ export interface SettingsPanelOptions {
   currentLocale?: string;
   /** DOCX HR as page break setting */
   docxHrAsPageBreak?: boolean;
+  /** DOCX emoji style setting */
+  docxEmojiStyle?: 'apple' | 'windows';
   /** Theme changed callback */
   onThemeChange?: (themeId: string) => void;
   /** Locale changed callback */
   onLocaleChange?: (locale: string) => void;
   /** DOCX setting changed callback */
   onDocxSettingChange?: (hrAsPageBreak: boolean) => void;
+  /** DOCX emoji style changed callback */
+  onDocxEmojiStyleChange?: (style: 'apple' | 'windows') => void;
   /** Cache clear callback */
   onClearCache?: () => Promise<void>;
   /** Called when panel is shown, use to refresh dynamic data */
@@ -78,9 +82,11 @@ export function createSettingsPanel(options: SettingsPanelOptions): SettingsPane
     currentTheme = 'default',
     currentLocale = 'auto',
     docxHrAsPageBreak = true,
+    docxEmojiStyle = 'windows',
     onThemeChange,
     onLocaleChange,
     onDocxSettingChange,
+    onDocxEmojiStyleChange,
     onClose
   } = options;
 
@@ -115,6 +121,13 @@ export function createSettingsPanel(options: SettingsPanelOptions): SettingsPane
           <span data-i18n="settings_docx_hr_page_break">${Localization.translate('settings_docx_hr_page_break')}</span>
         </label>
       </div>
+      <div class="vscode-settings-group">
+        <label class="vscode-settings-label" data-i18n="settings_docx_emoji_style">${Localization.translate('settings_docx_emoji_style')}</label>
+        <select class="vscode-settings-select" data-setting="emojiStyle">
+          <option value="windows" ${docxEmojiStyle === 'windows' ? 'selected' : ''} data-i18n="settings_docx_emoji_style_windows">${Localization.translate('settings_docx_emoji_style_windows')}</option>
+          <option value="apple" ${docxEmojiStyle === 'apple' ? 'selected' : ''} data-i18n="settings_docx_emoji_style_apple">${Localization.translate('settings_docx_emoji_style_apple')}</option>
+        </select>
+      </div>
       <div class="vscode-settings-divider"></div>
       <div class="vscode-settings-group">
         <div class="vscode-cache-stats">
@@ -137,9 +150,16 @@ export function createSettingsPanel(options: SettingsPanelOptions): SettingsPane
   const themeSelect = panel.querySelector('[data-setting="theme"]') as HTMLSelectElement;
   const localeSelect = panel.querySelector('[data-setting="locale"]') as HTMLSelectElement;
   const docxCheckbox = panel.querySelector('[data-setting="docxHrPageBreak"]') as HTMLInputElement;
+  const emojiStyleSelect = panel.querySelector('[data-setting="emojiStyle"]') as HTMLSelectElement;
   const clearCacheBtn = panel.querySelector('.vscode-cache-clear-btn') as HTMLButtonElement;
   const cacheItemsValue = panel.querySelector('[data-cache-stat="items"]') as HTMLElement;
   const cacheSizeValue = panel.querySelector('[data-cache-stat="size"]') as HTMLElement;
+
+  // Set initial values
+  if (themeSelect) themeSelect.value = currentTheme;
+  if (localeSelect) localeSelect.value = currentLocale;
+  if (docxCheckbox) docxCheckbox.checked = docxHrAsPageBreak;
+  if (emojiStyleSelect) emojiStyleSelect.value = docxEmojiStyle;
 
   // Bind events
   closeBtn?.addEventListener('click', () => {
@@ -157,6 +177,10 @@ export function createSettingsPanel(options: SettingsPanelOptions): SettingsPane
 
   docxCheckbox?.addEventListener('change', () => {
     onDocxSettingChange?.(docxCheckbox.checked);
+  });
+
+  emojiStyleSelect?.addEventListener('change', () => {
+    options.onDocxEmojiStyleChange?.(emojiStyleSelect.value as 'apple' | 'windows');
   });
 
   // Handle clear cache button - no confirm dialog in sandboxed webview

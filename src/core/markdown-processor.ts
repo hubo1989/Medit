@@ -6,6 +6,7 @@ import remarkParse from 'remark-parse';
 import remarkGfm from 'remark-gfm';
 import remarkBreaks from 'remark-breaks';
 import remarkMath from 'remark-math';
+import remarkGemoji from 'remark-gemoji';
 import remarkSuperSub from '../plugins/remark-super-sub';
 import remarkTocFilter from '../plugins/remark-toc-filter';
 import remarkRehype from 'remark-rehype';
@@ -499,6 +500,7 @@ export function createMarkdownProcessor(
     .use(remarkGfm, { singleTilde: false })
     .use(remarkBreaks)
     .use(remarkMath)
+    .use(remarkGemoji)
     .use(remarkSuperSub)
     .use(remarkTocFilter);  // Filter out [toc] markers in rendered HTML
 

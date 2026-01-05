@@ -27,6 +27,17 @@ export type AlignmentTypeValue = (typeof AlignmentType)[keyof typeof AlignmentTy
 export type BorderStyleValue = (typeof BorderStyle)[keyof typeof BorderStyle];
 
 // =============================================================================
+// Emoji Style Configuration
+// =============================================================================
+
+/**
+ * Emoji font style options for DOCX export
+ * - 'apple': Use Apple Color Emoji (iOS/macOS style, 3D glossy)
+ * - 'windows': Use Segoe UI Emoji (Windows/WPS style, flat design)
+ */
+export type EmojiStyle = 'apple' | 'windows';
+
+// =============================================================================
 // Internal Theme Styles - Used by theme-to-docx conversion
 // =============================================================================
 

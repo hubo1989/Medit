@@ -23,6 +23,7 @@ import type {
   LinkDefinition,
   ImageBufferResult,
   DOCXImageType,
+  EmojiStyle,
 } from '../types/docx';
 
 // ============================================================================
@@ -50,6 +51,7 @@ interface InlineConverterOptions {
   reportResourceProgress: () => void;
   linkDefinitions?: Map<string, LinkDefinition>;
   renderer?: Renderer | null;
+  emojiStyle?: EmojiStyle;
 }
 
 /**
@@ -169,6 +171,81 @@ export interface InlineConverter {
 }
 
 // ============================================================================
+// Emoji Detection and Font Handling
+// ============================================================================
+
+/**
+ * Emoji font definitions for different styles
+ */
+const EMOJI_FONTS = {
+  /** Apple Color Emoji - iOS/macOS style (3D, glossy) */
+  apple: {
+    ascii: 'Apple Color Emoji',
+    eastAsia: 'Apple Color Emoji',
+    hAnsi: 'Apple Color Emoji',
+    cs: 'Apple Color Emoji',
+  },
+  /** Segoe UI Emoji - Windows style (flat design) */
+  windows: {
+    ascii: 'Segoe UI Emoji',
+    eastAsia: 'Segoe UI Emoji',
+    hAnsi: 'Segoe UI Emoji',
+    cs: 'Segoe UI Emoji',
+  },
+} as const;
+
+/**
+ * Get emoji font configuration based on style
+ * @param style - Emoji style preference
+ * @returns Font configuration for the specified style
+ */
+function getEmojiFont(style: EmojiStyle = 'windows') {
+  return EMOJI_FONTS[style];
+}
+
+/**
+ * Regex to match emoji characters
+ * Covers: emoticons, dingbats, symbols, flags, skin tone modifiers, ZWJ sequences, keycap emoji
+ * - \p{RI}\p{RI}: Regional Indicator pairs (flags like 🇺🇸)
+ * - [#*0-9]\u{FE0F}?\u{20E3}: Keycap emoji (#️⃣, 1️⃣, etc.)
+ * - \p{Extended_Pictographic}: Main emoji characters
+ * - \p{Emoji_Modifier}: Skin tone modifiers
+ * - \u{200D}: Zero-width joiner for compound emoji (👨‍👩‍👧‍👦)
+ */
+const EMOJI_REGEX = /(?:\p{RI}\p{RI}|[#*0-9]\u{FE0F}?\u{20E3}|\p{Extended_Pictographic}(?:\p{Emoji_Modifier}|\u{FE0F}|[\u{E0020}-\u{E007E}]+\u{E007F})?(?:\u{200D}(?:\p{Extended_Pictographic}(?:\p{Emoji_Modifier}|\u{FE0F}|[\u{E0020}-\u{E007E}]+\u{E007F})?|[#*0-9]\u{FE0F}?\u{20E3}))*)/gu;
+
+/**
+ * Split text into segments of regular text and emoji
+ * @param text - Input text
+ * @returns Array of segments with type ('text' or 'emoji') and content
+ */
+function splitTextByEmoji(text: string): Array<{ type: 'text' | 'emoji'; content: string }> {
+  const segments: Array<{ type: 'text' | 'emoji'; content: string }> = [];
+  let lastIndex = 0;
+
+  // Reset regex state
+  EMOJI_REGEX.lastIndex = 0;
+
+  let match: RegExpExecArray | null;
+  while ((match = EMOJI_REGEX.exec(text)) !== null) {
+    // Add text before emoji (if any)
+    if (match.index > lastIndex) {
+      segments.push({ type: 'text', content: text.slice(lastIndex, match.index) });
+    }
+    // Add emoji
+    segments.push({ type: 'emoji', content: match[0] });
+    lastIndex = match.index + match[0].length;
+  }
+
+  // Add remaining text (if any)
+  if (lastIndex < text.length) {
+    segments.push({ type: 'text', content: text.slice(lastIndex) });
+  }
+
+  return segments;
+}
+
+// ============================================================================
 // Implementation
 // ============================================================================
 
@@ -182,8 +259,52 @@ export function createInlineConverter({
   fetchImageAsBuffer, 
   reportResourceProgress,
   linkDefinitions,
-  renderer
+  renderer,
+  emojiStyle = 'windows'
 }: InlineConverterOptions): InlineConverter {
+  // Get emoji font based on user preference
+  const emojiFont = getEmojiFont(emojiStyle);
+  
+  /**
+   * Remove Variation Selector (U+FE0F) from emoji for better WPS compatibility
+   * WPS doesn't handle FE0F well, showing it as a box character
+   * @param emoji - Emoji string that may contain FE0F
+   * @returns Emoji string with FE0F removed
+   */
+  function stripVariationSelector(emoji: string): string {
+    return emoji.replace(/\uFE0F/g, '');
+  }
+
+  /**
+   * Convert text with emoji handling - split emoji into separate runs with emoji font
+   * @param text - Text content
+   * @param parentStyle - Parent style to apply
+   * @returns Single TextRun or array of TextRuns
+   */
+  function convertTextWithEmoji(text: string, parentStyle: ParentStyle): TextRun | TextRun[] {
+    const segments = splitTextByEmoji(text);
+    
+    // If no emoji found, return simple TextRun
+    if (segments.length === 1 && segments[0].type === 'text') {
+      return new TextRun({ text: text, ...parentStyle });
+    }
+    
+    // If only emoji (no regular text), return emoji TextRun(s)
+    if (segments.length === 1 && segments[0].type === 'emoji') {
+      const cleanEmoji = stripVariationSelector(text);
+      return new TextRun({ text: cleanEmoji, ...parentStyle, font: emojiFont });
+    }
+    
+    // Mixed content: create separate TextRuns for text and emoji
+    return segments.map(segment => {
+      if (segment.type === 'emoji') {
+        const cleanEmoji = stripVariationSelector(segment.content);
+        return new TextRun({ text: cleanEmoji, ...parentStyle, font: emojiFont });
+      }
+      return new TextRun({ text: segment.content, ...parentStyle });
+    });
+  }
+
   /**
    * Convert inline nodes (text, emphasis, strong, etc.)
    * @param nodes - Array of inline AST nodes
@@ -224,7 +345,7 @@ export function createInlineConverter({
   async function convertInlineNode(node: InlineNode, parentStyle: ParentStyle = {}): Promise<InlineResult | InlineResult[] | null> {
     switch (node.type) {
       case 'text':
-        return new TextRun({ text: node.value, ...parentStyle });
+        return convertTextWithEmoji(node.value, parentStyle);
 
       case 'strong':
         return await convertInlineNodes(node.children, { ...parentStyle, bold: true });
@@ -272,10 +393,8 @@ export function createInlineConverter({
         if (/^<br\s*\/?>$/i.test(htmlValue)) {
           return new TextRun({ text: '', break: 1 });
         }
-        return new TextRun({
-          text: htmlValue.replace(/<[^>]+>/g, ''),
-          ...parentStyle,
-        });
+        const textContent = htmlValue.replace(/<[^>]+>/g, '');
+        return convertTextWithEmoji(textContent, parentStyle);
       }
 
       default:
@@ -293,16 +412,18 @@ export function createInlineConverter({
     const text = extractText(node);
     const url = node.url || '#';
 
+    const linkStyle = {
+      style: 'Hyperlink' as const,
+      color: '0366D6',
+      underline: { type: 'single' as const, color: '0366D6' },
+      ...parentStyle,
+    };
+
+    // Handle emoji in link text
+    const textRuns = convertTextWithEmoji(text, linkStyle);
+
     return new ExternalHyperlink({
-      children: [
-        new TextRun({
-          text: text,
-          style: 'Hyperlink',
-          color: '0366D6',
-          underline: { type: 'single', color: '0366D6' },
-          ...parentStyle,
-        }),
-      ],
+      children: Array.isArray(textRuns) ? textRuns : [textRuns],
       link: url,
     });
   }
@@ -319,16 +440,18 @@ export function createInlineConverter({
     const definition = linkDefinitions?.get(identifier);
     const url = definition?.url || '#';
 
+    const linkStyle = {
+      style: 'Hyperlink' as const,
+      color: '0366D6',
+      underline: { type: 'single' as const, color: '0366D6' },
+      ...parentStyle,
+    };
+
+    // Handle emoji in link text
+    const textRuns = convertTextWithEmoji(text, linkStyle);
+
     return new ExternalHyperlink({
-      children: [
-        new TextRun({
-          text: text,
-          style: 'Hyperlink',
-          color: '0366D6',
-          underline: { type: 'single', color: '0366D6' },
-          ...parentStyle,
-        }),
-      ],
+      children: Array.isArray(textRuns) ? textRuns : [textRuns],
       link: url,
     });
   }

@@ -6,7 +6,21 @@
  */
 
 // Firefox WebExtension API types
-declare const browser: typeof chrome;
+declare const browser: typeof chrome & {
+  menus: {
+    create: (createProperties: {
+      id?: string;
+      title?: string;
+      contexts?: string[];
+      documentUrlPatterns?: string[];
+    }) => void;
+    remove: (menuItemId: string) => Promise<void>;
+    update: (id: string, updateProperties: { title?: string }) => Promise<void>;
+    onClicked: {
+      addListener: (callback: (info: { menuItemId: string; linkUrl?: string; pageUrl?: string }, tab?: { id?: number; url?: string }) => void) => void;
+    };
+  };
+};
 
 import ExtensionCacheManager from '../../../src/utils/cache-manager';
 import { toSimpleCacheStats } from '../../../src/utils/cache-stats';

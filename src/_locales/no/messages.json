@@ -355,6 +355,22 @@
     "message": "Tilbakestill",
     "description": "Reset button"
   },
+  "settings_docx_emoji_style": {
+    "message": "Emoji-stil",
+    "description": "Label for the emoji style selector in DOCX export settings"
+  },
+  "settings_docx_emoji_style_apple": {
+    "message": "Apple-stil",
+    "description": "Option for Apple emoji style"
+  },
+  "settings_docx_emoji_style_note": {
+    "message": "Velg emoji-skriftstil for DOCX-eksport",
+    "description": "Note explaining the emoji style setting"
+  },
+  "settings_docx_emoji_style_windows": {
+    "message": "Windows-stil",
+    "description": "Option for Windows emoji style"
+  },
   "settings_docx_hr_page_break": {
     "message": "DOCX: Behandle horisontale linjer som sideskift",
     "description": "Checkbox label for exporting Markdown horizontal rules (---) as page breaks in DOCX"

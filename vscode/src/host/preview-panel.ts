@@ -506,6 +506,8 @@ export class MarkdownPreviewPanel {
                   next.preferredLocale = value;
                 } else if (key === 'docxHrAsPageBreak') {
                   next.docxHrAsPageBreak = value;
+                } else if (key === 'docxEmojiStyle') {
+                  next.docxEmojiStyle = value;
                 } else {
                   (next as Record<string, unknown>)[key] = value;
                 }
@@ -894,11 +896,14 @@ export class MarkdownPreviewPanel {
     const theme = globalState?.get<string>('storage.selectedTheme') || 'default';
     const locale = (typeof settings.preferredLocale === 'string' && settings.preferredLocale) ? settings.preferredLocale : 'auto';
     const docxHrAsPageBreak = (typeof settings.docxHrAsPageBreak === 'boolean') ? settings.docxHrAsPageBreak : true;
+    const storedEmojiStyle = settings.docxEmojiStyle;
+    const docxEmojiStyle: 'apple' | 'windows' = (storedEmojiStyle === 'apple' || storedEmojiStyle === 'windows') ? storedEmojiStyle : 'windows';
     
     return {
       theme,
       locale,
       docxHrAsPageBreak,
+      docxEmojiStyle,
       fontSize: config.get('fontSize', 16),
       fontFamily: config.get('fontFamily', ''),
       lineNumbers: config.get('lineNumbers', true),
