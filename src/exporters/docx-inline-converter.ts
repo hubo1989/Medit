@@ -200,6 +200,10 @@ const EMOJI_FONTS = {
  * @returns Font configuration for the specified style
  */
 function getEmojiFont(style: EmojiStyle = 'windows') {
+  // 'system' style is handled separately, default to 'windows' for EMOJI_FONTS lookup
+  if (style === 'system') {
+    return EMOJI_FONTS.windows;
+  }
   return EMOJI_FONTS[style];
 }
 
