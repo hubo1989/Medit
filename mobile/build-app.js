@@ -150,27 +150,48 @@ const targets = {
   android: {
     name: 'Android APK & AAB',
     build: () => {
-      console.log('\n🤖 Building Android APK...\n');
+      // Check if keystore exists for release signing
+      const keystorePath = path.join(mobileDir, 'android/markdown_viewer.keystore');
+      const keyPropertiesPath = path.join(mobileDir, 'android/key.properties');
+      const hasKeystore = fs.existsSync(keystorePath) && fs.existsSync(keyPropertiesPath);
       
-      // Build APK first
-      exec('flutter build apk', { cwd: mobileDir });
+      if (!hasKeystore) {
+        console.log('⚠️  No keystore found - building debug version');
+        console.log('   To build release version:');
+        console.log('   1. Generate keystore: keytool -genkey -v -keystore android/markdown_viewer.keystore -keyalg RSA -keysize 2048 -validity 10000 -alias markdown_viewer');
+        console.log('   2. Configure android/key.properties with your keystore password\n');
+      }
+      
+      const buildMode = hasKeystore ? 'release' : 'debug';
+      const buildModeDisplay = hasKeystore ? 'Release (signed)' : 'Debug (unsigned)';
+      
+      console.log(`\n🤖 Building Android APK (${buildModeDisplay})...\n`);
+      
+      // Build APK
+      exec(`flutter build apk --${buildMode}`, { cwd: mobileDir });
       
       const androidDistDir = path.join(distDir, 'android');
-      const apkSrcDir = path.join(mobileDir, 'build/app/outputs/flutter-apk');
+      const apkSrcDir = path.join(mobileDir, `build/app/outputs/flutter-apk`);
       
       copyFiles(apkSrcDir, androidDistDir, /\.apk$/);
       
-      console.log('\n🤖 Building Android App Bundle (AAB)...\n');
-      
-      // Build AAB for Play Store
-      exec('flutter build appbundle', { cwd: mobileDir });
-      
-      const aabSrcDir = path.join(mobileDir, 'build/app/outputs/bundle/release');
-      copyFiles(aabSrcDir, androidDistDir, /\.aab$/);
-      
-      console.log(`\n✅ Android builds complete: ${androidDistDir}/`);
-      console.log(`   • APK: for direct distribution`);
-      console.log(`   • AAB: for Google Play Store`);
+      if (hasKeystore) {
+        console.log(`\n🤖 Building Android App Bundle (AAB) for Play Store...\n`);
+        
+        // Build AAB for Play Store (only in release mode)
+        exec('flutter build appbundle --release', { cwd: mobileDir });
+        
+        const aabSrcDir = path.join(mobileDir, 'build/app/outputs/bundle/release');
+        copyFiles(aabSrcDir, androidDistDir, /\.aab$/);
+        
+        console.log(`\n✅ Android builds complete: ${androidDistDir}/`);
+        console.log(`   • APK: signed and ready for direct distribution`);
+        console.log(`   • AAB: signed and ready for Google Play Store`);
+      } else {
+        console.log(`\n✅ Android APK built: ${androidDistDir}/`);
+        console.log(`   • APK: debug version for testing only`);
+        console.log(`   ⚠️  Not suitable for Play Store distribution`);
+      }
     }
   },
   
