@@ -148,10 +148,11 @@ const targets = {
   },
   
   android: {
-    name: 'Android APK',
+    name: 'Android APK & AAB',
     build: () => {
       console.log('\n🤖 Building Android APK...\n');
       
+      // Build APK first
       exec('flutter build apk', { cwd: mobileDir });
       
       const androidDistDir = path.join(distDir, 'android');
@@ -159,7 +160,17 @@ const targets = {
       
       copyFiles(apkSrcDir, androidDistDir, /\.apk$/);
       
-      console.log(`\n✅ Android APK built: ${androidDistDir}/`);
+      console.log('\n🤖 Building Android App Bundle (AAB)...\n');
+      
+      // Build AAB for Play Store
+      exec('flutter build appbundle', { cwd: mobileDir });
+      
+      const aabSrcDir = path.join(mobileDir, 'build/app/outputs/bundle/release');
+      copyFiles(aabSrcDir, androidDistDir, /\.aab$/);
+      
+      console.log(`\n✅ Android builds complete: ${androidDistDir}/`);
+      console.log(`   • APK: for direct distribution`);
+      console.log(`   • AAB: for Google Play Store`);
     }
   },
   
@@ -198,7 +209,7 @@ Usage:
 Targets:
   ios       Build iOS IPA for distribution
   ios:sim   Build iOS app for simulator  
-  android   Build Android APK
+  android   Build Android APK & AAB (APK for direct install, AAB for Play Store)
   macos     Build macOS app
   all       Build all targets
 
