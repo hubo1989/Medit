@@ -1,4 +1,4 @@
-package com.example.markdown_viewer_mobile
+package io.xicilion.markdown_viewer
 
 import android.content.Intent
 import android.net.Uri
