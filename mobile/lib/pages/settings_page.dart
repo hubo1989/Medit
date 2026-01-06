@@ -185,8 +185,8 @@ class _SettingsPageState extends State<SettingsPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(localization.t('cache_clear_success'))),
         );
-        // Refresh stats after clearing
-        await _loadCacheStats();
+        // Close settings page immediately after successful cache clear
+        Navigator.pop(context);
       }
     } catch (e) {
       debugPrint('[Settings] Failed to clear cache: $e');
@@ -194,9 +194,6 @@ class _SettingsPageState extends State<SettingsPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(localization.t('cache_clear_failed'))),
         );
-      }
-    } finally {
-      if (mounted) {
         setState(() {
           _clearingCache = false;
         });

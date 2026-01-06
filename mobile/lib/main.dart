@@ -1277,14 +1277,23 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
                       ),
                     ),
                     const Spacer(),
-                    GFButton(
+                    TextButton(
                       onPressed: () {
                         Navigator.pop(context);
                         _clearRecentFiles();
                       },
-                      text: localization.t('clear_all'),
-                      type: GFButtonType.transparent,
-                      size: GFSize.SMALL,
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                        minimumSize: Size.zero,
+                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                      child: Text(
+                        localization.t('clear_all'),
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -1638,11 +1647,20 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
                           ),
                         ),
                         const Spacer(),
-                        GFButton(
+                        TextButton(
                           onPressed: _clearRecentFiles,
-                          text: localization.t('clear_all'),
-                          type: GFButtonType.transparent,
-                          size: GFSize.SMALL,
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                            minimumSize: Size.zero,
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                          child: Text(
+                            localization.t('clear_all'),
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                          ),
                         ),
                       ],
                     ),
