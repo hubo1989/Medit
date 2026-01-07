@@ -6,6 +6,17 @@
 
 ---
 
+## 📱 Also Available as Browser Extension
+
+**VS Code for writing, Browser for reading and sharing.**
+
+Use VS Code to create your documents, then share them via browser extensions for a seamless reading experience:
+
+- **Chrome:** https://chromewebstore.google.com/detail/markdown-viewer/jekhhoflgcfoikceikgeenibinpojaoi
+- **Firefox:** https://addons.mozilla.org/firefox/addon/markdown-viewer-extension/
+
+---
+
 You love writing in Markdown — clean, efficient, version control friendly.  
 But eventually, you always need a Word document.
 

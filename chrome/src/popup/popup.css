@@ -167,6 +167,15 @@ h1.clickable-title:hover {
   color: var(--color-text-secondary);
 }
 
+.version .author {
+  color: inherit;
+  text-decoration: none;
+}
+
+.version .author:hover {
+  text-decoration: underline;
+}
+
 .review-link {
   display: inline-flex;
   align-items: center;

@@ -6,6 +6,7 @@
 
 import Localization from '../../utils/localization';
 import { applyI18nText, translate } from './i18n-helpers';
+import { isFirefoxPopup } from './platform-detect';
 import { showConfirm, showMessage, showError, checkFileAccess } from './ui-helpers';
 import { createCacheTabManager, type CacheTabManager } from './cache-tab';
 import { createHistoryTabManager, type HistoryTabManager } from './history-tab';
@@ -78,7 +79,10 @@ class PopupManager {
     if (reviewLink) {
       reviewLink.addEventListener('click', (e) => {
         e.preventDefault();
-        window.open('https://chromewebstore.google.com/detail/markdown-viewer/jekhhoflgcfoikceikgeenibinpojaoi/reviews', '_blank');
+        const reviewUrl = isFirefoxPopup()
+          ? 'https://addons.mozilla.org/firefox/addon/markdown-viewer-extension/reviews/'
+          : 'https://chromewebstore.google.com/detail/markdown-viewer/jekhhoflgcfoikceikgeenibinpojaoi/reviews';
+        window.open(reviewUrl, '_blank');
       });
     }
 

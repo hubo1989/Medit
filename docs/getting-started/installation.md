@@ -34,7 +34,7 @@ You should see the Markdown Viewer icon in your browser's extension toolbar. If 
 
 Firefox users can install from Firefox Add-ons:
 
-1. Visit the Firefox Add-ons page for Markdown Viewer
+1. Visit [Firefox Add-ons - Markdown Viewer](https://addons.mozilla.org/firefox/addon/markdown-viewer-extension/)
 2. Click **"Add to Firefox"**
 3. Confirm the installation
 
@@ -44,7 +44,9 @@ Firefox users can install from Firefox Add-ons:
 
 For VS Code users who want to preview and export Markdown within the editor:
 
-1. Visit [VS Code Marketplace - Markdown Viewer Extension](https://marketplace.visualstudio.com/items?itemName=xicilion.markdown-viewer-extension)
+🚀 **[VS Code Marketplace - Markdown Viewer Extension](https://marketplace.visualstudio.com/items?itemName=xicilion.markdown-viewer-extension)**
+
+1. Visit the link above
 2. Click **Install**
 3. Or open VS Code, go to Extensions (`Ctrl+Shift+X` / `Cmd+Shift+X`)
 4. Search for "Markdown Viewer Extension"
