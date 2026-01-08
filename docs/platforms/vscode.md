@@ -25,6 +25,13 @@ Markdown Viewer is available as a VS Code extension, allowing you to preview and
 4. Search for **"Markdown Viewer Extension"**
 5. Click **Install**
 
+### From Open VSX
+
+For VSCodium or offline installations:
+
+1. Visit [Open VSX - Markdown Viewer Extension](https://open-vsx.org/extension/xicilion/markdown-viewer-extension)
+2. Click **Install**
+
 ### From Command Line
 
 ```bash

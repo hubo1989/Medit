@@ -44,7 +44,7 @@ Firefox users can install from Firefox Add-ons:
 
 For VS Code users who want to preview and export Markdown within the editor:
 
-🚀 **[VS Code Marketplace - Markdown Viewer Extension](https://marketplace.visualstudio.com/items?itemName=xicilion.markdown-viewer-extension)**
+🚀 **[VS Code Marketplace - Markdown Viewer Extension](https://marketplace.visualstudio.com/items?itemName=xicilion.markdown-viewer-extension)** · **[Open VSX](https://open-vsx.org/extension/xicilion/markdown-viewer-extension)**
 
 1. Visit the link above
 2. Click **Install**

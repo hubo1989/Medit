@@ -10,7 +10,7 @@
 
 - **Chrome / Chromium:** https://chromewebstore.google.com/detail/markdown-viewer/jekhhoflgcfoikceikgeenibinpojaoi
 - **Firefox:** https://addons.mozilla.org/firefox/addon/markdown-viewer-extension/
-- **VS Code:** https://marketplace.visualstudio.com/items?itemName=xicilion.markdown-viewer-extension
+- **VS Code:** https://marketplace.visualstudio.com/items?itemName=xicilion.markdown-viewer-extension · [Open VSX](https://open-vsx.org/extension/xicilion/markdown-viewer-extension)
 - **Mobile (iOS/Android):** See [Mobile App](docs/platforms/mobile.md)
 
 ---

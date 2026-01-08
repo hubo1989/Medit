@@ -148,7 +148,7 @@ All 28 languages are supported on all platforms:
 - **Commands**: Preview, Preview to Side, Export DOCX, Open Settings, Refresh
 - **Settings**: Theme, Font Size, Font Family, Line Numbers, Scroll Sync
 - **Special**: Bidirectional scroll sync with editor, keyboard shortcuts
-- **Install**: [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=xicilion.markdown-viewer-extension)
+- **Install**: [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=xicilion.markdown-viewer-extension) · [Open VSX](https://open-vsx.org/extension/xicilion/markdown-viewer-extension)
 
 ### Mobile App
 

@@ -8,7 +8,7 @@
 
 - **Chrome / Chromium:** [https://chromewebstore.google.com/detail/markdown-viewer/jekhhoflgcfoikceikgeenibinpojaoi](https://chromewebstore.google.com/detail/markdown-viewer/jekhhoflgcfoikceikgeenibinpojaoi)
 - **Firefox:** [https://addons.mozilla.org/firefox/addon/markdown-viewer-extension/](https://addons.mozilla.org/firefox/addon/markdown-viewer-extension/)
-- **VS Code:** [https://marketplace.visualstudio.com/items?itemName=xicilion.markdown-viewer-extension](https://marketplace.visualstudio.com/items?itemName=xicilion.markdown-viewer-extension)
+- **VS Code:** [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=xicilion.markdown-viewer-extension) · [Open VSX](https://open-vsx.org/extension/xicilion/markdown-viewer-extension)
 
 ---
 

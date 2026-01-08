@@ -15,6 +15,8 @@ Use VS Code to create your documents, then share them via browser extensions for
 - **Chrome:** https://chromewebstore.google.com/detail/markdown-viewer/jekhhoflgcfoikceikgeenibinpojaoi
 - **Firefox:** https://addons.mozilla.org/firefox/addon/markdown-viewer-extension/
 
+> 💡 **Alternative:** Install from [Open VSX](https://open-vsx.org/extension/xicilion/markdown-viewer-extension) if you prefer or use offline installations.
+
 ---
 
 You love writing in Markdown — clean, efficient, version control friendly.  
