@@ -105,15 +105,15 @@ export function createSettingsPanel(options: SettingsPanelOptions): SettingsPane
     </div>
     <div class="vscode-settings-content">
       <div class="vscode-settings-group">
-        <label class="vscode-settings-label" data-i18n="settings_language_label">${Localization.translate('settings_language_label')}</label>
-        <select class="vscode-settings-select" data-setting="locale">
-          <option value="auto" data-i18n="settings_language_auto">${Localization.translate('settings_language_auto')}</option>
-        </select>
-      </div>
-      <div class="vscode-settings-group">
         <label class="vscode-settings-label" data-i18n="settings_theme_label">${Localization.translate('settings_theme_label')}</label>
         <select class="vscode-settings-select" data-setting="theme">
           <option value="default">Default</option>
+        </select>
+      </div>
+      <div class="vscode-settings-group">
+        <label class="vscode-settings-label" data-i18n="settings_language_label">${Localization.translate('settings_language_label')}</label>
+        <select class="vscode-settings-select" data-setting="locale">
+          <option value="auto" data-i18n="settings_language_auto">${Localization.translate('settings_language_auto')}</option>
         </select>
       </div>
       <div class="vscode-settings-group">
