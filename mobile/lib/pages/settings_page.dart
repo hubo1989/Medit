@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:getwidget/getwidget.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-import 'dart:convert';
 import '../services/cache_service.dart';
 import '../services/localization_service.dart';
 import '../services/settings_service.dart';
-import '../services/theme_asset_service.dart';
 import '../services/theme_registry_service.dart';
 import '../widgets/theme_picker.dart';
 
@@ -225,11 +223,10 @@ class _SettingsPageState extends State<SettingsPage> {
     final controller = widget.webViewController;
     if (controller != null) {
       try {
-        final themeData = await themeAssetService.getCompleteThemeData(selectedTheme);
-        final json = jsonEncode(themeData);
-        final escaped = json.replaceAll('\\', '\\\\').replaceAll("'", "\\'");
+        // Send themeId only - WebView loads theme data itself
+        final escapedTheme = selectedTheme.replaceAll('\\', '\\\\').replaceAll("'", "\\'");
         await controller.runJavaScript(
-          "if(window.applyThemeData){window.applyThemeData('$escaped');}",
+          "if(window.setTheme){window.setTheme('$escapedTheme');}",
         );
       } catch (e) {
         debugPrint('[Settings] Failed to apply theme: $e');

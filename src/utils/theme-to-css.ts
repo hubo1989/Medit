@@ -1,6 +1,13 @@
 /**
  * Theme to CSS Converter
  * Converts theme configuration to CSS styles
+ * 
+ * Theme v2.0 Format:
+ * - fontScheme: only font families (no sizes)
+ * - layoutScheme: all sizes and spacing (absolute pt values)
+ * - colorScheme: colors (future)
+ * - tableStyle: table styling
+ * - codeTheme: code syntax highlighting
  */
 
 import themeManager from './theme-manager';
@@ -19,49 +26,37 @@ function getPlatform(): PlatformAPI {
 }
 
 /**
- * Heading spacing configuration
- */
-interface HeadingSpacing {
-  before?: string;
-  after?: string;
-}
-
-/**
- * Heading configuration
+ * Heading style configuration (font-related properties only)
  */
 interface HeadingConfig {
   fontFamily?: string;
-  fontSize: string;
   fontWeight?: string;
-  alignment?: 'left' | 'center' | 'right';
-  spacing?: HeadingSpacing;
 }
 
 /**
- * Font scheme configuration
+ * Font scheme configuration (font-related properties only)
+ * Layout properties (fontSize, lineHeight, spacing) are in LayoutScheme
  */
 interface FontScheme {
   body: {
     fontFamily: string;
-    fontSize: string;
-    lineHeight: number;
   };
   headings: Record<string, HeadingConfig>;
   code: {
     fontFamily: string;
-    fontSize: string;
     background: string;
   };
 }
 
 /**
- * Theme configuration
+ * Theme configuration (v2.0 format)
  */
 export interface ThemeConfig {
   fontScheme: FontScheme;
+  layoutScheme: string;    // reference to layout-schemes/
   tableStyle: string;
   codeTheme: string;
-  spacing: string;
+  colorScheme?: string;    // Future: reference to color-schemes/
 }
 
 /**
@@ -109,34 +104,62 @@ export interface CodeThemeConfig {
 }
 
 /**
- * Blockquote spacing configuration
+ * Layout scheme heading configuration
  */
-interface BlockquoteSpacing {
-  before: number;
-  after: number;
-  padding: {
-    vertical: number;
-    horizontal: number;
+interface LayoutHeadingConfig {
+  fontSize: string;
+  spacingBefore: string;
+  spacingAfter: string;
+  alignment?: 'left' | 'center' | 'right';
+}
+
+/**
+ * Layout scheme block configuration
+ */
+interface LayoutBlockConfig {
+  spacingBefore?: string;
+  spacingAfter?: string;
+  paddingVertical?: string;
+  paddingHorizontal?: string;
+}
+
+/**
+ * Layout scheme configuration (absolute pt values)
+ */
+export interface LayoutScheme {
+  id: string;
+  name: string;
+  name_en: string;
+  description: string;
+  description_en?: string;
+  
+  body: {
+    fontSize: string;
+    lineHeight: number;
   };
-}
-
-/**
- * Horizontal rule spacing configuration
- */
-interface HorizontalRuleSpacing {
-  before: number;
-  after: number;
-}
-
-/**
- * Spacing scheme configuration
- */
-export interface SpacingScheme {
-  paragraph: number;
-  list: number;
-  listItem: number;
-  blockquote?: BlockquoteSpacing;
-  horizontalRule?: HorizontalRuleSpacing;
+  
+  headings: {
+    h1: LayoutHeadingConfig;
+    h2: LayoutHeadingConfig;
+    h3: LayoutHeadingConfig;
+    h4: LayoutHeadingConfig;
+    h5: LayoutHeadingConfig;
+    h6: LayoutHeadingConfig;
+  };
+  
+  code: {
+    fontSize: string;
+  };
+  
+  blocks: {
+    paragraph: LayoutBlockConfig;
+    list: LayoutBlockConfig;
+    listItem: LayoutBlockConfig;
+    blockquote: LayoutBlockConfig;
+    codeBlock: LayoutBlockConfig;
+    table: LayoutBlockConfig;
+    horizontalRule: LayoutBlockConfig;
+  };
 }
 
 /**
@@ -153,46 +176,47 @@ export interface FontConfig {
 /**
  * Convert theme configuration to CSS
  * @param theme - Theme configuration object
+ * @param layoutScheme - Layout scheme configuration
  * @param tableStyle - Table style configuration
  * @param codeTheme - Code highlighting theme
- * @param spacingScheme - Spacing scheme configuration
  * @returns CSS string
  */
 export function themeToCSS(
   theme: ThemeConfig,
+  layoutScheme: LayoutScheme,
   tableStyle: TableStyleConfig,
-  codeTheme: CodeThemeConfig,
-  spacingScheme: SpacingScheme
+  codeTheme: CodeThemeConfig
 ): string {
   const css: string[] = [];
 
-  // Font scheme
-  css.push(generateFontCSS(theme.fontScheme));
+  // Font and layout CSS (combined from fontScheme + layoutScheme)
+  css.push(generateFontAndLayoutCSS(theme.fontScheme, layoutScheme));
 
   // Table style
   css.push(generateTableCSS(tableStyle));
 
   // Code highlighting
-  css.push(generateCodeCSS(theme.fontScheme.code, codeTheme));
+  css.push(generateCodeCSS(theme.fontScheme.code, codeTheme, layoutScheme.code));
 
-  // Spacing (pass body font size for ratio calculation)
-  css.push(generateSpacingCSS(spacingScheme, theme.fontScheme.body.fontSize));
+  // Block spacing
+  css.push(generateBlockSpacingCSS(layoutScheme));
 
   return css.join('\n\n');
 }
 
 /**
- * Generate font-related CSS
- * @param fontScheme - Font scheme configuration
+ * Generate font and layout CSS
+ * @param fontScheme - Font scheme configuration (font families)
+ * @param layoutScheme - Layout scheme configuration (sizes and spacing)
  * @returns CSS string
  */
-function generateFontCSS(fontScheme: FontScheme): string {
+function generateFontAndLayoutCSS(fontScheme: FontScheme, layoutScheme: LayoutScheme): string {
   const css: string[] = [];
 
-  // Body font
+  // Body font - font family from fontScheme, size from layoutScheme
   const bodyFontFamily = themeManager.buildFontFamily(fontScheme.body.fontFamily);
-  const bodyFontSize = themeManager.ptToPx(fontScheme.body.fontSize);
-  const bodyLineHeight = fontScheme.body.lineHeight;
+  const bodyFontSize = themeManager.ptToPx(layoutScheme.body.fontSize);
+  const bodyLineHeight = layoutScheme.body.lineHeight;
 
   css.push(`#markdown-content {
   font-family: ${bodyFontFamily};
@@ -205,15 +229,17 @@ function generateFontCSS(fontScheme: FontScheme): string {
   font-size: ${bodyFontSize};
 }`);
 
-  // Headings
-  const headings = fontScheme.headings;
-  Object.keys(headings).forEach((level) => {
-    const heading = headings[level];
-    // Inherit font from body if not specified
-    const fontFamily = themeManager.buildFontFamily(heading.fontFamily || fontScheme.body.fontFamily);
-    const fontSize = themeManager.ptToPx(heading.fontSize);
-    const fontWeight = heading.fontWeight || 'normal';
-    const alignment = heading.alignment || 'left';
+  // Headings - font/fontWeight from fontScheme, sizes/alignment/spacing from layoutScheme
+  const headingLevels = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'] as const;
+
+  headingLevels.forEach((level) => {
+    const fontHeading = fontScheme.headings[level];
+    const layoutHeading = layoutScheme.headings[level];
+    
+    // Font family: inherit from heading config, fallback to body
+    const fontFamily = themeManager.buildFontFamily(fontHeading?.fontFamily || fontScheme.body.fontFamily);
+    const fontSize = themeManager.ptToPx(layoutHeading.fontSize);
+    const fontWeight = fontHeading?.fontWeight || 'bold';
 
     const styles = [
       `  font-family: ${fontFamily};`,
@@ -221,44 +247,23 @@ function generateFontCSS(fontScheme: FontScheme): string {
       `  font-weight: ${fontWeight};`
     ];
 
-    if (alignment !== 'left') {
-      styles.push(`  text-align: ${alignment};`);
+    // Add alignment from layoutScheme
+    if (layoutHeading.alignment && layoutHeading.alignment !== 'left') {
+      styles.push(`  text-align: ${layoutHeading.alignment};`);
     }
 
-    if (heading.spacing) {
-      if (heading.spacing.before && heading.spacing.before !== '0pt') {
-        styles.push(`  margin-top: ${themeManager.ptToPx(heading.spacing.before)};`);
-      }
-      if (heading.spacing.after) {
-        styles.push(`  margin-bottom: ${themeManager.ptToPx(heading.spacing.after)};`);
-      }
+    // Add spacing from layoutScheme
+    if (layoutHeading.spacingBefore && layoutHeading.spacingBefore !== '0pt') {
+      styles.push(`  margin-top: ${themeManager.ptToPx(layoutHeading.spacingBefore)};`);
+    }
+    if (layoutHeading.spacingAfter && layoutHeading.spacingAfter !== '0pt') {
+      styles.push(`  margin-bottom: ${themeManager.ptToPx(layoutHeading.spacingAfter)};`);
     }
 
     css.push(`#markdown-content ${level} {
 ${styles.join('\n')}
 }`);
   });
-
-  // Code font
-  const codeFontFamily = themeManager.buildFontFamily(fontScheme.code.fontFamily);
-  const codeFontSize = themeManager.ptToPx(fontScheme.code.fontSize);
-  const codeBackground = fontScheme.code.background;
-
-  css.push(`#markdown-content code {
-  font-family: ${codeFontFamily};
-  font-size: ${codeFontSize};
-  background-color: ${codeBackground};
-}`);
-
-  css.push(`#markdown-content pre {
-  background-color: ${codeBackground};
-}`);
-
-  css.push(`#markdown-content pre code {
-  font-family: ${codeFontFamily};
-  font-size: ${codeFontSize};
-  background-color: transparent;
-}`);
 
   return css.join('\n\n');
 }
@@ -414,19 +419,42 @@ ${headerStyles.join('\n')}
 
 /**
  * Generate code highlighting CSS
- * @param codeConfig - Code font configuration
+ * @param codeConfig - Code font configuration from fontScheme
  * @param codeTheme - Code highlighting theme
+ * @param codeLayout - Code layout configuration from layoutScheme
  * @returns CSS string
  */
 function generateCodeCSS(
-  codeConfig: { background: string },
-  codeTheme: CodeThemeConfig
+  codeConfig: { fontFamily: string; background: string },
+  codeTheme: CodeThemeConfig,
+  codeLayout: { fontSize: string }
 ): string {
   const css: string[] = [];
 
+  // Code font settings
+  const codeFontFamily = themeManager.buildFontFamily(codeConfig.fontFamily);
+  const codeFontSize = themeManager.ptToPx(codeLayout.fontSize);
+  const codeBackground = codeConfig.background;
+
+  css.push(`#markdown-content code {
+  font-family: ${codeFontFamily};
+  font-size: ${codeFontSize};
+  background-color: ${codeBackground};
+}`);
+
+  css.push(`#markdown-content pre {
+  background-color: ${codeBackground};
+}`);
+
+  css.push(`#markdown-content pre code {
+  font-family: ${codeFontFamily};
+  font-size: ${codeFontSize};
+  background-color: transparent;
+}`);
+
   // Ensure highlight.js styles work properly
   css.push(`#markdown-content .hljs {
-  background: ${codeConfig.background} !important;
+  background: ${codeBackground} !important;
   color: ${codeTheme.foreground};
 }`);
 
@@ -444,55 +472,86 @@ function generateCodeCSS(
 }
 
 /**
- * Generate spacing-related CSS
- * @param spacingScheme - Spacing scheme configuration (ratios relative to body font size)
- * @param bodyFontSize - Body font size (e.g., "12pt")
+ * Generate block spacing CSS from layout scheme
+ * @param layoutScheme - Layout scheme configuration
  * @returns CSS string
  */
-function generateSpacingCSS(spacingScheme: SpacingScheme, bodyFontSize: string): string {
+function generateBlockSpacingCSS(layoutScheme: LayoutScheme): string {
   const css: string[] = [];
-  
-  // Parse body font size to get base value in pt
-  const baseFontSizePt = parseFloat(bodyFontSize);
+  const blocks = layoutScheme.blocks;
 
-  // Helper function to calculate spacing based on ratio
-  const calcSpacing = (ratio: number): string => {
-    if (ratio === 0) return '0';
-    const ptValue = baseFontSizePt * ratio;
-    return themeManager.ptToPx(ptValue + 'pt');
+  // Helper function to convert pt to px
+  const toPx = (pt: string | undefined): string => {
+    if (!pt || pt === '0pt') return '0';
+    return themeManager.ptToPx(pt);
   };
 
   // Paragraph spacing
-  css.push(`#markdown-content p {
-  margin: ${calcSpacing(spacingScheme.paragraph)} 0;
+  if (blocks.paragraph) {
+    const marginBefore = toPx(blocks.paragraph.spacingBefore);
+    const marginAfter = toPx(blocks.paragraph.spacingAfter);
+    css.push(`#markdown-content p {
+  margin: ${marginBefore} 0 ${marginAfter} 0;
 }`);
+  }
 
   // List spacing
-  css.push(`#markdown-content ul,
+  if (blocks.list) {
+    const marginBefore = toPx(blocks.list.spacingBefore);
+    const marginAfter = toPx(blocks.list.spacingAfter);
+    css.push(`#markdown-content ul,
 #markdown-content ol {
-  margin: ${calcSpacing(spacingScheme.list)} 0;
+  margin: ${marginBefore} 0 ${marginAfter} 0;
 }`);
+  }
 
-  css.push(`#markdown-content li {
-  margin: ${calcSpacing(spacingScheme.listItem)} 0;
+  // List item spacing
+  if (blocks.listItem) {
+    const marginBefore = toPx(blocks.listItem.spacingBefore);
+    const marginAfter = toPx(blocks.listItem.spacingAfter);
+    css.push(`#markdown-content li {
+  margin: ${marginBefore} 0 ${marginAfter} 0;
 }`);
+  }
 
-  // Blockquote spacing - use paragraph spacing if not explicitly configured
-  const bqBefore = spacingScheme.blockquote?.before ?? spacingScheme.paragraph;
-  const bqAfter = spacingScheme.blockquote?.after ?? spacingScheme.paragraph;
-  const bqPaddingVertical = spacingScheme.blockquote?.padding.vertical ?? 0.083;
-  const bqPaddingHorizontal = spacingScheme.blockquote?.padding.horizontal ?? 1.083;
-
-  css.push(`#markdown-content blockquote {
-  margin: ${calcSpacing(bqBefore)} 0 ${calcSpacing(bqAfter)} 0;
-  padding: ${calcSpacing(bqPaddingVertical)} ${calcSpacing(bqPaddingHorizontal)};
+  // Blockquote spacing
+  if (blocks.blockquote) {
+    const bq = blocks.blockquote;
+    const marginBefore = toPx(bq.spacingBefore);
+    const marginAfter = toPx(bq.spacingAfter);
+    const paddingVertical = toPx(bq.paddingVertical);
+    const paddingHorizontal = toPx(bq.paddingHorizontal);
+    css.push(`#markdown-content blockquote {
+  margin: ${marginBefore} 0 ${marginAfter} 0;
+  padding: ${paddingVertical} ${paddingHorizontal};
 }`);
+  }
+
+  // Code block spacing
+  if (blocks.codeBlock) {
+    const marginBefore = toPx(blocks.codeBlock.spacingBefore);
+    const marginAfter = toPx(blocks.codeBlock.spacingAfter);
+    css.push(`#markdown-content pre {
+  margin: ${marginBefore} 0 ${marginAfter} 0;
+}`);
+  }
+
+  // Table spacing
+  if (blocks.table) {
+    const marginBefore = toPx(blocks.table.spacingBefore);
+    const marginAfter = toPx(blocks.table.spacingAfter);
+    css.push(`#markdown-content table {
+  margin: ${marginBefore} auto ${marginAfter} auto;
+}`);
+  }
 
   // Horizontal rule spacing
-  if (spacingScheme.horizontalRule) {
-    const hr = spacingScheme.horizontalRule;
+  if (blocks.horizontalRule) {
+    const hr = blocks.horizontalRule;
+    const marginBefore = toPx(hr.spacingBefore);
+    const marginAfter = toPx(hr.spacingAfter);
     css.push(`#markdown-content hr {
-  margin: ${calcSpacing(hr.before)} 0 ${calcSpacing(hr.after)} 0;
+  margin: ${marginBefore} 0 ${marginAfter} 0;
 }`);
   }
 
@@ -524,21 +583,19 @@ export function applyThemeCSS(css: string): void {
 /**
  * Apply theme from pre-loaded data (used by mobile when Flutter sends theme data)
  * @param theme - Theme configuration
+ * @param layoutScheme - Layout scheme configuration
  * @param tableStyle - Table style configuration
  * @param codeTheme - Code theme configuration
- * @param spacingScheme - Spacing scheme configuration
- * @param fontConfig - Font configuration (for themeManager)
  */
 export function applyThemeFromData(
   theme: ThemeConfig,
+  layoutScheme: LayoutScheme,
   tableStyle: TableStyleConfig,
-  codeTheme: CodeThemeConfig,
-  spacingScheme: SpacingScheme,
-  fontConfig?: FontConfig
+  codeTheme: CodeThemeConfig
 ): void {
   try {
     // Generate CSS
-    const css = themeToCSS(theme, tableStyle, codeTheme, spacingScheme);
+    const css = themeToCSS(theme, layoutScheme, tableStyle, codeTheme);
 
     // Apply CSS
     applyThemeCSS(css);
@@ -549,15 +606,28 @@ export function applyThemeFromData(
 }
 
 /**
+ * Theme load result containing layout information
+ */
+export interface ThemeLoadResult {
+  theme: ThemeConfig;
+  layoutScheme: LayoutScheme;
+}
+
+/**
  * Load and apply complete theme
  * @param themeId - Theme ID to load
+ * @returns Theme and layout scheme for additional configuration
  */
-export async function loadAndApplyTheme(themeId: string): Promise<void> {
+export async function loadAndApplyTheme(themeId: string): Promise<ThemeLoadResult> {
   try {
     const platform = getPlatform();
     
-    // Load theme
+    // Load theme preset
     const theme = (await themeManager.loadTheme(themeId)) as unknown as ThemeConfig;
+
+    // Load layout scheme
+    const layoutSchemeUrl = platform.resource.getURL(`themes/layout-schemes/${theme.layoutScheme}.json`);
+    const layoutScheme = await fetchJSON(layoutSchemeUrl) as LayoutScheme;
 
     // Load table style
     const tableStyle = await fetchJSON(
@@ -569,18 +639,15 @@ export async function loadAndApplyTheme(themeId: string): Promise<void> {
       platform.resource.getURL(`themes/code-themes/${theme.codeTheme}.json`)
     ) as CodeThemeConfig;
 
-    // Load spacing scheme
-    const spacingScheme = await fetchJSON(
-      platform.resource.getURL(`themes/spacing-schemes/${theme.spacing}.json`)
-    ) as SpacingScheme;
-
     // Generate CSS
-    const css = themeToCSS(theme, tableStyle, codeTheme, spacingScheme);
+    const css = themeToCSS(theme, layoutScheme, tableStyle, codeTheme);
 
     // Apply CSS
     applyThemeCSS(css);
+    
+    return { theme, layoutScheme };
   } catch (error) {
-    console.error('Error loading theme:', error);
+    console.error('[Theme] Error loading theme:', error);
     throw error;
   }
 }

@@ -126,6 +126,34 @@
       "category": "creative",
       "featured": false,
       "order": 18
+    },
+    {
+      "id": "handwritten",
+      "file": "handwritten.json",
+      "category": "creative",
+      "featured": true,
+      "order": 19
+    },
+    {
+      "id": "magazine",
+      "file": "magazine.json",
+      "category": "creative",
+      "featured": true,
+      "order": 20
+    },
+    {
+      "id": "newspaper",
+      "file": "newspaper.json",
+      "category": "creative",
+      "featured": false,
+      "order": 21
+    },
+    {
+      "id": "manuscript",
+      "file": "manuscript.json",
+      "category": "academic",
+      "featured": false,
+      "order": 22
     }
   ],
   "categories": {

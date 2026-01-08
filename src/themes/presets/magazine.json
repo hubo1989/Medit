@@ -1,0 +1,41 @@
+{
+  "id": "magazine",
+  "name": "杂志排版",
+  "name_en": "Magazine",
+  "description": "大标题差异，视觉冲击，适合创意内容展示",
+  "description_en": "Large title contrast with visual impact for creative content",
+  "author": "Markdown Viewer Extension",
+  "version": "2.0.0",
+  "fontScheme": {
+    "body": {
+      "fontFamily": "Georgia"
+    },
+    "headings": {
+      "h1": {
+        "fontFamily": "Helvetica Neue"
+      },
+      "h2": {
+        "fontFamily": "Helvetica Neue"
+      },
+      "h3": {
+        "fontFamily": "Helvetica Neue"
+      },
+      "h4": {
+        "fontFamily": "Helvetica Neue"
+      },
+      "h5": {
+        "fontFamily": "Helvetica Neue"
+      },
+      "h6": {
+        "fontFamily": "Helvetica Neue"
+      }
+    },
+    "code": {
+      "fontFamily": "Monaco",
+      "background": "#f5f5f5"
+    }
+  },
+  "layoutScheme": "magazine",
+  "tableStyle": "minimal-gray",
+  "codeTheme": "light-clean"
+}

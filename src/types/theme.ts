@@ -8,32 +8,25 @@
 // =============================================================================
 
 /**
- * Heading style configuration
+ * Heading style configuration (font-related properties only)
+ * Layout properties (fontSize, alignment, spacing) are in LayoutScheme
  */
 export interface HeadingConfig {
   fontFamily?: string;
-  fontSize: string;
   fontWeight?: string;
-  alignment?: 'left' | 'center' | 'right';
-  spacing?: {
-    before?: string;
-    after?: string;
-  };
 }
 
 /**
- * Font scheme configuration
+ * Font scheme configuration (font-related properties only)
+ * Layout properties (fontSize, lineHeight, spacing) are in LayoutScheme
  */
 export interface FontScheme {
   body: {
     fontFamily: string;
-    fontSize: string;
-    lineHeight: number;
   };
   headings: Record<string, HeadingConfig>;
   code: {
     fontFamily: string;
-    fontSize: string;
     background: string;
   };
 }
@@ -89,25 +82,66 @@ export interface CodeThemeConfig {
 }
 
 // =============================================================================
-// Spacing Types
+// Layout Types
 // =============================================================================
 
 /**
- * Spacing scheme configuration
+ * Layout scheme heading configuration
  */
-export interface SpacingScheme {
-  paragraph: number;
-  blockquote?: {
-    top: number;
-    bottom: number;
-    left: number;
-    right: number;
+export interface LayoutHeadingConfig {
+  fontSize: string;
+  spacingBefore: string;
+  spacingAfter: string;
+  alignment?: 'left' | 'center' | 'right';
+}
+
+/**
+ * Layout scheme block configuration
+ */
+export interface LayoutBlockConfig {
+  spacingBefore?: string;
+  spacingAfter?: string;
+  paddingVertical?: string;
+  paddingHorizontal?: string;
+}
+
+/**
+ * Layout scheme configuration (absolute pt values)
+ */
+export interface LayoutScheme {
+  id: string;
+  name: string;
+  name_en: string;
+  description: string;
+  description_en?: string;
+  
+  body: {
+    fontSize: string;
+    lineHeight: number;
   };
-  horizontalRule?: {
-    top: number;
-    bottom: number;
+  
+  headings: {
+    h1: LayoutHeadingConfig;
+    h2: LayoutHeadingConfig;
+    h3: LayoutHeadingConfig;
+    h4: LayoutHeadingConfig;
+    h5: LayoutHeadingConfig;
+    h6: LayoutHeadingConfig;
   };
-  [key: string]: unknown;
+  
+  code: {
+    fontSize: string;
+  };
+  
+  blocks: {
+    paragraph: LayoutBlockConfig;
+    list: LayoutBlockConfig;
+    listItem: LayoutBlockConfig;
+    blockquote: LayoutBlockConfig;
+    codeBlock: LayoutBlockConfig;
+    table: LayoutBlockConfig;
+    horizontalRule: LayoutBlockConfig;
+  };
 }
 
 // =============================================================================
@@ -126,9 +160,9 @@ export interface Theme {
   author?: string;
   version?: string;
   fontScheme: FontScheme;
-  tableStyle: string;  // Reference to table style
-  codeTheme: string;  // Reference to code theme
-  spacing: string;  // Reference to spacing scheme
+  layoutScheme: string;  // Reference to layout scheme
+  tableStyle: string;    // Reference to table style
+  codeTheme: string;     // Reference to code theme
 }
 
 /**

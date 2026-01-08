@@ -23,7 +23,7 @@ import {
   type ThemeConfig,
   type TableStyleConfig,
   type CodeThemeConfig,
-  type SpacingScheme,
+  type LayoutScheme,
   type FontConfig
 } from '../../../src/utils/theme-to-css';
 import type { PluginRenderer, PlatformAPI } from '../../../src/types/index';
@@ -62,9 +62,9 @@ let settingsPanel: SettingsPanel | null = null;
 interface ThemeData {
   fontConfig?: FontConfig;
   theme?: ThemeConfig & { id?: string };
+  layoutScheme?: LayoutScheme;
   tableStyle?: TableStyleConfig;
   codeTheme?: CodeThemeConfig;
-  spacing?: SpacingScheme;
 }
 
 let currentThemeData: ThemeData | null = null;
@@ -124,17 +124,16 @@ async function initialize(): Promise<void> {
 
     // Try to load and apply initial theme, and set up currentThemeData for renderer
     try {
-      const theme = await themeManager.loadTheme(currentThemeId);
-      await loadAndApplyTheme(currentThemeId);
+      const { theme, layoutScheme } = await loadAndApplyTheme(currentThemeId);
       
       // Store theme data for renderer (same pattern as Chrome)
-      if (theme) {
-        currentThemeData = { theme };
+      if (theme && layoutScheme) {
+        currentThemeData = { theme, layoutScheme };
         
         // Set renderer theme config for diagrams
-        if (theme.fontScheme?.body) {
+        if (theme.fontScheme?.body && layoutScheme.body) {
           const fontFamily = themeManager.buildFontFamily(theme.fontScheme.body.fontFamily);
-          const fontSize = parseFloat(theme.fontScheme.body.fontSize || '16');
+          const fontSize = parseFloat(layoutScheme.body.fontSize || '16');
           console.log('[VSCode Webview] Initial theme config:', { fontFamily, fontSize });
           platform.renderer.setThemeConfig({ fontFamily, fontSize });
         }
@@ -306,16 +305,18 @@ async function handleUpdateContent(payload: UpdateContentPayload): Promise<void>
 
     // Apply theme CSS if we have theme data
     if (renderThemeData) {
-      const { fontConfig, theme, tableStyle, codeTheme, spacing } = renderThemeData;
+      const { fontConfig, theme, layoutScheme, tableStyle, codeTheme } = renderThemeData;
 
-      if (theme && tableStyle && codeTheme && spacing) {
-        applyThemeFromData(theme, tableStyle, codeTheme, spacing, fontConfig);
+      if (theme && layoutScheme && tableStyle && codeTheme) {
+        applyThemeFromData(theme, layoutScheme, tableStyle, codeTheme);
       }
 
       // Set renderer theme config for diagrams
-      if (theme?.fontScheme?.body) {
-        const fontFamily = themeManager.buildFontFamily(theme.fontScheme.body.fontFamily);
-        const fontSize = parseFloat(theme.fontScheme.body.fontSize || '16');
+      if (layoutScheme?.body) {
+        const fontFamily = fontConfig 
+          ? themeManager.buildFontFamily(theme?.fontScheme?.body?.fontFamily || 'system-ui')
+          : 'system-ui';
+        const fontSize = parseFloat(layoutScheme.body.fontSize || '16');
         platform.renderer.setThemeConfig({ fontFamily, fontSize });
       }
     }
@@ -399,17 +400,11 @@ async function handleSetTheme(payload: SetThemePayload): Promise<void> {
     } else {
       // Load theme from resources (same as Chrome)
       console.log('[VSCode Webview] Loading theme from resources:', themeId);
-      await loadAndApplyTheme(themeId);
+      const { theme, layoutScheme } = await loadAndApplyTheme(themeId);
       
-      // Also load the full theme data to get fontScheme for renderer
-      try {
-        const theme = await themeManager.loadTheme(themeId);
-        if (theme) {
-          currentThemeData = { theme };
-          console.log('[VSCode Webview] Loaded theme data:', theme);
-        }
-      } catch (e) {
-        console.warn('[VSCode Webview] Failed to load full theme data:', e);
+      if (theme && layoutScheme) {
+        currentThemeData = { theme, layoutScheme };
+        console.log('[VSCode Webview] Loaded theme data:', theme);
       }
     }
 

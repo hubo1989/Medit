@@ -6,73 +6,17 @@
   "description_en": "FangSong font with traditional Chinese ink aesthetics",
   "author": "Markdown Viewer Extension",
   "version": "1.0.0",
-  
   "fontScheme": {
     "body": {
-      "fontFamily": "FangSong",
-      "fontSize": "13pt",
-      "lineHeight": 1.8
+      "fontFamily": "FangSong"
     },
-    "headings": {
-      "h1": {
-        "fontSize": "26pt",
-        "fontWeight": "bold",
-        "spacing": {
-          "before": "20pt",
-          "after": "12pt"
-        }
-      },
-      "h2": {
-        "fontSize": "22pt",
-        "fontWeight": "bold",
-        "spacing": {
-          "before": "18pt",
-          "after": "10pt"
-        }
-      },
-      "h3": {
-        "fontSize": "18pt",
-        "fontWeight": "bold",
-        "spacing": {
-          "before": "16pt",
-          "after": "8pt"
-        }
-      },
-      "h4": {
-        "fontSize": "15pt",
-        "fontWeight": "bold",
-        "spacing": {
-          "before": "14pt",
-          "after": "7pt"
-        }
-      },
-      "h5": {
-        "fontSize": "14pt",
-        "fontWeight": "bold",
-        "spacing": {
-          "before": "12pt",
-          "after": "6pt"
-        }
-      },
-      "h6": {
-        "fontSize": "13pt",
-        "fontWeight": "bold",
-        "spacing": {
-          "before": "10pt",
-          "after": "5pt"
-        }
-      }
-    },
+    "headings": {},
     "code": {
       "fontFamily": "Courier New",
-      "fontSize": "11pt",
       "background": "#fafafa"
     }
   },
-  
+  "layoutScheme": "book",
   "tableStyle": "borderless",
-  
-  "codeTheme": "warm-book",
-  
-  "spacing": "relaxed"
+  "codeTheme": "warm-book"
 }

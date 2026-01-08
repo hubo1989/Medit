@@ -6,73 +6,17 @@
   "description_en": "Courier New font with retro typewriter style",
   "author": "Markdown Viewer Extension",
   "version": "1.0.0",
-  
   "fontScheme": {
     "body": {
-      "fontFamily": "Courier New",
-      "fontSize": "12pt",
-      "lineHeight": 1.5
+      "fontFamily": "Courier New"
     },
-    "headings": {
-      "h1": {
-        "fontSize": "21pt",
-        "fontWeight": "bold",
-        "spacing": {
-          "before": "20pt",
-          "after": "12pt"
-        }
-      },
-      "h2": {
-        "fontSize": "18pt",
-        "fontWeight": "bold",
-        "spacing": {
-          "before": "18pt",
-          "after": "10pt"
-        }
-      },
-      "h3": {
-        "fontSize": "16pt",
-        "fontWeight": "bold",
-        "spacing": {
-          "before": "16pt",
-          "after": "8pt"
-        }
-      },
-      "h4": {
-        "fontSize": "14pt",
-        "fontWeight": "bold",
-        "spacing": {
-          "before": "14pt",
-          "after": "7pt"
-        }
-      },
-      "h5": {
-        "fontSize": "13pt",
-        "fontWeight": "bold",
-        "spacing": {
-          "before": "12pt",
-          "after": "6pt"
-        }
-      },
-      "h6": {
-        "fontSize": "12pt",
-        "fontWeight": "bold",
-        "spacing": {
-          "before": "10pt",
-          "after": "5pt"
-        }
-      }
-    },
+    "headings": {},
     "code": {
       "fontFamily": "Courier New",
-      "fontSize": "10pt",
       "background": "#f4f4f4"
     }
   },
-  
+  "layoutScheme": "book",
   "tableStyle": "high-contrast",
-  
-  "codeTheme": "colorful",
-  
-  "spacing": "standard"
+  "codeTheme": "colorful"
 }

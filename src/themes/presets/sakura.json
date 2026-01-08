@@ -6,73 +6,17 @@
   "description_en": "Minimal and fresh sakura style",
   "author": "Sakura.css (Adapted)",
   "version": "1.0.0",
-  
   "fontScheme": {
     "body": {
-      "fontFamily": "Georgia",
-      "fontSize": "13.5pt",
-      "lineHeight": 1.618
+      "fontFamily": "Georgia"
     },
-    "headings": {
-      "h1": {
-        "fontSize": "28pt",
-        "fontWeight": "bold",
-        "spacing": {
-          "before": "24pt",
-          "after": "12pt"
-        }
-      },
-      "h2": {
-        "fontSize": "24pt",
-        "fontWeight": "bold",
-        "spacing": {
-          "before": "20pt",
-          "after": "10pt"
-        }
-      },
-      "h3": {
-        "fontSize": "20pt",
-        "fontWeight": "bold",
-        "spacing": {
-          "before": "16pt",
-          "after": "8pt"
-        }
-      },
-      "h4": {
-        "fontSize": "17pt",
-        "fontWeight": "bold",
-        "spacing": {
-          "before": "14pt",
-          "after": "7pt"
-        }
-      },
-      "h5": {
-        "fontSize": "15pt",
-        "fontWeight": "bold",
-        "spacing": {
-          "before": "12pt",
-          "after": "6pt"
-        }
-      },
-      "h6": {
-        "fontSize": "13.5pt",
-        "fontWeight": "bold",
-        "spacing": {
-          "before": "10pt",
-          "after": "5pt"
-        }
-      }
-    },
+    "headings": {},
     "code": {
       "fontFamily": "Monaco",
-      "fontSize": "10pt",
       "background": "#f1f1f1"
     }
   },
-  
+  "layoutScheme": "book",
   "tableStyle": "zebra",
-  
-  "codeTheme": "colorful",
-  
-  "spacing": "relaxed"
+  "codeTheme": "colorful"
 }

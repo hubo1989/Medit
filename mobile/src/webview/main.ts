@@ -6,20 +6,12 @@ import { platform, bridge } from './api-impl';
 import Localization from '../../../src/utils/localization';
 import themeManager from '../../../src/utils/theme-manager';
 import DocxExporter from '../../../src/exporters/docx-exporter';
-import {
-  applyThemeFromData,
-  type ThemeConfig,
-  type TableStyleConfig,
-  type CodeThemeConfig,
-  type SpacingScheme,
-  type FontConfig
-} from '../../../src/utils/theme-to-css';
+import { loadAndApplyTheme } from '../../../src/utils/theme-to-css';
 import { AsyncTaskManager } from '../../../src/core/markdown-processor';
 import { renderMarkdownDocument, getDocument } from '../../../src/core/viewer/viewer-controller';
 import { createScrollSyncController, type ScrollSyncController } from '../../../src/core/line-based-scroll';
 import type { PluginRenderer } from '../../../src/types/index';
 import type { PlatformBridgeAPI } from '../../../src/types/index';
-import type { FontConfigFile } from '../../../src/utils/theme-manager';
 
 declare global {
   var bridge: PlatformBridgeAPI | undefined;
@@ -33,21 +25,10 @@ globalThis.bridge = bridge;
 // Global state
 let currentMarkdown = '';
 let currentFilename = '';
-let currentThemeData: ThemeData | null = null; // Store theme data for applying during render
+let currentThemeId = 'default'; // Current theme ID (loaded via shared loadAndApplyTheme)
 let currentTaskManager: AsyncTaskManager | null = null; // Track current task manager for cancellation
 let currentZoomLevel = 1; // Store current zoom level for applying after content render
 let scrollSyncController: ScrollSyncController | null = null; // Scroll sync controller
-
-/**
- * Theme data from Flutter
- */
-interface ThemeData {
-  fontConfig?: FontConfig;
-  theme?: ThemeConfig & { id?: string };
-  tableStyle?: TableStyleConfig;
-  codeTheme?: CodeThemeConfig;
-  spacing?: SpacingScheme;
-}
 
 function createPluginRenderer(): PluginRenderer {
   return {
@@ -71,7 +52,7 @@ function createPluginRenderer(): PluginRenderer {
 interface LoadMarkdownPayload {
   content: string;
   filename?: string;
-  themeDataJson?: string;
+  themeId?: string;     // Theme ID (WebView loads theme data itself)
   scrollLine?: number;  // Saved scroll position (line number)
 }
 
@@ -118,8 +99,9 @@ async function initialize(): Promise<void> {
     // Initialize localization (will use fallback if fetch fails)
     await Localization.init();
 
-    // Theme will be loaded from Flutter via applyThemeData
-    // Don't try to load theme here - Flutter will send it after WebView is ready
+    // Initialize theme manager (loads font-config.json and registry.json)
+    // This must complete before we can load themes
+    await themeManager.initialize();
 
     // Pre-initialize render iframe (don't wait, let it load in background)
     platform.renderer.ensureReady().catch((err: Error) => {
@@ -210,7 +192,7 @@ function setupMessageHandlers(): void {
  * Handle loading Markdown content
  */
 async function handleLoadMarkdown(payload: LoadMarkdownPayload): Promise<void> {
-  const { content, filename, themeDataJson, scrollLine } = payload;
+  const { content, filename, themeId, scrollLine } = payload;
 
   // Check if file changed
   const newFilename = filename || 'document.md';
@@ -232,26 +214,10 @@ async function handleLoadMarkdown(payload: LoadMarkdownPayload): Promise<void> {
   currentFilename = newFilename;
 
   try {
-    // If theme data is provided with content, set it first (avoids race condition)
-    if (themeDataJson) {
-      try {
-        const data = JSON.parse(themeDataJson) as ThemeData;
-        currentThemeData = data;
-        
-        // Initialize themeManager with font config
-        if (data.fontConfig) {
-          if (typeof data.fontConfig === 'object' && data.fontConfig !== null && 'fonts' in data.fontConfig) {
-            themeManager.initializeWithData(data.fontConfig as unknown as FontConfigFile);
-          }
-        }
-      } catch (e) {
-        console.error('[Mobile] Failed to parse theme data:', e);
-      }
+    // Update theme if provided (Flutter sends themeId, we load it ourselves)
+    if (themeId && themeId !== currentThemeId) {
+      currentThemeId = themeId;
     }
-
-    // Capture theme data at the start of this render cycle
-    // This ensures we use the correct theme even if it changes during async operations
-    const renderThemeData = currentThemeData;
 
     // Create task manager
     const taskManager = new AsyncTaskManager(
@@ -268,41 +234,34 @@ async function handleLoadMarkdown(payload: LoadMarkdownPayload): Promise<void> {
       // Clear container FIRST, then apply theme (avoids flicker from old content with new style)
       container.innerHTML = '';
 
-      // Now apply theme CSS (container is empty, no flicker)
-      // Use captured renderThemeData instead of currentThemeData
-      if (renderThemeData) {
-        const { fontConfig, theme, tableStyle, codeTheme, spacing } = renderThemeData;
+      // Load and apply theme using shared function (same as Chrome/Firefox/VSCode)
+      const { theme, layoutScheme } = await loadAndApplyTheme(currentThemeId);
 
-        if (theme && tableStyle && codeTheme && spacing) {
-          applyThemeFromData(theme, tableStyle, codeTheme, spacing, fontConfig);
-        }
+      // Set renderer theme config for diagrams
+      if (layoutScheme?.body && theme?.fontScheme?.body) {
+        const fontFamily = themeManager.buildFontFamily(theme.fontScheme.body.fontFamily);
+        const fontSize = parseFloat(layoutScheme.body.fontSize || '16');
+        platform.renderer.setThemeConfig({
+          fontFamily: fontFamily,
+          fontSize: fontSize
+        });
 
-        // Also set renderer theme config for diagrams
-        if (theme && theme.fontScheme && theme.fontScheme.body) {
-          const fontFamily = themeManager.buildFontFamily(theme.fontScheme.body.fontFamily);
-          const fontSize = parseFloat(theme.fontScheme.body.fontSize || '16');
-          platform.renderer.setThemeConfig({
-            fontFamily: fontFamily,
-            fontSize: fontSize
+        // Initialize Mermaid with new font
+        const mermaidGlobal = (window as { mermaid?: { initialize?: (config: Record<string, unknown>) => void } }).mermaid;
+        if (mermaidGlobal && typeof mermaidGlobal.initialize === 'function') {
+          mermaidGlobal.initialize({
+            startOnLoad: false,
+            securityLevel: 'loose',
+            lineHeight: 1.6,
+            themeVariables: {
+              fontFamily: fontFamily,
+              background: 'transparent'
+            },
+            flowchart: {
+              htmlLabels: true,
+              curve: 'basis'
+            }
           });
-
-          // Initialize Mermaid with new font
-          const mermaidGlobal = (window as { mermaid?: { initialize?: (config: Record<string, unknown>) => void } }).mermaid;
-          if (mermaidGlobal && typeof mermaidGlobal.initialize === 'function') {
-            mermaidGlobal.initialize({
-              startOnLoad: false,
-              securityLevel: 'loose',
-              lineHeight: 1.6,
-              themeVariables: {
-                fontFamily: fontFamily,
-                background: 'transparent'
-              },
-              flowchart: {
-                htmlLabels: true,
-                curve: 'basis'
-              }
-            });
-          }
         }
       }
 
@@ -390,51 +349,26 @@ function setupLinkHandling(): void {
 }
 
 /**
- * Handle theme change - called when Flutter sends theme data
- * @deprecated Use applyThemeData instead - Flutter now sends complete theme data
+ * Handle theme change - called when Flutter sends theme ID
+ * WebView loads theme data itself using shared loadAndApplyTheme
  */
 async function handleSetTheme(payload: SetThemePayload): Promise<void> {
-  // This is now a no-op - theme changes come through applyThemeData
-  console.warn('[Mobile] handleSetTheme called but theme loading is now handled by Flutter');
-  bridge.postMessage('THEME_CHANGED', { themeId: payload.themeId });
-}
-
-/**
- * Apply theme data received from Flutter
- * Flutter loads theme JSON from assets and sends it to WebView
- */
-async function applyThemeData(jsonString: string): Promise<void> {
-  try {
-    const data = JSON.parse(jsonString) as ThemeData;
-    const { fontConfig, theme } = data;
-    
-    // Check if this is the same theme we already have
-    const previousThemeId = currentThemeData?.theme?.id;
-
-    // Store theme data for use during render (don't apply CSS here to avoid flicker)
-    currentThemeData = data;
-
-    // Initialize themeManager with font config (needed for buildFontFamily)
-    if (fontConfig) {
-      if (typeof fontConfig === 'object' && fontConfig !== null && 'fonts' in fontConfig) {
-        themeManager.initializeWithData(fontConfig as unknown as FontConfigFile);
-      }
-    }
-
-    // NOTE: Don't set renderer theme config or apply CSS here!
-    // It will be done in handleLoadMarkdown right before clearing the container
-
-    bridge.postMessage('THEME_CHANGED', { themeId: theme?.id });
-
-    // Only re-render if we already have content AND the theme actually changed
-    if (currentMarkdown && previousThemeId && previousThemeId !== theme?.id) {
-      await handleLoadMarkdown({ content: currentMarkdown, filename: currentFilename || '' });
-    } else if (currentMarkdown && !previousThemeId) {
-      // First theme load with existing content - need to re-render
-      await handleLoadMarkdown({ content: currentMarkdown, filename: currentFilename || '' });
-    }
-  } catch (error) {
-    console.error('[Mobile] applyThemeData failed:', error);
+  const { themeId } = payload;
+  
+  // Skip if same theme
+  if (themeId === currentThemeId) {
+    return;
+  }
+  
+  const previousThemeId = currentThemeId;
+  currentThemeId = themeId;
+  
+  // Notify Flutter of theme change
+  bridge.postMessage('THEME_CHANGED', { themeId });
+  
+  // Re-render if we have content and theme actually changed
+  if (currentMarkdown && previousThemeId !== themeId) {
+    await handleLoadMarkdown({ content: currentMarkdown, filename: currentFilename || '' });
   }
 }
 
@@ -506,10 +440,10 @@ async function handleSetLocale(payload: SetLocalePayload): Promise<void> {
 // Most functionality is now on platform object, only expose minimal API for Flutter calls
 declare global {
   interface Window {
-    // Content loading
-    loadMarkdown: (content: string, filename?: string, themeDataJson?: string, scrollLine?: number) => void;
-    // Theme (Flutter sends complete theme data)
-    applyThemeData: (jsonString: string) => void;
+    // Content loading (Flutter sends themeId, WebView loads theme itself)
+    loadMarkdown: (content: string, filename?: string, themeId?: string, scrollLine?: number) => void;
+    // Theme change (Flutter sends themeId only)
+    setTheme: (themeId: string) => void;
     // Export
     exportDocx: () => void;
     // Display settings
@@ -520,13 +454,13 @@ declare global {
 }
 
 // Expose API to window for host app to call (e.g. via runJavaScript)
-window.loadMarkdown = (content: string, filename?: string, themeDataJson?: string, scrollLine?: number) => {
-  handleLoadMarkdown({ content, filename, themeDataJson, scrollLine });
+window.loadMarkdown = (content: string, filename?: string, themeId?: string, scrollLine?: number) => {
+  handleLoadMarkdown({ content, filename, themeId, scrollLine });
 };
 
-// Apply theme data from Flutter (Flutter loads JSON, sends to WebView)
-window.applyThemeData = (jsonString: string) => {
-  applyThemeData(jsonString);
+// Set theme (WebView loads theme data itself using shared loadAndApplyTheme)
+window.setTheme = (themeId: string) => {
+  handleSetTheme({ themeId });
 };
 
 window.exportDocx = () => {

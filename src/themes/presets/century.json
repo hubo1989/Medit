@@ -6,73 +6,17 @@
   "description_en": "Trebuchet MS font with clean presentation style, prominent headings",
   "author": "Markdown Viewer Extension",
   "version": "1.0.0",
-  
   "fontScheme": {
     "body": {
-      "fontFamily": "Trebuchet MS",
-      "fontSize": "12pt",
-      "lineHeight": 1.6
+      "fontFamily": "Trebuchet MS"
     },
-    "headings": {
-      "h1": {
-        "fontSize": "30pt",
-        "fontWeight": "bold",
-        "spacing": {
-          "before": "18pt",
-          "after": "12pt"
-        }
-      },
-      "h2": {
-        "fontSize": "26pt",
-        "fontWeight": "bold",
-        "spacing": {
-          "before": "16pt",
-          "after": "10pt"
-        }
-      },
-      "h3": {
-        "fontSize": "22pt",
-        "fontWeight": "bold",
-        "spacing": {
-          "before": "14pt",
-          "after": "8pt"
-        }
-      },
-      "h4": {
-        "fontSize": "18pt",
-        "fontWeight": "bold",
-        "spacing": {
-          "before": "12pt",
-          "after": "6pt"
-        }
-      },
-      "h5": {
-        "fontSize": "16pt",
-        "fontWeight": "bold",
-        "spacing": {
-          "before": "10pt",
-          "after": "5pt"
-        }
-      },
-      "h6": {
-        "fontSize": "14pt",
-        "fontWeight": "bold",
-        "spacing": {
-          "before": "8pt",
-          "after": "4pt"
-        }
-      }
-    },
+    "headings": {},
     "code": {
       "fontFamily": "Monaco",
-      "fontSize": "10pt",
       "background": "#f5f5f5"
     }
   },
-  
+  "layoutScheme": "document",
   "tableStyle": "professional",
-  
-  "codeTheme": "business-contrast",
-  
-  "spacing": "relaxed"
+  "codeTheme": "business-contrast"
 }

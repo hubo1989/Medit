@@ -27,44 +27,95 @@ export type { DOCXThemeStyles };
 // ============================================================================
 
 /**
- * Font scheme heading configuration (from theme JSON)
+ * Heading style configuration (font-related properties only)
  */
 interface HeadingConfig {
   fontFamily?: string;
-  fontSize: string;
   fontWeight?: string;
-  alignment?: 'left' | 'center' | 'right';
-  spacing?: {
-    before?: string;
-    after?: string;
-  };
 }
 
 /**
- * Font scheme configuration (from theme JSON)
+ * Font scheme configuration (font-related properties only)
+ * Layout properties (fontSize, lineHeight, spacing) are in LayoutScheme
  */
 interface FontScheme {
   body: {
     fontFamily: string;
-    fontSize: string;
-    lineHeight: number;
   };
   headings: Record<string, HeadingConfig>;
   code: {
     fontFamily: string;
-    fontSize: string;
     background: string;
   };
 }
 
 /**
- * Theme configuration (from theme JSON)
+ * Theme configuration
  */
 interface ThemeConfig {
   fontScheme: FontScheme;
+  layoutScheme: string;
   tableStyle: string;
   codeTheme: string;
-  spacing: string;
+}
+
+/**
+ * Layout scheme heading configuration
+ */
+interface LayoutHeadingConfig {
+  fontSize: string;
+  spacingBefore: string;
+  spacingAfter: string;
+  alignment?: 'left' | 'center' | 'right';
+}
+
+/**
+ * Layout scheme block configuration
+ */
+interface LayoutBlockConfig {
+  spacingBefore?: string;
+  spacingAfter?: string;
+  paddingVertical?: string;
+  paddingHorizontal?: string;
+}
+
+/**
+ * Layout scheme configuration (absolute pt values)
+ */
+interface LayoutScheme {
+  id: string;
+  name: string;
+  name_en: string;
+  description: string;
+  description_en?: string;
+  
+  body: {
+    fontSize: string;
+    lineHeight: number;
+  };
+  
+  headings: {
+    h1: LayoutHeadingConfig;
+    h2: LayoutHeadingConfig;
+    h3: LayoutHeadingConfig;
+    h4: LayoutHeadingConfig;
+    h5: LayoutHeadingConfig;
+    h6: LayoutHeadingConfig;
+  };
+  
+  code: {
+    fontSize: string;
+  };
+  
+  blocks: {
+    paragraph: LayoutBlockConfig;
+    list: LayoutBlockConfig;
+    listItem: LayoutBlockConfig;
+    blockquote: LayoutBlockConfig;
+    codeBlock: LayoutBlockConfig;
+    table: LayoutBlockConfig;
+    horizontalRule: LayoutBlockConfig;
+  };
 }
 
 /**
@@ -109,14 +160,6 @@ interface CodeThemeConfig {
   foreground?: string;
 }
 
-/**
- * Spacing scheme configuration (from spacing JSON)
- */
-interface SpacingScheme {
-  paragraph: number;
-  [key: string]: number;
-}
-
 // ============================================================================
 // Implementation
 // ============================================================================
@@ -124,22 +167,22 @@ interface SpacingScheme {
 /**
  * Convert theme configuration to DOCX styles object
  * @param theme - Theme configuration object
+ * @param layoutScheme - Layout scheme configuration
  * @param tableStyle - Table style configuration
  * @param codeTheme - Code highlighting theme
- * @param spacingScheme - Spacing scheme configuration
  * @returns DOCX styles configuration
  */
 export function themeToDOCXStyles(
   theme: ThemeConfig,
+  layoutScheme: LayoutScheme,
   tableStyle: TableStyleConfig,
-  codeTheme: CodeThemeConfig,
-  spacingScheme: SpacingScheme
+  codeTheme: CodeThemeConfig
 ): DOCXThemeStyles {
   const codeBackground = theme.fontScheme.code.background;
   return {
-    default: generateDefaultStyle(theme.fontScheme, spacingScheme),
-    paragraphStyles: generateParagraphStyles(theme.fontScheme, spacingScheme),
-    characterStyles: generateCharacterStyles(theme.fontScheme),
+    default: generateDefaultStyle(theme.fontScheme, layoutScheme),
+    paragraphStyles: generateParagraphStyles(theme.fontScheme, layoutScheme),
+    characterStyles: generateCharacterStyles(theme.fontScheme, layoutScheme),
     tableStyles: generateTableStyles(tableStyle),
     codeColors: generateCodeColors(codeTheme, codeBackground)
   };
@@ -147,31 +190,31 @@ export function themeToDOCXStyles(
 
 /**
  * Generate default document style
- * @param fontScheme - Font scheme configuration
- * @param spacingScheme - Spacing scheme configuration (ratios relative to body font size)
+ * @param fontScheme - Font scheme configuration (font families)
+ * @param layoutScheme - Layout scheme configuration (sizes and spacing)
  * @returns Default style configuration
  */
 function generateDefaultStyle(
   fontScheme: FontScheme,
-  spacingScheme: SpacingScheme
+  layoutScheme: LayoutScheme
 ): { run: DOCXRunStyle; paragraph: DOCXParagraphStyle } {
   const bodyFont = fontScheme.body.fontFamily;
-  const fontSize = themeManager.ptToHalfPt(fontScheme.body.fontSize);
-  const baseFontSizePt = parseFloat(fontScheme.body.fontSize);
+  const fontSize = themeManager.ptToHalfPt(layoutScheme.body.fontSize);
   
   // Line spacing in DOCX: 240 = single spacing, 360 = 1.5 spacing, 480 = double spacing
-  const lineSpacing = Math.round(fontScheme.body.lineHeight * 240);
+  const lineSpacing = Math.round(layoutScheme.body.lineHeight * 240);
   
   // Calculate the extra space added by line spacing (beyond 100%)
   const lineSpacingExtra = lineSpacing - 240;
   
-  // Calculate actual spacing from ratio - split evenly between before and after
-  const paragraphSpacingPt = baseFontSizePt * spacingScheme.paragraph;
-  const halfSpacing = themeManager.ptToTwips((paragraphSpacingPt / 2) + 'pt');
+  // Get paragraph spacing from layout scheme (absolute pt values)
+  const paragraphBlock = layoutScheme.blocks.paragraph;
+  const spacingBeforePt = parseFloat(paragraphBlock.spacingBefore || '0pt');
+  const spacingAfterPt = parseFloat(paragraphBlock.spacingAfter || '0pt');
   
-  // Compensate for line spacing being applied to bottom
-  const beforeSpacing = halfSpacing + lineSpacingExtra / 2;
-  const afterSpacing = Math.max(0, halfSpacing - lineSpacingExtra / 2);
+  // Convert to twips and compensate for line spacing
+  const beforeSpacing = themeManager.ptToTwips(spacingBeforePt + 'pt') + Math.round(lineSpacingExtra / 2);
+  const afterSpacing = Math.max(0, themeManager.ptToTwips(spacingAfterPt + 'pt') - Math.round(lineSpacingExtra / 2));
   
   // For DOCX: get font configuration from font-config.json
   const docxFont = themeManager.getDocxFont(bodyFont);
@@ -193,38 +236,39 @@ function generateDefaultStyle(
 
 /**
  * Generate paragraph styles for headings
- * @param fontScheme - Font scheme configuration
- * @param _spacingScheme - Spacing scheme configuration (unused but kept for API consistency)
+ * @param fontScheme - Font scheme configuration (font families, fontWeight)
+ * @param layoutScheme - Layout scheme configuration (sizes, alignment, spacing)
  * @returns Paragraph styles
  */
 function generateParagraphStyles(
   fontScheme: FontScheme,
-  _spacingScheme: SpacingScheme
+  layoutScheme: LayoutScheme
 ): Record<string, DOCXHeadingStyle> {
   const styles: Record<string, DOCXHeadingStyle> = {};
 
-  // Generate heading styles
-  Object.keys(fontScheme.headings).forEach((level, index) => {
-    const heading = fontScheme.headings[level];
+  // Heading levels
+  const headingLevels = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'] as const;
+  
+  headingLevels.forEach((level, index) => {
     const headingLevel = index + 1; // h1 = 1, h2 = 2, etc.
+    const fontHeading = fontScheme.headings[level];
+    const layoutHeading = layoutScheme.headings[level];
 
-    // Inherit font from body if not specified
-    const font = heading.fontFamily || fontScheme.body.fontFamily;
+    // Inherit font from heading config, fallback to body
+    const font = fontHeading?.fontFamily || fontScheme.body.fontFamily;
     const docxFont = themeManager.getDocxFont(font);
+    const isBold = fontHeading?.fontWeight === 'bold' || fontHeading?.fontWeight === undefined;
 
-    // Get heading's own spacing (before/after from theme), split evenly
-    const headingBeforePt = heading.spacing?.before ? parseFloat(heading.spacing.before) : 0;
-    const headingAfterPt = heading.spacing?.after ? parseFloat(heading.spacing.after) : 0;
+    // Get heading's spacing from layoutScheme (absolute pt values)
+    const headingBeforePt = parseFloat(layoutHeading.spacingBefore || '0pt');
+    const headingAfterPt = parseFloat(layoutHeading.spacingAfter || '0pt');
     
-    const halfBeforePt = headingBeforePt / 2;
-    const halfAfterPt = headingAfterPt / 2;
-    
-    // Compensate for line spacing in before
+    // Compensate for line spacing
     // Headings use 1.5x line spacing = 360, extra = 120
     const lineSpacingExtra = 360 - 240;
     
-    const totalBefore = themeManager.ptToTwips(halfBeforePt + 'pt') + lineSpacingExtra / 2;
-    const totalAfter = Math.max(0, themeManager.ptToTwips(halfAfterPt + 'pt') - lineSpacingExtra / 2);
+    const totalBefore = themeManager.ptToTwips(headingBeforePt + 'pt') + Math.round(lineSpacingExtra / 2);
+    const totalAfter = Math.max(0, themeManager.ptToTwips(headingAfterPt + 'pt') - Math.round(lineSpacingExtra / 2));
 
     styles[`heading${headingLevel}`] = {
       id: `Heading${headingLevel}`,
@@ -232,8 +276,8 @@ function generateParagraphStyles(
       basedOn: 'Normal',
       next: 'Normal',
       run: {
-        size: themeManager.ptToHalfPt(heading.fontSize),
-        bold: heading.fontWeight === 'bold',
+        size: themeManager.ptToHalfPt(layoutHeading.fontSize),
+        bold: isBold,
         font: docxFont
       },
       paragraph: {
@@ -242,7 +286,7 @@ function generateParagraphStyles(
           after: totalAfter,
           line: 360 // 1.5 line spacing for headings
         },
-        alignment: heading.alignment === 'center' ? 'center' : 'left'
+        alignment: layoutHeading.alignment || 'left'
       }
     };
   });
@@ -252,10 +296,14 @@ function generateParagraphStyles(
 
 /**
  * Generate character styles (for inline elements)
- * @param fontScheme - Font scheme configuration
+ * @param fontScheme - Font scheme configuration (font families)
+ * @param layoutScheme - Layout scheme configuration (sizes)
  * @returns Character styles
  */
-function generateCharacterStyles(fontScheme: FontScheme): { code: DOCXCharacterStyle } {
+function generateCharacterStyles(
+  fontScheme: FontScheme,
+  layoutScheme: LayoutScheme
+): { code: DOCXCharacterStyle } {
   const codeFont = fontScheme.code.fontFamily;
   const codeBackground = fontScheme.code.background.replace('#', ''); // Remove # for DOCX
   const docxFont = themeManager.getDocxFont(codeFont);
@@ -263,7 +311,7 @@ function generateCharacterStyles(fontScheme: FontScheme): { code: DOCXCharacterS
   return {
     code: {
       font: docxFont,
-      size: themeManager.ptToHalfPt(fontScheme.code.fontSize),
+      size: themeManager.ptToHalfPt(layoutScheme.code.fontSize),
       background: codeBackground
     }
   };
@@ -429,7 +477,7 @@ export async function loadThemeForDOCX(themeId: string): Promise<DOCXThemeStyles
     // Initialize theme manager first
     await themeManager.initialize();
     
-    // Load theme
+    // Load theme preset
     const theme = (await themeManager.loadTheme(themeId)) as unknown as ThemeConfig;
 
     // Get platform for resource loading
@@ -452,6 +500,11 @@ export async function loadThemeForDOCX(themeId: string): Promise<DOCXThemeStyles
       return JSON.parse(content) as T;
     };
 
+    // Load layout scheme
+    const layoutScheme = await fetchResource<LayoutScheme>(
+      `themes/layout-schemes/${theme.layoutScheme}.json`
+    );
+
     // Load table style
     const tableStyle = await fetchResource<TableStyleConfig>(
       `themes/table-styles/${theme.tableStyle}.json`
@@ -462,13 +515,8 @@ export async function loadThemeForDOCX(themeId: string): Promise<DOCXThemeStyles
       `themes/code-themes/${theme.codeTheme}.json`
     );
 
-    // Load spacing scheme
-    const spacingScheme = await fetchResource<SpacingScheme>(
-      `themes/spacing-schemes/${theme.spacing}.json`
-    );
-
     // Generate DOCX styles
-    return themeToDOCXStyles(theme, tableStyle, codeTheme, spacingScheme);
+    return themeToDOCXStyles(theme, layoutScheme, tableStyle, codeTheme);
   } catch (error) {
     const errMsg = error instanceof Error ? error.message : String(error);
     console.error('Error loading theme for DOCX:', errMsg);

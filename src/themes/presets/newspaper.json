@@ -1,14 +1,14 @@
 {
-  "id": "mixed",
-  "name": "中英混排",
-  "name_en": "Mixed Languages",
-  "description": "宋体正文配 Georgia 标题，中英文混排优化",
-  "description_en": "Song body with Georgia headings for mixed content",
+  "id": "newspaper",
+  "name": "报纸风格",
+  "name_en": "Newspaper",
+  "description": "传统新闻排版风格，正式严肃",
+  "description_en": "Traditional newspaper typography, formal and serious",
   "author": "Markdown Viewer Extension",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "fontScheme": {
     "body": {
-      "fontFamily": "SimSun"
+      "fontFamily": "Times New Roman"
     },
     "headings": {
       "h1": {
@@ -31,11 +31,11 @@
       }
     },
     "code": {
-      "fontFamily": "Monaco",
-      "background": "#f7f7f7"
+      "fontFamily": "Consolas",
+      "background": "#f0f0f0"
     }
   },
-  "layoutScheme": "document",
+  "layoutScheme": "magazine",
   "tableStyle": "grid",
-  "codeTheme": "cool-modern"
+  "codeTheme": "light-clean"
 }

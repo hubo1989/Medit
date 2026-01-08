@@ -111,10 +111,10 @@
     "Comic Sans MS": {
       "name": "Comic Sans MS",
       "displayName": "Comic Sans MS",
-      "webFallback": "'Comic Sans MS', 'Marker Felt', cursive, SimHei",
+      "webFallback": "'Comic Sans MS', 'Marker Felt', cursive, KaiTi, STKaiti",
       "docx": {
         "ascii": "Comic Sans MS",
-        "eastAsia": "SimHei"
+        "eastAsia": "KaiTi"
       }
     },
     "Impact": {

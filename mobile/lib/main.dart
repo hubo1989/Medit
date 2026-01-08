@@ -22,7 +22,6 @@ import 'services/localization_service.dart';
 import 'theme/app_theme.dart';
 import 'services/recent_files_service.dart';
 import 'services/settings_service.dart';
-import 'services/theme_asset_service.dart';
 import 'services/theme_registry_service.dart';
 import 'pages/settings_page.dart';
 
@@ -902,15 +901,13 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
     final wrappedContent = _wrapFileContent(content, filename);
     final escaped = _escapeJs(wrappedContent);
     try {
-      // Get theme data and pass it along with content to avoid race condition
-      final themeData = await themeAssetService.getCompleteThemeData(_currentTheme);
-      final themeJson = jsonEncode(themeData);
-      final escapedTheme = themeJson.replaceAll('\\', '\\\\').replaceAll("'", "\\'");
-      
       // Get saved scroll position for this file
       final savedScrollLine = _currentFilePath != null 
           ? settingsService.getScrollPosition(_currentFilePath!)
           : 0;
+      
+      // Send themeId only - WebView loads theme data itself using shared loadAndApplyTheme
+      final escapedTheme = _escapeJs(_currentTheme);
       
       await _controller.runJavaScript(
         "if(window.loadMarkdown){window.loadMarkdown('$escaped','$filename','$escapedTheme',$savedScrollLine);}else{console.error('loadMarkdown not defined');}",
@@ -1077,18 +1074,16 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
     }
   }
 
-  /// Send complete theme data from Flutter assets to WebView
+  /// Send theme ID to WebView (WebView loads theme data itself)
   Future<void> _sendThemeData(String themeId) async {
     try {
-      final themeData = await themeAssetService.getCompleteThemeData(themeId);
-      final json = jsonEncode(themeData);
-      final escaped = json.replaceAll('\\', '\\\\').replaceAll("'", "\\'");
+      final escapedThemeId = _escapeJs(themeId);
       
       await _controller.runJavaScript(
-        "if(window.applyThemeData){window.applyThemeData('$escaped');}else{console.error('applyThemeData not defined');}",
+        "if(window.setTheme){window.setTheme('$escapedThemeId');}else{console.error('setTheme not defined');}",
       );
     } catch (e) {
-      debugPrint('[Mobile] Failed to send theme data: $e');
+      debugPrint('[Mobile] Failed to send theme: $e');
     }
   }
 

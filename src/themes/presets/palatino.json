@@ -6,73 +6,17 @@
   "description_en": "Palatino font with elegant book publishing style",
   "author": "Markdown Viewer Extension",
   "version": "1.0.0",
-  
   "fontScheme": {
     "body": {
-      "fontFamily": "Palatino",
-      "fontSize": "12pt",
-      "lineHeight": 1.8
+      "fontFamily": "Palatino"
     },
-    "headings": {
-      "h1": {
-        "fontSize": "23pt",
-        "fontWeight": "bold",
-        "spacing": {
-          "before": "20pt",
-          "after": "12pt"
-        }
-      },
-      "h2": {
-        "fontSize": "19pt",
-        "fontWeight": "bold",
-        "spacing": {
-          "before": "18pt",
-          "after": "10pt"
-        }
-      },
-      "h3": {
-        "fontSize": "16pt",
-        "fontWeight": "bold",
-        "spacing": {
-          "before": "14pt",
-          "after": "8pt"
-        }
-      },
-      "h4": {
-        "fontSize": "14pt",
-        "fontWeight": "bold",
-        "spacing": {
-          "before": "12pt",
-          "after": "6pt"
-        }
-      },
-      "h5": {
-        "fontSize": "13pt",
-        "fontWeight": "bold",
-        "spacing": {
-          "before": "10pt",
-          "after": "5pt"
-        }
-      },
-      "h6": {
-        "fontSize": "12pt",
-        "fontWeight": "bold",
-        "spacing": {
-          "before": "8pt",
-          "after": "4pt"
-        }
-      }
-    },
+    "headings": {},
     "code": {
       "fontFamily": "Monaco",
-      "fontSize": "10pt",
       "background": "#fafafa"
     }
   },
-  
+  "layoutScheme": "book",
   "tableStyle": "borderless",
-  
-  "codeTheme": "warm-book",
-  
-  "spacing": "relaxed"
+  "codeTheme": "warm-book"
 }

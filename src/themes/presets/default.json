@@ -6,74 +6,17 @@
   "description_en": "Times New Roman font for formal documents and papers",
   "author": "Markdown Viewer Extension",
   "version": "1.0.0",
-  
   "fontScheme": {
     "body": {
-      "fontFamily": "Times New Roman",
-      "fontSize": "12pt",
-      "lineHeight": 1.5
+      "fontFamily": "Times New Roman"
     },
-    "headings": {
-      "h1": {
-        "fontSize": "22pt",
-        "fontWeight": "bold",
-        "alignment": "center",
-        "spacing": {
-          "before": "0pt",
-          "after": "12pt"
-        }
-      },
-      "h2": {
-        "fontSize": "18pt",
-        "fontWeight": "bold",
-        "spacing": {
-          "before": "16pt",
-          "after": "8pt"
-        }
-      },
-      "h3": {
-        "fontSize": "16pt",
-        "fontWeight": "bold",
-        "spacing": {
-          "before": "14pt",
-          "after": "7pt"
-        }
-      },
-      "h4": {
-        "fontSize": "14pt",
-        "fontWeight": "bold",
-        "spacing": {
-          "before": "12pt",
-          "after": "6pt"
-        }
-      },
-      "h5": {
-        "fontSize": "13pt",
-        "fontWeight": "bold",
-        "spacing": {
-          "before": "10pt",
-          "after": "5pt"
-        }
-      },
-      "h6": {
-        "fontSize": "12pt",
-        "fontWeight": "bold",
-        "spacing": {
-          "before": "8pt",
-          "after": "4pt"
-        }
-      }
-    },
+    "headings": {},
     "code": {
       "fontFamily": "Monaco",
-      "fontSize": "10pt",
       "background": "#f6f8fa"
     }
   },
-  
+  "layoutScheme": "document",
   "tableStyle": "grid",
-  
-  "codeTheme": "light-clean",
-  
-  "spacing": "standard"
+  "codeTheme": "light-clean"
 }

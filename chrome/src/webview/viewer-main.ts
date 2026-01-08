@@ -259,12 +259,11 @@ export async function initializeViewerMain(options: ViewerMainOptions): Promise<
     // Load and apply theme
     try {
       const themeId = await themeManager.loadSelectedTheme();
-      const theme = await themeManager.loadTheme(themeId);
-      await loadAndApplyTheme(themeId);
+      const { theme, layoutScheme } = await loadAndApplyTheme(themeId);
 
-      if (theme && theme.fontScheme && theme.fontScheme.body && themeConfigRenderer) {
+      if (theme?.fontScheme?.body && layoutScheme?.body && themeConfigRenderer) {
         const fontFamily = themeManager.buildFontFamily(theme.fontScheme.body.fontFamily);
-        const fontSize = parseFloat(theme.fontScheme.body.fontSize);
+        const fontSize = parseFloat(layoutScheme.body.fontSize);
         const themeConfig: RendererThemeConfig = { fontFamily, fontSize };
         themeConfigRenderer.setThemeConfig(themeConfig);
       }

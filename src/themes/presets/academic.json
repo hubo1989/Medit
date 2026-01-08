@@ -6,80 +6,36 @@
   "description_en": "Song body with Hei headings, Chinese academic standard",
   "author": "Markdown Viewer Extension",
   "version": "1.0.0",
-  
   "fontScheme": {
     "body": {
-      "fontFamily": "SimSun",
-      "fontSize": "12pt",
-      "lineHeight": 1.75
+      "fontFamily": "SimSun"
     },
     "headings": {
       "h1": {
-        "fontFamily": "SimHei",
-        "fontSize": "22pt",
-        "fontWeight": "bold",
-        "alignment": "center",
-        "spacing": {
-          "before": "0pt",
-          "after": "16pt"
-        }
+        "fontFamily": "SimHei"
       },
       "h2": {
-        "fontFamily": "SimHei",
-        "fontSize": "18pt",
-        "fontWeight": "bold",
-        "spacing": {
-          "before": "16pt",
-          "after": "10pt"
-        }
+        "fontFamily": "SimHei"
       },
       "h3": {
-        "fontFamily": "SimHei",
-        "fontSize": "16pt",
-        "fontWeight": "bold",
-        "spacing": {
-          "before": "14pt",
-          "after": "8pt"
-        }
+        "fontFamily": "SimHei"
       },
       "h4": {
-        "fontFamily": "SimHei",
-        "fontSize": "14pt",
-        "fontWeight": "bold",
-        "spacing": {
-          "before": "12pt",
-          "after": "6pt"
-        }
+        "fontFamily": "SimHei"
       },
       "h5": {
-        "fontFamily": "SimHei",
-        "fontSize": "13pt",
-        "fontWeight": "bold",
-        "spacing": {
-          "before": "10pt",
-          "after": "5pt"
-        }
+        "fontFamily": "SimHei"
       },
       "h6": {
-        "fontFamily": "SimHei",
-        "fontSize": "12pt",
-        "fontWeight": "bold",
-        "spacing": {
-          "before": "8pt",
-          "after": "4pt"
-        }
+        "fontFamily": "SimHei"
       }
     },
     "code": {
       "fontFamily": "Monaco",
-      "fontSize": "10pt",
       "background": "#f6f8fa"
     }
   },
-  
+  "layoutScheme": "academic",
   "tableStyle": "academic",
-  
-  "codeTheme": "light-clean",
-  
-  "spacing": "standard"
+  "codeTheme": "light-clean"
 }
