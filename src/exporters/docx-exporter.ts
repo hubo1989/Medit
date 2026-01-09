@@ -28,6 +28,7 @@ import remarkGemoji from 'remark-gemoji';
 import remarkSuperSub from '../plugins/remark-super-sub';
 import { visit } from 'unist-util-visit';
 import { loadThemeForDOCX } from './theme-to-docx';
+import type { FrontmatterDisplay } from '../ui/popup/settings-tab';
 import themeManager from '../utils/theme-manager';
 import { getPluginForNode, convertNodeToDOCX } from '../plugins/index';
 import type { PluginRenderer } from '../types/plugin';
@@ -88,6 +89,7 @@ class DocxExporter {
 
   private docxHrAsPageBreak = true;
   private docxEmojiStyle: EmojiStyle = 'windows';
+  private frontmatterDisplay: FrontmatterDisplay = 'hide';
   
   // Converters (initialized in exportToDocx)
   private tableConverter: TableConverter | null = null;
@@ -212,11 +214,15 @@ class DocxExporter {
           this.docxHrAsPageBreak = typeof value === 'boolean' ? value : true;
           const emojiValue = userSettings?.docxEmojiStyle;
           this.docxEmojiStyle = (emojiValue === 'apple' || emojiValue === 'windows' || emojiValue === 'system') ? emojiValue : 'system';
+          const frontmatterValue = userSettings?.frontmatterDisplay;
+          this.frontmatterDisplay = (frontmatterValue === 'hide' || frontmatterValue === 'table' || frontmatterValue === 'raw') ? frontmatterValue : 'hide';
         } else {
           this.docxHrAsPageBreak = true;
+          this.frontmatterDisplay = 'hide';
         }
       } catch {
         this.docxHrAsPageBreak = true;
+        this.frontmatterDisplay = 'hide';
       }
 
       const selectedThemeId = await themeManager.loadSelectedTheme();
@@ -363,7 +369,67 @@ class DocxExporter {
     }
   }
 
+  /**
+   * Extract frontmatter from markdown text
+   * @returns Tuple of [frontmatter content or null, markdown without frontmatter]
+   */
+  private extractFrontmatter(markdown: string): [string | null, string] {
+    const lines = markdown.split('\n');
+    if (lines.length < 2 || lines[0].trim() !== '---') {
+      return [null, markdown];
+    }
+
+    // Find closing ---
+    let endIndex = -1;
+    for (let i = 1; i < lines.length; i++) {
+      if (lines[i].trim() === '---') {
+        endIndex = i;
+        break;
+      }
+    }
+
+    if (endIndex === -1) {
+      return [null, markdown];
+    }
+
+    // Extract frontmatter content (without --- delimiters)
+    const frontmatterLines = lines.slice(1, endIndex);
+    const frontmatterContent = frontmatterLines.join('\n');
+    
+    // Return markdown without frontmatter
+    const remainingMarkdown = lines.slice(endIndex + 1).join('\n');
+    return [frontmatterContent, remainingMarkdown];
+  }
+
+  /**
+   * Parse frontmatter YAML content (simple key: value parsing)
+   */
+  private parseFrontmatterData(content: string): Record<string, string> {
+    const lines = content.split('\n');
+    const result: Record<string, string> = {};
+    
+    for (const line of lines) {
+      const colonIndex = line.indexOf(':');
+      if (colonIndex > 0) {
+        const key = line.substring(0, colonIndex).trim();
+        const value = line.substring(colonIndex + 1).trim();
+        if (key) {
+          result[key] = value;
+        }
+      }
+    }
+    
+    return result;
+  }
+
+  // Store frontmatter for later use
+  private frontmatterContent: string | null = null;
+
   private parseMarkdown(markdown: string): DOCXASTNode {
+    // Extract frontmatter if present
+    const [frontmatter, cleanMarkdown] = this.extractFrontmatter(markdown);
+    this.frontmatterContent = frontmatter;
+
     const processor = unified()
       .use(remarkParse)
       .use(remarkGfm, { singleTilde: false })
@@ -372,7 +438,7 @@ class DocxExporter {
       .use(remarkGemoji)
       .use(remarkSuperSub);
 
-    const ast = processor.parse(markdown);
+    const ast = processor.parse(cleanMarkdown);
     const transformed = processor.runSync(ast);
 
     this.linkDefinitions = new Map();
@@ -404,10 +470,113 @@ class DocxExporter {
     return /^\[toc\]$/i.test(text);
   }
 
+  /**
+   * Convert frontmatter to DOCX elements based on display mode
+   */
+  private async convertFrontmatterToDocx(): Promise<FileChild[]> {
+    if (!this.frontmatterContent || this.frontmatterDisplay === 'hide') {
+      return [];
+    }
+
+    const elements: FileChild[] = [];
+    const spacing = this.themeStyles?.default?.paragraph?.spacing || { before: 0, after: 200, line: 276 };
+
+    if (this.frontmatterDisplay === 'table') {
+      // Render as table with key-value pairs using tableConverter
+      const data = this.parseFrontmatterData(this.frontmatterContent);
+      const entries = Object.entries(data);
+      
+      if (entries.length > 0 && this.tableConverter) {
+        // Create a fake table AST node for the converter
+        const tableNode = {
+          type: 'table',
+          align: ['left', 'left'],
+          children: [
+            // Header row
+            {
+              type: 'tableRow',
+              children: [
+                { type: 'tableCell', children: [{ type: 'text', value: 'Property' }] },
+                { type: 'tableCell', children: [{ type: 'text', value: 'Value' }] },
+              ],
+            },
+            // Data rows
+            ...entries.map(([key, value]) => ({
+              type: 'tableRow',
+              children: [
+                { type: 'tableCell', children: [{ type: 'text', value: key }] },
+                { type: 'tableCell', children: [{ type: 'text', value: value }] },
+              ],
+            })),
+          ],
+        };
+
+        const table = await this.tableConverter.convertTable(tableNode as any);
+        elements.push(table);
+
+        // Add spacing after table
+        elements.push(new Paragraph({
+          text: '',
+          spacing: { before: spacing.before, after: spacing.after },
+        }));
+      }
+    } else if (this.frontmatterDisplay === 'raw') {
+      // Render as raw text using code block style (reuse codeHighlighter styles)
+      const codeStyle = this.themeStyles?.characterStyles?.code || { font: 'Consolas', size: 20 };
+      const codeBackground = this.themeStyles?.characterStyles?.code?.background || 'F6F8FA';
+      const foregroundColor = this.themeStyles?.codeColors?.foreground || '24292E';
+
+      const runs: TextRun[] = [];
+      const lines = this.frontmatterContent.split('\n');
+      
+      lines.forEach((line, index) => {
+        if (index > 0) {
+          runs.push(new TextRun({ break: 1 }));
+        }
+        runs.push(new TextRun({
+          text: line || ' ',
+          font: codeStyle.font,
+          size: codeStyle.size,
+          color: foregroundColor,
+        }));
+      });
+
+      elements.push(new Paragraph({
+        children: runs,
+        wordWrap: true,
+        alignment: AlignmentType.LEFT,
+        spacing: { before: 200, after: 200, line: 276 },
+        shading: { fill: codeBackground },
+        indent: { left: 200, right: 200 },
+        border: {
+          top: { color: 'E1E4E8', space: 10, style: BorderStyle.SINGLE, size: 6 },
+          bottom: { color: 'E1E4E8', space: 10, style: BorderStyle.SINGLE, size: 6 },
+          left: { color: 'E1E4E8', space: 10, style: BorderStyle.SINGLE, size: 6 },
+          right: { color: 'E1E4E8', space: 10, style: BorderStyle.SINGLE, size: 6 },
+        },
+      }));
+
+      // Add spacing after raw block
+      elements.push(new Paragraph({
+        text: '',
+        spacing: { before: spacing.before, after: spacing.after },
+      }));
+    }
+
+    return elements;
+  }
+
   private async convertAstToDocx(ast: DOCXASTNode): Promise<FileChild[]> {
     const elements: FileChild[] = [];
     let lastNodeType: string | null = null;
     this.listInstanceCounter = 0;
+
+    // Add frontmatter at the beginning if present and not hidden
+    const frontmatterElements = await this.convertFrontmatterToDocx();
+    elements.push(...frontmatterElements);
+    if (frontmatterElements.length > 0) {
+      lastNodeType = 'frontmatter';
+    }
 
     if (!ast.children) return elements;
 

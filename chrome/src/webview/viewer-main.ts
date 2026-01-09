@@ -13,7 +13,7 @@ import { wrapFileContent } from '../../../src/utils/file-wrapper';
 
 import type { PluginRenderer, RendererThemeConfig, PlatformAPI } from '../../../src/types/index';
 
-import { renderMarkdownDocument, getDocument } from '../../../src/core/viewer/viewer-controller';
+import { renderMarkdownDocument, getDocument, type FrontmatterDisplay } from '../../../src/core/viewer/viewer-controller';
 import { createScrollSyncController, type ScrollSyncController } from '../../../src/core/line-based-scroll';
 import { escapeHtml } from '../../../src/core/markdown-processor';
 import { createFileStateManager, getCurrentDocumentUrl, saveToHistory } from '../../../src/core/file-state';
@@ -265,6 +265,16 @@ export async function initializeViewerMain(options: ViewerMainOptions): Promise<
       console.error('Failed to load theme, using defaults:', error);
     }
 
+    // Get frontmatter display setting
+    let frontmatterDisplay: FrontmatterDisplay = 'hide';
+    try {
+      const result = await platform.storage.get(['markdownViewerSettings']);
+      const settings = (result.markdownViewerSettings || {}) as Record<string, unknown>;
+      frontmatterDisplay = (settings.frontmatterDisplay as FrontmatterDisplay) || 'hide';
+    } catch {
+      // Use default on error
+    }
+
     // Render markdown using shared orchestration
     const result = await renderMarkdownDocument({
       markdown,
@@ -272,6 +282,7 @@ export async function initializeViewerMain(options: ViewerMainOptions): Promise<
       renderer: pluginRenderer,
       translate,
       clearContainer: true,
+      frontmatterDisplay,
       onHeadings: () => {
         // Update TOC progressively as chunks are rendered
         void generateTOC();

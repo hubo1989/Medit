@@ -383,6 +383,26 @@
     "message": "开启后，Markdown 分隔线（---）在导出的 Word 文档中会产生分页。",
     "description": "Helper note for the DOCX hr page break option"
   },
+  "settings_frontmatter_display": {
+    "message": "Frontmatter 显示:",
+    "description": "Label for frontmatter display mode selector"
+  },
+  "settings_frontmatter_hide": {
+    "message": "隐藏",
+    "description": "Option to hide frontmatter"
+  },
+  "settings_frontmatter_table": {
+    "message": "数据表格",
+    "description": "Option to display frontmatter as table"
+  },
+  "settings_frontmatter_raw": {
+    "message": "原始信息",
+    "description": "Option to display frontmatter as blockquote"
+  },
+  "settings_frontmatter_note": {
+    "message": "选择如何显示 Markdown 文件开头的 YAML frontmatter。",
+    "description": "Helper note for frontmatter display option"
+  },
   "settings_general_title": {
     "message": "扩展设置",
     "description": "设置区标题"

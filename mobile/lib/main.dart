@@ -523,6 +523,7 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
           result['markdownViewerSettings'] = {
             'docxHrAsPageBreak': settingsService.hrPageBreak,
             'docxEmojiStyle': settingsService.emojiStyle,
+            'frontmatterDisplay': settingsService.frontmatterDisplay,
           };
         }
         // Add more keys as needed
@@ -550,6 +551,9 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
             }
             if (viewerSettings.containsKey('docxEmojiStyle')) {
               settingsService.emojiStyle = viewerSettings['docxEmojiStyle'] as String;
+            }
+            if (viewerSettings.containsKey('frontmatterDisplay')) {
+              settingsService.frontmatterDisplay = viewerSettings['frontmatterDisplay'] as String;
             }
           }
         }

@@ -383,6 +383,26 @@
     "message": "Wanneer ingeschakeld maken Markdown-scheidingstekens (---) een nieuwe pagina in geëxporteerde Word-documenten.",
     "description": "Helper note for the DOCX hr page break option"
   },
+  "settings_frontmatter_display": {
+    "message": "Frontmatter weergave:",
+    "description": "Label for frontmatter display mode selector"
+  },
+  "settings_frontmatter_hide": {
+    "message": "Verbergen",
+    "description": "Option to hide frontmatter"
+  },
+  "settings_frontmatter_note": {
+    "message": "Kies hoe YAML frontmatter aan het begin van Markdown-bestanden moet worden weergegeven.",
+    "description": "Helper note for frontmatter display option"
+  },
+  "settings_frontmatter_raw": {
+    "message": "Onbewerkt (citaat)",
+    "description": "Option to display frontmatter as blockquote"
+  },
+  "settings_frontmatter_table": {
+    "message": "Tabel",
+    "description": "Option to display frontmatter as table"
+  },
   "settings_general_title": {
     "message": "Extensie-instellingen",
     "description": "Heading for settings section"

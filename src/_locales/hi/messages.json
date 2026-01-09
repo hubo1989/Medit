@@ -383,6 +383,26 @@
     "message": "सक्षम होने पर, Markdown विभाजक (---) निर्यात किए गए Word दस्तावेज़ों में नया पृष्ठ बनाएंगे।",
     "description": "Helper note for the DOCX hr page break option"
   },
+  "settings_frontmatter_display": {
+    "message": "Frontmatter प्रदर्शन:",
+    "description": "Label for frontmatter display mode selector"
+  },
+  "settings_frontmatter_hide": {
+    "message": "छुपाएं",
+    "description": "Option to hide frontmatter"
+  },
+  "settings_frontmatter_note": {
+    "message": "Markdown फ़ाइलों की शुरुआत में YAML frontmatter कैसे प्रदर्शित करना है यह चुनें।",
+    "description": "Helper note for frontmatter display option"
+  },
+  "settings_frontmatter_raw": {
+    "message": "मूल (उद्धरण)",
+    "description": "Option to display frontmatter as blockquote"
+  },
+  "settings_frontmatter_table": {
+    "message": "तालिका",
+    "description": "Option to display frontmatter as table"
+  },
   "settings_general_title": {
     "message": "एक्सटेंशन सेटिंग्स",
     "description": "सेटिंग्स अनुभाग का शीर्षक"

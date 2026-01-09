@@ -383,6 +383,26 @@
     "message": "Apabila didayakan, pemisah Markdown (---) akan mencipta halaman baru dalam dokumen Word yang dieksport.",
     "description": "Helper note for the DOCX hr page break option"
   },
+  "settings_frontmatter_display": {
+    "message": "Paparan Frontmatter:",
+    "description": "Label for frontmatter display mode selector"
+  },
+  "settings_frontmatter_hide": {
+    "message": "Sembunyikan",
+    "description": "Option to hide frontmatter"
+  },
+  "settings_frontmatter_note": {
+    "message": "Pilih cara memaparkan YAML frontmatter di permulaan fail Markdown.",
+    "description": "Helper note for frontmatter display option"
+  },
+  "settings_frontmatter_raw": {
+    "message": "Mentah (petikan)",
+    "description": "Option to display frontmatter as blockquote"
+  },
+  "settings_frontmatter_table": {
+    "message": "Jadual",
+    "description": "Option to display frontmatter as table"
+  },
   "settings_general_title": {
     "message": "Tetapan sambungan",
     "description": "Heading for settings section"

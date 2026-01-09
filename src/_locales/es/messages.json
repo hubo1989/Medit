@@ -383,6 +383,26 @@
     "message": "Cuando está activado, los separadores de Markdown (---) crearán una nueva página en los documentos de Word exportados.",
     "description": "Helper note for the DOCX hr page break option"
   },
+  "settings_frontmatter_display": {
+    "message": "Visualización de Frontmatter:",
+    "description": "Label for frontmatter display mode selector"
+  },
+  "settings_frontmatter_hide": {
+    "message": "Ocultar",
+    "description": "Option to hide frontmatter"
+  },
+  "settings_frontmatter_note": {
+    "message": "Elija cómo mostrar el frontmatter YAML al inicio de los archivos Markdown.",
+    "description": "Helper note for frontmatter display option"
+  },
+  "settings_frontmatter_raw": {
+    "message": "Original (cita)",
+    "description": "Option to display frontmatter as blockquote"
+  },
+  "settings_frontmatter_table": {
+    "message": "Tabla",
+    "description": "Option to display frontmatter as table"
+  },
   "settings_general_title": {
     "message": "Configuración de extensión",
     "description": "Encabezado de la sección de configuración"

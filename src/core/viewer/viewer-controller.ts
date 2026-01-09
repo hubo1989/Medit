@@ -12,6 +12,10 @@ import {
   createMarkdownProcessor,
   processTablesForWordCompatibility,
   sanitizeRenderedHtml,
+  isFrontmatterBlock,
+  parseFrontmatter,
+  renderFrontmatterAsTable,
+  renderFrontmatterAsRaw,
   type HeadingInfo,
 } from '../markdown-processor';
 
@@ -33,6 +37,11 @@ export type ViewerRenderResult = {
   headings: HeadingInfo[];
   taskManager: AsyncTaskManager;
 };
+
+/**
+ * Frontmatter display mode
+ */
+export type FrontmatterDisplay = 'hide' | 'table' | 'raw';
 
 export type RenderMarkdownOptions = {
   markdown: string;
@@ -64,6 +73,9 @@ export type RenderMarkdownOptions = {
   
   /** Called when initial DOM streaming is complete (before async tasks) */
   onStreamingComplete?: () => void;
+
+  /** Frontmatter display mode: 'hide', 'table', or 'raw' */
+  frontmatterDisplay?: FrontmatterDisplay;
 };
 
 // Global document instance for incremental updates
@@ -137,6 +149,7 @@ export async function renderMarkdownDocument(options: RenderMarkdownOptions): Pr
     clearContainer = true,
     onHeadings,
     onStreamingComplete,
+    frontmatterDisplay = 'hide',
   } = options;
 
   const taskManager = providedTaskManager ?? new AsyncTaskManager(translate);
@@ -161,10 +174,10 @@ export async function renderMarkdownDocument(options: RenderMarkdownOptions): Pr
   
   if (isFirstRender) {
     // First render: render all blocks with streaming
-    await renderAllBlocksStreaming(doc, processor, container, taskManager, onHeadings);
+    await renderAllBlocksStreaming(doc, processor, container, taskManager, frontmatterDisplay, onHeadings);
   } else {
     // Incremental update: apply DOM commands
-    await applyIncrementalUpdate(doc, processor, container, updateResult.commands, taskManager);
+    await applyIncrementalUpdate(doc, processor, container, updateResult.commands, taskManager, frontmatterDisplay);
   }
 
   // Notify streaming complete
@@ -207,6 +220,7 @@ async function renderAllBlocksStreaming(
   processor: Processor,
   container: HTMLElement,
   taskManager: AsyncTaskManager,
+  frontmatterDisplay: FrontmatterDisplay,
   onHeadings?: (headings: HeadingInfo[]) => void
 ): Promise<void> {
   const blocks = doc.getBlocks();
@@ -219,6 +233,32 @@ async function renderAllBlocksStreaming(
     if (taskManager.isAborted()) return;
     
     const block = blocks[i];
+    
+    // Handle frontmatter block specially
+    if (isFrontmatterBlock(block.content, block.startLine)) {
+      let html = '';
+      if (frontmatterDisplay === 'table') {
+        const data = parseFrontmatter(block.content);
+        html = renderFrontmatterAsTable(data);
+      } else if (frontmatterDisplay === 'raw') {
+        html = renderFrontmatterAsRaw(block.content);
+      }
+      // For 'hide' mode, skip this block entirely
+      if (!html) {
+        continue;
+      }
+      doc.setBlockHtml(i, html);
+      
+      // Create and append DOM element
+      const div = document.createElement('div');
+      div.className = 'md-block';
+      div.innerHTML = html;
+      setBlockAttributes(div, block);
+      container.appendChild(div);
+      
+      currentLineCount += block.lineCount;
+      continue;
+    }
     
     // Render block content
     const html = await renderBlockContent(block.content, processor);
@@ -260,7 +300,8 @@ async function applyIncrementalUpdate(
   processor: Processor,
   container: HTMLElement,
   commands: DOMCommand[],
-  taskManager: AsyncTaskManager
+  taskManager: AsyncTaskManager,
+  frontmatterDisplay: FrontmatterDisplay
 ): Promise<void> {
   // First, render HTML for all blocks that need it
   for (const cmd of commands) {
@@ -269,19 +310,49 @@ async function applyIncrementalUpdate(
     if (cmd.type === 'append' || cmd.type === 'insertBefore') {
       const block = doc.getBlockById(cmd.blockId);
       if (block && !block.html) {
-        const html = await renderBlockContent(block.content, processor);
-        doc.setBlockHtmlById(cmd.blockId, html);
-        // Update command with rendered HTML
-        cmd.html = html;
+        // Handle frontmatter block specially
+        if (isFrontmatterBlock(block.content, block.startLine)) {
+          let html = '';
+          if (frontmatterDisplay === 'table') {
+            const data = parseFrontmatter(block.content);
+            html = renderFrontmatterAsTable(data);
+          } else if (frontmatterDisplay === 'raw') {
+            html = renderFrontmatterAsRaw(block.content);
+          }
+          // For 'hide' mode, skip this block
+          if (!html) {
+            cmd.type = 'remove' as any; // Convert to remove command to skip
+            continue;
+          }
+          doc.setBlockHtmlById(cmd.blockId, html);
+          cmd.html = html;
+        } else {
+          const html = await renderBlockContent(block.content, processor);
+          doc.setBlockHtmlById(cmd.blockId, html);
+          cmd.html = html;
+        }
       } else if (block?.html) {
         cmd.html = block.html;
       }
     } else if (cmd.type === 'replace') {
       const block = doc.getBlockById(cmd.blockId);
       if (block) {
-        const html = await renderBlockContent(block.content, processor);
-        doc.setBlockHtmlById(cmd.blockId, html);
-        cmd.html = html;
+        // Handle frontmatter block specially
+        if (isFrontmatterBlock(block.content, block.startLine)) {
+          let html = '';
+          if (frontmatterDisplay === 'table') {
+            const data = parseFrontmatter(block.content);
+            html = renderFrontmatterAsTable(data);
+          } else if (frontmatterDisplay === 'raw') {
+            html = renderFrontmatterAsRaw(block.content);
+          }
+          doc.setBlockHtmlById(cmd.blockId, html);
+          cmd.html = html;
+        } else {
+          const html = await renderBlockContent(block.content, processor);
+          doc.setBlockHtmlById(cmd.blockId, html);
+          cmd.html = html;
+        }
       }
     }
   }

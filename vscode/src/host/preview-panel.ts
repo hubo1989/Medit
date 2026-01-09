@@ -509,6 +509,8 @@ export class MarkdownPreviewPanel {
                   next.docxHrAsPageBreak = value;
                 } else if (key === 'docxEmojiStyle') {
                   next.docxEmojiStyle = value;
+                } else if (key === 'frontmatterDisplay') {
+                  next.frontmatterDisplay = value;
                 } else {
                   (next as Record<string, unknown>)[key] = value;
                 }
@@ -899,12 +901,15 @@ export class MarkdownPreviewPanel {
     const docxHrAsPageBreak = (typeof settings.docxHrAsPageBreak === 'boolean') ? settings.docxHrAsPageBreak : true;
     const storedEmojiStyle = settings.docxEmojiStyle;
     const docxEmojiStyle: EmojiStyle = (storedEmojiStyle === 'apple' || storedEmojiStyle === 'windows' || storedEmojiStyle === 'system') ? storedEmojiStyle : 'system';
+    const storedFrontmatterDisplay = settings.frontmatterDisplay;
+    const frontmatterDisplay = (storedFrontmatterDisplay === 'hide' || storedFrontmatterDisplay === 'table' || storedFrontmatterDisplay === 'raw') ? storedFrontmatterDisplay : 'hide';
     
     return {
       theme,
       locale,
       docxHrAsPageBreak,
       docxEmojiStyle,
+      frontmatterDisplay,
       fontSize: config.get('fontSize', 16),
       fontFamily: config.get('fontFamily', ''),
       lineNumbers: config.get('lineNumbers', true),

@@ -7,6 +7,7 @@ class SettingsService {
   static const String _keyFontSize = 'fontSize';
   static const String _keyHrPageBreak = 'hrPageBreak';
   static const String _keyEmojiStyle = 'emojiStyle';
+  static const String _keyFrontmatterDisplay = 'frontmatterDisplay';
   static const String _keyLocale = 'locale';
   static const String _keySupportMermaid = 'supportMermaid';
   static const String _keySupportVega = 'supportVega';
@@ -38,6 +39,10 @@ class SettingsService {
   // Emoji style in DOCX export: 'apple', 'windows', or 'system'
   String get emojiStyle => _prefs?.getString(_keyEmojiStyle) ?? 'system';
   set emojiStyle(String value) => _prefs?.setString(_keyEmojiStyle, value);
+
+  // Frontmatter display mode: 'hide', 'table', or 'raw'
+  String get frontmatterDisplay => _prefs?.getString(_keyFrontmatterDisplay) ?? 'hide';
+  set frontmatterDisplay(String value) => _prefs?.setString(_keyFrontmatterDisplay, value);
 
   // Locale
   String get locale => _prefs?.getString(_keyLocale) ?? 'system';
@@ -80,6 +85,7 @@ class SettingsService {
       'fontSize': fontSize,
       'hrPageBreak': hrPageBreak,
       'emojiStyle': emojiStyle,
+      'frontmatterDisplay': frontmatterDisplay,
       'locale': locale,
       'supportMermaid': supportMermaid,
       'supportVega': supportVega,

@@ -383,6 +383,26 @@
     "message": "Калі ўключана, падзяляльнікі Markdown (---) створаць новую старонку ў экспартаваных дакументах Word.",
     "description": "Helper note for the DOCX hr page break option"
   },
+  "settings_frontmatter_display": {
+    "message": "Адлюстраванне Frontmatter:",
+    "description": "Label for frontmatter display mode selector"
+  },
+  "settings_frontmatter_hide": {
+    "message": "Схаваць",
+    "description": "Option to hide frontmatter"
+  },
+  "settings_frontmatter_note": {
+    "message": "Выберыце, як адлюстроўваць YAML frontmatter у пачатку файлаў Markdown.",
+    "description": "Helper note for frontmatter display option"
+  },
+  "settings_frontmatter_raw": {
+    "message": "Зыходны (цытата)",
+    "description": "Option to display frontmatter as blockquote"
+  },
+  "settings_frontmatter_table": {
+    "message": "Табліца",
+    "description": "Option to display frontmatter as table"
+  },
   "settings_general_title": {
     "message": "Налады пашырэння",
     "description": "Heading for settings section"

@@ -8,7 +8,7 @@ import themeManager from '../../../src/utils/theme-manager';
 import DocxExporter from '../../../src/exporters/docx-exporter';
 import { loadAndApplyTheme } from '../../../src/utils/theme-to-css';
 import { AsyncTaskManager } from '../../../src/core/markdown-processor';
-import { renderMarkdownDocument, getDocument } from '../../../src/core/viewer/viewer-controller';
+import { renderMarkdownDocument, getDocument, type FrontmatterDisplay } from '../../../src/core/viewer/viewer-controller';
 import { createScrollSyncController, type ScrollSyncController } from '../../../src/core/line-based-scroll';
 import type { PluginRenderer } from '../../../src/types/index';
 import type { PlatformBridgeAPI } from '../../../src/types/index';
@@ -244,6 +244,16 @@ async function handleLoadMarkdown(payload: LoadMarkdownPayload): Promise<void> {
         (container as HTMLElement).style.zoom = String(currentZoomLevel);
       }
 
+      // Get frontmatter display setting
+      let frontmatterDisplay: FrontmatterDisplay = 'hide';
+      try {
+        const result = await platform.storage.get(['markdownViewerSettings']);
+        const settings = (result.markdownViewerSettings || {}) as Record<string, unknown>;
+        frontmatterDisplay = (settings.frontmatterDisplay as FrontmatterDisplay) || 'hide';
+      } catch {
+        // Use default on error
+      }
+
       const renderResult = await renderMarkdownDocument({
         markdown: content,
         container: container as HTMLElement,
@@ -251,6 +261,7 @@ async function handleLoadMarkdown(payload: LoadMarkdownPayload): Promise<void> {
         translate: (key: string, subs?: string | string[]) => Localization.translate(key, subs),
         taskManager,
         clearContainer: false,
+        frontmatterDisplay,
         onHeadings: (headings) => {
           bridge.postMessage('HEADINGS_UPDATED', headings);
         },
@@ -426,6 +437,8 @@ declare global {
     // Display settings
     setFontSize: (size: number) => void;
     setLocale: (locale: string) => void;
+    // Re-render with updated settings
+    rerender: () => Promise<void>;
     // Platform object has all services: platform.cache, platform.i18n, etc.
   }
 }
@@ -460,6 +473,13 @@ window.setFontSize = (size: number) => {
 
 window.setLocale = (locale: string) => {
   handleSetLocale({ locale });
+};
+
+window.rerender = async () => {
+  // Re-render current markdown with updated settings
+  if (currentMarkdown) {
+    await handleLoadMarkdown({ content: currentMarkdown, filename: currentFilename });
+  }
 };
 
 // Initialize when DOM is ready

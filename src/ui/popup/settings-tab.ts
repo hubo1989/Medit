@@ -119,6 +119,11 @@ interface SupportedExtensions {
 }
 
 /**
+ * Frontmatter display mode
+ */
+export type FrontmatterDisplay = 'hide' | 'table' | 'raw';
+
+/**
  * User settings structure
  */
 interface Settings {
@@ -127,6 +132,7 @@ interface Settings {
   docxHrAsPageBreak: boolean;
   docxEmojiStyle?: EmojiStyle;
   supportedExtensions?: SupportedExtensions;
+  frontmatterDisplay?: FrontmatterDisplay;
 }
 
 /**
@@ -171,7 +177,8 @@ export function createSettingsTabManager({
       vegaLite: true,
       dot: true,
       infographic: true,
-    }
+    },
+    frontmatterDisplay: 'hide',
   };
   let currentTheme = 'default';
   let themes: ThemeDefinition[] = [];
@@ -283,6 +290,19 @@ export function createSettingsTabManager({
         docxEmojiStyleEl.dataset.listenerAdded = 'true';
         docxEmojiStyleEl.addEventListener('change', async () => {
           settings.docxEmojiStyle = docxEmojiStyleEl.value as EmojiStyle;
+          await saveSettingsToStorage();
+        });
+      }
+    }
+
+    // Frontmatter display mode
+    const frontmatterDisplayEl = document.getElementById('frontmatter-display') as HTMLSelectElement | null;
+    if (frontmatterDisplayEl) {
+      frontmatterDisplayEl.value = settings.frontmatterDisplay || 'hide';
+      if (!frontmatterDisplayEl.dataset.listenerAdded) {
+        frontmatterDisplayEl.dataset.listenerAdded = 'true';
+        frontmatterDisplayEl.addEventListener('change', async () => {
+          settings.frontmatterDisplay = frontmatterDisplayEl.value as FrontmatterDisplay;
           await saveSettingsToStorage();
         });
       }

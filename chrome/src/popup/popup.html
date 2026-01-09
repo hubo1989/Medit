@@ -188,6 +188,16 @@
         <div class="info-section">
           <h3 data-i18n="settings_general_title"></h3>
           <div style="margin: 10px 0;">
+            <label for="frontmatter-display" data-i18n="settings_frontmatter_display"></label>
+            <select id="frontmatter-display">
+              <option value="hide" selected data-i18n="settings_frontmatter_hide">Hide</option>
+              <option value="table" data-i18n="settings_frontmatter_table">Table</option>
+              <option value="raw" data-i18n="settings_frontmatter_raw">Raw (blockquote)</option>
+            </select>
+            <div class="settings-note" data-i18n="settings_frontmatter_note"></div>
+          </div>
+
+          <div style="margin: 10px 0;">
             <label class="checkbox-label">
               <input type="checkbox" id="docx-hr-page-break">
               <span data-i18n="settings_docx_hr_page_break"></span>

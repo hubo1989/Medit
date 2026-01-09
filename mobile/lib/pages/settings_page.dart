@@ -135,6 +135,19 @@ class _SettingsPageState extends State<SettingsPage> {
             icon: const Icon(Icons.chevron_right),
             onTap: _pickEmojiStyle,
           ),
+          GFListTile(
+            avatar: GFAvatar(
+              backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+              child: Icon(
+                Icons.article_outlined,
+                color: Theme.of(context).colorScheme.onPrimaryContainer,
+              ),
+            ),
+            titleText: localization.t('settings_frontmatter_display'),
+            subTitleText: _getFrontmatterDisplayName(),
+            icon: const Icon(Icons.chevron_right),
+            onTap: _pickFrontmatterDisplay,
+          ),
           const Divider(),
           GFListTile(
             avatar: GFAvatar(
@@ -347,6 +360,78 @@ class _SettingsPageState extends State<SettingsPage> {
           settingsService.emojiStyle = style;
         });
         Navigator.pop(context);
+      },
+    );
+  }
+
+  String _getFrontmatterDisplayName() {
+    final display = settingsService.frontmatterDisplay;
+    switch (display) {
+      case 'hide':
+        return localization.t('settings_frontmatter_hide');
+      case 'table':
+        return localization.t('settings_frontmatter_table');
+      case 'raw':
+        return localization.t('settings_frontmatter_raw');
+      default:
+        return localization.t('settings_frontmatter_hide');
+    }
+  }
+
+  void _pickFrontmatterDisplay() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildFrontmatterDisplayOption('hide'),
+              _buildFrontmatterDisplayOption('table'),
+              _buildFrontmatterDisplayOption('raw'),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildFrontmatterDisplayOption(String display) {
+    final isSelected = settingsService.frontmatterDisplay == display;
+    String displayName;
+    switch (display) {
+      case 'hide':
+        displayName = localization.t('settings_frontmatter_hide');
+        break;
+      case 'table':
+        displayName = localization.t('settings_frontmatter_table');
+        break;
+      case 'raw':
+        displayName = localization.t('settings_frontmatter_raw');
+        break;
+      default:
+        displayName = display;
+    }
+
+    return ListTile(
+      title: Text(displayName),
+      trailing: isSelected ? const Icon(Icons.check, color: Colors.blue) : null,
+      onTap: () {
+        setState(() {
+          settingsService.frontmatterDisplay = display;
+        });
+        Navigator.pop(context);
+        // Re-render to apply new frontmatter display setting
+        final controller = widget.webViewController;
+        if (controller != null) {
+          controller.runJavaScript(
+            "if(window.rerender){window.rerender();}",
+          );
+        }
       },
     );
   }

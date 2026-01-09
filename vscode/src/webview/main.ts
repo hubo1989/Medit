@@ -8,7 +8,7 @@
  */
 
 import { platform, vscodeBridge } from './api-impl';
-import { renderMarkdownDocument, getDocument } from '../../../src/core/viewer/viewer-controller';
+import { renderMarkdownDocument, getDocument, type FrontmatterDisplay } from '../../../src/core/viewer/viewer-controller';
 import { AsyncTaskManager } from '../../../src/core/markdown-processor';
 import { wrapFileContent } from '../../../src/utils/file-wrapper';
 import { createScrollSyncController, type ScrollSyncController } from '../../../src/core/line-based-scroll';
@@ -256,6 +256,16 @@ async function handleUpdateContent(payload: UpdateContentPayload): Promise<void>
     // Determine incremental update conditions
     const shouldIncremental = !fileChanged && container.childNodes.length > 0;
 
+    // Get frontmatter display setting
+    let frontmatterDisplay: FrontmatterDisplay = 'hide';
+    try {
+      const result = await platform.storage.get(['markdownViewerSettings']);
+      const settings = (result.markdownViewerSettings || {}) as Record<string, unknown>;
+      frontmatterDisplay = (settings.frontmatterDisplay as FrontmatterDisplay) || 'hide';
+    } catch {
+      // Use default on error
+    }
+
     // Render markdown (same as Mobile)
     // Use incremental update only if same file and container has existing content
     const renderResult = await renderMarkdownDocument({
@@ -265,6 +275,7 @@ async function handleUpdateContent(payload: UpdateContentPayload): Promise<void>
       translate: (key: string, subs?: string | string[]) => Localization.translate(key, subs),
       taskManager,
       clearContainer: fileChanged,  // Clear only when file changes
+      frontmatterDisplay,
       onHeadings: (headings) => {
         vscodeBridge.postMessage('HEADINGS_UPDATED', headings);
       },
@@ -458,6 +469,7 @@ function initializeUI(): void {
     currentLocale: window.VSCODE_CONFIG?.locale as string || 'auto',
     docxHrAsPageBreak: window.VSCODE_CONFIG?.docxHrAsPageBreak !== false,
     docxEmojiStyle: (window.VSCODE_CONFIG?.docxEmojiStyle as EmojiStyle) || 'system',
+    frontmatterDisplay: (window.VSCODE_CONFIG?.frontmatterDisplay as FrontmatterDisplay) || 'hide',
     onThemeChange: async (themeId) => {
       // handleSetTheme saves via themeManager.saveSelectedTheme (same as Chrome)
       await handleSetTheme({ themeId });
@@ -482,6 +494,13 @@ function initializeUI(): void {
     },
     onDocxEmojiStyleChange: (style) => {
       vscodeBridge.postMessage('SAVE_SETTING', { key: 'docxEmojiStyle', value: style });
+    },
+    onFrontmatterDisplayChange: async (display) => {
+      vscodeBridge.postMessage('SAVE_SETTING', { key: 'frontmatterDisplay', value: display });
+      // Re-render to apply new frontmatter display setting
+      if (currentMarkdown) {
+        await handleUpdateContent({ content: currentMarkdown, filename: currentFilename });
+      }
     },
     onClearCache: async () => {
       await platform.cache.clear();

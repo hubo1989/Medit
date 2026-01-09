@@ -114,6 +114,69 @@ export function escapeHtml(text: string): string {
 }
 
 /**
+ * Check if a block is a frontmatter block
+ * Frontmatter must start and end with ---, and typically appears at line 0
+ */
+export function isFrontmatterBlock(block: string, startLine: number): boolean {
+  if (startLine !== 0) return false;
+  const lines = block.split('\n');
+  if (lines.length < 2) return false;
+  return lines[0].trim() === '---' && lines[lines.length - 1].trim() === '---';
+}
+
+/**
+ * Parse frontmatter YAML content (simple key: value parsing)
+ */
+export function parseFrontmatter(block: string): Record<string, string> {
+  const lines = block.split('\n');
+  const result: Record<string, string> = {};
+  
+  // Skip first and last lines (---)
+  for (let i = 1; i < lines.length - 1; i++) {
+    const line = lines[i];
+    const colonIndex = line.indexOf(':');
+    if (colonIndex > 0) {
+      const key = line.substring(0, colonIndex).trim();
+      const value = line.substring(colonIndex + 1).trim();
+      if (key) {
+        result[key] = value;
+      }
+    }
+  }
+  
+  return result;
+}
+
+/**
+ * Render frontmatter as HTML table
+ */
+export function renderFrontmatterAsTable(data: Record<string, string>): string {
+  const entries = Object.entries(data);
+  if (entries.length === 0) return '';
+  
+  const rows = entries
+    .map(([key, value]) => `<tr><td><strong>${escapeHtml(key)}</strong></td><td>${escapeHtml(value)}</td></tr>`)
+    .join('\n');
+  
+  return `<table class="frontmatter-table">
+<thead><tr><th>Property</th><th>Value</th></tr></thead>
+<tbody>
+${rows}
+</tbody>
+</table>`;
+}
+
+/**
+ * Render frontmatter as pre block (raw format)
+ */
+export function renderFrontmatterAsRaw(block: string): string {
+  const lines = block.split('\n');
+  // Skip first and last --- lines, render content as pre
+  const content = lines.slice(1, -1).join('\n');
+  return `<pre class="frontmatter-raw">${escapeHtml(content)}</pre>`;
+}
+
+/**
  * Validate URL values and block javascript-style protocols
  * @param url - URL to validate
  * @returns True when URL is considered safe
@@ -521,12 +584,18 @@ export function createMarkdownProcessor(
 }
 
 /**
+ * Frontmatter display mode
+ */
+export type FrontmatterDisplay = 'hide' | 'table' | 'raw';
+
+/**
  * Options for processing markdown to HTML
  */
 interface ProcessMarkdownOptions {
   renderer: PluginRenderer;
   taskManager: AsyncTaskManager;
   translate?: TranslateFunction;
+  frontmatterDisplay?: FrontmatterDisplay;
 }
 
 /**
@@ -653,7 +722,7 @@ export async function processMarkdownToHtml(
   markdown: string,
   options: ProcessMarkdownOptions
 ): Promise<string> {
-  const { renderer, taskManager, translate = (key) => key } = options;
+  const { renderer, taskManager, translate = (key) => key, frontmatterDisplay = 'hide' } = options;
 
   // Pre-process markdown
   const normalizedMarkdown = normalizeMathBlocks(markdown);
@@ -672,6 +741,27 @@ export async function processMarkdownToHtml(
   for (let i = 0; i < blocks.length; i++) {
     const block = blocks[i];
     const blockHash = hashCode(block.content);
+    
+    // Handle frontmatter block specially
+    if (isFrontmatterBlock(block.content, block.startLine)) {
+      let blockHtml = '';
+      if (frontmatterDisplay === 'table') {
+        const data = parseFrontmatter(block.content);
+        blockHtml = renderFrontmatterAsTable(data);
+      } else if (frontmatterDisplay === 'raw') {
+        blockHtml = renderFrontmatterAsRaw(block.content);
+      }
+      // For 'hide' mode, blockHtml remains empty
+      
+      if (blockHtml) {
+        const blockLineCount = block.content.split('\n').length;
+        const nextBlockStartLine = i + 1 < blocks.length ? blocks[i + 1].startLine : block.startLine + blockLineCount;
+        const actualLineCount = nextBlockStartLine - block.startLine;
+        htmlParts.push(addBlockAttributesToHtml(blockHtml, blockHash, block.startLine, actualLineCount));
+      }
+      continue;
+    }
+    
     const cached = blockHtmlCache.get(blockHash);
     
     let blockHtml: string;

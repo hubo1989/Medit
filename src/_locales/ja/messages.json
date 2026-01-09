@@ -383,6 +383,26 @@
     "message": "有効にすると、Markdown の区切り線（---）がエクスポートされた Word 文書で改ページになります。",
     "description": "Helper note for the DOCX hr page break option"
   },
+  "settings_frontmatter_display": {
+    "message": "Frontmatter表示:",
+    "description": "Label for frontmatter display mode selector"
+  },
+  "settings_frontmatter_hide": {
+    "message": "非表示",
+    "description": "Option to hide frontmatter"
+  },
+  "settings_frontmatter_note": {
+    "message": "Markdownファイルの先頭にあるYAML frontmatterの表示方法を選択します。",
+    "description": "Helper note for frontmatter display option"
+  },
+  "settings_frontmatter_raw": {
+    "message": "生データ（引用）",
+    "description": "Option to display frontmatter as blockquote"
+  },
+  "settings_frontmatter_table": {
+    "message": "テーブル",
+    "description": "Option to display frontmatter as table"
+  },
   "settings_general_title": {
     "message": "拡張機能の設定",
     "description": "設定セクションの見出し"

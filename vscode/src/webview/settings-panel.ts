@@ -9,6 +9,7 @@
 
 import Localization from '../../../src/utils/localization';
 import type { EmojiStyle } from '../../../src/types/docx.js';
+import type { FrontmatterDisplay } from '../../../src/core/viewer/viewer-controller';
 
 export interface SettingsPanelOptions {
   /** Current theme ID */
@@ -19,6 +20,8 @@ export interface SettingsPanelOptions {
   docxHrAsPageBreak?: boolean;
   /** DOCX emoji style setting */
   docxEmojiStyle?: EmojiStyle;
+  /** Frontmatter display mode */
+  frontmatterDisplay?: FrontmatterDisplay;
   /** Theme changed callback */
   onThemeChange?: (themeId: string) => void;
   /** Locale changed callback */
@@ -27,6 +30,8 @@ export interface SettingsPanelOptions {
   onDocxSettingChange?: (hrAsPageBreak: boolean) => void;
   /** DOCX emoji style changed callback */
   onDocxEmojiStyleChange?: (style: EmojiStyle) => void;
+  /** Frontmatter display changed callback */
+  onFrontmatterDisplayChange?: (display: FrontmatterDisplay) => void;
   /** Cache clear callback */
   onClearCache?: () => Promise<void>;
   /** Called when panel is shown, use to refresh dynamic data */
@@ -84,6 +89,7 @@ export function createSettingsPanel(options: SettingsPanelOptions): SettingsPane
     currentLocale = 'auto',
     docxHrAsPageBreak = true,
     docxEmojiStyle = 'windows',
+    frontmatterDisplay = 'hide',
     onThemeChange,
     onLocaleChange,
     onDocxSettingChange,
@@ -130,6 +136,14 @@ export function createSettingsPanel(options: SettingsPanelOptions): SettingsPane
           <option value="apple" ${docxEmojiStyle === 'apple' ? 'selected' : ''} data-i18n="settings_docx_emoji_style_apple">${Localization.translate('settings_docx_emoji_style_apple')}</option>
         </select>
       </div>
+      <div class="vscode-settings-group">
+        <label class="vscode-settings-label" data-i18n="settings_frontmatter_display">${Localization.translate('settings_frontmatter_display')}</label>
+        <select class="vscode-settings-select" data-setting="frontmatterDisplay">
+          <option value="hide" ${frontmatterDisplay === 'hide' ? 'selected' : ''} data-i18n="settings_frontmatter_hide">${Localization.translate('settings_frontmatter_hide')}</option>
+          <option value="table" ${frontmatterDisplay === 'table' ? 'selected' : ''} data-i18n="settings_frontmatter_table">${Localization.translate('settings_frontmatter_table')}</option>
+          <option value="raw" ${frontmatterDisplay === 'raw' ? 'selected' : ''} data-i18n="settings_frontmatter_raw">${Localization.translate('settings_frontmatter_raw')}</option>
+        </select>
+      </div>
       <div class="vscode-settings-divider"></div>
       <div class="vscode-settings-group">
         <div class="vscode-cache-stats">
@@ -153,6 +167,7 @@ export function createSettingsPanel(options: SettingsPanelOptions): SettingsPane
   const localeSelect = panel.querySelector('[data-setting="locale"]') as HTMLSelectElement;
   const docxCheckbox = panel.querySelector('[data-setting="docxHrPageBreak"]') as HTMLInputElement;
   const emojiStyleSelect = panel.querySelector('[data-setting="emojiStyle"]') as HTMLSelectElement;
+  const frontmatterDisplaySelect = panel.querySelector('[data-setting="frontmatterDisplay"]') as HTMLSelectElement;
   const clearCacheBtn = panel.querySelector('.vscode-cache-clear-btn') as HTMLButtonElement;
   const cacheItemsValue = panel.querySelector('[data-cache-stat="items"]') as HTMLElement;
   const cacheSizeValue = panel.querySelector('[data-cache-stat="size"]') as HTMLElement;
@@ -162,6 +177,7 @@ export function createSettingsPanel(options: SettingsPanelOptions): SettingsPane
   if (localeSelect) localeSelect.value = currentLocale;
   if (docxCheckbox) docxCheckbox.checked = docxHrAsPageBreak;
   if (emojiStyleSelect) emojiStyleSelect.value = docxEmojiStyle;
+  if (frontmatterDisplaySelect) frontmatterDisplaySelect.value = frontmatterDisplay;
 
   // Bind events
   closeBtn?.addEventListener('click', () => {
@@ -183,6 +199,10 @@ export function createSettingsPanel(options: SettingsPanelOptions): SettingsPane
 
   emojiStyleSelect?.addEventListener('change', () => {
     options.onDocxEmojiStyleChange?.(emojiStyleSelect.value as EmojiStyle);
+  });
+
+  frontmatterDisplaySelect?.addEventListener('change', () => {
+    options.onFrontmatterDisplayChange?.(frontmatterDisplaySelect.value as FrontmatterDisplay);
   });
 
   // Handle clear cache button - no confirm dialog in sandboxed webview
