@@ -12,7 +12,7 @@ import { fixMarkdown, getDiagnostics, type FixCategory, getCategoryDisplayName }
 import { MarkdownPreviewPanel } from './preview-panel';
 import { isSupportedDocument } from './extension';
 import type { HeadingNumberingConfig } from '../tools/heading-numbering';
-import type { ExtensionCacheService } from './cache-service';
+import type { CacheStorage } from './cache-storage';
 import { loadMessagesJsonWithFallback } from '../utils/i18n-messages';
 
 /**
@@ -46,7 +46,7 @@ function getConfigForContext(extensionPath: string, context: vscode.ExtensionCon
  */
 export function registerNumberHeadingsCommand(
   context: vscode.ExtensionContext,
-  cacheService: ExtensionCacheService
+  cacheStorage: CacheStorage
 ): void {
   context.subscriptions.push(
     vscode.commands.registerCommand('markdownViewer.tools.numberHeadings', async () => {
@@ -96,7 +96,7 @@ export function registerNumberHeadingsCommand(
         MarkdownPreviewPanel.createOrShowWithSettings(
           context.extensionUri, 
           editor.document, 
-          cacheService,
+          cacheStorage,
           vscode.ViewColumn.Beside
         );
       } else {

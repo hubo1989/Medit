@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:getwidget/getwidget.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-import '../services/cache_service.dart';
+import '../services/cache_storage.dart';
 import '../services/localization_service.dart';
 import '../services/settings_service.dart';
 import '../services/theme_registry_service.dart';
@@ -39,7 +39,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
     try {
       // Get stats directly from Flutter cache service
-      final stats = await cacheService.getStats();
+      final stats = await cacheStorage.getStats();
       
       if (mounted) {
         setState(() {
@@ -191,7 +191,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
     try {
       // Clear Flutter cache service directly
-      await cacheService.clear();
+      await cacheStorage.clear();
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

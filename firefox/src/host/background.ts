@@ -22,7 +22,7 @@ declare const browser: typeof chrome & {
   };
 };
 
-import ExtensionCacheManager from '../../../src/utils/cache-manager';
+import CacheStorage from '../../../src/utils/cache-storage';
 import { toSimpleCacheStats } from '../../../src/utils/cache-stats';
 import { bootstrapRenderWorker } from '../../../src/renderers/worker/worker-bootstrap';
 import { DirectFetchService } from '../../../src/renderers/worker/services';
@@ -36,7 +36,7 @@ import type {
   SimpleCacheStats
 } from '../../../src/types/index';
 
-let globalCacheManager: ExtensionCacheManager | null = null;
+let globalCacheStorage: CacheStorage | null = null;
 
 // ============================================================================
 // CSP Modification for Markdown Files
@@ -293,11 +293,11 @@ async function handleCacheOperationEnvelope(
   sendResponse: (response: unknown) => void
 ): Promise<void> {
   try {
-    if (!globalCacheManager) {
-      globalCacheManager = await initGlobalCacheManager();
+    if (!globalCacheStorage) {
+      globalCacheStorage = await initGlobalCacheStorage();
     }
 
-    if (!globalCacheManager) {
+    if (!globalCacheStorage) {
       sendResponseEnvelope(message.id, sendResponse, { ok: false, errorMessage: 'Cache system initialization failed' });
       return;
     }
@@ -311,27 +311,27 @@ async function handleCacheOperationEnvelope(
 
     switch (operation) {
       case 'get': {
-        const item = await globalCacheManager.get(key);
+        const item = await globalCacheStorage.get(key);
         sendResponseEnvelope(message.id, sendResponse, { ok: true, data: item ?? null });
         return;
       }
       case 'set': {
-        await globalCacheManager.set(key, value, dataType);
+        await globalCacheStorage.set(key, value, dataType);
         sendResponseEnvelope(message.id, sendResponse, { ok: true, data: { success: true } });
         return;
       }
       case 'delete': {
-        await globalCacheManager.delete(key);
+        await globalCacheStorage.delete(key);
         sendResponseEnvelope(message.id, sendResponse, { ok: true, data: { success: true } });
         return;
       }
       case 'clear': {
-        await globalCacheManager.clear();
+        await globalCacheStorage.clear();
         sendResponseEnvelope(message.id, sendResponse, { ok: true, data: { success: true } });
         return;
       }
       case 'getStats': {
-        const stats = await globalCacheManager.getStats(limit);
+        const stats = await globalCacheStorage.getStats(limit);
         sendResponseEnvelope(message.id, sendResponse, { ok: true, data: stats });
         return;
       }
@@ -601,22 +601,22 @@ function handleUploadOperationEnvelope(
 // Initialization
 // ============================================================================
 
-async function initGlobalCacheManager(): Promise<ExtensionCacheManager | null> {
+async function initGlobalCacheStorage(): Promise<CacheStorage | null> {
   try {
     const result = await browser.storage.local.get(['markdownViewerSettings']);
     const settings = (result.markdownViewerSettings || {}) as { maxCacheItems?: number };
     const maxCacheItems = settings.maxCacheItems || 1000;
     
-    globalCacheManager = new ExtensionCacheManager(maxCacheItems);
-    await globalCacheManager.initPromise;
-    return globalCacheManager;
+    globalCacheStorage = new CacheStorage(maxCacheItems);
+    await globalCacheStorage.initPromise;
+    return globalCacheStorage;
   } catch (error) {
     return null;
   }
 }
 
 // Initialize cache manager when background script loads
-initGlobalCacheManager();
+initGlobalCacheStorage();
 
 // ============================================================================
 // Content Script Injection (Firefox uses tabs.executeScript in MV2)
@@ -755,11 +755,11 @@ async function handleCacheOperationAsync(
   message: { id: string; type: string; payload: unknown }
 ): Promise<object> {
   try {
-    if (!globalCacheManager) {
-      globalCacheManager = await initGlobalCacheManager();
+    if (!globalCacheStorage) {
+      globalCacheStorage = await initGlobalCacheStorage();
     }
 
-    if (!globalCacheManager) {
+    if (!globalCacheStorage) {
       return createResponseEnvelope(message.id, { ok: false, errorMessage: 'Cache system initialization failed' });
     }
 
@@ -772,23 +772,23 @@ async function handleCacheOperationAsync(
 
     switch (operation) {
       case 'get': {
-        const item = await globalCacheManager.get(key);
+        const item = await globalCacheStorage.get(key);
         return createResponseEnvelope(message.id, { ok: true, data: item ?? null });
       }
       case 'set': {
-        await globalCacheManager.set(key, value, dataType);
+        await globalCacheStorage.set(key, value, dataType);
         return createResponseEnvelope(message.id, { ok: true, data: { success: true } });
       }
       case 'delete': {
-        await globalCacheManager.delete(key);
+        await globalCacheStorage.delete(key);
         return createResponseEnvelope(message.id, { ok: true, data: { success: true } });
       }
       case 'clear': {
-        await globalCacheManager.clear();
+        await globalCacheStorage.clear();
         return createResponseEnvelope(message.id, { ok: true, data: { success: true } });
       }
       case 'getStats': {
-        const stats = await globalCacheManager.getStats(limit);
+        const stats = await globalCacheStorage.getStats(limit);
         return createResponseEnvelope(message.id, { ok: true, data: stats });
       }
       default:
@@ -1005,9 +1005,9 @@ async function handleDocxDownloadFinalizeAsync(
 browser.storage.onChanged.addListener((changes, areaName) => {
   if (areaName === 'local' && changes.markdownViewerSettings) {
     const newSettings = changes.markdownViewerSettings.newValue as { maxCacheItems?: number; preferredLocale?: string } | undefined;
-    if (newSettings && newSettings.maxCacheItems && globalCacheManager) {
-      if ('maxItems' in globalCacheManager) {
-        (globalCacheManager as { maxItems: number }).maxItems = newSettings.maxCacheItems;
+    if (newSettings && newSettings.maxCacheItems && globalCacheStorage) {
+      if ('maxItems' in globalCacheStorage) {
+        (globalCacheStorage as { maxItems: number }).maxItems = newSettings.maxCacheItems;
       }
     }
     

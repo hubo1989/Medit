@@ -31,7 +31,7 @@ export function isSimpleCacheStats(value: unknown): value is SimpleCacheStats {
  * Normalize various cache stats shapes into the flat stats used by the popup UI.
  * Accepts:
  * - SimpleCacheStats (already flat)
- * - ExtensionCacheManager.getStats() (nested CacheStats)
+ * - CacheStorage.getStats() (nested CacheStats)
  */
 export function toSimpleCacheStats(
   value: unknown,
@@ -93,9 +93,9 @@ export function toSimpleCacheStats(
 }
 
 /**
- * Narrowing helper for ExtensionCacheManager.getStats().
- * Kept here so callers can stay strict without importing deep cache-manager types.
+ * Narrowing helper for CacheStorage.getStats().
+ * Kept here so callers can stay strict without importing deep cache-storage types.
  */
-export function isExtensionCacheManagerStats(value: unknown): value is CacheStats {
+export function isCacheStorageStats(value: unknown): value is CacheStats {
   return Boolean(value) && typeof value === 'object' && 'indexedDBCache' in (value as Record<string, unknown>);
 }

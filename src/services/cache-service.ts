@@ -70,8 +70,11 @@ export class CacheService {
   ): Promise<string> {
     let keyContent = content;
     
-    if (themeConfig && themeConfig.fontFamily && themeConfig.fontSize) {
-      keyContent = `${content}_font:${themeConfig.fontFamily}_size:${themeConfig.fontSize}`;
+    if (themeConfig) {
+      const fontFamily = themeConfig.fontFamily || '';
+      const fontSize = themeConfig.fontSize || '';
+      const diagramStyle = themeConfig.diagramStyle || 'normal';
+      keyContent = `${content}_font:${fontFamily}_size:${fontSize}_style:${diagramStyle}`;
     }
     
     const hash = await this.calculateHash(keyContent);
