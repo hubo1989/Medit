@@ -259,11 +259,8 @@ function copyAssets() {
     console.log('  • settings-panel.css');
   }
 
-  // Copy fonts if they exist
-  if (fs.existsSync('src/fonts')) {
-    copyDirectory('src/fonts', path.join(outdir, 'webview', 'fonts'));
-    console.log('  • fonts');
-  }
+  // Note: fonts (ZhuqueFangsong, ComicNeue) are only needed for mobile app
+  // VS Code extension uses system fonts, no need to bundle custom fonts
 
   // Copy README from vscode directory
   if (fs.existsSync('vscode/README.md')) {

@@ -3,6 +3,7 @@
 /**
  * Download custom fonts for mobile app
  * These fonts are too large to commit to git, so we download them on demand
+ * Fonts are stored in mobile/build/fonts (build artifacts, gitignored)
  */
 
 import fs from 'fs';
@@ -11,7 +12,7 @@ import { execSync } from 'child_process';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const FONTS_DIR = path.join(__dirname, '../src/fonts');
+const FONTS_DIR = path.join(__dirname, '../mobile/build/fonts');
 
 const FONTS = [
   {

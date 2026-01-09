@@ -266,7 +266,7 @@ function copyResources() {
   }
 
   // Copy custom Chinese fonts (Zhuque Fangsong for FangSong fallback)
-  const customFontsDir = 'src/fonts';
+  const customFontsDir = 'mobile/build/fonts';
   if (fs.existsSync(customFontsDir)) {
     const fontsDestDir = `${DIST_DIR}/fonts`;
     if (!fs.existsSync(fontsDestDir)) {
