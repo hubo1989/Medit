@@ -17,7 +17,7 @@ import 'package:webview_flutter_android/webview_flutter_android.dart';
 // Import for iOS/macOS features
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 
-import 'services/cache_service.dart';
+import 'services/cache_storage.dart';
 import 'services/localization_service.dart';
 import 'theme/app_theme.dart';
 import 'services/recent_files_service.dart';
@@ -28,7 +28,7 @@ import 'pages/settings_page.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await settingsService.init();
-  await cacheService.init();
+  await cacheStorage.init();
   await localization.init();
   await themeRegistry.init();
   await recentFilesService.init();
@@ -569,7 +569,7 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
 
   Future<void> _handleCacheOperation(Map<String, dynamic> payload, String requestId) async {
     try {
-      final result = await cacheService.handleOperation(payload);
+      final result = await cacheStorage.handleOperation(payload);
       _respondToWebViewEnvelope(requestId, data: result['data'], ok: result['ok'] as bool);
     } catch (e) {
       debugPrint('[Mobile] Cache operation error: $e');

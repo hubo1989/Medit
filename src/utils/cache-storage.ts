@@ -1,15 +1,14 @@
-// Chrome Extension Cache Manager with IndexedDB Storage
+// Cache Storage - IndexedDB backend for browser extensions
 
 import type {
   CacheItem,
   CacheStats,
-  RendererThemeConfig
 } from '../types/index';
 
 // Re-export types for consumers
 export type { CacheItem, CacheStats };
 
-class ExtensionCacheManager {
+class CacheStorage {
   maxItems: number;
   dbName = 'MarkdownViewerCache';
   dbVersion = 1;
@@ -68,17 +67,6 @@ class ExtensionCacheManager {
       await this.initPromise;
     }
     return this.db!;
-  }
-
-  /**
-   * Calculate SHA256 hash of string
-   */
-  private async calculateHash(text: string): Promise<string> {
-    const encoder = new TextEncoder();
-    const data = encoder.encode(text);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
   }
 
   /**
@@ -169,28 +157,6 @@ class ExtensionCacheManager {
     } catch (error) {
       throw error;
     }
-  }
-
-  /**
-   * Generate cache key for content and type
-   * @param content - Content to cache
-   * @param type - Cache type identifier
-   * @param themeConfig - Optional theme configuration (fontFamily, fontSize, diagramStyle)
-   * @returns Cache key
-   */
-  async generateKey(content: string, type: string, themeConfig: RendererThemeConfig | null = null): Promise<string> {
-    let keyContent = content;
-    
-    // Include theme config in cache key if provided
-    if (themeConfig) {
-      const fontFamily = themeConfig.fontFamily || '';
-      const fontSize = themeConfig.fontSize || '';
-      const diagramStyle = themeConfig.diagramStyle || 'normal';
-      keyContent = `${content}_font:${fontFamily}_size:${fontSize}_style:${diagramStyle}`;
-    }
-    
-    const hash = await this.calculateHash(keyContent);
-    return `${hash}_${type}`;
   }
 
   /**
@@ -491,4 +457,4 @@ class ExtensionCacheManager {
   }
 }
 
-export default ExtensionCacheManager;
+export default CacheStorage;

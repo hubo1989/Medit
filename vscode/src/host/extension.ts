@@ -6,11 +6,11 @@
 
 import * as vscode from 'vscode';
 import { MarkdownPreviewPanel } from './preview-panel';
-import { ExtensionCacheService } from './cache-service';
+import { CacheStorage } from './cache-storage';
 import { registerNumberHeadingsCommand } from './markdown-tools';
 
 let outputChannel: vscode.OutputChannel;
-let cacheService: ExtensionCacheService;
+let cacheStorage: CacheStorage;
 let renderStatusBarItem: vscode.StatusBarItem;
 let renderStatusTimeout: ReturnType<typeof setTimeout> | null = null;
 
@@ -93,10 +93,10 @@ export function activate(context: vscode.ExtensionContext) {
   // Initialize preview panel with context for storage
   MarkdownPreviewPanel.initialize(context);
 
-  // Initialize cache service
-  cacheService = new ExtensionCacheService(context);
-  cacheService.init().catch(err => {
-    outputChannel.appendLine(`Cache service init error: ${err}`);
+  // Initialize cache storage
+  cacheStorage = new CacheStorage(context);
+  cacheStorage.init().catch(err => {
+    outputChannel.appendLine(`Cache storage init error: ${err}`);
   });
 
   // Create status bar item for render progress
@@ -129,7 +129,7 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand('markdownViewer.preview', () => {
       const editor = vscode.window.activeTextEditor;
       if (editor && isSupportedDocument(editor.document)) {
-        const panel = MarkdownPreviewPanel.createOrShow(context.extensionUri, editor.document, cacheService);
+        const panel = MarkdownPreviewPanel.createOrShow(context.extensionUri, editor.document, cacheStorage);
         panel.setRenderProgressCallback(updateRenderProgress);
         // Send initial scroll position from editor
         const initialLine = topmostLineMonitor.getLineForEditor(editor);
@@ -146,7 +146,7 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.registerCommand('markdownViewer.previewToSide', () => {
       const editor = vscode.window.activeTextEditor;
       if (editor && isSupportedDocument(editor.document)) {
-        const panel = MarkdownPreviewPanel.createOrShow(context.extensionUri, editor.document, cacheService, vscode.ViewColumn.Beside);
+        const panel = MarkdownPreviewPanel.createOrShow(context.extensionUri, editor.document, cacheStorage, vscode.ViewColumn.Beside);
         panel.setRenderProgressCallback(updateRenderProgress);
         // Send initial scroll position from editor
         const initialLine = topmostLineMonitor.getLineForEditor(editor);
@@ -209,7 +209,7 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   // Register Markdown tools
-  registerNumberHeadingsCommand(context, cacheService);
+  registerNumberHeadingsCommand(context, cacheStorage);
 
   // Auto-update preview on document change
   context.subscriptions.push(

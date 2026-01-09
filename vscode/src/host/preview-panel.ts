@@ -6,7 +6,7 @@
 
 import * as vscode from 'vscode';
 import * as path from 'path';
-import type { ExtensionCacheService } from './cache-service';
+import type { CacheStorage } from './cache-storage';
 import type { EmojiStyle } from '../../../src/types/docx.js';
 
 export class MarkdownPreviewPanel {
@@ -26,7 +26,7 @@ export class MarkdownPreviewPanel {
 
   private readonly _panel: vscode.WebviewPanel;
   private readonly _extensionUri: vscode.Uri;
-  private readonly _cacheService: ExtensionCacheService;
+  private readonly _cacheStorage: CacheStorage;
   private _document: vscode.TextDocument | undefined;
   private _disposables: vscode.Disposable[] = [];
   private _uploadSessions: Map<string, UploadSession> = new Map();
@@ -51,7 +51,7 @@ export class MarkdownPreviewPanel {
   public static createOrShow(
     extensionUri: vscode.Uri,
     document: vscode.TextDocument,
-    cacheService: ExtensionCacheService,
+    cacheStorage: CacheStorage,
     column?: vscode.ViewColumn
   ): MarkdownPreviewPanel {
     const targetColumn = column || vscode.ViewColumn.Beside;
@@ -94,7 +94,7 @@ export class MarkdownPreviewPanel {
       }
     );
 
-    MarkdownPreviewPanel.currentPanel = new MarkdownPreviewPanel(panel, extensionUri, document, cacheService);
+    MarkdownPreviewPanel.currentPanel = new MarkdownPreviewPanel(panel, extensionUri, document, cacheStorage);
     return MarkdownPreviewPanel.currentPanel;
   }
 
@@ -106,7 +106,7 @@ export class MarkdownPreviewPanel {
   public static createOrShowWithSettings(
     extensionUri: vscode.Uri,
     document: vscode.TextDocument,
-    cacheService: ExtensionCacheService,
+    cacheStorage: CacheStorage,
     column?: vscode.ViewColumn
   ): void {
     // If panel exists and webview is ready, just open settings
@@ -125,7 +125,7 @@ export class MarkdownPreviewPanel {
     }
 
     // Create new panel with flag set
-    const panel = MarkdownPreviewPanel.createOrShow(extensionUri, document, cacheService, column);
+    const panel = MarkdownPreviewPanel.createOrShow(extensionUri, document, cacheStorage, column);
     panel._openSettingsOnReady = true;
   }
 
@@ -133,12 +133,12 @@ export class MarkdownPreviewPanel {
     panel: vscode.WebviewPanel,
     extensionUri: vscode.Uri,
     document: vscode.TextDocument,
-    cacheService: ExtensionCacheService
+    cacheStorage: CacheStorage
   ) {
     this._panel = panel;
     this._extensionUri = extensionUri;
     this._document = document;
-    this._cacheService = cacheService;
+    this._cacheStorage = cacheStorage;
 
     // Set initial content
     this._update();
@@ -602,24 +602,24 @@ export class MarkdownPreviewPanel {
 
     switch (operation) {
       case 'get':
-        return key ? this._cacheService.get(key) : null;
+        return key ? this._cacheStorage.get(key) : null;
 
       case 'set':
         if (!key) return { success: false };
-        const setResult = await this._cacheService.set(key, value, dataType);
+        const setResult = await this._cacheStorage.set(key, value, dataType);
         return { success: setResult };
 
       case 'delete':
         if (!key) return { success: false };
-        const deleteResult = await this._cacheService.delete(key);
+        const deleteResult = await this._cacheStorage.delete(key);
         return { success: deleteResult };
 
       case 'clear':
-        const clearResult = await this._cacheService.clear();
+        const clearResult = await this._cacheStorage.clear();
         return { success: clearResult };
 
       case 'getStats':
-        return this._cacheService.getStats();
+        return this._cacheStorage.getStats();
 
       default:
         return null;

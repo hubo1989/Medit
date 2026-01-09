@@ -1,8 +1,8 @@
 /**
- * VSCode Extension Host Cache Service
+ * VSCode Extension Host Cache Storage
  * 
  * File system based persistent cache using globalStorageUri.
- * Architecture inspired by Chrome extension's IndexedDB cache (cache-manager.ts).
+ * Architecture inspired by Chrome extension's IndexedDB cache (cache-storage.ts).
  */
 
 import * as vscode from 'vscode';
@@ -58,9 +58,9 @@ const CACHE_DIR_NAME = 'render-cache';
 const INDEX_FILE_NAME = 'index.json';
 
 /**
- * File system based cache service for VSCode extension
+ * File system based cache storage for VSCode extension
  */
-export class ExtensionCacheService {
+export class CacheStorage {
   private storageUri: vscode.Uri | undefined;
   private cacheUri: vscode.Uri | undefined;
   private indexUri: vscode.Uri | undefined;

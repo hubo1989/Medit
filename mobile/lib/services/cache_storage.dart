@@ -82,9 +82,9 @@ class CacheStats {
   }
 }
 
-/// Cache service using file system storage
+/// Cache storage using file system
 /// Implements LRU eviction strategy similar to Chrome extension
-class CacheService {
+class CacheStorage {
   static const String _cacheDir = 'render_cache';
   static const String _indexFile = 'cache_index.json';
 
@@ -97,7 +97,7 @@ class CacheService {
   bool _cleanupInProgress = false;
   bool _cleanupScheduled = false;
 
-  CacheService({this.maxItems = 500});
+  CacheStorage({this.maxItems = 500});
 
   /// Initialize cache service
   Future<void> init() async {
@@ -391,5 +391,5 @@ class CacheService {
   }
 }
 
-/// Global cache service instance
-final cacheService = CacheService();
+/// Global cache storage instance
+final cacheStorage = CacheStorage();
