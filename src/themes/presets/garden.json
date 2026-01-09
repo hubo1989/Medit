@@ -18,5 +18,6 @@
   "layoutScheme": "student",
   "colorScheme": "garden",
   "tableStyle": "minimal-gray",
-  "codeTheme": "light-clean"
+  "codeTheme": "light-clean",
+  "diagramStyle": "handDrawn"
 }
