@@ -134,6 +134,51 @@
         "ascii": "Lucida Sans Unicode",
         "eastAsia": "SimHei"
       }
+    },
+    "Palatino Linotype": {
+      "name": "Palatino Linotype",
+      "displayName": "Palatino Linotype",
+      "webFallback": "'Palatino Linotype', Palatino, 'Book Antiqua', Georgia, 'Times New Roman', serif, SimSun, STSong",
+      "docx": {
+        "ascii": "Palatino Linotype",
+        "eastAsia": "SimSun"
+      }
+    },
+    "Consolas": {
+      "name": "Consolas",
+      "displayName": "Consolas",
+      "webFallback": "Consolas, Monaco, 'Courier New', monospace, FangSong, STFangsong",
+      "docx": {
+        "ascii": "Consolas",
+        "eastAsia": "FangSong"
+      }
+    },
+    "Garamond": {
+      "name": "Garamond",
+      "displayName": "Garamond",
+      "webFallback": "Garamond, 'Times New Roman', Georgia, serif, SimSun, STSong",
+      "docx": {
+        "ascii": "Garamond",
+        "eastAsia": "SimSun"
+      }
+    },
+    "Helvetica Neue": {
+      "name": "Helvetica Neue",
+      "displayName": "Helvetica Neue",
+      "webFallback": "'Helvetica Neue', Helvetica, Arial, sans-serif, SimHei, STHeiti",
+      "docx": {
+        "ascii": "Arial",
+        "eastAsia": "SimHei"
+      }
+    },
+    "Century Gothic": {
+      "name": "Century Gothic",
+      "displayName": "Century Gothic",
+      "webFallback": "'Century Gothic', 'Apple Gothic', Arial, sans-serif, SimHei, STHeiti",
+      "docx": {
+        "ascii": "Century Gothic",
+        "eastAsia": "SimHei"
+      }
     }
   }
 }
