@@ -10,6 +10,7 @@ import { HtmlRenderer } from './html-renderer';
 import { SvgRenderer } from './svg-renderer';
 import { DotRenderer } from './dot-renderer';
 import { InfographicRenderer } from './infographic-renderer';
+import { JsonCanvasRenderer } from './canvas-renderer';
 import type { BaseRenderer } from './base-renderer';
 
 // Export renderer instances array
@@ -20,5 +21,6 @@ export const renderers: BaseRenderer[] = [
   new HtmlRenderer(),
   new SvgRenderer(),
   new DotRenderer(),
-  new InfographicRenderer()
+  new InfographicRenderer(),
+  new JsonCanvasRenderer()
 ];

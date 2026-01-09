@@ -16,9 +16,10 @@
 8. **Vega-Lite 图表** - [完整演示](./vega-demo.md)
 9. **DOT 图表** - [完整演示](./dot-demo.md)
 10. **Infographic 图表** - [完整演示](./infographic-demo.md)
-11. **HTML 混合** - [完整演示](./html-demo.md)
-12. **Emoji 短代码** - [完整演示](./emoji-demo.md)
-13. **边界测试** - 错误处理、极端情况
+11. **Canvas 画布** - [完整演示](./canvas-demo.md)
+12. **HTML 混合** - [完整演示](./html-demo.md)
+13. **Emoji 短代码** - [完整演示](./emoji-demo.md)
+14. **边界测试** - 错误处理、极端情况
 
 ---
 
@@ -594,42 +595,85 @@ data
 
 ---
 
-## 12. 图片处理
+## 12. Canvas 画布
 
-### 12.1 SVG 文件测试
+> 📖 完整演示请查看 [Canvas 画布完整演示](./canvas-demo.md)
+
+### 12.1 简单流程
+
+```canvas
+{
+  "nodes": [
+    {"id": "a", "type": "text", "text": "需求", "x": 0, "y": 0, "width": 80, "height": 50, "color": "5"},
+    {"id": "b", "type": "text", "text": "开发", "x": 120, "y": 0, "width": 80, "height": 50, "color": "4"},
+    {"id": "c", "type": "text", "text": "测试", "x": 240, "y": 0, "width": 80, "height": 50, "color": "3"},
+    {"id": "d", "type": "text", "text": "发布", "x": 360, "y": 0, "width": 80, "height": 50, "color": "6"}
+  ],
+  "edges": [
+    {"id": "e1", "fromNode": "a", "fromSide": "right", "toNode": "b", "toSide": "left"},
+    {"id": "e2", "fromNode": "b", "fromSide": "right", "toNode": "c", "toSide": "left"},
+    {"id": "e3", "fromNode": "c", "fromSide": "right", "toNode": "d", "toSide": "left"}
+  ]
+}
+```
+
+### 12.2 带分组的画布
+
+```canvas
+{
+  "nodes": [
+    {"id": "g1", "type": "group", "label": "前端", "x": -10, "y": -10, "width": 220, "height": 80, "color": "4"},
+    {"id": "n1", "type": "text", "text": "React", "x": 0, "y": 10, "width": 80, "height": 40, "color": "4"},
+    {"id": "n2", "type": "text", "text": "Vue", "x": 100, "y": 10, "width": 80, "height": 40, "color": "4"},
+    {"id": "g2", "type": "group", "label": "后端", "x": -10, "y": 100, "width": 220, "height": 80, "color": "6"},
+    {"id": "n3", "type": "text", "text": "Node.js", "x": 0, "y": 120, "width": 80, "height": 40, "color": "6"},
+    {"id": "n4", "type": "text", "text": "Python", "x": 100, "y": 120, "width": 80, "height": 40, "color": "6"}
+  ],
+  "edges": [
+    {"id": "e1", "fromNode": "n1", "fromSide": "bottom", "toNode": "n3", "toSide": "top"},
+    {"id": "e2", "fromNode": "n2", "fromSide": "bottom", "toNode": "n4", "toSide": "top"}
+  ]
+}
+```
+
+---
+
+## 14. 图片处理
+
+### 14.1 SVG 文件测试
 
 **本地 SVG 文件：**
 ![Basic SVG](./test.svg)
 
-### 12.2 Data URL SVG 测试
+### 14.2 Data URL SVG 测试
 
 **Base64 编码格式：**
 ![Simple Shapes](data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB4PSIxMCIgeT0iMTAiIHdpZHRoPSI4MCIgaGVpZ2h0PSI0MCIgZmlsbD0iIzMzNzNkYyIgcng9IjUiLz4KICA8Y2lyY2xlIGN4PSIxNTAiIGN5PSIzMCIgcj0iMjAiIGZpbGw9IiNlZjQ0NDQiLz4KICA8dGV4dCB4PSIxMCIgeT0iODAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzM3NDE1MSI+RGF0YSBVUkwgU1ZHPC90ZXh0Pgo8L3N2Zz4=)
 
 ---
 
-## 13. 边界测试
+## 15. 边界测试
 
-### 13.1 错误的 Mermaid 语法
+### 15.1 错误的 Mermaid 语法
 
 ```mermaid
 invalid syntax here
 this should show an error message
 ```
 
-### 13.2 错误的数学公式
+### 15.2 错误的数学公式
 
 $$
 \invalid{command}
 \undefined{function}
 $$
 
-### 13.3 空代码块
+### 15.3 空代码块
 
 ```javascript
 ```
 
-### 13.4 极端情况
+### 15.4 极端情况
 
 **超长文本行：**
 这是一个非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常长的文本行，用于测试文本的自动换行和布局处理能力。
