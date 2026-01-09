@@ -30,7 +30,7 @@
     "Monaco": {
       "name": "Monaco",
       "displayName": "Monaco",
-      "webFallback": "Monaco, 'Courier New', monospace",
+      "webFallback": "Monaco, 'Courier New', monospace, FangSong, STFangsong, 'Zhuque Fangsong'",
       "docx": {
         "ascii": "Consolas",
         "eastAsia": "FangSong"
@@ -39,7 +39,7 @@
     "Courier New": {
       "name": "Courier New",
       "displayName": "Courier New",
-      "webFallback": "'Courier New', Courier, Monaco, FangSong, STFangsong, monospace",
+      "webFallback": "'Courier New', Courier, Monaco, FangSong, STFangsong, 'Zhuque Fangsong', monospace",
       "docx": {
         "ascii": "Courier New",
         "eastAsia": "FangSong"
@@ -66,7 +66,7 @@
     "FangSong": {
       "name": "FangSong",
       "displayName": "仿宋 (FangSong)",
-      "webFallback": "Georgia, 'Times New Roman', serif, FangSong, STFangsong",
+      "webFallback": "FangSong, STFangsong, 'Zhuque Fangsong', Georgia, 'Times New Roman', serif",
       "docx": {
         "ascii": "Georgia",
         "eastAsia": "FangSong"
@@ -111,10 +111,10 @@
     "Comic Sans MS": {
       "name": "Comic Sans MS",
       "displayName": "Comic Sans MS",
-      "webFallback": "'Comic Sans MS', 'Marker Felt', cursive, KaiTi, STKaiti",
+      "webFallback": "'Comic Sans MS', 'Comic Neue', 'Marker Felt', FangSong, STFangsong, 'Zhuque Fangsong'",
       "docx": {
         "ascii": "Comic Sans MS",
-        "eastAsia": "KaiTi"
+        "eastAsia": "FangSong"
       }
     },
     "Impact": {
@@ -147,7 +147,7 @@
     "Consolas": {
       "name": "Consolas",
       "displayName": "Consolas",
-      "webFallback": "Consolas, Monaco, 'Courier New', monospace, FangSong, STFangsong",
+      "webFallback": "Consolas, Monaco, 'Courier New', monospace, FangSong, STFangsong, 'Zhuque Fangsong'",
       "docx": {
         "ascii": "Consolas",
         "eastAsia": "FangSong"

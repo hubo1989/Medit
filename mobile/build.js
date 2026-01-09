@@ -51,6 +51,17 @@ async function checkMissingKeys() {
 }
 
 /**
+ * Download custom fonts if not present
+ */
+async function downloadFonts() {
+  try {
+    await import('../scripts/download-fonts.js');
+  } catch (error) {
+    console.error('⚠️  Warning: Failed to download fonts:', error.message);
+  }
+}
+
+/**
  * Copy directory recursively
  */
 function copyDirectory(sourceDir, targetDir) {
@@ -162,7 +173,7 @@ async function buildIframeRenderWorkerBundle() {
 
 /**
  * Build styles - all CSS bundled into one file
- * Includes: app styles, katex, highlight.js
+ * Includes: app styles, katex, highlight.js, custom Chinese fonts
  */
 async function buildStyles() {
   console.log('📦 Building styles...');
@@ -172,7 +183,8 @@ async function buildStyles() {
   const cssImports = [
     '@import "./src/ui/styles.css";',
     '@import "./node_modules/katex/dist/katex.min.css";',
-    '@import "./node_modules/highlight.js/styles/github.css";'
+    '@import "./node_modules/highlight.js/styles/github.css";',
+    '@import "./mobile/mobile-fonts.css";'
   ].join('\n');
   
   fs.writeFileSync(combinedCssPath, cssImports);
@@ -183,11 +195,10 @@ async function buildStyles() {
     outfile: `${DIST_DIR}/styles.css`,
     loader: {
       '.css': 'css',
-      '.woff': 'dataurl',
-      '.woff2': 'dataurl',
-      '.ttf': 'dataurl',
-      '.eot': 'dataurl'
+      '.eot': 'dataurl'  // KaTeX fonts (small)
     },
+    // Keep font URLs as-is, files are copied separately
+    external: ['*.woff', '*.woff2', '*.ttf'],
     minify: true
   });
 
@@ -251,7 +262,26 @@ function copyResources() {
         );
       }
     }
-    console.log('  • fonts');
+    console.log('  • fonts (KaTeX)');
+  }
+
+  // Copy custom Chinese fonts (Zhuque Fangsong for FangSong fallback)
+  const customFontsDir = 'src/fonts';
+  if (fs.existsSync(customFontsDir)) {
+    const fontsDestDir = `${DIST_DIR}/fonts`;
+    if (!fs.existsSync(fontsDestDir)) {
+      fs.mkdirSync(fontsDestDir, { recursive: true });
+    }
+    const fontFiles = fs.readdirSync(customFontsDir);
+    for (const file of fontFiles) {
+      if (file.endsWith('.woff2') || file.endsWith('.ttf')) {
+        fs.copyFileSync(
+          path.join(customFontsDir, file),
+          path.join(fontsDestDir, file)
+        );
+      }
+    }
+    console.log('  • fonts (custom Chinese)');
   }
 
   console.log('✅ Resources copied');
@@ -270,6 +300,9 @@ async function main() {
 
   // Check translations
   await checkMissingKeys();
+
+  // Download fonts if needed
+  await downloadFonts();
 
   // Clean build/mobile
   if (fs.existsSync(DIST_DIR)) {

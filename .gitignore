@@ -67,3 +67,8 @@ app.*.symbols
 
 # Obfuscation related
 app.*.map.json
+
+# Large font files (downloaded on demand)
+src/fonts/*.woff2
+src/fonts/*.ttf
+!src/fonts/.gitkeep

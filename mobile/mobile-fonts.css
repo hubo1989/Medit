@@ -1,0 +1,17 @@
+/* Custom Chinese fonts for mobile (bundled in app) */
+@font-face {
+  font-family: 'Zhuque Fangsong';
+  src: url('./fonts/ZhuqueFangsong-Regular.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Comic Neue - Comic Sans MS alternative for mobile (OFL licensed) */
+@font-face {
+  font-family: 'Comic Neue';
+  src: url('./fonts/ComicNeue-Regular.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}

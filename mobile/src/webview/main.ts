@@ -204,11 +204,6 @@ async function handleLoadMarkdown(payload: LoadMarkdownPayload): Promise<void> {
     currentTaskManager.abort();
     currentTaskManager = null;
   }
-  
-  // Set target scroll line immediately - MutationObserver will auto-reposition when DOM changes
-  if (scrollSyncController) {
-    scrollSyncController.setTargetLine(scrollLine ?? 0);
-  }
 
   currentMarkdown = content;
   currentFilename = newFilename;
@@ -233,6 +228,13 @@ async function handleLoadMarkdown(payload: LoadMarkdownPayload): Promise<void> {
     if (container) {
       // Clear container FIRST, then apply theme (avoids flicker from old content with new style)
       container.innerHTML = '';
+
+      // Reset scroll controller AFTER clearing container
+      // This prevents scroll events from updating targetLine with stale DOM data
+      if (scrollSyncController) {
+        scrollSyncController.reset();
+        scrollSyncController.setTargetLine(scrollLine ?? 0);
+      }
 
       // Load and apply theme using shared function (all theme logic is handled internally)
       await loadAndApplyTheme(currentThemeId);
