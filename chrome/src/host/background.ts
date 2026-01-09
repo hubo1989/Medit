@@ -359,7 +359,10 @@ function handleDocxDownloadFinalizeEnvelope(
     }
 
     const { metadata = {}, data = '' } = session;
-    const filename = (metadata.filename as string) || 'document.docx';
+    // Chrome downloads API doesn't allow certain characters in filename (e.g., quotes)
+    // even with saveAs:true, so we need to sanitize it
+    const rawFilename = (metadata.filename as string) || 'document.docx';
+    const filename = rawFilename.replace(/["']/g, '_') || 'document.docx';
     const mimeType = (metadata.mimeType as string) || 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
 
     const dataUrl = `data:${mimeType};base64,${data}`;
