@@ -18,5 +18,6 @@
   "layoutScheme": "student",
   "colorScheme": "candy",
   "tableStyle": "zebra",
-  "codeTheme": "colorful"
+  "codeTheme": "colorful",
+  "diagramStyle": "handDrawn"
 }

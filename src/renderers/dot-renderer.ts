@@ -1,14 +1,19 @@
 /**
  * DOT Renderer
  * 
- * Renders Graphviz DOT diagrams to PNG images
+ * Renders Graphviz DOT diagrams to PNG images with hand-drawn style
  */
 import { BaseRenderer } from './base-renderer';
 import { instance } from '@viz-js/viz';
+import { applyRoughEffect, type RoughSvgOptions } from './libs/rough-svg';
 import type { RendererThemeConfig, RenderResult } from '../types/index';
 
 export class DotRenderer extends BaseRenderer {
   private viz: Awaited<ReturnType<typeof instance>> | null = null;
+  private roughOptions: RoughSvgOptions = {
+    roughness: 0.5,
+    bowing: 0.5,
+  };
 
   constructor() {
     super('dot');
@@ -59,7 +64,13 @@ export class DotRenderer extends BaseRenderer {
     }
 
     // Get SVG as string
-    const svgString = new XMLSerializer().serializeToString(svg);
+    let svgString = new XMLSerializer().serializeToString(svg);
+
+    // Apply rough.js hand-drawn effect if enabled
+    const isHandDrawn = themeConfig?.diagramStyle === 'handDrawn';
+    if (isHandDrawn) {
+      svgString = applyRoughEffect(svgString, this.roughOptions);
+    }
 
     // Calculate scale for PNG dimensions
     const scale = this.calculateCanvasScale(themeConfig);

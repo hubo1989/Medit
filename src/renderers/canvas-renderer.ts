@@ -6,6 +6,7 @@
  */
 import { BaseRenderer } from './base-renderer';
 import JSONCanvas from '@trbn/jsoncanvas';
+import { applyRoughEffect, type RoughSvgOptions } from './libs/rough-svg';
 import type { RendererThemeConfig, RenderResult } from '../types/index';
 
 // Color presets - softer Obsidian-style colors
@@ -46,6 +47,11 @@ interface CanvasBounds {
 }
 
 export class JsonCanvasRenderer extends BaseRenderer {
+  private roughOptions: RoughSvgOptions = {
+    roughness: 0.5,
+    bowing: 0.5,
+  };
+
   constructor() {
     super('canvas');
   }
@@ -427,9 +433,6 @@ export class JsonCanvasRenderer extends BaseRenderer {
     }
     svg += '</defs>';
     
-    // Background
-    svg += `<rect width="100%" height="100%" fill="white"/>`;
-    
     // Render edges first (below nodes)
     for (const edge of edges) {
       svg += this.renderEdge(edge, nodeMap, bounds.offsetX, bounds.offsetY, fontFamily);
@@ -488,7 +491,13 @@ export class JsonCanvasRenderer extends BaseRenderer {
     const fontFamily = themeConfig?.fontFamily || "'SimSun', 'Times New Roman', Times, serif";
 
     // Generate SVG
-    const svgContent = this.generateSvg(canvas, fontFamily);
+    let svgContent = this.generateSvg(canvas, fontFamily);
+
+    // Apply rough.js hand-drawn effect if enabled
+    const isHandDrawn = themeConfig?.diagramStyle === 'handDrawn';
+    if (isHandDrawn) {
+      svgContent = applyRoughEffect(svgContent, this.roughOptions);
+    }
 
     // Parse SVG to get dimensions
     const parser = new DOMParser();

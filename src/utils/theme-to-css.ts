@@ -61,6 +61,8 @@ export interface ThemeConfig {
   colorScheme: string;     // reference to color-schemes/
   tableStyle: string;
   codeTheme: string;
+  /** Diagram rendering style: 'normal' or 'handDrawn' (default: 'handDrawn') */
+  diagramStyle?: 'normal' | 'handDrawn';
 }
 
 /**
@@ -641,7 +643,8 @@ export async function loadAndApplyTheme(themeId: string): Promise<void> {
     // Set renderer theme config for diagrams (Mermaid, Graphviz, etc.)
     const fontFamily = themeManager.buildFontFamily(theme.fontScheme.body.fontFamily);
     const fontSize = parseFloat(layoutScheme.body.fontSize);
-    platform.renderer.setThemeConfig({ fontFamily, fontSize });
+    const diagramStyle = theme.diagramStyle || 'normal';
+    platform.renderer.setThemeConfig({ fontFamily, fontSize, diagramStyle });
   } catch (error) {
     console.error('[Theme] Error loading theme:', error);
     throw error;

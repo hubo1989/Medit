@@ -6,6 +6,7 @@
  */
 import { BaseRenderer } from './base-renderer';
 import type { RendererThemeConfig, RenderResult } from '../types/index';
+import { applyRoughEffect, type RoughSvgOptions } from './libs/rough-svg';
 
 // Get mermaid from global scope (loaded by lib-mermaid.ts)
 type MermaidAPI = {
@@ -22,6 +23,11 @@ function getMermaid(): MermaidAPI {
 }
 
 export class MermaidRenderer extends BaseRenderer {
+  private roughOptions: RoughSvgOptions = {
+    roughness: 0.5,
+    bowing: 0.5,
+  };
+
   constructor() {
     super('mermaid');
   }
@@ -44,10 +50,13 @@ export class MermaidRenderer extends BaseRenderer {
   applyThemeConfig(themeConfig: RendererThemeConfig | null = null): void {
     // Use theme font or fallback to default
     const fontFamily = themeConfig?.fontFamily || "'SimSun', 'Times New Roman', Times, serif";
+    // Use hand-drawn style only if explicitly set
+    const isHandDrawn = themeConfig?.diagramStyle === 'handDrawn';
 
     getMermaid().initialize({
       startOnLoad: false,
       securityLevel: 'loose',
+      look: isHandDrawn ? 'handDrawn' : 'classic',
       themeVariables: {
         fontFamily: fontFamily,
         background: 'transparent'
@@ -60,6 +69,16 @@ export class MermaidRenderer extends BaseRenderer {
   }
 
   /**
+   * Check if the code is a sequence diagram
+   * @param code - Mermaid diagram code
+   * @returns true if the code is a sequence diagram
+   */
+  private isSequenceDiagram(code: string): boolean {
+    const trimmed = code.trim().toLowerCase();
+    return trimmed.startsWith('sequencediagram');
+  }
+
+  /**
    * Preprocess Mermaid code to convert \n to <br> for line breaks
    * @param code - Mermaid diagram code
    * @returns Preprocessed code with \n replaced by <br>
@@ -68,6 +87,18 @@ export class MermaidRenderer extends BaseRenderer {
     // Globally replace literal \n with <br> for line breaks in labels
     // This is safe because actual newlines are real line breaks, not \n literals
     return code.replace(/\\n/g, '<br>');
+  }
+
+  /**
+   * Apply rough.js hand-drawn effect to SVG
+   * @param svgString - Original SVG string
+   * @param themeConfig - Theme configuration
+   * @returns SVG with hand-drawn effect
+   */
+  private applyRoughEffectToSvg(svgString: string, themeConfig: RendererThemeConfig | null): string {
+    const isHandDrawn = themeConfig?.diagramStyle === 'handDrawn';
+    if (!isHandDrawn) return svgString;
+    return applyRoughEffect(svgString, this.roughOptions);
   }
 
   /**
@@ -151,8 +182,12 @@ export class MermaidRenderer extends BaseRenderer {
     // Calculate scale for PNG dimensions
     const scale = this.calculateCanvasScale(themeConfig);
 
+    // Apply rough.js hand-drawn effect only for sequence diagrams
+    // (Mermaid's native handDrawn doesn't support sequence diagrams well)
+    const processedSvg = this.isSequenceDiagram(code) ? this.applyRoughEffectToSvg(svg, themeConfig) : svg;
+
     // Render SVG to canvas as PNG
-    const canvas = await this.renderSvgToCanvas(svg, captureWidth * scale, captureHeight * scale, fontFamily);
+    const canvas = await this.renderSvgToCanvas(processedSvg, captureWidth * scale, captureHeight * scale, fontFamily);
 
     const pngDataUrl = canvas.toDataURL('image/png', 1.0);
     const base64Data = pngDataUrl.replace(/^data:image\/png;base64,/, '');

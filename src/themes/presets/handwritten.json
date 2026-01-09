@@ -18,5 +18,6 @@
   "layoutScheme": "book",
   "colorScheme": "warm",
   "tableStyle": "borderless",
-  "codeTheme": "warm-book"
+  "codeTheme": "warm-book",
+  "diagramStyle": "handDrawn"
 }

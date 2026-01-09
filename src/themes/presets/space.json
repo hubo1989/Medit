@@ -18,5 +18,6 @@
   "layoutScheme": "student",
   "colorScheme": "space",
   "tableStyle": "modern-tech",
-  "codeTheme": "cool-modern"
+  "codeTheme": "cool-modern",
+  "diagramStyle": "handDrawn"
 }

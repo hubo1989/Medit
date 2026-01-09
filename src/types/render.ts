@@ -70,4 +70,6 @@ export interface RendererThemeConfig {
   fontSize?: number;
   background?: string;
   foreground?: string;
+  /** Diagram rendering style: 'normal' or 'handDrawn' */
+  diagramStyle?: 'normal' | 'handDrawn';
 }
