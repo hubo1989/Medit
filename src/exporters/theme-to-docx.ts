@@ -44,7 +44,11 @@ interface FontScheme {
   body: {
     fontFamily: string;
   };
-  headings: Record<string, HeadingConfig>;
+  headings: {
+    fontFamily: string;
+    fontWeight?: string;
+    [key: string]: string | HeadingConfig | undefined;
+  };
   code: {
     fontFamily: string;
   };

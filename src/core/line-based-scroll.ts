@@ -179,15 +179,36 @@ export function scrollToLine(
 }
 
 /**
+ * Scroll state constants
+ * @see line-based-scroll.md for state machine design
+ */
+export type ScrollStateType = 'INITIAL' | 'RESTORING' | 'TRACKING' | 'LOCKED';
+
+export const ScrollState: Record<ScrollStateType, ScrollStateType> = {
+  /** Initial state - waiting for setTargetLine */
+  INITIAL: 'INITIAL',
+  /** Restoring state - waiting for DOM to be tall enough to jump */
+  RESTORING: 'RESTORING',
+  /** Tracking state - responding to user scroll, updating targetLine */
+  TRACKING: 'TRACKING',
+  /** Locked state - during programmatic scroll */
+  LOCKED: 'LOCKED',
+};
+
+/**
  * Scroll sync controller interface
  */
 export interface ScrollSyncController {
-  /** Set target line from source (e.g., editor) */
+  /** Set target line from source (e.g., editor or restore) */
   setTargetLine(line: number): void;
   /** Get current scroll position as line number */
   getCurrentLine(): number | null;
-  /** Reset target line to 0 (call when document changes) */
-  resetTargetLine(): void;
+  /** Notify that streaming has completed */
+  onStreamingComplete(): void;
+  /** Reset to initial state (call when document changes) */
+  reset(): void;
+  /** Get current state (for testing/debugging) */
+  getState(): ScrollStateType;
   /** Start the controller */
   start(): void;
   /** Stop and cleanup */
@@ -208,10 +229,20 @@ export interface ScrollSyncControllerOptions {
   onUserScroll?: (line: number) => void;
   /** Debounce time for user scroll callback (ms) */
   userScrollDebounceMs?: number;
+  /** Lock duration after programmatic scroll (ms) */
+  lockDurationMs?: number;
 }
 
 /**
  * Create a scroll sync controller
+ * 
+ * State machine:
+ * - INITIAL: waiting for setTargetLine
+ * - RESTORING: waiting for DOM to be tall enough
+ * - TRACKING: tracking user scroll
+ * - LOCKED: during programmatic scroll
+ * 
+ * @see line-based-scroll.md for detailed design
  */
 export function createScrollSyncController(options: ScrollSyncControllerOptions): ScrollSyncController {
   const {
@@ -220,13 +251,15 @@ export function createScrollSyncController(options: ScrollSyncControllerOptions)
     useWindowScroll = false,
     onUserScroll,
     userScrollDebounceMs = 50,
+    lockDurationMs = 100,
   } = options;
 
+  // State variables
+  let state: ScrollStateType = ScrollState.INITIAL;
   let targetLine: number = 0;
-  let lastProgrammaticScrollTime = 0;  // Timestamp of last programmatic scroll
-  const SCROLL_LOCK_DURATION = 50;     // Ignore scroll events for 50ms after programmatic scroll
-  let userScrollDebounceTimer: ReturnType<typeof setTimeout> | null = null;
   let lastContentHeight = 0;
+  let lockTimer: ReturnType<typeof setTimeout> | null = null;
+  let userScrollDebounceTimer: ReturnType<typeof setTimeout> | null = null;
   let resizeObserver: ResizeObserver | null = null;
   let mutationObserver: MutationObserver | null = null;
   let disposed = false;
@@ -241,36 +274,108 @@ export function createScrollSyncController(options: ScrollSyncControllerOptions)
   };
 
   /**
-   * Perform programmatic scroll and mark timestamp
+   * Get scroll position for target line
+   * Returns null if block doesn't exist or not yet laid out (height = 0)
+   */
+  const getScrollPositionForLine = (line: number): number | null => {
+    if (line <= 0) return 0;
+    
+    const lineMapper = getLineMapper();
+    if (!lineMapper) return null;
+    
+    const pos = lineMapper.getBlockPositionFromLine(line);
+    if (!pos) return null;
+    
+    const block = container.querySelector<HTMLElement>(`[data-block-id="${pos.blockId}"]`);
+    if (!block) return null;
+    
+    const rect = block.getBoundingClientRect();
+    
+    // Block exists but not yet laid out (height = 0)
+    // This can happen when DOM element is added but layout hasn't completed
+    if (rect.height <= 0) return null;
+    
+    let currentScroll: number;
+    let viewportTop: number;
+    
+    if (useWindowScroll) {
+      currentScroll = window.scrollY || window.pageYOffset || 0;
+      viewportTop = 0;
+    } else {
+      currentScroll = container.scrollTop;
+      viewportTop = container.getBoundingClientRect().top;
+    }
+    
+    const blockTop = useWindowScroll 
+      ? rect.top + currentScroll 
+      : rect.top - viewportTop + currentScroll;
+    const blockHeight = rect.height;
+    
+    return blockTop + pos.progress * blockHeight;
+  };
+
+  /**
+   * Get viewport height
+   */
+  const getViewportHeight = (): number => {
+    return useWindowScroll ? window.innerHeight : container.clientHeight;
+  };
+
+  /**
+   * Check if we can scroll to target position
+   * Condition: target block exists (position can be calculated)
+   * Browser will clamp scroll position to valid range automatically
+   */
+  const canScrollToTarget = (): boolean => {
+    const targetPos = getScrollPositionForLine(targetLine);
+    return targetPos !== null;
+  };
+
+  /**
+   * Perform scroll to target line
    */
   const doScroll = (line: number): void => {
-    lastProgrammaticScrollTime = Date.now();
     scrollToLine(line, getLineMapper(), scrollOptions);
   };
 
   /**
-   * Handle scroll event - skip if within lock duration after programmatic scroll
+   * Enter LOCKED state with timer
    */
-  const handleScroll = (): void => {
-    if (disposed) return;
+  const enterLocked = (): void => {
+    state = ScrollState.LOCKED;
+    if (lockTimer) clearTimeout(lockTimer);
+    lockTimer = setTimeout(() => {
+      if (!disposed && state === ScrollState.LOCKED) {
+        state = ScrollState.TRACKING;
+      }
+    }, lockDurationMs);
+  };
 
+  /**
+   * Update targetLine from current scroll position
+   */
+  const updateTargetLineFromScroll = (): void => {
     const currentLine = getLineForScrollPosition(getLineMapper(), scrollOptions);
-
-    // During lock duration after programmatic scroll, ignore scroll events entirely
-    if (Date.now() - lastProgrammaticScrollTime < SCROLL_LOCK_DURATION) {
-      return;
-    }
-
-    // After lock expires, update targetLine to track current position
     if (currentLine !== null && !isNaN(currentLine)) {
       targetLine = currentLine;
     }
+  };
 
-    // User-initiated scroll - report position for reverse sync
+  /**
+   * Report user scroll position (debounced)
+   */
+  const reportUserScroll = (): void => {
     if (!onUserScroll) return;
-
-    if (currentLine !== null && !isNaN(currentLine)) {
-      if (userScrollDebounceTimer) clearTimeout(userScrollDebounceTimer);
+    
+    const currentLine = getLineForScrollPosition(getLineMapper(), scrollOptions);
+    if (currentLine === null || isNaN(currentLine)) return;
+    
+    if (userScrollDebounceTimer) clearTimeout(userScrollDebounceTimer);
+    
+    if (userScrollDebounceMs <= 0) {
+      // No debounce - call immediately
+      onUserScroll(currentLine);
+    } else {
       userScrollDebounceTimer = setTimeout(() => {
         if (!disposed) {
           onUserScroll(currentLine);
@@ -279,40 +384,111 @@ export function createScrollSyncController(options: ScrollSyncControllerOptions)
     }
   };
 
-  const checkAndReposition = (): void => {
+  /**
+   * Handle scroll event based on current state
+   */
+  const handleScroll = (): void => {
+    if (disposed) return;
+
+    switch (state) {
+      case ScrollState.INITIAL:
+      case ScrollState.RESTORING:
+        // Ignore scroll events in INITIAL and RESTORING states
+        // RESTORING: scroll events are caused by DOM changes, not user interaction
+        break;
+
+      case ScrollState.TRACKING:
+        // Update targetLine and report
+        updateTargetLineFromScroll();
+        reportUserScroll();
+        break;
+
+      case ScrollState.LOCKED:
+        // Update targetLine but don't report
+        updateTargetLineFromScroll();
+        break;
+    }
+  };
+
+  /**
+   * Handle DOM content change based on current state
+   */
+  const handleContentChange = (): void => {
     if (disposed) return;
 
     const currentHeight = container.scrollHeight;
-    if (currentHeight !== lastContentHeight) {
-      lastContentHeight = currentHeight;
-      // Only lock scroll events when we actually perform a programmatic scroll
-      lastProgrammaticScrollTime = Date.now();
-      doScroll(targetLine);
+    if (currentHeight === lastContentHeight) return;
+    lastContentHeight = currentHeight;
+
+    switch (state) {
+      case ScrollState.INITIAL:
+        // Ignore DOM changes in INITIAL state
+        break;
+
+      case ScrollState.RESTORING:
+        // Check if we can jump now
+        if (canScrollToTarget()) {
+          doScroll(targetLine);
+          enterLocked();
+        }
+        // Otherwise stay in RESTORING
+        break;
+
+      case ScrollState.TRACKING:
+        // Maintain position
+        doScroll(targetLine);
+        enterLocked();
+        break;
+
+      case ScrollState.LOCKED:
+        // Re-scroll and reset timer
+        doScroll(targetLine);
+        enterLocked();
+        break;
+    }
+  };
+
+  /**
+   * Handle viewport resize (window/container size change)
+   * Re-scroll to maintain reading position during resize
+   */
+  const handleResize = (): void => {
+    if (disposed) return;
+
+    // Update lastContentHeight in case it changed
+    lastContentHeight = container.scrollHeight;
+
+    switch (state) {
+      case ScrollState.INITIAL:
+      case ScrollState.RESTORING:
+        // Don't interfere during initial load
+        break;
+
+      case ScrollState.TRACKING:
+      case ScrollState.LOCKED:
+        // Maintain position on resize
+        doScroll(targetLine);
+        enterLocked();
+        break;
     }
   };
 
   const setupListeners = (): void => {
     const target = getScrollTarget();
 
-    // Listen to all scroll events
     target.addEventListener('scroll', handleScroll, { passive: true });
 
+    // ResizeObserver for viewport resize (width change causes text reflow)
     if (typeof ResizeObserver !== 'undefined') {
       resizeObserver = new ResizeObserver(() => {
-        lastProgrammaticScrollTime = Date.now();  // Lock immediately, before rAF
-        requestAnimationFrame(checkAndReposition);
+        requestAnimationFrame(handleResize);
       });
       resizeObserver.observe(container);
-      
-      const contentEl = container.querySelector('#markdown-content');
-      if (contentEl) {
-        resizeObserver.observe(contentEl);
-      }
     }
 
+    // MutationObserver for content changes (streaming, dynamic rendering)
     mutationObserver = new MutationObserver(() => {
-      lastProgrammaticScrollTime = Date.now();  // Lock immediately, before rAF
-      requestAnimationFrame(checkAndReposition);
+      requestAnimationFrame(handleContentChange);
     });
     mutationObserver.observe(container, {
       childList: true,
@@ -324,19 +500,50 @@ export function createScrollSyncController(options: ScrollSyncControllerOptions)
 
   const removeListeners = (): void => {
     const target = getScrollTarget();
-
     target.removeEventListener('scroll', handleScroll);
-
     resizeObserver?.disconnect();
     mutationObserver?.disconnect();
-
     if (userScrollDebounceTimer) clearTimeout(userScrollDebounceTimer);
+    if (lockTimer) clearTimeout(lockTimer);
   };
 
   return {
     setTargetLine(line: number): void {
       targetLine = line;
-      doScroll(line);
+      
+      switch (state) {
+        case ScrollState.INITIAL:
+          // Check if can jump, otherwise enter RESTORING
+          if (canScrollToTarget()) {
+            doScroll(line);
+            enterLocked();
+          } else {
+            state = ScrollState.RESTORING;
+          }
+          break;
+
+        case ScrollState.RESTORING:
+          // Update target, check if can jump
+          if (canScrollToTarget()) {
+            doScroll(line);
+            enterLocked();
+          }
+          // Otherwise stay in RESTORING with new target
+          break;
+
+        case ScrollState.TRACKING:
+          // Jump immediately
+          doScroll(line);
+          enterLocked();
+          break;
+
+        case ScrollState.LOCKED:
+          // Update target, re-scroll, reset timer
+          doScroll(line);
+          enterLocked();
+          break;
+      }
+      
       lastContentHeight = container.scrollHeight;
     },
 
@@ -344,10 +551,44 @@ export function createScrollSyncController(options: ScrollSyncControllerOptions)
       return getLineForScrollPosition(getLineMapper(), scrollOptions);
     },
 
-    resetTargetLine(): void {
+    onStreamingComplete(): void {
+      if (state === ScrollState.RESTORING) {
+        // Try to jump to targetLine first
+        if (canScrollToTarget()) {
+          doScroll(targetLine);
+          enterLocked();
+        } else {
+          // Target block doesn't exist, jump to bottom
+          const documentHeight = container.scrollHeight;
+          const viewportHeight = getViewportHeight();
+          const maxScroll = Math.max(0, documentHeight - viewportHeight);
+          
+          if (useWindowScroll) {
+            window.scrollTo({ top: maxScroll, behavior: 'auto' });
+          } else {
+            container.scrollTo({ top: maxScroll, behavior: 'auto' });
+          }
+          
+          // Update targetLine to current position
+          updateTargetLineFromScroll();
+          enterLocked();
+        }
+      }
+      // Ignore in other states
+    },
+
+    reset(): void {
+      state = ScrollState.INITIAL;
       targetLine = 0;
       lastContentHeight = 0;
-      lastProgrammaticScrollTime = Date.now();  // Lock scroll events during file switch
+      if (lockTimer) {
+        clearTimeout(lockTimer);
+        lockTimer = null;
+      }
+    },
+
+    getState(): ScrollStateType {
+      return state;
     },
 
     start(): void {

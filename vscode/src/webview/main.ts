@@ -244,7 +244,7 @@ async function handleUpdateContent(payload: UpdateContentPayload): Promise<void>
       // Initial load: SCROLL_TO_LINE arrives before UPDATE_CONTENT, targetLine already set
       // File switch: need to reset to avoid old targetLine interfering with new document
       if (isRealFileSwitch && fileChanged) {
-        scrollSyncController?.resetTargetLine();
+        scrollSyncController?.reset();
       }
     }
 

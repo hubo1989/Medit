@@ -50,6 +50,7 @@ export interface DOCXRunStyle {
   font: string | IFontAttributesProperties;
   size: number;  // In half-points (e.g., 24 = 12pt)
   bold?: boolean;
+  color?: string;  // Hex color without #
 }
 
 /**
