@@ -8,10 +8,17 @@ import themeManager from '../../../src/utils/theme-manager';
 import DocxExporter from '../../../src/exporters/docx-exporter';
 import { loadAndApplyTheme } from '../../../src/utils/theme-to-css';
 import { AsyncTaskManager } from '../../../src/core/markdown-processor';
-import { renderMarkdownDocument, getDocument, type FrontmatterDisplay } from '../../../src/core/viewer/viewer-controller';
-import { createScrollSyncController, type ScrollSyncController } from '../../../src/core/line-based-scroll';
-import type { PluginRenderer } from '../../../src/types/index';
+import { renderMarkdownDocument, type FrontmatterDisplay } from '../../../src/core/viewer/viewer-controller';
+import type { ScrollSyncController } from '../../../src/core/line-based-scroll';
 import type { PlatformBridgeAPI } from '../../../src/types/index';
+
+// Import shared utilities from viewer-host
+import {
+  createViewerScrollSync,
+  createPluginRenderer,
+  getFrontmatterDisplay,
+  setCurrentFileKey,
+} from '../../../src/core/viewer/viewer-host';
 
 declare global {
   var bridge: PlatformBridgeAPI | undefined;
@@ -31,21 +38,8 @@ let currentTaskManager: AsyncTaskManager | null = null; // Track current task ma
 let currentZoomLevel = 1; // Store current zoom level for applying after content render
 let scrollSyncController: ScrollSyncController | null = null; // Scroll sync controller
 
-function createPluginRenderer(): PluginRenderer {
-  return {
-    render: async (type: string, content: string | object) => {
-      const result = await platform.renderer.render(type, content);
-
-      return {
-        base64: result.base64,
-        width: result.width,
-        height: result.height,
-        format: result.format,
-        error: undefined
-      };
-    }
-  };
-}
+// Create plugin renderer using shared utility
+const pluginRenderer = createPluginRenderer(platform);
 
 /**
  * Load markdown payload
@@ -129,27 +123,20 @@ async function initialize(): Promise<void> {
 
 /**
  * Initialize scroll sync controller (singleton, created once at startup)
+ * Uses shared createViewerScrollSync from viewer-host
  */
 function initScrollSyncController(): void {
-  const container = document.getElementById('markdown-content');
-  if (!container) {
-    console.warn('[Mobile] markdown-content container not found!');
-    return;
+  try {
+    scrollSyncController = createViewerScrollSync({
+      containerId: 'markdown-content',
+      platform,
+      // Default onUserScroll saves to FileStateService using currentFileKey
+      // which is set via setCurrentFileKey() when loading a file
+    });
+    scrollSyncController.start();
+  } catch (error) {
+    console.warn('[Mobile] Failed to init scroll sync:', error);
   }
-
-  scrollSyncController = createScrollSyncController({
-    container,
-    getLineMapper: getDocument,
-    userScrollDebounceMs: 10,  // Reduced for faster reverse sync feedback
-    onUserScroll: (line) => {
-      // Save scroll position using unified FileStateService
-      if (currentFilePath) {
-        platform.fileState.set(currentFilePath, { scrollLine: line });
-      }
-    },
-  });
-
-  scrollSyncController.start();
 }
 
 /**
@@ -213,6 +200,9 @@ async function handleLoadMarkdown(payload: LoadMarkdownPayload): Promise<void> {
   currentFilename = newFilename;
   currentFilePath = newFilePath;
 
+  // Set file key for scroll position persistence (used by viewer-host)
+  setCurrentFileKey(newFilePath);
+
   // Get saved scroll position from FileStateService (fallback to legacy scrollLine param)
   let savedScrollLine = scrollLine ?? 0;
   if (currentFilePath) {
@@ -238,7 +228,6 @@ async function handleLoadMarkdown(payload: LoadMarkdownPayload): Promise<void> {
     );
     currentTaskManager = taskManager;
 
-    const pluginRenderer = createPluginRenderer();
     const container = document.getElementById('markdown-content');
 
     let titleForHost = currentFilename;
@@ -262,15 +251,8 @@ async function handleLoadMarkdown(payload: LoadMarkdownPayload): Promise<void> {
         (container as HTMLElement).style.zoom = String(currentZoomLevel);
       }
 
-      // Get frontmatter display setting
-      let frontmatterDisplay: FrontmatterDisplay = 'hide';
-      try {
-        const result = await platform.storage.get(['markdownViewerSettings']);
-        const settings = (result.markdownViewerSettings || {}) as Record<string, unknown>;
-        frontmatterDisplay = (settings.frontmatterDisplay as FrontmatterDisplay) || 'hide';
-      } catch {
-        // Use default on error
-      }
+      // Get frontmatter display setting using shared utility
+      const frontmatterDisplay = await getFrontmatterDisplay(platform);
 
       const renderResult = await renderMarkdownDocument({
         markdown: content,
@@ -397,7 +379,7 @@ async function handleExportDocx(): Promise<void> {
       docxFilename = docxFilename + '.docx';
     }
 
-    const exporter = new DocxExporter(createPluginRenderer());
+    const exporter = new DocxExporter(pluginRenderer);
     
     // Report progress to Flutter
     const onProgress = (completed: number, total: number) => {

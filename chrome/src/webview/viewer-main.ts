@@ -13,14 +13,21 @@ import { wrapFileContent } from '../../../src/utils/file-wrapper';
 
 import type { PluginRenderer, RendererThemeConfig, PlatformAPI } from '../../../src/types/index';
 
-import { renderMarkdownDocument, getDocument, type FrontmatterDisplay } from '../../../src/core/viewer/viewer-controller';
-import { createScrollSyncController, type ScrollSyncController } from '../../../src/core/line-based-scroll';
+import { renderMarkdownDocument, type FrontmatterDisplay } from '../../../src/core/viewer/viewer-controller';
+import type { ScrollSyncController } from '../../../src/core/line-based-scroll';
 import { escapeHtml } from '../../../src/core/markdown-processor';
 import { getCurrentDocumentUrl, saveToHistory } from '../../../src/core/document-utils';
 import type { FileState } from '../../../src/types/core';
 import { updateProgress, showProcessingIndicator, hideProcessingIndicator } from './ui/progress-indicator';
 import { createTocManager } from './ui/toc-manager';
 import { createToolbarManager, generateToolbarHTML, layoutIcons } from './ui/toolbar';
+
+// Import shared utilities from viewer-host
+import {
+  createViewerScrollSync,
+  getFrontmatterDisplay,
+  setCurrentFileKey,
+} from '../../../src/core/viewer/viewer-host';
 
 // Extend Window interface for global access
 declare global {
@@ -100,6 +107,10 @@ export async function initializeViewerMain(options: ViewerMainOptions): Promise<
 
   // Initialize file state service (unified across platforms)
   const currentUrl = getCurrentDocumentUrl();
+  
+  // Set file key for scroll position persistence (used by viewer-host)
+  setCurrentFileKey(currentUrl);
+  
   const saveFileState = (state: FileState): void => {
     platform.fileState.set(currentUrl, state);
   };
@@ -107,27 +118,21 @@ export async function initializeViewerMain(options: ViewerMainOptions): Promise<
     return platform.fileState.get(currentUrl);
   };
 
-  // Initialize scroll sync controller (line-based, using shared implementation)
+  // Initialize scroll sync controller using shared utility
   let scrollSyncController: ScrollSyncController | null = null;
   
   function initScrollSyncController(): void {
-    const container = document.getElementById('markdown-content');
-    if (!container) {
-      console.warn('[Chrome] markdown-content container not found!');
-      return;
+    try {
+      scrollSyncController = createViewerScrollSync({
+        containerId: 'markdown-content',
+        platform,
+        // Default onUserScroll saves to FileStateService using currentFileKey
+        // which was set via setCurrentFileKey() above
+      });
+      scrollSyncController.start();
+    } catch (error) {
+      console.warn('[Chrome] Failed to init scroll sync:', error);
     }
-    
-    scrollSyncController = createScrollSyncController({
-      container,
-      getLineMapper: getDocument,
-      userScrollDebounceMs: 10,  // Reduced for faster reverse sync feedback
-      onUserScroll: (line) => {
-        // Save scroll position for history/restore
-        saveFileState({ scrollLine: line });
-      },
-    });
-    
-    scrollSyncController.start();
   }
 
   // Initialize TOC manager
@@ -272,15 +277,8 @@ export async function initializeViewerMain(options: ViewerMainOptions): Promise<
       console.error('Failed to load theme, using defaults:', error);
     }
 
-    // Get frontmatter display setting
-    let frontmatterDisplay: FrontmatterDisplay = 'hide';
-    try {
-      const result = await platform.storage.get(['markdownViewerSettings']);
-      const settings = (result.markdownViewerSettings || {}) as Record<string, unknown>;
-      frontmatterDisplay = (settings.frontmatterDisplay as FrontmatterDisplay) || 'hide';
-    } catch {
-      // Use default on error
-    }
+    // Get frontmatter display setting using shared utility
+    const frontmatterDisplay = await getFrontmatterDisplay(platform);
 
     // Render markdown using shared orchestration
     const result = await renderMarkdownDocument({
@@ -350,44 +348,6 @@ export function setupMessageListener(platform: PlatformAPI): void {
       return;
     }
   });
-}
-
-/**
- * Create a PluginRenderer from a render function
- */
-export function createPluginRenderer(
-  renderFn: (type: string, content: string) => Promise<{
-    base64: string;
-    width: number;
-    height: number;
-    format?: string;
-    error?: string;
-  }>
-): PluginRenderer {
-  return {
-    render: async (type: string, content: string | object) => {
-      const contentStr = typeof content === 'string' ? content : JSON.stringify(content);
-      const result = await renderFn(type, contentStr);
-
-      if (result && result.error) {
-        throw new Error(result.error || 'Render failed');
-      }
-
-      if (typeof result.width !== 'number' || typeof result.height !== 'number') {
-        throw new Error('Render result missing dimensions');
-      }
-
-      const format = typeof result.format === 'string' && result.format.length > 0 ? result.format : 'png';
-
-      return {
-        base64: result.base64,
-        width: result.width,
-        height: result.height,
-        format,
-        error: result.error,
-      };
-    },
-  };
 }
 
 /**

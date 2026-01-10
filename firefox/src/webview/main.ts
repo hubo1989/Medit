@@ -2,19 +2,11 @@
 // Uses shared viewer logic from Chrome with Firefox-specific renderer (Background Page DOM)
 
 import { platform } from './index';
-import { startViewer, createPluginRenderer } from '../../../chrome/src/webview/viewer-main';
+import { startViewer } from '../../../chrome/src/webview/viewer-main';
+import { createPluginRenderer } from '../../../src/core/viewer/viewer-host';
 
-// Create plugin renderer using platform.renderer (Firefox uses Background Page rendering)
-const pluginRenderer = createPluginRenderer(async (type, content) => {
-  const result = await platform.renderer.render(type, content);
-  return {
-    base64: result.base64 || '',
-    width: result.width,
-    height: result.height,
-    format: result.format,
-    error: result.error,
-  };
-});
+// Create plugin renderer using shared utility from viewer-host
+const pluginRenderer = createPluginRenderer(platform);
 
 // Start the viewer with Firefox-specific configuration
 startViewer({
