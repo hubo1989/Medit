@@ -59,6 +59,53 @@ interface MockBlock {
 // Global Mocks for Browser APIs
 // ============================================================================
 
+// Mock window object for scroll APIs
+let mockScrollY = 0;
+const scrollListeners: Array<(e?: Event) => void> = [];
+
+if (typeof globalThis.window === 'undefined') {
+  (globalThis as any).window = {
+    scrollY: 0,
+    pageYOffset: 0,
+    innerHeight: 600,
+    scrollTo: (opts: { top: number; behavior?: string }) => {
+      mockScrollY = opts.top || 0;
+      (globalThis as any).window.scrollY = mockScrollY;
+      (globalThis as any).window.pageYOffset = mockScrollY;
+      // Trigger scroll listeners
+      scrollListeners.forEach(fn => fn());
+    },
+    addEventListener: (event: string, handler: (e?: Event) => void, options?: object) => {
+      if (event === 'scroll') {
+        scrollListeners.push(handler);
+      }
+    },
+    removeEventListener: (event: string, handler: (e?: Event) => void) => {
+      if (event === 'scroll') {
+        const idx = scrollListeners.indexOf(handler);
+        if (idx >= 0) scrollListeners.splice(idx, 1);
+      }
+    },
+  };
+}
+
+// Helper to manipulate window scroll state
+function setWindowScrollY(value: number): void {
+  mockScrollY = value;
+  (globalThis as any).window.scrollY = value;
+  (globalThis as any).window.pageYOffset = value;
+}
+
+function triggerWindowScroll(): void {
+  scrollListeners.forEach(fn => fn());
+}
+
+function resetWindowScroll(): void {
+  mockScrollY = 0;
+  (globalThis as any).window.scrollY = 0;
+  (globalThis as any).window.pageYOffset = 0;
+}
+
 // Mock ResizeObserver
 if (typeof globalThis.ResizeObserver === 'undefined') {
   (globalThis as any).ResizeObserver = class ResizeObserver {
@@ -84,6 +131,9 @@ if (typeof globalThis.MutationObserver === 'undefined') {
 // ============================================================================
 
 function createMockDOM(): MockDOM {
+  // Reset window scroll state for each new mock DOM
+  resetWindowScroll();
+  
   let scrollTop = 0;
   let scrollHeight = 600;
   let clientHeight = 600;
@@ -140,11 +190,14 @@ function createMockDOM(): MockDOM {
   return {
     container: container as MockContainer,
 
-    getScrollTop: () => scrollTop,
+    // Read from window.scrollY since actual code uses window.scrollTo()
+    getScrollTop: () => (globalThis as any).window?.scrollY ?? scrollTop,
     
     setScrollTop: (value: number) => {
       scrollTop = value;
       container.scrollTop = value;
+      // Sync with window mock
+      setWindowScrollY(value);
     },
 
     setScrollHeight: (value: number) => {
@@ -158,7 +211,9 @@ function createMockDOM(): MockDOM {
     },
 
     triggerScroll: () => {
+      // Trigger both container and window scroll listeners
       scrollListeners.forEach(fn => fn());
+      triggerWindowScroll();
     },
 
     addBlock: (blockId: string, top: number, height: number) => {
