@@ -11,6 +11,7 @@ import {
   CacheService,
   StorageService,
   FileService,
+  FileStateService,
   RendererService
 } from '../../../src/services';
 
@@ -60,6 +61,7 @@ const serviceChannel = new ServiceChannel(new ChromeRuntimeTransport(), {
 const cacheService = new CacheService(serviceChannel);
 const storageService = new StorageService(serviceChannel);
 const fileService = new FileService(serviceChannel);
+const fileStateService = new FileStateService(serviceChannel);
 
 // ============================================================================
 // Chrome Document Service
@@ -321,6 +323,7 @@ export class ChromePlatformAPI {
   // Services
   public readonly storage: StorageService;
   public readonly file: FileService;
+  public readonly fileState: FileStateService;
   public readonly resource: ChromeResourceService;
   public readonly message: ChromeMessageService;
   public readonly cache: CacheService;
@@ -332,6 +335,7 @@ export class ChromePlatformAPI {
     // Initialize services
     this.storage = storageService; // Use unified storage service
     this.file = fileService;       // Use unified file service (with chunked upload)
+    this.fileState = fileStateService; // Use unified file state service
     this.resource = new ChromeResourceService();
     this.message = new ChromeMessageService();
     this.cache = cacheService; // Use unified cache service

@@ -3,7 +3,7 @@
  * Handles toolbar initialization and button event handlers
  */
 
-import { getFilenameFromURL, getDocumentFilename } from '../../../../src/core/file-state';
+import { getFilenameFromURL, getDocumentFilename } from '../../../../src/core/document-utils';
 import type {
   TranslateFunction,
   EscapeHtmlFunction,

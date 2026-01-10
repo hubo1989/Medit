@@ -16,7 +16,8 @@ import type { PluginRenderer, RendererThemeConfig, PlatformAPI } from '../../../
 import { renderMarkdownDocument, getDocument, type FrontmatterDisplay } from '../../../src/core/viewer/viewer-controller';
 import { createScrollSyncController, type ScrollSyncController } from '../../../src/core/line-based-scroll';
 import { escapeHtml } from '../../../src/core/markdown-processor';
-import { createFileStateManager, getCurrentDocumentUrl, saveToHistory } from '../../../src/core/file-state';
+import { getCurrentDocumentUrl, saveToHistory } from '../../../src/core/document-utils';
+import type { FileState } from '../../../src/types/core';
 import { updateProgress, showProcessingIndicator, hideProcessingIndicator } from './ui/progress-indicator';
 import { createTocManager } from './ui/toc-manager';
 import { createToolbarManager, generateToolbarHTML, layoutIcons } from './ui/toolbar';
@@ -97,8 +98,14 @@ export async function initializeViewerMain(options: ViewerMainOptions): Promise<
   // Store exporter for plugins and debugging
   window.docxExporter = docxExporter;
 
-  // Initialize file state manager
-  const { saveFileState, getFileState } = createFileStateManager(platform);
+  // Initialize file state service (unified across platforms)
+  const currentUrl = getCurrentDocumentUrl();
+  const saveFileState = (state: FileState): void => {
+    platform.fileState.set(currentUrl, state);
+  };
+  const getFileState = (): Promise<FileState> => {
+    return platform.fileState.get(currentUrl);
+  };
 
   // Initialize scroll sync controller (line-based, using shared implementation)
   let scrollSyncController: ScrollSyncController | null = null;
@@ -129,9 +136,6 @@ export async function initializeViewerMain(options: ViewerMainOptions): Promise<
 
   // Get the raw markdown content
   const rawContent = document.body.textContent || '';
-  
-  // Get the current document URL to determine file type
-  const currentUrl = getCurrentDocumentUrl();
   
   // Wrap non-markdown file content (e.g., mermaid, vega) in markdown format
   const rawMarkdown = wrapFileContent(rawContent, currentUrl);

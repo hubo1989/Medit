@@ -95,54 +95,105 @@ class SettingsService {
     };
   }
 
-  // Scroll position memory (file path -> line number, using double for precision)
-  Map<String, double> _scrollPositionsCache = {};
-  bool _scrollPositionsLoaded = false;
+  // File state memory (file path -> FileState)
+  // FileState includes: scrollLine, tocVisible, zoom, layoutMode
+  static const String _keyFileStates = 'fileStates';
+  static const int _maxFileStates = 100;
+  Map<String, Map<String, dynamic>> _fileStatesCache = {};
+  bool _fileStatesLoaded = false;
 
-  /// Load scroll positions from storage
-  void _loadScrollPositions() {
-    if (_scrollPositionsLoaded) return;
-    _scrollPositionsLoaded = true;
+  /// Load file states from storage
+  void _loadFileStates() {
+    if (_fileStatesLoaded) return;
+    _fileStatesLoaded = true;
     
-    final json = _prefs?.getString(_keyScrollPositions);
+    final json = _prefs?.getString(_keyFileStates);
     if (json != null) {
       try {
         final decoded = jsonDecode(json) as Map<String, dynamic>;
-        _scrollPositionsCache = decoded.map((k, v) => MapEntry(k, (v as num).toDouble()));
+        _fileStatesCache = decoded.map((k, v) => 
+          MapEntry(k, Map<String, dynamic>.from(v as Map)));
       } catch (e) {
-        _scrollPositionsCache = {};
+        _fileStatesCache = {};
+      }
+    }
+    
+    // Migration: also try loading from legacy scroll positions
+    final legacyJson = _prefs?.getString(_keyScrollPositions);
+    if (legacyJson != null && _fileStatesCache.isEmpty) {
+      try {
+        final decoded = jsonDecode(legacyJson) as Map<String, dynamic>;
+        for (final entry in decoded.entries) {
+          _fileStatesCache[entry.key] = {
+            'scrollLine': (entry.value as num).toDouble(),
+          };
+        }
+        _saveFileStates();
+        // Clear legacy data after migration
+        _prefs?.remove(_keyScrollPositions);
+      } catch (e) {
+        // Ignore migration errors
       }
     }
   }
 
-  /// Save scroll positions to storage
-  void _saveScrollPositions() {
-    // Limit the number of stored positions
-    if (_scrollPositionsCache.length > _maxScrollPositions) {
-      final entries = _scrollPositionsCache.entries.toList();
-      _scrollPositionsCache = Map.fromEntries(
-        entries.sublist(entries.length - _maxScrollPositions),
+  /// Save file states to storage
+  void _saveFileStates() {
+    // Limit the number of stored states
+    if (_fileStatesCache.length > _maxFileStates) {
+      final entries = _fileStatesCache.entries.toList();
+      _fileStatesCache = Map.fromEntries(
+        entries.sublist(entries.length - _maxFileStates),
       );
     }
-    _prefs?.setString(_keyScrollPositions, jsonEncode(_scrollPositionsCache));
+    _prefs?.setString(_keyFileStates, jsonEncode(_fileStatesCache));
   }
 
-  /// Get scroll position for a file
+  /// Get file state for a file
+  Map<String, dynamic>? getFileState(String filePath) {
+    _loadFileStates();
+    return _fileStatesCache[filePath];
+  }
+
+  /// Update file state (merge with existing state)
+  void setFileState(String filePath, Map<String, dynamic> state) {
+    _loadFileStates();
+    final existing = _fileStatesCache[filePath] ?? {};
+    existing.addAll(state);
+    _fileStatesCache[filePath] = existing;
+    _saveFileStates();
+  }
+
+  /// Clear file state for a file
+  void clearFileState(String filePath) {
+    _loadFileStates();
+    if (_fileStatesCache.containsKey(filePath)) {
+      _fileStatesCache.remove(filePath);
+      _saveFileStates();
+    }
+  }
+
+  /// Get scroll position for a file (legacy API, delegates to getFileState)
   double getScrollPosition(String filePath) {
-    _loadScrollPositions();
-    return _scrollPositionsCache[filePath] ?? 0;
+    final state = getFileState(filePath);
+    final scrollLine = state?['scrollLine'];
+    return (scrollLine is num) ? scrollLine.toDouble() : 0;
   }
 
-  /// Save scroll position for a file
+  /// Save scroll position for a file (legacy API, delegates to setFileState)
   void setScrollPosition(String filePath, double line) {
-    _loadScrollPositions();
     if (line > 0) {
-      _scrollPositionsCache[filePath] = line;
-      _saveScrollPositions();
-    } else if (_scrollPositionsCache.containsKey(filePath)) {
-      // Remove if scrolled to top
-      _scrollPositionsCache.remove(filePath);
-      _saveScrollPositions();
+      setFileState(filePath, {'scrollLine': line});
+    } else {
+      final state = getFileState(filePath);
+      if (state != null) {
+        state.remove('scrollLine');
+        if (state.isEmpty) {
+          clearFileState(filePath);
+        } else {
+          _saveFileStates();
+        }
+      }
     }
   }
 }

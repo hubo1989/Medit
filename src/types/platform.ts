@@ -5,6 +5,7 @@
 
 import type { RendererThemeConfig, RenderResult } from './render';
 import type { CacheStats, SimpleCacheStats } from './cache';
+import type { FileState } from './core';
 
 // =============================================================================
 // Platform Identification
@@ -107,6 +108,15 @@ export interface StorageService {
  */
 export interface FileService {
   download(blob: Blob | string, filename: string, options?: DownloadOptions): Promise<void>;
+}
+
+/**
+ * File state service interface
+ */
+export interface FileStateService {
+  get(url: string): Promise<FileState>;
+  set(url: string, state: FileState): void;
+  clear(url: string): Promise<void>;
 }
 
 /**
@@ -237,6 +247,7 @@ export interface PlatformAPI {
   renderer: RendererService;
   storage: StorageService;
   file: FileService;
+  fileState: FileStateService;
   resource: ResourceService;
   i18n: I18nService;
   message: MessageService;

@@ -18,7 +18,6 @@ export type {
   FileState,
   AllFileStates,
   HistoryEntry,
-  FileStateManager,
   BackgroundMessage,
   MessageHandler,
   UploadSession,

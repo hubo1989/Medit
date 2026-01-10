@@ -20,7 +20,7 @@ import { BrowserRuntimeTransport } from '../../../chrome/src/transports/chrome-r
 
 import { BackgroundRenderHost } from './hosts/background-render-host';
 
-import { CacheService, StorageService, FileService, RendererService } from '../../../src/services';
+import { CacheService, StorageService, FileService, FileStateService, RendererService } from '../../../src/services';
 
 // Firefox WebExtension API types
 declare const browser: typeof chrome;
@@ -54,6 +54,9 @@ const storageService = new StorageService(backgroundServiceChannel);
 
 // Unified file service (same as Chrome/Mobile)
 const fileService = new FileService(backgroundServiceChannel);
+
+// Unified file state service (same as Chrome/Mobile)
+const fileStateService = new FileStateService(backgroundServiceChannel);
 
 // Bridge compatibility layer (for plugins that need direct message access)
 export const bridge: PlatformBridgeAPI = {
@@ -261,6 +264,7 @@ class FirefoxPlatformAPI {
   // Services
   public readonly storage: StorageService;
   public readonly file: FileService;
+  public readonly fileState: FileStateService;
   public readonly resource: FirefoxResourceService;
   public readonly message: FirefoxMessageService;
   public readonly cache: CacheService;
@@ -275,6 +279,7 @@ class FirefoxPlatformAPI {
     // Initialize services
     this.storage = storageService;
     this.file = fileService;
+    this.fileState = fileStateService;
     this.resource = new FirefoxResourceService();
     this.message = new FirefoxMessageService();
     this.cache = cacheService;

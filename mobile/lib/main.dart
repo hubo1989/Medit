@@ -491,13 +491,21 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
           break;
 
         case 'SCROLL_LINE_CHANGED':
-          // Save scroll position (line number) for current file
+          // Legacy: Save scroll position (line number) for current file
+          // New code should use FILE_STATE_OPERATION instead
           if (payload is Map && _currentFilePath != null) {
             final lineValue = payload['line'];
             final line = (lineValue is num) ? lineValue.toDouble() : null;
             if (line != null) {
               settingsService.setScrollPosition(_currentFilePath!, line);
             }
+          }
+          break;
+
+        case 'FILE_STATE_OPERATION':
+          // Unified file state operation handler
+          if (payload is Map && isEnvelope) {
+            _handleFileStateOperation(Map<String, dynamic>.from(payload), envelopeId);
           }
           break;
       }
@@ -563,6 +571,41 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
       _respondToWebViewEnvelope(requestId, data: {'success': true});
     } catch (e) {
       debugPrint('[Mobile] Storage set error: $e');
+      _respondToWebViewEnvelope(requestId, error: e.toString());
+    }
+  }
+
+  void _handleFileStateOperation(Map<String, dynamic> payload, String requestId) {
+    try {
+      final operation = payload['operation'] as String?;
+      final url = payload['url'] as String?;
+      
+      if (url == null) {
+        _respondToWebViewEnvelope(requestId, error: 'Missing url parameter');
+        return;
+      }
+      
+      switch (operation) {
+        case 'get':
+          final state = settingsService.getFileState(url);
+          _respondToWebViewEnvelope(requestId, data: state ?? {});
+          break;
+        case 'set':
+          final state = payload['state'] as Map<String, dynamic>?;
+          if (state != null) {
+            settingsService.setFileState(url, state);
+          }
+          _respondToWebViewEnvelope(requestId, data: {'success': true});
+          break;
+        case 'clear':
+          settingsService.clearFileState(url);
+          _respondToWebViewEnvelope(requestId, data: {'success': true});
+          break;
+        default:
+          _respondToWebViewEnvelope(requestId, error: 'Unknown operation: $operation');
+      }
+    } catch (e) {
+      debugPrint('[Mobile] File state operation error: $e');
       _respondToWebViewEnvelope(requestId, error: e.toString());
     }
   }
@@ -905,17 +948,25 @@ class _MarkdownViewerHomeState extends State<MarkdownViewerHome> {
     final wrappedContent = _wrapFileContent(content, filename);
     final escaped = _escapeJs(wrappedContent);
     try {
-      // Get saved scroll position for this file
-      final savedScrollLine = _currentFilePath != null 
-          ? settingsService.getScrollPosition(_currentFilePath!)
-          : 0;
+      // Prepare filePath for JS side state persistence
+      final escapedFilePath = _escapeJs(_currentFilePath ?? filename);
       
       // Send themeId only - WebView loads theme data itself using shared loadAndApplyTheme
       final escapedTheme = _escapeJs(_currentTheme);
       
-      await _controller.runJavaScript(
-        "if(window.loadMarkdown){window.loadMarkdown('$escaped','$filename','$escapedTheme',$savedScrollLine);}else{console.error('loadMarkdown not defined');}",
-      );
+      // Call loadMarkdown with object payload (filePath used by FileStateService)
+      await _controller.runJavaScript("""
+        if(window.loadMarkdown){
+          window.loadMarkdown({
+            content: '$escaped',
+            filename: '$filename',
+            filePath: '$escapedFilePath',
+            themeId: '$escapedTheme'
+          });
+        }else{
+          console.error('loadMarkdown not defined');
+        }
+      """);
       setState(() {
         _hasContent = true;
       });

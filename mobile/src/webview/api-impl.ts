@@ -21,7 +21,7 @@ import { WindowPostMessageTransport } from '../../../src/messaging/transports/wi
 
 import { IframeRenderHost } from '../../../src/renderers/host/iframe-render-host';
 
-import { CacheService, StorageService, FileService, RendererService } from '../../../src/services';
+import { CacheService, StorageService, FileService, FileStateService, RendererService } from '../../../src/services';
 
 // ============================================================================
 // Type Definitions
@@ -65,6 +65,9 @@ const storageService = new StorageService(hostServiceChannel);
 
 // Unified file service (same as Chrome/VSCode, but without forced chunked upload)
 const fileService = new FileService(hostServiceChannel);
+
+// Unified file state service (same as Chrome/VSCode)
+const fileStateService = new FileStateService(hostServiceChannel);
 
 // Bridge compatibility layer (used by mobile/main.ts and some plugins).
 // NOTE: sendRequest/postMessage now use unified envelopes under the hood.
@@ -274,6 +277,7 @@ class MobilePlatformAPI {
   // Services
   public readonly storage: StorageService;
   public readonly file: FileService;
+  public readonly fileState: FileStateService;
   public readonly resource: MobileResourceService;
   public readonly message: MobileMessageService;
   public readonly cache: CacheService;
@@ -288,6 +292,7 @@ class MobilePlatformAPI {
     // Initialize services
     this.storage = storageService; // Use unified storage service
     this.file = fileService;       // Use unified file service
+    this.fileState = fileStateService; // Use unified file state service
     this.resource = new MobileResourceService();
     this.message = new MobileMessageService();
     this.cache = cacheService; // Use unified cache service

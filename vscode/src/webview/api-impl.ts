@@ -12,8 +12,10 @@ import {
   CacheService,
   StorageService,
   FileService,
-  RendererService
+  RendererService,
 } from '../../../src/services';
+
+import type { FileState } from '../../../src/types/core';
 
 import type { LocaleMessages } from '../../../src/services';
 
@@ -262,6 +264,35 @@ class VSCodeMessageService {
 }
 
 // ============================================================================
+// VSCode File State Service
+// ============================================================================
+
+/**
+ * VSCode File State Service (in-memory implementation)
+ * 
+ * VSCode doesn't need persistent file state storage because:
+ * - VSCode has its own editor state management
+ * - Scroll position is managed by VSCode's webview API
+ * - This provides a simple in-memory cache for the current session
+ */
+class VSCodeFileStateService {
+  private states: Map<string, FileState> = new Map();
+
+  async get(url: string): Promise<FileState> {
+    return this.states.get(url) || {};
+  }
+
+  set(url: string, state: FileState): void {
+    const existing = this.states.get(url) || {};
+    this.states.set(url, { ...existing, ...state });
+  }
+
+  async clear(url: string): Promise<void> {
+    this.states.delete(url);
+  }
+}
+
+// ============================================================================
 // VSCode Platform API
 // ============================================================================
 
@@ -271,6 +302,7 @@ export class VSCodePlatformAPI {
   // Services
   public readonly storage: StorageService;
   public readonly file: FileService;
+  public readonly fileState: VSCodeFileStateService;
   public readonly resource: VSCodeResourceService;
   public readonly cache: CacheService;
   public readonly renderer: RendererService;
@@ -281,6 +313,7 @@ export class VSCodePlatformAPI {
   constructor() {
     this.storage = storageService; // Use unified storage service
     this.file = fileService;       // Use unified file service
+    this.fileState = new VSCodeFileStateService(); // In-memory file state
     this.resource = new VSCodeResourceService();
     this.cache = cacheService; // Use unified cache service
     this.message = new VSCodeMessageService(); // Message service for plugins

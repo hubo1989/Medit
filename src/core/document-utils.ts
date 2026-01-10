@@ -1,12 +1,9 @@
-// File State Manager
-// Handles saving and loading file-specific state (scroll, TOC, zoom, layout)
+// Document Utilities
+// URL handling, filename extraction, and history management for document viewer
 
 import type {
-  FileState,
   HistoryEntry,
-  FileStateManager,
   PlatformAPI,
-  ResponseEnvelope
 } from '../types/index';
 
 /**
@@ -25,89 +22,6 @@ export function getCurrentDocumentUrl(): string {
     const hashIndex = url.indexOf('#');
     return hashIndex >= 0 ? url.substring(0, hashIndex) : url;
   }
-}
-
-/**
- * Creates a file state manager for handling file-specific state persistence.
- * @param platform - Platform API for messaging
- * @returns File state manager instance
- */
-export function createFileStateManager(platform: PlatformAPI): FileStateManager {
-  let requestCounter = 0;
-  const createRequestId = (): string => {
-    requestCounter += 1;
-    return `${Date.now()}-${requestCounter}`;
-  };
-
-  const sendFileStateOperation = async (payload: Record<string, unknown>): Promise<unknown> => {
-    const response = await platform.message.send({
-      id: createRequestId(),
-      type: 'FILE_STATE_OPERATION',
-      payload,
-      timestamp: Date.now(),
-      source: 'content-file-state',
-    });
-
-    if (!response || typeof response !== 'object') {
-      throw new Error('No response received from background script');
-    }
-
-    const env = response as ResponseEnvelope;
-    if (env.ok) {
-      return env.data;
-    }
-
-    throw new Error(env.error?.message || 'File state operation failed');
-  };
-
-  /**
-   * Save file state to background script
-   * @param state - State object containing scrollLine, tocVisible, zoom, layoutMode
-   */
-  function saveFileState(state: FileState): void {
-    try {
-      platform.message
-        .send({
-          id: createRequestId(),
-          type: 'FILE_STATE_OPERATION',
-          payload: {
-            operation: 'set',
-            url: getCurrentDocumentUrl(),
-            state,
-          },
-          timestamp: Date.now(),
-          source: 'content-file-state',
-        })
-        .catch(() => {}); // Fire and forget
-    } catch (e) {
-      console.error('[FileState] Save error:', e);
-    }
-  }
-
-  /**
-   * Get saved file state from background script
-   * @returns State object
-   */
-  async function getFileState(): Promise<FileState> {
-    try {
-      const data = await sendFileStateOperation({
-        operation: 'get',
-        url: getCurrentDocumentUrl(),
-      });
-      if (data && typeof data === 'object') {
-        return data as FileState;
-      }
-      return {};
-    } catch (e) {
-      console.error('[FileState] Get error:', e);
-      return {};
-    }
-  }
-
-  return {
-    saveFileState,
-    getFileState
-  };
 }
 
 /**

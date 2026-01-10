@@ -25,6 +25,7 @@ globalThis.bridge = bridge;
 // Global state
 let currentMarkdown = '';
 let currentFilename = '';
+let currentFilePath = ''; // File path for state persistence (used by FileStateService)
 let currentThemeId = 'default'; // Current theme ID (loaded via shared loadAndApplyTheme)
 let currentTaskManager: AsyncTaskManager | null = null; // Track current task manager for cancellation
 let currentZoomLevel = 1; // Store current zoom level for applying after content render
@@ -52,8 +53,9 @@ function createPluginRenderer(): PluginRenderer {
 interface LoadMarkdownPayload {
   content: string;
   filename?: string;
+  filePath?: string;    // File path for state persistence
   themeId?: string;     // Theme ID (WebView loads theme data itself)
-  scrollLine?: number;  // Saved scroll position (line number)
+  scrollLine?: number;  // Saved scroll position (line number) - legacy, prefer fileState
 }
 
 /**
@@ -140,8 +142,10 @@ function initScrollSyncController(): void {
     getLineMapper: getDocument,
     userScrollDebounceMs: 10,  // Reduced for faster reverse sync feedback
     onUserScroll: (line) => {
-      // Report scroll position to host app for saving
-      bridge.postMessage('SCROLL_LINE_CHANGED', { line });
+      // Save scroll position using unified FileStateService
+      if (currentFilePath) {
+        platform.fileState.set(currentFilePath, { scrollLine: line });
+      }
     },
   });
 
@@ -191,10 +195,11 @@ function setupMessageHandlers(): void {
  * Handle loading Markdown content
  */
 async function handleLoadMarkdown(payload: LoadMarkdownPayload): Promise<void> {
-  const { content, filename, themeId, scrollLine } = payload;
+  const { content, filename, filePath, themeId, scrollLine } = payload;
 
   // Check if file changed
   const newFilename = filename || 'document.md';
+  const newFilePath = filePath || newFilename; // Fallback to filename if no path
   const fileChanged = currentFilename !== newFilename;
 
   // Only abort on file switch - incremental updates let old tasks complete naturally
@@ -206,6 +211,20 @@ async function handleLoadMarkdown(payload: LoadMarkdownPayload): Promise<void> {
 
   currentMarkdown = content;
   currentFilename = newFilename;
+  currentFilePath = newFilePath;
+
+  // Get saved scroll position from FileStateService (fallback to legacy scrollLine param)
+  let savedScrollLine = scrollLine ?? 0;
+  if (currentFilePath) {
+    try {
+      const fileState = await platform.fileState.get(currentFilePath);
+      if (fileState.scrollLine !== undefined) {
+        savedScrollLine = fileState.scrollLine;
+      }
+    } catch {
+      // Use legacy scrollLine on error
+    }
+  }
 
   try {
     // Update theme if provided (Flutter sends themeId, we load it ourselves)
@@ -232,7 +251,7 @@ async function handleLoadMarkdown(payload: LoadMarkdownPayload): Promise<void> {
       // This prevents scroll events from updating targetLine with stale DOM data
       if (scrollSyncController) {
         scrollSyncController.reset();
-        scrollSyncController.setTargetLine(scrollLine ?? 0);
+        scrollSyncController.setTargetLine(savedScrollLine);
       }
 
       // Load and apply theme using shared function (all theme logic is handled internally)
@@ -447,8 +466,20 @@ declare global {
 }
 
 // Expose API to window for host app to call (e.g. via runJavaScript)
-window.loadMarkdown = (content: string, filename?: string, themeId?: string, scrollLine?: number) => {
-  handleLoadMarkdown({ content, filename, themeId, scrollLine });
+// Supports both object payload and legacy positional arguments
+window.loadMarkdown = (
+  contentOrPayload: string | LoadMarkdownPayload, 
+  filename?: string, 
+  themeId?: string, 
+  scrollLine?: number
+) => {
+  // Check if first argument is object payload or string content
+  if (typeof contentOrPayload === 'object' && contentOrPayload !== null) {
+    handleLoadMarkdown(contentOrPayload);
+  } else {
+    // Legacy: positional arguments
+    handleLoadMarkdown({ content: contentOrPayload, filename, themeId, scrollLine });
+  }
 };
 
 // Set theme (WebView loads theme data itself using shared loadAndApplyTheme)

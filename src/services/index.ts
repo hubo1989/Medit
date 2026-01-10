@@ -12,6 +12,8 @@ export { StorageService } from './storage-service';
 export { FileService } from './file-service';
 export type { DownloadOptions } from './file-service';
 
+export { FileStateService } from './file-state-service';
+
 export { RendererService } from './renderer-service';
 export type { RendererServiceOptions, RenderHostFactory } from './renderer-service';
 

@@ -50,14 +50,6 @@ export interface HistoryEntry {
   lastAccess: string;
 }
 
-/**
- * File state manager interface
- */
-export interface FileStateManager {
-  saveFileState(state: FileState): void;
-  getFileState(): Promise<FileState>;
-}
-
 // =============================================================================
 // Message Types
 // =============================================================================
