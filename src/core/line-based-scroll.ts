@@ -228,6 +228,11 @@ export function createScrollSyncController(options: ScrollSyncControllerOptions)
   let resizeObserver: ResizeObserver | null = null;
   let mutationObserver: MutationObserver | null = null;
   let disposed = false;
+  
+  // Track scroll position for user scroll detection in RESTORING state
+  // When DOM changes, we record the scroll position. If a scroll event occurs
+  // with a different position, it's likely user-initiated.
+  let lastScrollTopAfterChange: number | null = null;
 
   const scrollOptions: ScrollOptions = {
     container,
@@ -272,12 +277,22 @@ export function createScrollSyncController(options: ScrollSyncControllerOptions)
 
   /**
    * Check if we can scroll to target position
-   * Condition: target block exists (position can be calculated)
-   * Browser will clamp scroll position to valid range automatically
+   * Conditions:
+   * 1. Target block exists (position can be calculated)
+   * 2. Target scroll position + viewport height <= document height
+   *    (ensures target line can actually appear at top of viewport)
    */
   const canScrollToTarget = (): boolean => {
     const targetPos = getScrollPositionForLine(targetLine);
-    return targetPos !== null;
+    if (targetPos === null) return false;
+    
+    // Check if document is tall enough to scroll target to top of viewport
+    const documentHeight = container.scrollHeight;
+    const viewportHeight = getViewportHeight();
+    const maxScrollPosition = documentHeight - viewportHeight;
+    
+    // Can scroll if target position is within scrollable range
+    return targetPos <= maxScrollPosition;
   };
 
   /**
@@ -338,13 +353,33 @@ export function createScrollSyncController(options: ScrollSyncControllerOptions)
    */
   const handleScroll = (): void => {
     if (disposed) return;
+    
+    const currentScroll = window.scrollY || window.pageYOffset || 0;
 
     switch (state) {
       case ScrollState.INITIAL:
-      case ScrollState.RESTORING:
-        // Ignore scroll events in INITIAL and RESTORING states
-        // RESTORING: scroll events are caused by DOM changes, not user interaction
+        // Ignore scroll events in INITIAL state
         break;
+
+      case ScrollState.RESTORING: {
+        // Detect user scroll vs DOM-induced scroll
+        // If scroll position differs significantly from last recorded position,
+        // it's likely user-initiated scroll
+        const scrollDelta = lastScrollTopAfterChange !== null 
+          ? Math.abs(currentScroll - lastScrollTopAfterChange) 
+          : 0;
+        
+        // Threshold: if scroll moved more than 10px from last DOM change position,
+        // consider it user scroll (DOM changes typically don't cause such movement)
+        const USER_SCROLL_THRESHOLD = 10;
+        if (scrollDelta > USER_SCROLL_THRESHOLD) {
+          // User has taken control - switch to TRACKING
+          state = ScrollState.TRACKING;
+          updateTargetLineFromScroll();
+          reportUserScroll();
+        }
+        break;
+      }
 
       case ScrollState.TRACKING:
         // Normal user scroll - update targetLine
@@ -353,9 +388,10 @@ export function createScrollSyncController(options: ScrollSyncControllerOptions)
         break;
 
       case ScrollState.LOCKED:
-        // Don't update targetLine during LOCKED state
-        // This prevents incorrect targetLine values during resize/content change
-        // when layout hasn't stabilized yet
+        // Update targetLine but don't report (per design doc)
+        // This allows user scroll to update the target position
+        // so subsequent DOM changes maintain user's new position
+        updateTargetLineFromScroll();
         break;
     }
   };
@@ -367,7 +403,10 @@ export function createScrollSyncController(options: ScrollSyncControllerOptions)
     if (disposed) return;
 
     const currentHeight = container.scrollHeight;
-    if (currentHeight === lastContentHeight) return;
+    
+    if (currentHeight === lastContentHeight) {
+      return;
+    }
     
     lastContentHeight = currentHeight;
 
@@ -382,6 +421,8 @@ export function createScrollSyncController(options: ScrollSyncControllerOptions)
           doScroll(targetLine);
           enterLocked();
         }
+        // Record scroll position after DOM change for user scroll detection
+        lastScrollTopAfterChange = window.scrollY || window.pageYOffset || 0;
         // Otherwise stay in RESTORING
         break;
 
@@ -431,15 +472,23 @@ export function createScrollSyncController(options: ScrollSyncControllerOptions)
         break;
 
       case ScrollState.TRACKING:
-      case ScrollState.LOCKED:
-        // During resize, always enter LOCKED state to prevent scroll events
-        // from corrupting targetLine, then scroll to maintain position
+        // During resize in TRACKING, maintain reading position
         const diff = currentLine !== null ? Math.abs(currentLine - targetLine) : Infinity;
         if (diff > SCROLL_THRESHOLD) {
           doScroll(targetLine);
         }
-        // Always enter LOCKED during resize to protect targetLine
+        // Enter LOCKED during resize to protect targetLine
         enterLocked();
+        break;
+
+      case ScrollState.LOCKED:
+        // During resize in LOCKED, maintain reading position
+        // BUT don't reset lock timer - let it expire naturally so user can scroll
+        const diffLocked = currentLine !== null ? Math.abs(currentLine - targetLine) : Infinity;
+        if (diffLocked > SCROLL_THRESHOLD) {
+          doScroll(targetLine);
+        }
+        // Don't call enterLocked() here - timer continues counting down
         break;
     }
   };
@@ -487,6 +536,8 @@ export function createScrollSyncController(options: ScrollSyncControllerOptions)
             enterLocked();
           } else {
             state = ScrollState.RESTORING;
+            // Initialize scroll tracking for user scroll detection
+            lastScrollTopAfterChange = window.scrollY || window.pageYOffset || 0;
           }
           break;
 

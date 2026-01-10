@@ -413,13 +413,14 @@ describe('ScrollSyncController', () => {
       ctrl.setTargetLine(95);
       assert.strictEqual(ctrl.getState(), ScrollState.RESTORING);
       
-      // Scroll event triggered (by DOM change, not user)
-      dom.setScrollTop(50);
+      // Small scroll event triggered by DOM change (e.g., element height adjustment)
+      // This is below the user scroll threshold (10px), so should be ignored
+      dom.setScrollTop(5);
       dom.triggerScroll();
       
-      // Should stay in RESTORING - scroll events are ignored during restore
+      // Should stay in RESTORING - small DOM-induced scroll is ignored
       assert.strictEqual(ctrl.getState(), ScrollState.RESTORING);
-      assert.strictEqual(reportedLine, null, 'Scroll should NOT be reported in RESTORING');
+      assert.strictEqual(reportedLine, null, 'Small DOM-induced scroll should NOT be reported');
       ctrl.dispose();
     });
 
@@ -490,6 +491,74 @@ describe('ScrollSyncController', () => {
       ctrl.reset();
       
       assert.strictEqual(ctrl.getState(), ScrollState.INITIAL);
+      ctrl.dispose();
+    });
+
+    it('should detect user scroll and transition to TRACKING during async rendering', () => {
+      // This test reproduces the bug: during async diagram rendering in RESTORING state,
+      // if user actively scrolls, the system should detect it and switch to TRACKING,
+      // instead of snapping back when next diagram renders.
+      
+      const dom = createMockDOM();
+      // Initial state: only first block rendered
+      dom.addBlock('b1', 0, 100);
+      dom.setScrollHeight(100);
+      dom.setClientHeight(600);
+      
+      let reportedLine: number | null = null;
+      const blockData: BlockData[] = [
+        { blockId: 'b1', startLine: 1, endLine: 10, top: 0, height: 100 },
+        { blockId: 'b2', startLine: 11, endLine: 20, top: 100, height: 100 },
+        { blockId: 'b3', startLine: 21, endLine: 30, top: 200, height: 100 },
+        { blockId: 'b10', startLine: 91, endLine: 100, top: 900, height: 100 },
+      ];
+      
+      const ctrl = createScrollSyncController({
+        container: dom.container as unknown as HTMLElement,
+        getLineMapper: () => createMockLineMapper(blockData),
+        onUserScroll: (line) => { reportedLine = line; },
+        userScrollDebounceMs: 0,
+      });
+      ctrl.start();
+
+      // Step 1: Set target line 95, enter RESTORING (can't jump yet)
+      ctrl.setTargetLine(95);
+      assert.strictEqual(ctrl.getState(), ScrollState.RESTORING);
+      const initialScrollTop = dom.getScrollTop();
+      
+      // Step 2: First async diagram renders, DOM grows a bit
+      dom.addBlock('b2', 100, 100);
+      dom.setScrollHeight(200);
+      // System tries to restore, but still can't reach line 95
+      ctrl.setTargetLine(95); // Simulate content change triggering restore attempt
+      assert.strictEqual(ctrl.getState(), ScrollState.RESTORING);
+      
+      // Step 3: USER ACTIVELY SCROLLS down to read rendered content
+      // This is the key: user scrolls significantly (not just small DOM-induced movement)
+      dom.setScrollTop(150); // User scrolls down to see block b2
+      dom.triggerScroll();
+      
+      // After user scroll, should transition to TRACKING
+      assert.strictEqual(ctrl.getState(), ScrollState.TRACKING, 
+        'Should transition to TRACKING when user actively scrolls during RESTORING');
+      assert.ok(reportedLine !== null, 
+        'User scroll should be reported');
+      
+      // Step 4: Another async diagram renders - DOM change only, no setTargetLine
+      // In TRACKING state, DOM change should preserve user's position
+      dom.addBlock('b3', 200, 100);
+      dom.setScrollHeight(300);
+      // Note: We don't call setTargetLine here - that would be programmatic scroll
+      // DOM change in TRACKING state should NOT override user's position
+      
+      const finalScrollTop = dom.getScrollTop();
+      console.log(`[BUG TEST] initialScrollTop=${initialScrollTop}, finalScrollTop=${finalScrollTop}, state=${ctrl.getState()}, reportedLine=${reportedLine}`);
+      
+      // Scroll position should be preserved around user's position
+      // (may have been adjusted slightly by DOM change, but not jumped to line 95)
+      assert.ok(finalScrollTop >= 100 && finalScrollTop <= 200, 
+        `Scroll position should be near user's position (150), got ${finalScrollTop}`);
+      
       ctrl.dispose();
     });
   });
@@ -927,6 +996,59 @@ describe('ScrollSyncController', () => {
       ctrl.reset();
       
       assert.strictEqual(ctrl.getState(), ScrollState.INITIAL);
+      ctrl.dispose();
+    });
+
+    it('should allow user scroll during async rendering (LOCKED state)', async () => {
+      // This test reproduces the bug: during async rendering in LOCKED state,
+      // frequent resize events would reset the lock timer and force scroll back,
+      // making it impossible for user to scroll.
+      
+      const dom = createMockDOM();
+      const blockData: BlockData[] = [
+        { blockId: 'b1', startLine: 1, endLine: 10, top: 0, height: 100 },
+        { blockId: 'b2', startLine: 11, endLine: 20, top: 100, height: 100 },
+        { blockId: 'b3', startLine: 21, endLine: 30, top: 200, height: 100 },
+        { blockId: 'b4', startLine: 31, endLine: 40, top: 300, height: 100 },
+      ];
+      blockData.forEach(b => dom.addBlock(b.blockId, b.top, b.height));
+      dom.setScrollHeight(1200);
+      dom.setClientHeight(600);
+      
+      let reportedLine: number | null = null;
+      const ctrl = createScrollSyncController({
+        container: dom.container as unknown as HTMLElement,
+        getLineMapper: () => createMockLineMapper(blockData),
+        onUserScroll: (line) => { reportedLine = line; },
+        lockDurationMs: 50, // Short lock duration
+      });
+      ctrl.start();
+
+      // Step 1: Program sets target line, enters LOCKED
+      ctrl.setTargetLine(15);
+      assert.strictEqual(ctrl.getState(), ScrollState.LOCKED);
+      const programScrollTop = dom.getScrollTop();
+      
+      // Step 2: User scrolls during LOCKED (e.g., wants to read something else)
+      dom.setScrollTop(350); // User scrolls to block b4
+      dom.triggerScroll();
+      
+      // Key assertion: scroll event in LOCKED should update targetLine
+      // so subsequent operations maintain user's new position
+      assert.strictEqual(ctrl.getState(), ScrollState.LOCKED);
+      
+      // Step 3: Wait for lock timer to expire
+      await new Promise(resolve => setTimeout(resolve, 60));
+      
+      // Should now be in TRACKING
+      assert.strictEqual(ctrl.getState(), ScrollState.TRACKING);
+      
+      // The scroll position should be at user's position (350), not program's position
+      // This is because handleScroll in LOCKED updates targetLine
+      const finalScrollTop = dom.getScrollTop();
+      assert.ok(finalScrollTop >= 300, 
+        `User scroll position should be preserved, got ${finalScrollTop}`);
+      
       ctrl.dispose();
     });
   });
