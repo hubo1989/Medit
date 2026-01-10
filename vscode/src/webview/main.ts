@@ -15,7 +15,6 @@ import type { EmojiStyle } from '../../../src/types/docx.js';
 // Shared modules (same as Chrome/Mobile)
 import Localization from '../../../src/utils/localization';
 import themeManager from '../../../src/utils/theme-manager';
-import DocxExporter from '../../../src/exporters/docx-exporter';
 import { loadAndApplyTheme } from '../../../src/utils/theme-to-css';
 
 // Shared utilities from viewer-host
@@ -24,6 +23,8 @@ import {
   createPluginRenderer,
   setCurrentFileKey,
   renderMarkdownFlow,
+  handleThemeSwitchFlow,
+  exportDocxFlow,
 } from '../../../src/core/viewer/viewer-host';
 
 // VSCode-specific UI components
@@ -242,29 +243,20 @@ async function handleSetTheme(payload: SetThemePayload): Promise<void> {
   try {
     currentThemeId = themeId;
 
-    // Save current reading position before reset
-    const savedLine = scrollSyncController?.getCurrentLine() ?? null;
-    
-    // Reset and immediately set target line so controller is ready
-    // when content starts appearing
-    scrollSyncController?.reset();
-    
-    if (savedLine !== null && scrollSyncController) {
-      scrollSyncController.setTargetLine(savedLine);
-    }
-
-    // Load and apply theme (all logic in shared loadAndApplyTheme)
-    await loadAndApplyTheme(themeId);
-
-    // Save selected theme
-    await themeManager.saveSelectedTheme(themeId);
+    await handleThemeSwitchFlow({
+      themeId,
+      scrollController: scrollSyncController,
+      applyTheme: loadAndApplyTheme,
+      saveTheme: (id) => themeManager.saveSelectedTheme(id),
+      rerender: async () => {
+        // Re-render if we have content - force render to regenerate diagrams
+        if (currentMarkdown) {
+          await handleUpdateContent({ content: currentMarkdown, filename: currentFilename, forceRender: true });
+        }
+      },
+    });
 
     vscodeBridge.postMessage('THEME_CHANGED', { themeId });
-
-    // Re-render if we have content - force render to regenerate diagrams
-    if (currentMarkdown) {
-      await handleUpdateContent({ content: currentMarkdown, filename: currentFilename, forceRender: true });
-    }
   } catch (error) {
     console.error('[VSCode Webview] Theme change failed:', error);
   }
@@ -275,36 +267,20 @@ async function handleSetTheme(payload: SetThemePayload): Promise<void> {
 // ============================================================================
 
 async function handleExportDocx(): Promise<void> {
-  try {
-    // Convert filename
-    let docxFilename = currentFilename || 'document.docx';
-    if (docxFilename.toLowerCase().endsWith('.md')) {
-      docxFilename = docxFilename.slice(0, -3) + '.docx';
-    } else if (docxFilename.toLowerCase().endsWith('.markdown')) {
-      docxFilename = docxFilename.slice(0, -9) + '.docx';
-    } else if (!docxFilename.toLowerCase().endsWith('.docx')) {
-      docxFilename = docxFilename + '.docx';
-    }
-
-    const exporter = new DocxExporter(createPluginRenderer(platform));
-
-    // Report progress
-    const onProgress = (completed: number, total: number) => {
+  await exportDocxFlow({
+    markdown: currentMarkdown,
+    filename: currentFilename,
+    renderer: pluginRenderer,
+    onProgress: (completed, total) => {
       vscodeBridge.postMessage('EXPORT_PROGRESS', { completed, total, phase: 'processing' });
-    };
-
-    const result = await exporter.exportToDocx(currentMarkdown, docxFilename, onProgress);
-
-    if (!result.success) {
-      throw new Error(result.error || 'Export failed');
-    }
-
-    vscodeBridge.postMessage('EXPORT_DOCX_RESULT', { success: true, filename: docxFilename });
-  } catch (error) {
-    const errMsg = error instanceof Error ? error.message : String(error);
-    console.error('[VSCode Webview] DOCX export failed:', errMsg);
-    vscodeBridge.postMessage('EXPORT_DOCX_RESULT', { success: false, error: errMsg });
-  }
+    },
+    onSuccess: (filename) => {
+      vscodeBridge.postMessage('EXPORT_DOCX_RESULT', { success: true, filename });
+    },
+    onError: (error) => {
+      vscodeBridge.postMessage('EXPORT_DOCX_RESULT', { success: false, error });
+    },
+  });
 }
 
 // ============================================================================

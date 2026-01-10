@@ -452,3 +452,195 @@ export async function renderMarkdownFlow(options: RenderMarkdownFlowOptions): Pr
     console.error('[ViewerHost] Render failed:', error);
   }
 }
+
+// ============================================================================
+// Theme Switch Flow
+// ============================================================================
+
+/**
+ * Options for the unified theme switch flow.
+ */
+export interface ThemeSwitchFlowOptions {
+  /** New theme ID */
+  themeId: string;
+  
+  /** Scroll sync controller (optional) */
+  scrollController: ScrollSyncController | null;
+  
+  /**
+   * Apply theme callback - called to load and apply CSS.
+   * Typically: loadAndApplyTheme(themeId)
+   */
+  applyTheme: (themeId: string) => Promise<void>;
+  
+  /**
+   * Save theme callback - called after successful apply.
+   * Typically: themeManager.saveSelectedTheme(themeId)
+   */
+  saveTheme?: (themeId: string) => Promise<void>;
+  
+  /**
+   * Re-render callback - called to re-render content with new theme.
+   * Receives the saved scroll line to restore position.
+   */
+  rerender?: (scrollLine: number) => Promise<void>;
+}
+
+/**
+ * Unified theme switch flow for VSCode and Mobile.
+ * 
+ * This function handles:
+ * 1. Save current scroll position
+ * 2. Reset scroll controller and set target line
+ * 3. Apply the new theme
+ * 4. Optionally save the theme selection
+ * 5. Re-render content if needed
+ * 
+ * Note: Chrome uses page reload for theme switch, so this doesn't apply.
+ * 
+ * @example
+ * ```typescript
+ * await handleThemeSwitchFlow({
+ *   themeId: 'github-dark',
+ *   scrollController,
+ *   applyTheme: (id) => loadAndApplyTheme(id),
+ *   saveTheme: (id) => themeManager.saveSelectedTheme(id),
+ *   rerender: (line) => handleUpdateContent({ content, filename, forceRender: true }),
+ * });
+ * ```
+ */
+export async function handleThemeSwitchFlow(options: ThemeSwitchFlowOptions): Promise<void> {
+  const {
+    themeId,
+    scrollController,
+    applyTheme,
+    saveTheme,
+    rerender,
+  } = options;
+
+  // Save current reading position before reset
+  const savedLine = scrollController?.getCurrentLine() ?? 0;
+  
+  // Reset and immediately set target line so controller is ready
+  // when content starts appearing
+  scrollController?.reset();
+  scrollController?.setTargetLine(savedLine);
+
+  // Load and apply theme
+  await applyTheme(themeId);
+
+  // Save theme selection if callback provided
+  if (saveTheme) {
+    await saveTheme(themeId);
+  }
+
+  // Re-render content if callback provided
+  if (rerender) {
+    await rerender(savedLine);
+  }
+}
+
+// ============================================================================
+// DOCX Export Flow
+// ============================================================================
+
+/**
+ * Options for the unified DOCX export flow.
+ */
+export interface DocxExportFlowOptions {
+  /** Markdown content to export */
+  markdown: string;
+  
+  /** Original filename (will be converted to .docx) */
+  filename: string;
+  
+  /** Plugin renderer for diagrams */
+  renderer: PluginRenderer;
+  
+  /**
+   * Progress callback during export.
+   * @param completed - Number of completed items
+   * @param total - Total number of items
+   */
+  onProgress?: (completed: number, total: number) => void;
+  
+  /**
+   * Success callback with the generated filename.
+   */
+  onSuccess?: (filename: string) => void;
+  
+  /**
+   * Error callback with error message.
+   */
+  onError?: (error: string) => void;
+}
+
+/**
+ * Convert filename to .docx extension.
+ * Handles .md, .markdown, and other extensions.
+ */
+export function toDocxFilename(filename: string): string {
+  let docxFilename = filename || 'document.docx';
+  if (docxFilename.toLowerCase().endsWith('.md')) {
+    docxFilename = docxFilename.slice(0, -3) + '.docx';
+  } else if (docxFilename.toLowerCase().endsWith('.markdown')) {
+    docxFilename = docxFilename.slice(0, -9) + '.docx';
+  } else if (!docxFilename.toLowerCase().endsWith('.docx')) {
+    docxFilename = docxFilename + '.docx';
+  }
+  return docxFilename;
+}
+
+/**
+ * Unified DOCX export flow for VSCode and Mobile.
+ * 
+ * This function handles:
+ * 1. Convert filename to .docx
+ * 2. Create exporter with plugin renderer
+ * 3. Export with progress reporting
+ * 4. Call success/error callbacks
+ * 
+ * @example
+ * ```typescript
+ * await exportDocxFlow({
+ *   markdown: currentMarkdown,
+ *   filename: currentFilename,
+ *   renderer: pluginRenderer,
+ *   onProgress: (c, t) => bridge.postMessage('EXPORT_PROGRESS', { completed: c, total: t }),
+ *   onSuccess: (f) => bridge.postMessage('EXPORT_DOCX_RESULT', { success: true, filename: f }),
+ *   onError: (e) => bridge.postMessage('EXPORT_DOCX_RESULT', { success: false, error: e }),
+ * });
+ * ```
+ */
+export async function exportDocxFlow(options: DocxExportFlowOptions): Promise<void> {
+  const {
+    markdown,
+    filename,
+    renderer,
+    onProgress,
+    onSuccess,
+    onError,
+  } = options;
+
+  try {
+    const docxFilename = toDocxFilename(filename);
+
+    // Dynamically import DocxExporter to avoid circular dependencies
+    const DocxExporterModule = await import('../../exporters/docx-exporter');
+    const DocxExporter = DocxExporterModule.default;
+    const exporter = new DocxExporter(renderer);
+
+    const result = await exporter.exportToDocx(markdown, docxFilename, onProgress);
+
+    if (!result.success) {
+      throw new Error(result.error || 'Export failed');
+    }
+
+    onSuccess?.(docxFilename);
+  } catch (error) {
+    const errMsg = error instanceof Error ? error.message : String(error);
+    // eslint-disable-next-line no-console
+    console.error('[ViewerHost] DOCX export failed:', errMsg);
+    onError?.(errMsg);
+  }
+}
