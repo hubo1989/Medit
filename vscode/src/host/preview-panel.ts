@@ -438,10 +438,6 @@ export class MarkdownPreviewPanel {
           }
           break;
 
-        case 'RENDER_COMPLETE':
-          // Rendering completed - no action needed
-          break;
-
         case 'REVEAL_LINE':
           // Preview scrolled, sync editor (Preview → Editor)
           if (payload && typeof (payload as { line: number }).line === 'number') {

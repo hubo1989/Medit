@@ -8,8 +8,7 @@
  */
 
 import { platform, vscodeBridge } from './api-impl';
-import { renderMarkdownDocument, type FrontmatterDisplay } from '../../../src/core/viewer/viewer-controller';
-import { AsyncTaskManager } from '../../../src/core/markdown-processor';
+import type { AsyncTaskManager, FrontmatterDisplay } from '../../../src/core/markdown-processor';
 import { wrapFileContent } from '../../../src/utils/file-wrapper';
 import type { ScrollSyncController } from '../../../src/core/line-based-scroll';
 import type { EmojiStyle } from '../../../src/types/docx.js';
@@ -23,7 +22,8 @@ import { loadAndApplyTheme } from '../../../src/utils/theme-to-css';
 import {
   createViewerScrollSync,
   createPluginRenderer,
-  getFrontmatterDisplay,
+  setCurrentFileKey,
+  renderMarkdownFlow,
 } from '../../../src/core/viewer/viewer-host';
 
 // VSCode-specific UI components
@@ -47,7 +47,6 @@ let currentFilename = '';
 let currentThemeId = 'default';
 let currentTaskManager: AsyncTaskManager | null = null;
 let currentZoomLevel = 1;
-let lastRenderedFilename = '';  // Track last rendered file for incremental updates
 let currentDocumentBaseUri = '';  // Base URI for resolving relative paths (images, links)
 
 // UI components
@@ -62,6 +61,9 @@ const pluginRenderer = createPluginRenderer(platform);
 
 async function initialize(): Promise<void> {
   try {
+    // Set bridge on FileStateService for scroll sync communication
+    platform.fileState.setBridge(vscodeBridge);
+
     // Listen for messages from extension host FIRST - before any async operations
     // This ensures we don't miss early messages like SCROLL_TO_LINE
     vscodeBridge.addListener((message) => {
@@ -197,109 +199,37 @@ async function handleUpdateContent(payload: UpdateContentPayload): Promise<void>
   const newFilename = filename || 'document.md';
   const fileChanged = currentFilename !== newFilename;
 
-  // Only abort on file switch - incremental updates let old tasks complete naturally
-  // (old tasks will find their placeholder gone and silently discard results)
-  if (fileChanged && currentTaskManager) {
-    currentTaskManager.abort();
-    currentTaskManager = null;
-  }
-
   // Wrap non-markdown file content (mermaid, vega, graphviz, infographic)
   const wrappedContent = wrapFileContent(content, newFilename);
   
   currentMarkdown = wrappedContent;
   currentFilename = newFilename;
 
-  try {
-    // Create task manager
-    const taskManager = new AsyncTaskManager(
-      (key: string, subs?: string | string[]) => Localization.translate(key, subs)
-    );
-    currentTaskManager = taskManager;
+  // Set file key for scroll position persistence (consistent with Chrome/Mobile)
+  setCurrentFileKey(newFilename);
 
-    // NOTE: Don't eagerly create iframe here!
-    // The iframe will be created lazily only when a diagram needs to be rendered.
-    // This is handled inside platform.renderer.render() which calls ensureReady() internally.
-
-    // Clear container if file changed OR if forceRender is true (e.g., theme change)
-    if (fileChanged || forceRender) {
-      // Check if this is a real file switch (has existing content) vs initial load
-      const isRealFileSwitch = container.childNodes.length > 0;
-      
-      container.innerHTML = '';
-      
-      // Only reset scroll state on real file switch, not initial load
-      // Initial load: SCROLL_TO_LINE arrives before UPDATE_CONTENT, targetLine already set
-      // File switch: need to reset to avoid old targetLine interfering with new document
-      if (isRealFileSwitch && fileChanged) {
-        scrollSyncController?.reset();
-      }
-    }
-
-    // Apply zoom level before rendering
-    if (currentZoomLevel !== 1) {
-      (container as HTMLElement).style.zoom = String(currentZoomLevel);
-    }
-
-    // Determine incremental update conditions
-    const shouldIncremental = !fileChanged && container.childNodes.length > 0;
-
-    // Get frontmatter display setting using shared utility
-    const frontmatterDisplay = await getFrontmatterDisplay(platform);
-
-    // Render markdown (same as Mobile)
-    // Use incremental update only if same file and container has existing content
-    const renderResult = await renderMarkdownDocument({
-      markdown: wrappedContent,
-      container: container as HTMLElement,
-      renderer: pluginRenderer,
-      translate: (key: string, subs?: string | string[]) => Localization.translate(key, subs),
-      taskManager,
-      clearContainer: fileChanged,  // Clear only when file changes
-      frontmatterDisplay,
-      onHeadings: (headings) => {
-        vscodeBridge.postMessage('HEADINGS_UPDATED', headings);
-      },
-      onStreamingComplete: () => {
-        // Streaming is complete, notify scroll controller
-        scrollSyncController?.onStreamingComplete();
-      },
-    });
-
-    // Track the file we just rendered
-    if (!taskManager.isAborted()) {
-      lastRenderedFilename = currentFilename;
-    }
-
-    if (taskManager.isAborted()) {
-      return;
-    }
-
-    // Process async tasks after initial render (same pattern as Chrome/Mobile)
-    // This renders diagrams, charts, etc.
-    await renderResult.taskManager.processAll((completed, total) => {
-      if (!taskManager.isAborted()) {
-        vscodeBridge.postMessage('RENDER_PROGRESS', { completed, total });
-      }
-    });
-
-    // Clear task manager reference
-    if (currentTaskManager === taskManager) {
-      currentTaskManager = null;
-    }
-
-    // Notify extension host
-    vscodeBridge.postMessage('RENDER_COMPLETE', {
-      filename: currentFilename,
-      title: renderResult.title || currentFilename
-    });
-
-  } catch (error) {
-    console.error('[VSCode Webview] Render failed:', error);
-    vscodeBridge.postMessage('RENDER_ERROR', {
-      error: (error as Error).message
-    });
-  }
+  // Render using shared flow
+  // VSCode: targetLine is set via SCROLL_TO_LINE message before UPDATE_CONTENT
+  // Don't pass targetLine here to avoid overwriting the value set by message handler
+  await renderMarkdownFlow({
+    markdown: wrappedContent,
+    container: container as HTMLElement,
+    fileChanged,
+    forceRender: forceRender ?? false,
+    zoomLevel: currentZoomLevel,
+    scrollController: scrollSyncController,
+    renderer: pluginRenderer,
+    translate: (key: string, subs?: string | string[]) => Localization.translate(key, subs),
+    platform,
+    currentTaskManagerRef: { current: currentTaskManager },
+    // VSCode: targetLine is undefined, uses message-driven value
+    onHeadings: (headings) => {
+      vscodeBridge.postMessage('HEADINGS_UPDATED', headings);
+    },
+    onProgress: (completed, total) => {
+      vscodeBridge.postMessage('RENDER_PROGRESS', { completed, total });
+    },
+  });
 }
 
 // ============================================================================
@@ -356,7 +286,7 @@ async function handleExportDocx(): Promise<void> {
       docxFilename = docxFilename + '.docx';
     }
 
-    const exporter = new DocxExporter(createPluginRenderer());
+    const exporter = new DocxExporter(createPluginRenderer(platform));
 
     // Report progress
     const onProgress = (completed: number, total: number) => {
@@ -633,8 +563,10 @@ let scrollSyncController: ScrollSyncController | null = null;
 
 /**
  * Initialize scroll sync controller
- * Uses shared createViewerScrollSync from viewer-host with custom onUserScroll
- * to report scroll position to extension host (for reverse sync: Preview → Editor)
+ * Uses shared createViewerScrollSync from viewer-host.
+ * The FileStateService handles communication with extension host:
+ * - User scroll → FileStateService.set() → REVEAL_LINE message (Preview → Editor)
+ * - Editor scroll → SCROLL_TO_LINE message → FileStateService → scrollController (Editor → Preview)
  */
 function initScrollSyncController(): void {
   // Dispose previous controller if exists
@@ -644,10 +576,7 @@ function initScrollSyncController(): void {
     scrollSyncController = createViewerScrollSync({
       containerId: 'vscode-content',
       platform,
-      // VSCode-specific: report scroll to extension host instead of saving to FileStateService
-      onUserScroll: (line) => {
-        vscodeBridge.postMessage('REVEAL_LINE', { line });
-      },
+      // Default onUserScroll saves to FileStateService, which sends REVEAL_LINE
     });
     scrollSyncController.start();
   } catch (error) {
@@ -657,9 +586,15 @@ function initScrollSyncController(): void {
 
 /**
  * Handle scroll to line from editor (Editor → Preview)
+ * Updates FileStateService so scroll position can be used by rendering
  */
 function handleScrollToLine(payload: ScrollToLinePayload): void {
   const { line } = payload;
+  
+  // Update FileStateService (for consistency with Chrome/Mobile)
+  if (currentFilename) {
+    platform.fileState.setScrollLineFromHost(currentFilename, line);
+  }
   
   if (scrollSyncController) {
     scrollSyncController.setTargetLine(line);

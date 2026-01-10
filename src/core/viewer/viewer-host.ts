@@ -9,10 +9,14 @@
  * - createPluginRenderer: Plugin renderer for diagrams (Mermaid, Vega, etc.)
  * - getFrontmatterDisplay: Read frontmatter display setting
  * - applyZoom: Apply zoom level with scroll position preservation
+ *
+ * Step 2: Unified render flow
+ * - renderMarkdownFlow: Main render function used by all platforms
  */
 
 import { createScrollSyncController, type ScrollSyncController } from '../line-based-scroll';
-import { getDocument } from './viewer-controller';
+import { getDocument, renderMarkdownDocument } from './viewer-controller';
+import { AsyncTaskManager } from '../markdown-processor';
 import type { PluginRenderer, PlatformAPI } from '../../types/index';
 import type { FrontmatterDisplay } from './viewer-controller';
 
@@ -198,4 +202,253 @@ export function applyZoom(options: ApplyZoomOptions): number {
   }
 
   return zoomLevel;
+}
+
+// ============================================================================
+// Render Markdown Flow
+// ============================================================================
+
+/**
+ * Translate function type for localization
+ */
+export type TranslateFn = (key: string, subs?: string | string[]) => string;
+
+/**
+ * Options for the unified render markdown flow.
+ * 
+ * This abstracts the common rendering logic across Chrome/VSCode/Mobile,
+ * with platform-specific behavior controlled via callbacks.
+ */
+export interface RenderMarkdownFlowOptions {
+  /** Markdown content to render */
+  markdown: string;
+  
+  /** Container element to render into */
+  container: HTMLElement;
+  
+  /** Whether the file has changed (new file loaded) */
+  fileChanged: boolean;
+  
+  /** Force re-render even if file hasn't changed (e.g., theme change) */
+  forceRender: boolean;
+  
+  /** Current zoom level as decimal (1.0 = 100%) */
+  zoomLevel: number;
+  
+  /** Scroll sync controller (optional) */
+  scrollController: ScrollSyncController | null;
+  
+  /** Plugin renderer for diagrams */
+  renderer: PluginRenderer;
+  
+  /** Translate function for localization */
+  translate: TranslateFn;
+  
+  /** Platform API */
+  platform: PlatformAPI;
+  
+  /** 
+   * Reference to current task manager for abort handling.
+   * The function will set currentTaskManagerRef.current during rendering.
+   */
+  currentTaskManagerRef: { current: AsyncTaskManager | null };
+  
+  /**
+   * Target line for scroll sync.
+   * - Chrome/Mobile: Pass the saved scroll line
+   * - VSCode: Pass undefined (uses message-driven targetLine set before render)
+   */
+  targetLine?: number;
+  
+  /**
+   * Callback when headings are extracted during render.
+   * - Chrome: Update TOC progressively
+   * - VSCode/Mobile: Send to host
+   */
+  onHeadings?: (headings: Array<{ level: number; text: string; id: string }>) => void;
+  
+  /**
+   * Callback for async task progress (diagrams, charts).
+   * - VSCode/Mobile: Send RENDER_PROGRESS to host
+   * - Chrome: Update progress indicator
+   */
+  onProgress?: (completed: number, total: number) => void;
+  
+  /**
+   * Called before processing async tasks.
+   * - Chrome: Show processing indicator
+   */
+  beforeProcessAll?: () => void;
+  
+  /**
+   * Called after processing async tasks.
+   * - Chrome: Hide processing indicator
+   */
+  afterProcessAll?: () => void;
+  
+  /**
+   * Called after render completes successfully.
+   * - Chrome: Update active TOC item
+   */
+  afterRender?: () => void;
+}
+
+/**
+ * Unified markdown rendering flow for all platforms.
+ * 
+ * This function handles:
+ * 1. Task manager lifecycle (create, abort previous, cleanup)
+ * 2. Container clearing and scroll reset logic
+ * 3. Zoom application
+ * 4. Markdown rendering with streaming
+ * 5. Async task processing (diagrams, charts)
+ * 
+ * Platform-specific behavior is controlled via callbacks.
+ * 
+ * @example
+ * ```typescript
+ * // Chrome
+ * await renderMarkdownFlow({
+ *   markdown,
+ *   container,
+ *   fileChanged: true,
+ *   forceRender: false,
+ *   zoomLevel: 1.5,
+ *   scrollController,
+ *   renderer: pluginRenderer,
+ *   translate: Localization.translate,
+ *   platform,
+ *   currentTaskManagerRef: { current: currentTaskManager },
+ *   targetLine: savedScrollLine,
+ *   onHeadings: () => generateTOC(),
+ *   beforeProcessAll: showProcessingIndicator,
+ *   afterProcessAll: hideProcessingIndicator,
+ *   afterRender: updateActiveTocItem,
+ * });
+ * 
+ * // VSCode (targetLine undefined - set via message)
+ * await renderMarkdownFlow({
+ *   markdown,
+ *   container,
+ *   fileChanged,
+ *   forceRender,
+ *   zoomLevel: currentZoomLevel,
+ *   scrollController,
+ *   renderer: pluginRenderer,
+ *   translate: Localization.translate,
+ *   platform,
+ *   currentTaskManagerRef: { current: currentTaskManager },
+ *   onHeadings: (h) => vscodeBridge.postMessage('HEADINGS_UPDATED', h),
+ *   onProgress: (c, t) => vscodeBridge.postMessage('RENDER_PROGRESS', { completed: c, total: t }),
+ * });
+ * ```
+ */
+export async function renderMarkdownFlow(options: RenderMarkdownFlowOptions): Promise<void> {
+  const {
+    markdown,
+    container,
+    fileChanged,
+    forceRender,
+    zoomLevel,
+    scrollController,
+    renderer,
+    translate,
+    platform,
+    currentTaskManagerRef,
+    targetLine,
+    onHeadings,
+    onProgress,
+    beforeProcessAll,
+    afterProcessAll,
+    afterRender,
+  } = options;
+
+  // Abort any previous rendering task
+  if (currentTaskManagerRef.current) {
+    currentTaskManagerRef.current.abort();
+    currentTaskManagerRef.current = null;
+  }
+
+  try {
+    // Create task manager
+    const taskManager = new AsyncTaskManager(translate);
+    currentTaskManagerRef.current = taskManager;
+
+    // Determine if we need to clear container
+    const shouldClear = fileChanged || forceRender;
+
+    if (shouldClear) {
+      // Check if this is a real file switch (has existing content) vs initial load
+      const isRealFileSwitch = container.childNodes.length > 0;
+
+      // Clear container
+      container.innerHTML = '';
+
+      // Only reset scroll state on real file switch, not initial load
+      if (isRealFileSwitch && fileChanged) {
+        scrollController?.reset();
+      }
+    }
+
+    // Set target line for scroll sync
+    // VSCode: targetLine is undefined, uses message-driven value
+    // Chrome/Mobile: targetLine is passed as parameter
+    if (targetLine !== undefined) {
+      scrollController?.setTargetLine(targetLine);
+    }
+
+    // Apply zoom level before rendering
+    if (zoomLevel !== 1) {
+      container.style.zoom = String(zoomLevel);
+    }
+
+    // Get frontmatter display setting
+    const frontmatterDisplay = await getFrontmatterDisplay(platform);
+
+    // Render markdown
+    const renderResult = await renderMarkdownDocument({
+      markdown,
+      container,
+      renderer,
+      translate,
+      taskManager,
+      clearContainer: false, // Already cleared above if needed
+      frontmatterDisplay,
+      onHeadings,
+      onStreamingComplete: () => {
+        scrollController?.onStreamingComplete();
+      },
+    });
+
+    if (taskManager.isAborted()) {
+      return;
+    }
+
+    // Platform-specific: called after streaming, before async tasks
+    // Chrome uses this to update TOC active state
+    if (afterRender) {
+      setTimeout(afterRender, 100);
+    }
+
+    // Process async tasks (diagrams, charts)
+    beforeProcessAll?.();
+    try {
+      await renderResult.taskManager.processAll((completed, total) => {
+        if (!taskManager.isAborted()) {
+          onProgress?.(completed, total);
+        }
+      });
+    } finally {
+      afterProcessAll?.();
+    }
+
+    // Clear task manager reference
+    if (currentTaskManagerRef.current === taskManager) {
+      currentTaskManagerRef.current = null;
+    }
+
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('[ViewerHost] Render failed:', error);
+  }
 }

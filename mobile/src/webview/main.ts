@@ -7,8 +7,7 @@ import Localization from '../../../src/utils/localization';
 import themeManager from '../../../src/utils/theme-manager';
 import DocxExporter from '../../../src/exporters/docx-exporter';
 import { loadAndApplyTheme } from '../../../src/utils/theme-to-css';
-import { AsyncTaskManager } from '../../../src/core/markdown-processor';
-import { renderMarkdownDocument, type FrontmatterDisplay } from '../../../src/core/viewer/viewer-controller';
+import type { AsyncTaskManager } from '../../../src/core/markdown-processor';
 import type { ScrollSyncController } from '../../../src/core/line-based-scroll';
 import type { PlatformBridgeAPI } from '../../../src/types/index';
 
@@ -16,9 +15,9 @@ import type { PlatformBridgeAPI } from '../../../src/types/index';
 import {
   createViewerScrollSync,
   createPluginRenderer,
-  getFrontmatterDisplay,
   setCurrentFileKey,
   applyZoom,
+  renderMarkdownFlow,
 } from '../../../src/core/viewer/viewer-host';
 
 declare global {
@@ -51,6 +50,7 @@ interface LoadMarkdownPayload {
   filePath?: string;    // File path for state persistence
   themeId?: string;     // Theme ID (WebView loads theme data itself)
   scrollLine?: number;  // Saved scroll position (line number) - legacy, prefer fileState
+  forceRender?: boolean; // Force re-render even if file hasn't changed (e.g., theme change)
 }
 
 /**
@@ -99,6 +99,14 @@ async function initialize(): Promise<void> {
     // Initialize theme manager (loads font-config.json and registry.json)
     // This must complete before we can load themes
     await themeManager.initialize();
+
+    // Load and apply default theme at initialization (consistent with Chrome/VSCode)
+    try {
+      currentThemeId = await themeManager.loadSelectedTheme();
+      await loadAndApplyTheme(currentThemeId);
+    } catch (error) {
+      console.error('[Mobile] Failed to load theme at init:', error);
+    }
 
     // Pre-initialize render iframe (don't wait, let it load in background)
     platform.renderer.ensureReady().catch((err: Error) => {
@@ -183,19 +191,12 @@ function setupMessageHandlers(): void {
  * Handle loading Markdown content
  */
 async function handleLoadMarkdown(payload: LoadMarkdownPayload): Promise<void> {
-  const { content, filename, filePath, themeId, scrollLine } = payload;
+  const { content, filename, filePath, themeId, scrollLine, forceRender } = payload;
 
   // Check if file changed
   const newFilename = filename || 'document.md';
   const newFilePath = filePath || newFilename; // Fallback to filename if no path
   const fileChanged = currentFilename !== newFilename;
-
-  // Only abort on file switch - incremental updates let old tasks complete naturally
-  // (old tasks will find their placeholder gone and silently discard results)
-  if (fileChanged && currentTaskManager) {
-    currentTaskManager.abort();
-    currentTaskManager = null;
-  }
 
   currentMarkdown = content;
   currentFilename = newFilename;
@@ -217,93 +218,38 @@ async function handleLoadMarkdown(payload: LoadMarkdownPayload): Promise<void> {
     }
   }
 
-  try {
-    // Update theme if provided (Flutter sends themeId, we load it ourselves)
-    if (themeId && themeId !== currentThemeId) {
-      currentThemeId = themeId;
-    }
-
-    // Create task manager
-    const taskManager = new AsyncTaskManager(
-      (key: string, subs?: string | string[]) => Localization.translate(key, subs)
-    );
-    currentTaskManager = taskManager;
-
-    const container = document.getElementById('markdown-content');
-
-    let titleForHost = currentFilename;
-
-    if (container) {
-      // Clear container FIRST, then apply theme (avoids flicker from old content with new style)
-      container.innerHTML = '';
-
-      // Reset scroll controller AFTER clearing container
-      // This prevents scroll events from updating targetLine with stale DOM data
-      if (scrollSyncController) {
-        scrollSyncController.reset();
-        scrollSyncController.setTargetLine(savedScrollLine);
-      }
-
-      // Load and apply theme using shared function (all theme logic is handled internally)
-      await loadAndApplyTheme(currentThemeId);
-
-      // Apply saved zoom level before rendering to avoid flicker
-      if (currentZoomLevel !== 1) {
-        applyZoom({ zoom: currentZoomLevel * 100 });
-      }
-
-      // Get frontmatter display setting using shared utility
-      const frontmatterDisplay = await getFrontmatterDisplay(platform);
-
-      const renderResult = await renderMarkdownDocument({
-        markdown: content,
-        container: container as HTMLElement,
-        renderer: pluginRenderer,
-        translate: (key: string, subs?: string | string[]) => Localization.translate(key, subs),
-        taskManager,
-        clearContainer: false,
-        frontmatterDisplay,
-        onHeadings: (headings) => {
-          bridge.postMessage('HEADINGS_UPDATED', headings);
-        },
-        onStreamingComplete: () => {
-          // Streaming is complete, notify scroll controller
-          scrollSyncController?.onStreamingComplete();
-        },
-      });
-
-      if (taskManager.isAborted()) {
-        return;
-      }
-
-      titleForHost = renderResult.title || currentFilename;
-
-      // Process async tasks after initial render (same pattern as Chrome)
-      await renderResult.taskManager.processAll((completed, total) => {
-        if (!taskManager.isAborted()) {
-          bridge.postMessage('RENDER_PROGRESS', { completed, total });
-        }
-      });
-    }
-
-    // Clear task manager reference after successful completion
-    if (currentTaskManager === taskManager) {
-      currentTaskManager = null;
-    }
-
-    // Notify host app that rendering is complete
-    bridge.postMessage('RENDER_COMPLETE', {
-      filename: currentFilename,
-      title: titleForHost
-    });
-
-  } catch (error) {
-    const err = error as Error;
-    console.error('[Mobile] Markdown processing failed:', err.message, err.stack);
-    bridge.postMessage('RENDER_ERROR', {
-      error: err.message
-    });
+  // Update theme if provided (Flutter sends themeId, we load it ourselves)
+  if (themeId && themeId !== currentThemeId) {
+    currentThemeId = themeId;
+    // Theme change will be applied via handleSetTheme, not here
   }
+
+  const container = document.getElementById('markdown-content');
+  if (!container) {
+    console.error('[Mobile] Content container not found');
+    return;
+  }
+
+  // Render using shared flow
+  await renderMarkdownFlow({
+    markdown: content,
+    container: container as HTMLElement,
+    fileChanged,
+    forceRender: forceRender ?? false,
+    zoomLevel: currentZoomLevel,
+    scrollController: scrollSyncController,
+    renderer: pluginRenderer,
+    translate: (key: string, subs?: string | string[]) => Localization.translate(key, subs),
+    platform,
+    currentTaskManagerRef: { current: currentTaskManager },
+    targetLine: savedScrollLine,
+    onHeadings: (headings) => {
+      bridge.postMessage('HEADINGS_UPDATED', headings);
+    },
+    onProgress: (completed, total) => {
+      bridge.postMessage('RENDER_PROGRESS', { completed, total });
+    },
+  });
 }
 
 /**
@@ -353,6 +299,14 @@ async function handleSetTheme(payload: SetThemePayload): Promise<void> {
   const previousThemeId = currentThemeId;
   currentThemeId = themeId;
   
+  // Load and apply the new theme
+  try {
+    await loadAndApplyTheme(themeId);
+  } catch (error) {
+    console.error('[Mobile] Failed to load theme:', error);
+    return;
+  }
+  
   // Notify Flutter of theme change
   bridge.postMessage('THEME_CHANGED', { themeId });
   
@@ -361,7 +315,7 @@ async function handleSetTheme(payload: SetThemePayload): Promise<void> {
     // Get current line from scrollSyncController before re-render
     const scrollLine = scrollSyncController?.getCurrentLine() ?? 0;
     
-    await handleLoadMarkdown({ content: currentMarkdown, filename: currentFilename || '', scrollLine });
+    await handleLoadMarkdown({ content: currentMarkdown, filename: currentFilename || '', scrollLine, forceRender: true });
   }
 }
 

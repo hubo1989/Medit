@@ -13,7 +13,7 @@ import { wrapFileContent } from '../../../src/utils/file-wrapper';
 
 import type { PluginRenderer, RendererThemeConfig, PlatformAPI } from '../../../src/types/index';
 
-import { renderMarkdownDocument, type FrontmatterDisplay } from '../../../src/core/viewer/viewer-controller';
+import type { AsyncTaskManager } from '../../../src/core/markdown-processor';
 import type { ScrollSyncController } from '../../../src/core/line-based-scroll';
 import { escapeHtml } from '../../../src/core/markdown-processor';
 import { getCurrentDocumentUrl, saveToHistory } from '../../../src/core/document-utils';
@@ -25,8 +25,8 @@ import { createToolbarManager, generateToolbarHTML, layoutIcons } from './ui/too
 // Import shared utilities from viewer-host
 import {
   createViewerScrollSync,
-  getFrontmatterDisplay,
   setCurrentFileKey,
+  renderMarkdownFlow,
 } from '../../../src/core/viewer/viewer-host';
 
 // Extend Window interface for global access
@@ -120,6 +120,8 @@ export async function initializeViewerMain(options: ViewerMainOptions): Promise<
 
   // Initialize scroll sync controller using shared utility
   let scrollSyncController: ScrollSyncController | null = null;
+  let currentTaskManager: AsyncTaskManager | null = null;
+  let currentThemeId: string | null = null;
   
   function initScrollSyncController(): void {
     try {
@@ -229,6 +231,17 @@ export async function initializeViewerMain(options: ViewerMainOptions): Promise<
   // Initialize scroll sync controller immediately after DOM is ready
   initScrollSyncController();
 
+  // Load theme at initialization (consistent with VSCode/Mobile)
+  // This ensures theme is applied before first render
+  try {
+    currentThemeId = await themeManager.loadSelectedTheme();
+    // loadAndApplyTheme handles all theme logic including renderer config
+    await loadAndApplyTheme(currentThemeId);
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('Failed to load theme at init, using defaults:', error);
+  }
+
   // Wait a bit for DOM to be ready, then start processing
   setTimeout(async () => {
     const savedScrollLine = initialState.scrollLine ?? 0;
@@ -256,61 +269,36 @@ export async function initializeViewerMain(options: ViewerMainOptions): Promise<
   });
 
   async function renderMarkdown(markdown: string, savedScrollLine = 0): Promise<void> {
-    const contentDiv = document.getElementById('markdown-content') as HTMLElement | null;
-    if (!contentDiv) {
+    const container = document.getElementById('markdown-content') as HTMLElement | null;
+    if (!container) {
       // eslint-disable-next-line no-console
-      console.error('markdown-content div not found!');
+      console.error('[Chrome] Content container not found');
       return;
     }
 
-    // Set target scroll line immediately - MutationObserver will auto-reposition when DOM changes
-    if (scrollSyncController) {
-      scrollSyncController.setTargetLine(savedScrollLine);
-    }
-
-    // Load and apply theme (all theme logic including renderer config is handled internally)
-    try {
-      const themeId = await themeManager.loadSelectedTheme();
-      await loadAndApplyTheme(themeId);
-    } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error('Failed to load theme, using defaults:', error);
-    }
-
-    // Get frontmatter display setting using shared utility
-    const frontmatterDisplay = await getFrontmatterDisplay(platform);
-
-    // Render markdown using shared orchestration
-    const result = await renderMarkdownDocument({
+    await renderMarkdownFlow({
       markdown,
-      container: contentDiv,
+      container,
+      fileChanged: true, // Chrome: single document per page
+      forceRender: false, // Chrome: theme change reloads page
+      zoomLevel: toolbarManager.getZoomLevel() / 100,
+      scrollController: scrollSyncController,
       renderer: pluginRenderer,
       translate,
-      clearContainer: true,
-      frontmatterDisplay,
-      onHeadings: () => {
-        // Update TOC progressively as chunks are rendered
+      platform,
+      currentTaskManagerRef: { current: currentTaskManager },
+      targetLine: savedScrollLine,
+      onHeadings: (_headings) => {
+        // Chrome-specific: Update TOC progressively as chunks are rendered
         void generateTOC();
       },
-      onStreamingComplete: () => {
-        // Streaming is complete, all initial DOM content is ready
-        // Apply zoom (scroll is handled by MutationObserver)
-        toolbarManager.applyZoom(toolbarManager.getZoomLevel(), false);
-        setTimeout(updateActiveTocItem, 100);
+      onProgress: (completed, total) => {
+        updateProgress(completed, total);
       },
+      beforeProcessAll: showProcessingIndicator,
+      afterProcessAll: hideProcessingIndicator,
+      afterRender: updateActiveTocItem,
     });
-
-    // Process async tasks after the initial render (keeps the page responsive)
-    setTimeout(async () => {
-      showProcessingIndicator();
-      try {
-        await result.taskManager.processAll((completed, total) => {
-          updateProgress(completed, total);
-        });
-      } finally {
-        hideProcessingIndicator();
-      }
-    }, 200);
   }
 }
 

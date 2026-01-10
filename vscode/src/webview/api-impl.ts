@@ -268,15 +268,32 @@ class VSCodeMessageService {
 // ============================================================================
 
 /**
- * VSCode File State Service (in-memory implementation)
+ * VSCode File State Service
  * 
- * VSCode doesn't need persistent file state storage because:
- * - VSCode has its own editor state management
- * - Scroll position is managed by VSCode's webview API
- * - This provides a simple in-memory cache for the current session
+ * Unlike Chrome/Mobile which persist state to storage, VSCode communicates
+ * scroll position with the extension host:
+ * - set() sends REVEAL_LINE message to host (Preview → Editor sync)
+ * - Host sends SCROLL_TO_LINE message which updates the state (Editor → Preview sync)
  */
 class VSCodeFileStateService {
   private states: Map<string, FileState> = new Map();
+  private bridge: PlatformBridgeAPI | null = null;
+
+  /**
+   * Set the bridge for host communication
+   * Must be called before using set() with scrollLine
+   */
+  setBridge(bridge: PlatformBridgeAPI): void {
+    this.bridge = bridge;
+  }
+
+  /**
+   * Update state from host message (SCROLL_TO_LINE)
+   */
+  setScrollLineFromHost(url: string, scrollLine: number): void {
+    const existing = this.states.get(url) || {};
+    this.states.set(url, { ...existing, scrollLine });
+  }
 
   async get(url: string): Promise<FileState> {
     return this.states.get(url) || {};
@@ -285,6 +302,11 @@ class VSCodeFileStateService {
   set(url: string, state: FileState): void {
     const existing = this.states.get(url) || {};
     this.states.set(url, { ...existing, ...state });
+    
+    // Send scroll position to host for reverse sync (Preview → Editor)
+    if (state.scrollLine !== undefined && this.bridge) {
+      this.bridge.postMessage('REVEAL_LINE', { line: state.scrollLine });
+    }
   }
 
   async clear(url: string): Promise<void> {
