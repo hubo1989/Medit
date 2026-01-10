@@ -5,7 +5,6 @@
 import { platform, bridge } from './api-impl';
 import Localization from '../../../src/utils/localization';
 import themeManager from '../../../src/utils/theme-manager';
-import DocxExporter from '../../../src/exporters/docx-exporter';
 import { loadAndApplyTheme } from '../../../src/utils/theme-to-css';
 import type { AsyncTaskManager } from '../../../src/core/markdown-processor';
 import type { ScrollSyncController } from '../../../src/core/line-based-scroll';
@@ -18,6 +17,8 @@ import {
   setCurrentFileKey,
   applyZoom,
   renderMarkdownFlow,
+  handleThemeSwitchFlow,
+  exportDocxFlow,
 } from '../../../src/core/viewer/viewer-host';
 
 declare global {
@@ -296,26 +297,25 @@ async function handleSetTheme(payload: SetThemePayload): Promise<void> {
     return;
   }
   
-  const previousThemeId = currentThemeId;
   currentThemeId = themeId;
   
-  // Load and apply the new theme
   try {
-    await loadAndApplyTheme(themeId);
+    await handleThemeSwitchFlow({
+      themeId,
+      scrollController: scrollSyncController,
+      applyTheme: loadAndApplyTheme,
+      rerender: async (scrollLine) => {
+        // Re-render if we have content
+        if (currentMarkdown) {
+          await handleLoadMarkdown({ content: currentMarkdown, filename: currentFilename || '', scrollLine, forceRender: true });
+        }
+      },
+    });
+    
+    // Notify Flutter of theme change
+    bridge.postMessage('THEME_CHANGED', { themeId });
   } catch (error) {
     console.error('[Mobile] Failed to load theme:', error);
-    return;
-  }
-  
-  // Notify Flutter of theme change
-  bridge.postMessage('THEME_CHANGED', { themeId });
-  
-  // Re-render if we have content and theme actually changed
-  if (currentMarkdown && previousThemeId !== themeId) {
-    // Get current line from scrollSyncController before re-render
-    const scrollLine = scrollSyncController?.getCurrentLine() ?? 0;
-    
-    await handleLoadMarkdown({ content: currentMarkdown, filename: currentFilename || '', scrollLine, forceRender: true });
   }
 }
 
@@ -323,40 +323,24 @@ async function handleSetTheme(payload: SetThemePayload): Promise<void> {
  * Handle DOCX export
  */
 async function handleExportDocx(): Promise<void> {
-  try {
-    // Convert filename from .md to .docx
-    let docxFilename = currentFilename || 'document.docx';
-    if (docxFilename.toLowerCase().endsWith('.md')) {
-      docxFilename = docxFilename.slice(0, -3) + '.docx';
-    } else if (docxFilename.toLowerCase().endsWith('.markdown')) {
-      docxFilename = docxFilename.slice(0, -9) + '.docx';
-    } else if (!docxFilename.toLowerCase().endsWith('.docx')) {
-      docxFilename = docxFilename + '.docx';
-    }
-
-    const exporter = new DocxExporter(pluginRenderer);
-    
-    // Report progress to Flutter
-    const onProgress = (completed: number, total: number) => {
+  await exportDocxFlow({
+    markdown: currentMarkdown,
+    filename: currentFilename,
+    renderer: pluginRenderer,
+    onProgress: (completed, total) => {
       bridge.postMessage('EXPORT_PROGRESS', { 
         completed, 
         total,
         phase: 'processing' // processing, packaging, sharing
       });
-    };
-    
-    const result = await exporter.exportToDocx(currentMarkdown, docxFilename, onProgress);
-
-    if (!result.success) {
-      throw new Error(result.error || 'Export failed');
-    }
-
-  } catch (error) {
-    const errMsg = error instanceof Error ? error.message : String(error);
-    const errStack = error instanceof Error ? error.stack : '';
-    console.error('[Mobile] DOCX export failed:', errMsg, errStack);
-    bridge.postMessage('EXPORT_ERROR', { error: errMsg });
-  }
+    },
+    onSuccess: () => {
+      // Mobile doesn't send success message - Flutter handles the file
+    },
+    onError: (error) => {
+      bridge.postMessage('EXPORT_ERROR', { error });
+    },
+  });
 }
 
 /**
