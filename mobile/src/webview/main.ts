@@ -18,6 +18,7 @@ import {
   createPluginRenderer,
   getFrontmatterDisplay,
   setCurrentFileKey,
+  applyZoom,
 } from '../../../src/core/viewer/viewer-host';
 
 declare global {
@@ -248,7 +249,7 @@ async function handleLoadMarkdown(payload: LoadMarkdownPayload): Promise<void> {
 
       // Apply saved zoom level before rendering to avoid flicker
       if (currentZoomLevel !== 1) {
-        (container as HTMLElement).style.zoom = String(currentZoomLevel);
+        applyZoom({ zoom: currentZoomLevel * 100 });
       }
 
       // Get frontmatter display setting using shared utility
@@ -483,13 +484,12 @@ window.setFontSize = (size: number) => {
     // Skip if no actual change
     if (oldZoom === currentZoomLevel) return;
     
-    // Lock scroll position before font size change
-    scrollSyncController?.lock();
-    
-    const container = document.getElementById('markdown-content');
-    if (container) {
-      (container as HTMLElement).style.zoom = String(currentZoomLevel);
-    }
+    // Apply zoom using shared utility (handles scroll lock internally)
+    applyZoom({
+      zoom: currentZoomLevel * 100,
+      containerId: 'markdown-content',
+      scrollController: scrollSyncController,
+    });
   } catch (error) {
     console.error('[Mobile] Failed to set font size:', error);
   }

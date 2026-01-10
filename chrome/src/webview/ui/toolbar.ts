@@ -4,6 +4,7 @@
  */
 
 import { getFilenameFromURL, getDocumentFilename } from '../../../../src/core/document-utils';
+import { applyZoom as applyZoomCore } from '../../../../src/core/viewer/viewer-host';
 import type {
   TranslateFunction,
   EscapeHtmlFunction,
@@ -78,22 +79,21 @@ export function createToolbarManager(options: ToolbarManagerOptions): ToolbarMan
     // Skip if no actual change
     if (oldLevel === currentZoomLevel) return;
     
-    // Lock scroll position before zoom change to prevent targetLine corruption
+    // Core rendering logic - use shared function
+    // Note: onBeforeZoom locks scroll position, passed as scrollController.lock equivalent
     onBeforeZoom?.();
+    applyZoomCore({ zoom: currentZoomLevel });
     
+    // UI updates (Chrome-specific)
     const zoomLevelSpan = document.getElementById('zoom-level');
-    const contentDiv = document.getElementById('markdown-content');
-    
     if (zoomLevelSpan) {
       zoomLevelSpan.textContent = currentZoomLevel + '%';
     }
     
+    // Update scroll-margin-top for all headings to account for zoom
+    // Formula: 50px (toolbar height) / zoom ratio
+    const contentDiv = document.getElementById('markdown-content');
     if (contentDiv) {
-      // Apply zoom using CSS zoom property (like browser zoom)
-      (contentDiv.style as CSSStyleDeclaration & { zoom: string }).zoom = String(currentZoomLevel / 100);
-      
-      // Update scroll-margin-top for all headings to account for zoom
-      // Formula: 50px (toolbar height) / zoom ratio
       const scrollMargin = 50 / (currentZoomLevel / 100);
       const headings = contentDiv.querySelectorAll('h1, h2, h3, h4, h5, h6');
       headings.forEach(heading => {
