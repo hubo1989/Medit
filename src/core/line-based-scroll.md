@@ -49,14 +49,29 @@
 ```typescript
 /**
  * 检查是否可以跳转到目标位置
- * 条件：目标 block 已存在（可以计算位置）
- * 浏览器会自动将滚动位置限制在有效范围内
+ * 条件：
+ * 1. 目标 block 已存在（可以计算位置）
+ * 2. 目标滚动位置 + 视口高度 <= 文档总高度
+ *    （确保目标行能显示在视口顶部，而不是被浏览器限制在最大滚动位置）
  */
 function canScrollToTarget(): boolean {
   const targetPos = getScrollPositionForLine(targetLine);
-  return targetPos !== null;  // 目标 block 存在即可跳转
+  if (targetPos === null) return false;
+  
+  // 检查文档是否足够高，能让目标行滚动到视口顶部
+  const maxScrollPosition = documentHeight - viewportHeight;
+  return targetPos <= maxScrollPosition;
 }
 ```
+
+**为什么需要检查高度？**
+
+在流式渲染过程中，目标 block 可能很早就渲染出来了，但文档还不够高。如果此时跳转：
+- 保存时：`scrollY=43054`，文档高度 90000
+- 恢复时：文档高度只有 32000，浏览器会把滚动限制在 `32000 - viewportHeight ≈ 31400`
+- 结果：恢复位置不正确
+
+所以必须等文档足够高，才能执行跳转。
 
 ## 状态定义
 
@@ -81,12 +96,18 @@ LOCKED    - 锁定模式，程序化滚动中
 
 ### 状态说明
 
-| 状态 | 含义 | scroll 事件处理 | DOM 变化处理 |
-|-----|------|----------------|-------------|
-| INITIAL | 等待恢复目标 | 忽略 | 忽略 |
-| RESTORING | 等待 DOM 足够高 | 忽略（DOM 变化导致） | 检查跳转条件 |
-| TRACKING | 跟踪用户滚动 | 更新 targetLine，报告位置 | 位置维护 |
-| LOCKED | 程序化滚动中 | 更新 targetLine，不报告 | 重新滚动 |
+| 状态 | 含义 | scroll 事件处理 | DOM 内容变化处理 | Resize 事件处理 |
+|-----|------|----------------|-----------------|-----------------|
+| INITIAL | 等待恢复目标 | 忽略 | 忽略 | 忽略 |
+| RESTORING | 等待 DOM 足够高 | 检测用户滚动* | 检查跳转条件 | 检查跳转条件 |
+| TRACKING | 跟踪用户滚动 | 更新 targetLine，报告位置 | 位置维护→LOCKED | 位置维护→LOCKED |
+| LOCKED | 程序化滚动中 | 更新 targetLine，不报告 | 重新滚动，重置计时器 | **忽略**（让计时器自然到期） |
+
+**说明**：
+- RESTORING 状态的 scroll 检测：如果滚动偏移 > 10px，认为是用户主动滚动，转换到 TRACKING
+- LOCKED 状态区分 DOM 变化和 Resize：
+  - DOM 内容变化（异步渲染）：重新滚动到 targetLine，重置计时器
+  - Resize 事件：**不处理**，让计时器自然到期，避免与用户滚动冲突
 
 ### 状态变量
 
@@ -95,6 +116,7 @@ LOCKED    - 锁定模式，程序化滚动中
 | `targetLine` | number | 当前阅读位置（行号） |
 | `scrollState` | enum | 当前滚动状态 |
 | `lastContentHeight` | number | 上次内容高度，用于检测 DOM 变化 |
+| `lastScrollTopAfterChange` | number | 上次 DOM 变化后的滚动位置，用于检测用户滚动 |
 
 ## 状态转移图
 
