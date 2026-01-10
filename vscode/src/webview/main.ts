@@ -8,17 +8,23 @@
  */
 
 import { platform, vscodeBridge } from './api-impl';
-import { renderMarkdownDocument, getDocument, type FrontmatterDisplay } from '../../../src/core/viewer/viewer-controller';
+import { renderMarkdownDocument, type FrontmatterDisplay } from '../../../src/core/viewer/viewer-controller';
 import { AsyncTaskManager } from '../../../src/core/markdown-processor';
 import { wrapFileContent } from '../../../src/utils/file-wrapper';
-import { createScrollSyncController, type ScrollSyncController } from '../../../src/core/line-based-scroll';
+import type { ScrollSyncController } from '../../../src/core/line-based-scroll';
 import type { EmojiStyle } from '../../../src/types/docx.js';
 // Shared modules (same as Chrome/Mobile)
 import Localization from '../../../src/utils/localization';
 import themeManager from '../../../src/utils/theme-manager';
 import DocxExporter from '../../../src/exporters/docx-exporter';
 import { loadAndApplyTheme } from '../../../src/utils/theme-to-css';
-import type { PluginRenderer } from '../../../src/types/index';
+
+// Shared utilities from viewer-host
+import {
+  createViewerScrollSync,
+  createPluginRenderer,
+  getFrontmatterDisplay,
+} from '../../../src/core/viewer/viewer-host';
 
 // VSCode-specific UI components
 import { createSettingsPanel, type SettingsPanel, type ThemeOption, type LocaleOption } from './settings-panel';
@@ -47,24 +53,8 @@ let currentDocumentBaseUri = '';  // Base URI for resolving relative paths (imag
 // UI components
 let settingsPanel: SettingsPanel | null = null;
 
-// ============================================================================
-// Plugin Renderer (shared pattern)
-// ============================================================================
-
-function createPluginRenderer(): PluginRenderer {
-  return {
-    render: async (type: string, content: string | object) => {
-      const result = await platform.renderer.render(type, content);
-      return {
-        base64: result.base64,
-        width: result.width,
-        height: result.height,
-        format: result.format,
-        error: undefined
-      };
-    }
-  };
-}
+// Create plugin renderer using shared utility
+const pluginRenderer = createPluginRenderer(platform);
 
 // ============================================================================
 // Initialization (similar to Mobile)
@@ -231,8 +221,6 @@ async function handleUpdateContent(payload: UpdateContentPayload): Promise<void>
     // The iframe will be created lazily only when a diagram needs to be rendered.
     // This is handled inside platform.renderer.render() which calls ensureReady() internally.
 
-    const pluginRenderer = createPluginRenderer();
-
     // Clear container if file changed OR if forceRender is true (e.g., theme change)
     if (fileChanged || forceRender) {
       // Check if this is a real file switch (has existing content) vs initial load
@@ -256,15 +244,8 @@ async function handleUpdateContent(payload: UpdateContentPayload): Promise<void>
     // Determine incremental update conditions
     const shouldIncremental = !fileChanged && container.childNodes.length > 0;
 
-    // Get frontmatter display setting
-    let frontmatterDisplay: FrontmatterDisplay = 'hide';
-    try {
-      const result = await platform.storage.get(['markdownViewerSettings']);
-      const settings = (result.markdownViewerSettings || {}) as Record<string, unknown>;
-      frontmatterDisplay = (settings.frontmatterDisplay as FrontmatterDisplay) || 'hide';
-    } catch {
-      // Use default on error
-    }
+    // Get frontmatter display setting using shared utility
+    const frontmatterDisplay = await getFrontmatterDisplay(platform);
 
     // Render markdown (same as Mobile)
     // Use incremental update only if same file and container has existing content
@@ -652,28 +633,26 @@ let scrollSyncController: ScrollSyncController | null = null;
 
 /**
  * Initialize scroll sync controller
+ * Uses shared createViewerScrollSync from viewer-host with custom onUserScroll
+ * to report scroll position to extension host (for reverse sync: Preview → Editor)
  */
 function initScrollSyncController(): void {
-  const container = document.getElementById('vscode-content');
-  if (!container) {
-    console.warn('[WebView] vscode-content container not found!');
-    return;
-  }
-  
   // Dispose previous controller if exists
   scrollSyncController?.dispose();
   
-  scrollSyncController = createScrollSyncController({
-    container,
-    getLineMapper: getDocument,
-    userScrollDebounceMs: 10,  // Reduced for faster reverse sync feedback
-    onUserScroll: (line) => {
-      // Report user scroll to extension for reverse sync (Preview → Editor)
-      vscodeBridge.postMessage('REVEAL_LINE', { line });
-    },
-  });
-  
-  scrollSyncController.start();
+  try {
+    scrollSyncController = createViewerScrollSync({
+      containerId: 'vscode-content',
+      platform,
+      // VSCode-specific: report scroll to extension host instead of saving to FileStateService
+      onUserScroll: (line) => {
+        vscodeBridge.postMessage('REVEAL_LINE', { line });
+      },
+    });
+    scrollSyncController.start();
+  } catch (error) {
+    console.warn('[WebView] Failed to init scroll sync:', error);
+  }
 }
 
 /**
