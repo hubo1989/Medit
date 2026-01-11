@@ -50,6 +50,9 @@ let currentTaskManager: AsyncTaskManager | null = null;
 let currentZoomLevel = 1;
 let currentDocumentBaseUri = '';  // Base URI for resolving relative paths (images, links)
 
+// Render queue for serializing updates (prevents concurrent update bugs)
+let renderQueue: Promise<void> = Promise.resolve();
+
 // UI components
 let settingsPanel: SettingsPanel | null = null;
 
@@ -146,7 +149,10 @@ function handleExtensionMessage(message: ExtensionMessage): void {
 
   switch (type) {
     case 'UPDATE_CONTENT':
-      handleUpdateContent(payload as UpdateContentPayload);
+      // Serialize updates to prevent concurrent modification bugs
+      // When multiple updates arrive rapidly (e.g., AI editing), they must be processed sequentially
+      // to ensure DOM and MarkdownDocument state remain consistent
+      renderQueue = renderQueue.then(() => handleUpdateContent(payload as UpdateContentPayload));
       break;
 
     case 'EXPORT_DOCX':
@@ -322,7 +328,7 @@ declare global {
 window.loadMarkdown = (content: string, filename?: string, _themeId?: string, _scrollLine?: number) => {
   // themeId and scrollLine are ignored in VSCode - theme is managed separately
   // and scroll sync is handled via SCROLL_TO_LINE messages
-  handleUpdateContent({ content, filename });
+  renderQueue = renderQueue.then(() => handleUpdateContent({ content, filename }));
 };
 
 window.setTheme = (themeId: string) => {
