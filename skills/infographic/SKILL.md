@@ -5,31 +5,24 @@ description: Create beautiful infographics with pre-designed templates. Best for
 
 # Infographic Visualizer
 
-> **⚠️ CRITICAL - READ BEFORE GENERATING CODE:**
-> 1. Read this **ENTIRE document** (all 450+ lines, not just the first 50)
-> 2. Check the **"Available Templates"** section for valid template names
-> 3. Follow the **"Critical Rules"** and **"Common Pitfalls"** sections strictly
-> 4. Refer to `references/templates.md` and `references/examples.md` for detailed usage
->
-> **Partial reading WILL cause:** invalid template names, wrong syntax, missing required fields, and render failures.
+> **⚠️ CHECK TEMPLATES:** Wrong template names WILL cause render failures.
 
-## When to Use
+## When to Use & Available Templates
 
 **✅ Use infographic when:**
-- Feature list / checklist (`list-column-done-list`, `list-row-*`)
-- KPI cards / metrics grid (`list-grid-badge-card`)
-- Timeline / milestones (`sequence-timeline-*`)
-- Step-by-step process (`sequence-snake-steps-*`, `sequence-stairs-*`)
-- Product roadmap (`sequence-roadmap-vertical-*`)
-- Funnel / conversion (`sequence-filter-mesh-simple`, `sequence-funnel-simple`)
-- A vs B comparison (`compare-binary-horizontal-*`)
-- SWOT analysis (`compare-swot`)
-- Priority matrix 2×2 (`quadrant-quarter-*`)
-- Org tree (`hierarchy-tree-*`, `hierarchy-structure`)
-- Pie / donut chart (`chart-pie-*`, `chart-pie-donut-*`)
-- Bar / column chart (`chart-bar-*`, `chart-column-*`)
-- Word cloud (`chart-wordcloud`)
-- Content has 4-8 items for optimal visual balance
+- **Feature list / checklist**: `list-grid-badge-card`, `list-grid-candy-card-lite`, `list-grid-ribbon-card`, `list-column-done-list`, `list-column-vertical-icon-arrow`, `list-column-simple-vertical-arrow`, `list-row-horizontal-icon-arrow`, `list-row-simple-illus`, `list-sector-plain-text`, `list-zigzag-down-compact-card`, `list-zigzag-down-simple`, `list-zigzag-up-compact-card`, `list-zigzag-up-simple`
+- **Timeline / milestones**: `sequence-timeline-simple`, `sequence-timeline-rounded-rect-node`, `sequence-timeline-simple-illus`
+- **Step-by-step process**: `sequence-snake-steps-simple`, `sequence-snake-steps-compact-card`, `sequence-snake-steps-underline-text`, `sequence-stairs-front-compact-card`, `sequence-stairs-front-pill-badge`, `sequence-ascending-steps`, `sequence-ascending-stairs-3d-underline-text`, `sequence-circular-simple`, `sequence-pyramid-simple`, `sequence-mountain-underline-text`, `sequence-cylinders-3d-simple`, `sequence-zigzag-steps-underline-text`, `sequence-zigzag-pucks-3d-simple`, `sequence-horizontal-zigzag-underline-text`, `sequence-horizontal-zigzag-simple-illus`, `sequence-color-snake-steps-horizontal-icon-line`
+- **Product roadmap**: `sequence-roadmap-vertical-simple`, `sequence-roadmap-vertical-plain-text`
+- **Funnel / conversion**: `sequence-filter-mesh-simple`, `sequence-funnel-simple`
+- **A vs B comparison**: `compare-binary-horizontal-underline-text-vs`, `compare-binary-horizontal-simple-fold`, `compare-binary-horizontal-badge-card-arrow`, `compare-hierarchy-left-right-circle-node-pill-badge`
+- **SWOT analysis**: `compare-swot`
+- **Priority matrix 2×2**: `quadrant-quarter-simple-card`, `quadrant-quarter-circular`, `quadrant-simple-illus`
+- **Org tree / hierarchy**: `hierarchy-tree-tech-style-capsule-item`, `hierarchy-tree-curved-line-rounded-rect-node`, `hierarchy-tree-tech-style-badge-card`, `hierarchy-structure`
+- **Pie / donut chart**: `chart-pie-plain-text`, `chart-pie-compact-card`, `chart-pie-donut-plain-text`, `chart-pie-donut-pill-badge`
+- **Bar / column chart**: `chart-bar-plain-text`, `chart-column-simple`, `chart-line-plain-text`
+- **Word cloud**: `chart-wordcloud`
+- **Relation / circle**: `relation-circle-icon-badge`, `relation-circle-circular-progress`
 
 **❌ Use other skills instead:**
 - Complex data analysis with 20+ data points → **vega**
@@ -38,8 +31,6 @@ description: Create beautiful infographics with pre-designed templates. Best for
 - Complex dependency graphs → **graphviz**
 - Free spatial positioning → **canvas**
 
----
-
 ## Overview
 
 Infographic transforms data and information into visual infographics using a simple, mermaid-like DSL syntax.
@@ -47,8 +38,6 @@ Infographic transforms data and information into visual infographics using a sim
 `Infographic = Information Structure + Visual Expression`
 
 **Live Gallery:** [AntV Infographic Gallery](https://infographic.antv.vision/examples)
-
----
 
 ## Syntax Structure
 
@@ -74,146 +63,17 @@ theme
 4. **Arrays**: Use `-` prefix for items
 5. **Icon format**: `mdi/icon-name` (from Iconify, e.g., `mdi/chart-line`)
 
----
+## Data Fields
 
-## Data Field Reference
-
-### TypeScript Definition
-```ts
-interface Data {
-  title?: string;
-  desc?: string;
-  items: ItemDatum[];
-}
-
-interface ItemDatum {
-  icon?: string;      // e.g., "mdi/chart-line"
-  label?: string;     // Item title (Required for most templates)
-  desc?: string;      // Description text
-  value?: number;     // Numeric value (for charts/funnels)
-  illus?: string;     // Illustration name (from unDraw)
-  children?: ItemDatum[];  // Nested items (for hierarchy/compare)
-}
-```
-
-### Common Fields
-| Field | Type | Description | Example |
-|-------|------|-------------|---------|
-| `label` | string | Item title/name | `label Q1 Sales` |
-| `desc` | string | Description text | `desc 12.8 亿元 | +20%` |
-| `value` | number | Numeric value (charts/funnels only) | `value 128` |
-| `icon` | string | Icon from Iconify | `icon mdi/star` |
-| `illus` | string | Illustration from unDraw | `illus coding` |
-| `children` | array | Nested items | For hierarchy/compare |
-| `time` | string | Time label (timeline) | `time 2024-Q1` |
-| `done` | boolean | Completion status | `done true` |
-
-### Icon Resources (from Iconify)
-- Format: `<collection>/<icon-name>`
-- Popular collections: `mdi/*`, `fa/*`, `bi/*`, `heroicons/*`
-- Browse: https://icon-sets.iconify.design/
-- Examples: `mdi/code-tags`, `mdi/chart-line`, `mdi/account-group`
-
-### Illustration Resources (from unDraw)
-- Format: illustration filename without .svg
-- Browse: https://undraw.co/illustrations
-- Examples: `coding`, `team-work`, `analytics`
-
----
-
-## Available Templates
-
-### List (`list-*`) — For listing items/features
-- `list-grid-badge-card` — Grid cards with badges ⭐
-- `list-grid-candy-card-lite` — Colorful grid cards
-- `list-grid-ribbon-card` — Cards with ribbon decoration
-- `list-row-horizontal-icon-arrow` — Horizontal row with arrows
-- `list-row-simple-illus` — Row with illustrations
-- `list-sector-plain-text` — Radial sector layout
-- `list-column-done-list` — Checklist with checkmarks ⭐
-- `list-column-vertical-icon-arrow` — Vertical with arrows
-- `list-column-simple-vertical-arrow` — Simple vertical arrows
-- `list-zigzag-down-compact-card` — Zigzag down cards
-- `list-zigzag-down-simple` — Simple zigzag down
-- `list-zigzag-up-compact-card` — Zigzag up cards
-- `list-zigzag-up-simple` — Simple zigzag up
-
-### Sequence (`sequence-*`) — For processes/timelines
-- `sequence-timeline-simple` — Simple timeline ⭐
-- `sequence-timeline-rounded-rect-node` — Timeline with rounded nodes
-- `sequence-timeline-simple-illus` — Timeline with illustrations
-- `sequence-roadmap-vertical-simple` — Vertical roadmap ⭐
-- `sequence-roadmap-vertical-plain-text` — Plain text roadmap
-- `sequence-filter-mesh-simple` — Funnel chart ⭐
-- `sequence-funnel-simple` — Simple funnel
-- `sequence-snake-steps-simple` — Snake path steps
-- `sequence-snake-steps-compact-card` — Snake with cards
-- `sequence-snake-steps-underline-text` — Snake with underline
-- `sequence-stairs-front-compact-card` — Front stairs cards
-- `sequence-stairs-front-pill-badge` — Stairs with badges
-- `sequence-ascending-steps` — Ascending steps
-- `sequence-ascending-stairs-3d-underline-text` — 3D stairs
-- `sequence-circular-simple` — Circular flow
-- `sequence-pyramid-simple` — Pyramid structure
-- `sequence-mountain-underline-text` — Mountain milestones
-- `sequence-cylinders-3d-simple` — 3D cylinders
-- `sequence-zigzag-steps-underline-text` — Zigzag steps
-- `sequence-zigzag-pucks-3d-simple` — 3D pucks zigzag
-- `sequence-horizontal-zigzag-underline-text` — Horizontal zigzag
-- `sequence-horizontal-zigzag-simple-illus` — Zigzag illustrations
-- `sequence-color-snake-steps-horizontal-icon-line` — Colorful snake
-
-### Compare (`compare-*`) — For comparisons
-- `compare-binary-horizontal-underline-text-vs` — A vs B comparison ⭐
-- `compare-binary-horizontal-simple-fold` — Folded comparison
-- `compare-binary-horizontal-badge-card-arrow` — Badge cards with arrows
-- `compare-hierarchy-left-right-circle-node-pill-badge` — Hierarchy comparison
-- `compare-swot` — SWOT analysis (4 quadrants) ⭐
-
-### Hierarchy (`hierarchy-*`) — For org charts/trees
-- `hierarchy-tree-tech-style-capsule-item` — Tech style tree ⭐
-- `hierarchy-tree-curved-line-rounded-rect-node` — Curved tree
-- `hierarchy-tree-tech-style-badge-card` — Tree with badge cards
-- `hierarchy-structure` — Generic hierarchy (max 3 levels)
-
-### Chart (`chart-*`) — For data visualization
-- `chart-pie-plain-text` — Pie chart
-- `chart-pie-compact-card` — Pie with cards
-- `chart-pie-donut-plain-text` — Donut chart ⭐
-- `chart-pie-donut-pill-badge` — Donut with badges
-- `chart-bar-plain-text` — Horizontal bar chart
-- `chart-column-simple` — Vertical column chart
-- `chart-line-plain-text` — Line chart
-- `chart-wordcloud` — Word cloud
-
-### Quadrant (`quadrant-*`) — For 2x2 matrices
-- `quadrant-quarter-simple-card` — Quadrant cards ⭐
-- `quadrant-quarter-circular` — Circular quadrant
-- `quadrant-simple-illus` — Illustrated quadrant
-
-### Relation (`relation-*`) — For relationships
-- `relation-circle-icon-badge` — Circle with badges
-- `relation-circle-circular-progress` — Circular progress
-
----
-
-## Template Selection Guidelines
-
-| Use Case | Recommended Templates |
-|----------|----------------------|
-| Feature list / KPIs | `list-grid-badge-card` |
-| Checklist | `list-column-done-list` |
-| Timeline / History | `sequence-timeline-simple` |
-| Roadmap / Planning | `sequence-roadmap-vertical-simple` |
-| Process steps | `sequence-snake-steps-simple` |
-| Sales funnel | `sequence-filter-mesh-simple` |
-| A vs B comparison | `compare-binary-horizontal-underline-text-vs` |
-| SWOT analysis | `compare-swot` |
-| Org chart / Tree | `hierarchy-tree-tech-style-capsule-item` |
-| Pie/Donut chart | `chart-pie-donut-plain-text` |
-| Priority matrix | `quadrant-quarter-simple-card` |
-
----
+| Field | Description | Example |
+|-------|-------------|---------|
+| `label` | Item title/name (required) | `label Q1 Sales` |
+| `desc` | Description text | `desc 12.8 亿元 \| +20%` |
+| `value` | Numeric value (charts/funnels only) | `value 128` |
+| `icon` | Icon: `mdi/icon-name` ([Iconify](https://icon-sets.iconify.design/)) | `icon mdi/star` |
+| `illus` | Illustration name ([unDraw](https://undraw.co/illustrations)) | `illus coding` |
+| `children` | Nested items (hierarchy/compare) | See examples |
+| `done` | Completion status (checklist) | `done true` |
 
 ## Core Examples
 
@@ -382,8 +242,6 @@ data
       icon mdi/check
 ```
 
----
-
 ## Critical Rules
 
 ### Compare Templates: Exactly 2 Root Nodes
@@ -410,8 +268,6 @@ data
 ✅ icon mdi/star
 ```
 
----
-
 ## Common Pitfalls
 
 | Issue | Solution |
@@ -423,8 +279,6 @@ data
 | Values not showing | Put values in `desc` for list templates, use `value` only for charts/funnels |
 | Icons not showing | Use `icon mdi/icon-name` format |
 | Hierarchy too deep | `hierarchy-structure` supports max 3 levels |
-
----
 
 ## Output Format
 
@@ -438,8 +292,6 @@ data
       desc Description here
 ```
 ````
-
----
 
 ## Related Files
 
