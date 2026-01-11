@@ -65,7 +65,7 @@ export const createBuildConfig = () => {
     format: 'iife', // Use IIFE for Chrome extension content scripts
     target: ['chrome120'], // Target modern Chrome
     treeShaking: true,
-    metafile: true, // Generate metafile for bundle analysis
+    metafile: false, // Generate metafile for bundle analysis
     // Define globals
     define: {
       'process.env.NODE_ENV': '"production"',

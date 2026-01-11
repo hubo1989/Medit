@@ -2,6 +2,7 @@
 
 import { build } from 'esbuild';
 import { createBuildConfig } from './build-config.js';
+import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -58,31 +59,30 @@ try {
   process.chdir(projectRoot);
   
   const config = createBuildConfig();
-  const result = await build(config);
+  await build(config);
   
-  // Analyze bundle sizes
-  if (result.metafile) {
-    const outputs = result.metafile.outputs;
-    console.log('\n📊 Bundle sizes:');
-    const bundles = Object.entries(outputs)
-      .filter(([name]) => name.endsWith('.js'))
-      .map(([name, info]) => ({
-        name: name.replace('dist/chrome/', ''),
-        size: info.bytes
-      }))
-      .sort((a, b) => b.size - a.size);
-    
-    for (const bundle of bundles) {
-      const size = bundle.size >= 1024 * 1024 
-        ? `${(bundle.size / 1024 / 1024).toFixed(2)} MB`
-        : `${(bundle.size / 1024).toFixed(2)} KB`;
-      console.log(`   ${bundle.name}: ${size}`);
-    }
-    
-    fs.writeFileSync(path.join(outdir, 'metafile.json'), JSON.stringify(result.metafile, null, 2));
+  // Create ZIP file for Chrome Web Store submission
+  const zipPath = path.join(projectRoot, 'dist', `chrome-v${version}.zip`);
+  console.log('\n📦 Creating ZIP package...');
+  
+  // Remove existing zip if present
+  if (fs.existsSync(zipPath)) {
+    fs.unlinkSync(zipPath);
   }
   
-  console.log(`\n✅ Build complete! Output: dist/chrome/`);
+  // Create zip from inside the chrome directory (so manifest.json is at root)
+  execSync(`cd "${outdir}" && zip -r "${zipPath}" .`, { stdio: 'ignore' });
+  
+  // Show zip file size
+  const zipStats = fs.statSync(zipPath);
+  const zipSize = zipStats.size >= 1024 * 1024
+    ? `${(zipStats.size / 1024 / 1024).toFixed(2)} MB`
+    : `${(zipStats.size / 1024).toFixed(2)} KB`;
+  console.log(`   chrome-v${version}.zip: ${zipSize}`);
+  
+  console.log(`\n✅ Build complete!`);
+  console.log(`   Output: dist/chrome/`);
+  console.log(`   Package: dist/chrome-v${version}.zip`);
 } catch (error) {
   console.error('❌ Build failed:', error);
   process.exit(1);

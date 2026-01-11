@@ -78,7 +78,7 @@ async function buildExtensionHost() {
     platform: 'node',
     target: ['node18'],
     external: ['vscode'], // vscode module is provided by VS Code
-    sourcemap: true,
+    sourcemap: false,
     minify: true,
     define: {
       'process.env.NODE_ENV': '"production"'
@@ -102,7 +102,7 @@ async function buildWebview() {
     format: 'iife',
     platform: 'browser',
     target: ['chrome120'],
-    sourcemap: true,
+    sourcemap: false,
     minify: true,
     define: {
       'process.env.NODE_ENV': '"production"',
