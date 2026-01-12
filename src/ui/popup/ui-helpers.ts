@@ -155,7 +155,14 @@ export async function checkFileAccess(): Promise<void> {
         if (link) {
           link.addEventListener('click', (e) => {
             e.preventDefault();
-            window.open(extensionUrl, '_blank');
+            // Use chrome.tabs.create() to open chrome:// URLs
+            // window.open() cannot open chrome:// protocol URLs
+            if (chrome.tabs && chrome.tabs.create) {
+              chrome.tabs.create({ url: extensionUrl });
+            } else {
+              // Fallback for environments where tabs API is not available
+              window.open(extensionUrl, '_blank');
+            }
           });
         }
       }
