@@ -7,6 +7,7 @@
 import { BaseRenderer } from './base-renderer';
 import JSONCanvas from '@trbn/jsoncanvas';
 import { applyRoughEffect, type RoughSvgOptions } from './libs/rough-svg';
+import { parseInlineMarkdown, hasInlineMarkdown } from '../utils/inline-markdown';
 import type { RendererThemeConfig, RenderResult } from '../types/index';
 
 // Color presets - softer Obsidian-style colors
@@ -183,15 +184,20 @@ export class JsonCanvasRenderer extends BaseRenderer {
     // Render rectangle
     let svg = `<rect x="${x}" y="${y}" width="${node.width}" height="${node.height}" rx="${NODE_BORDER_RADIUS}" ry="${NODE_BORDER_RADIUS}" fill="${fill}" stroke="${stroke}" stroke-width="2"/>`;
     
-    // Render text content using foreignObject for proper text wrapping (supports CJK)
+    // Render text content using foreignObject for proper text wrapping (supports CJK and markdown)
     if (node.text) {
       const padding = 10;
       const textWidth = node.width - padding * 2;
       const textHeight = node.height - padding * 2;
       
+      // Parse inline markdown if present, otherwise use escaped plain text
+      const htmlContent = hasInlineMarkdown(node.text)
+        ? parseInlineMarkdown(node.text)
+        : this.escapeXml(node.text).replace(/\n/g, '<br/>');
+      
       // Use foreignObject to embed HTML for proper text wrapping
       svg += `<foreignObject x="${x + padding}" y="${y + padding}" width="${textWidth}" height="${textHeight}">`;
-      svg += `<div xmlns="http://www.w3.org/1999/xhtml" style="font-family: ${fontFamily}; font-size: ${FONT_SIZE}px; color: #333333; line-height: ${LINE_HEIGHT}; overflow: hidden; word-wrap: break-word; white-space: pre-wrap;">${this.escapeXml(node.text)}</div>`;
+      svg += `<div xmlns="http://www.w3.org/1999/xhtml" style="font-family: ${fontFamily}; font-size: ${FONT_SIZE}px; color: #333333; line-height: ${LINE_HEIGHT}; overflow: hidden; word-wrap: break-word; white-space: pre-wrap;">${htmlContent}</div>`;
       svg += `</foreignObject>`;
     }
     
@@ -376,8 +382,11 @@ export class JsonCanvasRenderer extends BaseRenderer {
     const hasStartArrow = edge.fromEnd === 'arrow';
     const arrowCount = (hasEndArrow ? 1 : 0) + (hasStartArrow ? 1 : 0);
     
-    // Bidirectional arrows need larger threshold (30px), single arrow uses 15px
-    const minDistanceForCurve = arrowCount >= 2 ? 30 : 15;
+    // Use straight line when nodes are close to avoid bezier curve looping through nodes.
+    // When controlDist=80 (minimum) but gap<27, the curve's control points extend beyond
+    // the gap, causing S-shaped curves that penetrate nodes.
+    // Threshold: 30px for all cases (slightly above observed 27px critical point)
+    const minDistanceForCurve = 30;
     
     if (straightDist < minDistanceForCurve) {
       // Calculate arrow scale based on available space
@@ -421,7 +430,7 @@ export class JsonCanvasRenderer extends BaseRenderer {
       // For distant nodes, draw the curved path
       // Control distance should be at least 80px, and scale with distance
       // This ensures the curve leaves/enters nodes perpendicular to the edge
-      const controlDist = Math.max(80, dist * 0.5);
+      let controlDist = Math.max(80, dist * 0.5);
       
       // Control points extend from start/end in the direction of their sides
       const cp1x = start.x + fromDir.x * controlDist;

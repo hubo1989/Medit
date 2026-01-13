@@ -60,6 +60,11 @@ All nodes require: `id`, `type`, `x`, `y`, `width`, `height`
 - X increases to the right
 - Y increases downward
 
+### 7. Node Sizing
+- Consider text content when setting node dimensions
+- Multi-line text requires more height to display all lines
+- Long words require more width to avoid overflow
+
 ---
 
 ## Common Pitfalls

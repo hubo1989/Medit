@@ -486,6 +486,40 @@ describe('JsonCanvasRenderer', () => {
       assert.strictEqual(matches?.length, 2, 'Both arrows should have 4px width');
     });
 
+    it('should use straight line for 25px gap to avoid bezier penetration', () => {
+      // At 25px gap: controlDist=80 >> gap causes S-shaped curve to penetrate nodes
+      // minDistanceForCurve=30 prevents this by using straight line for gap < 30px
+      const svg = generateSvg({
+        nodes: [
+          { id: 'a', type: 'text', text: 'A', x: 0, y: 0, width: 80, height: 40 },
+          { id: 'b', type: 'text', text: 'B', x: 0, y: 65, width: 80, height: 40 }
+        ],
+        edges: [
+          { id: 'e1', fromNode: 'a', fromSide: 'bottom', toNode: 'b', toSide: 'top', toEnd: 'none' }
+        ]
+      });
+      
+      // gap = 65 - 40 = 25px, should use straight line
+      assert.ok(svg.includes('<line'), 'Should use straight line for 25px gap (< 30px threshold)');
+      assert.ok(!svg.includes('<path'), 'Should not use bezier curve for 25px gap');
+    });
+
+    it('should use bezier curve for 30px gap', () => {
+      // At 30px gap: exactly at minDistanceForCurve threshold, should start using curves
+      const svg = generateSvg({
+        nodes: [
+          { id: 'a', type: 'text', text: 'A', x: 0, y: 0, width: 80, height: 40 },
+          { id: 'b', type: 'text', text: 'B', x: 0, y: 70, width: 80, height: 40 }
+        ],
+        edges: [
+          { id: 'e1', fromNode: 'a', fromSide: 'bottom', toNode: 'b', toSide: 'top', toEnd: 'none' }
+        ]
+      });
+      
+      // gap = 70 - 40 = 30px, should use bezier curve
+      assert.ok(svg.includes('<path'), 'Should use bezier curve for 30px gap (>= 30px threshold)');
+    });
+
     it('should scale arrows for bidirectional edges when distance is less than double arrow width', () => {
       // Nodes with 10px gap, bidirectional arrows need 14px total
       const svg = generateSvg({
@@ -504,21 +538,130 @@ describe('JsonCanvasRenderer', () => {
     });
 
     it('should use normal size arrows when distance is sufficient', () => {
-      // Nodes with 20px gap (more than ARROW_WIDTH=7)
+      // Nodes with 40px gap (more than minDistanceForCurve=30)
       const svg = generateSvg({
         nodes: [
           { id: 'a', type: 'text', text: 'A', x: 0, y: 0, width: 100, height: 60 },
-          { id: 'b', type: 'text', text: 'B', x: 0, y: 80, width: 100, height: 60 }
+          { id: 'b', type: 'text', text: 'B', x: 0, y: 100, width: 100, height: 60 }
         ],
         edges: [
           { id: 'e1', fromNode: 'a', fromSide: 'bottom', toNode: 'b', toSide: 'top' }
         ]
       });
       
-      // Distance is 20px which is > 15px threshold, should use bezier curve with normal markers
+      // Distance is 40px which is >= 30px threshold, should use bezier curve with normal markers
       // The normal markers are defined in defs section
       assert.ok(svg.includes('id="arrow-e1"'), 'Should have normal marker defined in defs');
       assert.ok(!svg.includes('arrow-e1-scaled'), 'Should not have scaled marker for sufficient distance');
+    });
+  });
+
+  describe('inline markdown rendering', () => {
+    it('should render heading with #', () => {
+      const svg = generateSvg({
+        nodes: [
+          { id: 'n1', type: 'text', text: '# Main Title', x: 0, y: 0, width: 200, height: 60 }
+        ],
+        edges: []
+      });
+      
+      assert.ok(svg.includes('<h1'), 'Should render H1 tag');
+      assert.ok(svg.includes('Main Title'), 'Should contain heading text');
+    });
+
+    it('should render bold text with **', () => {
+      const svg = generateSvg({
+        nodes: [
+          { id: 'n1', type: 'text', text: '**bold text**', x: 0, y: 0, width: 200, height: 60 }
+        ],
+        edges: []
+      });
+      
+      assert.ok(svg.includes('<strong>bold text</strong>'), 'Should render bold with strong tags');
+    });
+
+    it('should render italic text with *', () => {
+      const svg = generateSvg({
+        nodes: [
+          { id: 'n1', type: 'text', text: '*italic text*', x: 0, y: 0, width: 200, height: 60 }
+        ],
+        edges: []
+      });
+      
+      assert.ok(svg.includes('<em>italic text</em>'), 'Should render italic with em tags');
+    });
+
+    it('should render inline code with backticks', () => {
+      const svg = generateSvg({
+        nodes: [
+          { id: 'n1', type: 'text', text: 'Use `code` here', x: 0, y: 0, width: 200, height: 60 }
+        ],
+        edges: []
+      });
+      
+      assert.ok(svg.includes('<code'), 'Should render code with code tags');
+      assert.ok(svg.includes('>code</code>'), 'Should contain the code content');
+    });
+
+    it('should render strikethrough with ~~', () => {
+      const svg = generateSvg({
+        nodes: [
+          { id: 'n1', type: 'text', text: '~~deleted~~', x: 0, y: 0, width: 200, height: 60 }
+        ],
+        edges: []
+      });
+      
+      assert.ok(svg.includes('<del>deleted</del>'), 'Should render strikethrough with del tags');
+    });
+
+    it('should render links', () => {
+      const svg = generateSvg({
+        nodes: [
+          { id: 'n1', type: 'text', text: '[Link](https://example.com)', x: 0, y: 0, width: 200, height: 60 }
+        ],
+        edges: []
+      });
+      
+      assert.ok(svg.includes('<a href="https://example.com"'), 'Should render link with href');
+      assert.ok(svg.includes('>Link</a>'), 'Should contain link text');
+    });
+
+    it('should render mixed markdown', () => {
+      const svg = generateSvg({
+        nodes: [
+          { id: 'n1', type: 'text', text: '**Bold** and *italic* with `code`', x: 0, y: 0, width: 300, height: 60 }
+        ],
+        edges: []
+      });
+      
+      assert.ok(svg.includes('<strong>Bold</strong>'), 'Should render bold');
+      assert.ok(svg.includes('<em>italic</em>'), 'Should render italic');
+      assert.ok(svg.includes('>code</code>'), 'Should render code');
+    });
+
+    it('should preserve plain text without markdown', () => {
+      const svg = generateSvg({
+        nodes: [
+          { id: 'n1', type: 'text', text: 'Plain text only', x: 0, y: 0, width: 200, height: 60 }
+        ],
+        edges: []
+      });
+      
+      assert.ok(svg.includes('Plain text only'), 'Should contain plain text');
+      assert.ok(!svg.includes('<strong>'), 'Should not have bold tags');
+      assert.ok(!svg.includes('<em>'), 'Should not have italic tags');
+    });
+
+    it('should escape HTML in markdown content', () => {
+      const svg = generateSvg({
+        nodes: [
+          { id: 'n1', type: 'text', text: '**<script>alert(1)</script>**', x: 0, y: 0, width: 200, height: 60 }
+        ],
+        edges: []
+      });
+      
+      assert.ok(svg.includes('&lt;script&gt;'), 'Should escape HTML inside markdown');
+      assert.ok(!svg.includes('<script>'), 'Should not contain raw script tags');
     });
   });
 });
