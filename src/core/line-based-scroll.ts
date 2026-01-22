@@ -195,6 +195,14 @@ export function createScrollSyncController(options: ScrollSyncControllerOptions)
   let targetLine: number = 0;
   let disposed = false;
 
+  // Prevent feedback loop between programmatic scroll (host-driven) and user scroll reporting.
+  // When we scroll due to setTargetLine/onStreamingComplete, we temporarily suppress
+  // onUserScroll emissions triggered by the resulting scroll event.
+  let suppressUserScrollUntilMs = 0;
+
+  // Reduce noisy reverse-sync messages by only emitting when the line meaningfully changes.
+  let lastReportedLine: number | null = null;
+
   const scrollOptions: ScrollOptions = {
     container,
   };
@@ -210,10 +218,21 @@ export function createScrollSyncController(options: ScrollSyncControllerOptions)
    * Update targetLine from current scroll position and report to host
    */
   const handleUserScroll = (): void => {
+    // Ignore scroll events caused by our own programmatic scroll.
+    if (Date.now() < suppressUserScrollUntilMs) return;
+
     const currentLine = getLineForScrollPosition(getLineMapper(), scrollOptions);
     if (currentLine === null || isNaN(currentLine)) return;
+
+    // Only report when the line changes enough to matter.
+    const normalizedLine = Math.max(0, Math.floor(currentLine));
+    if (lastReportedLine !== null && Math.floor(lastReportedLine) === normalizedLine) {
+      targetLine = currentLine;
+      return;
+    }
     
     targetLine = currentLine;
+    lastReportedLine = currentLine;
     
     if (onUserScroll) {
       onUserScroll(currentLine);
@@ -241,6 +260,10 @@ export function createScrollSyncController(options: ScrollSyncControllerOptions)
   return {
     setTargetLine(line: number): void {
       targetLine = line;
+
+      // Suppress reverse-sync for a short window; window.scrollTo triggers 'scroll'.
+      // Keep this small to preserve legitimate user scroll reporting.
+      suppressUserScrollUntilMs = Date.now() + 200;
       doScroll(line);
     },
 
@@ -251,11 +274,13 @@ export function createScrollSyncController(options: ScrollSyncControllerOptions)
     onStreamingComplete(): void {
       // Re-apply the latest target line after the main (streaming) render phase.
       // This helps the preview catch up when blocks become available.
+      suppressUserScrollUntilMs = Date.now() + 200;
       doScroll(targetLine);
     },
 
     reset(): void {
       targetLine = 0;
+      lastReportedLine = null;
     },
 
     start(): void {
