@@ -561,6 +561,12 @@ digraph G {
   </div>
 </div>
 
+### 10.3 本地图片
+
+<div>
+  <img src="../icons/icon128.png">
+</div>
+
 ---
 
 ## 11. Infographic 图表

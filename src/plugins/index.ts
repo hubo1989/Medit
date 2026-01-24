@@ -135,7 +135,9 @@ export function registerRemarkPlugins(
                 }
                 
                 try {
-                  const renderResult = await renderer.render(plugin.type, code || '');
+                  // Preprocess content (e.g., inline local images for HTML plugin)
+                  const processedCode = await plugin.preprocessContent(code || '');
+                  const renderResult = await renderer.render(plugin.type, processedCode);
                   
                   if (renderResult) {
                     replacePlaceholderWithImage(id, renderResult, plugin.type, plugin.isInline(), sourceHash as string);

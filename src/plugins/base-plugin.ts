@@ -108,6 +108,8 @@ export class BasePlugin {
    */
   async renderToCommon(renderer: PluginRenderer | null, content: string): Promise<UnifiedRenderResult> {
     const inline = this.isInline();
+
+    const processedContent = await this.preprocessContent(content);
     
     // No renderer available
     if (!renderer) {
@@ -124,7 +126,7 @@ export class BasePlugin {
     }
 
     try {
-      const pngResult = await renderer.render(this.type, content);
+      const pngResult = await renderer.render(this.type, processedContent);
 
       // Empty content
       if (!pngResult) {
@@ -179,5 +181,14 @@ export class BasePlugin {
         }
       };
     }
+  }
+
+  /**
+   * Optional content preprocessing hook
+   * @param content - Raw content extracted from AST
+   * @returns Processed content
+   */
+  async preprocessContent(content: string): Promise<string> {
+    return content;
   }
 }
