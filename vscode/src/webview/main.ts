@@ -202,12 +202,14 @@ async function handleUpdateContent(payload: UpdateContentPayload): Promise<void>
   }
 
   // Store document base URI for resolving relative paths
-  currentDocumentBaseUri = documentBaseUri || '';
+  if (typeof documentBaseUri === 'string') {
+    currentDocumentBaseUri = documentBaseUri;
+  }
 
   // Update DocumentService with document path and base URI
   // This enables rehype-image-uri plugin to rewrite relative image paths
   if (filename && platform.document) {
-    platform.document.setDocumentPath(filename, documentBaseUri);
+    platform.document.setDocumentPath(filename, currentDocumentBaseUri);
   }
 
   // Check if file changed
