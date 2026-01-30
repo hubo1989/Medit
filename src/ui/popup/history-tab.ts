@@ -2,6 +2,9 @@
  * History tab management for popup
  */
 
+// Firefox WebExtension API declaration (undefined in Chrome)
+declare const browser: typeof chrome | undefined;
+
 import { translate, getUiLocale } from './i18n-helpers';
 import { storageGet, storageSet } from './storage-helper';
 import { isFirefoxPopup } from './platform-detect';

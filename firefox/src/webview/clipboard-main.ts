@@ -5,13 +5,16 @@ import { platform } from './index';
 import { startViewer } from '../../../chrome/src/webview/viewer-main';
 import { createPluginRenderer } from '../../../src/core/viewer/viewer-host';
 
+// Firefox WebExtension API declaration
+declare const browser: typeof chrome;
+
 // Storage key for clipboard content
 const CLIPBOARD_CONTENT_KEY = 'clipboardPreviewContent';
 
 // Get clipboard content from storage
 async function getClipboardContent(): Promise<string> {
   const result = await browser.storage.local.get([CLIPBOARD_CONTENT_KEY]);
-  const content = result[CLIPBOARD_CONTENT_KEY] || '';
+  const content = (result[CLIPBOARD_CONTENT_KEY] || '') as string;
   return content;
 }
 

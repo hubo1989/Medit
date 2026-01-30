@@ -12,7 +12,7 @@ const CLIPBOARD_CONTENT_KEY = 'clipboardPreviewContent';
 async function getClipboardContent(): Promise<string> {
   return new Promise((resolve) => {
     chrome.storage.local.get([CLIPBOARD_CONTENT_KEY], (result) => {
-      const content = result[CLIPBOARD_CONTENT_KEY] || '';
+      const content = (result[CLIPBOARD_CONTENT_KEY] || '') as string;
       resolve(content);
     });
   });

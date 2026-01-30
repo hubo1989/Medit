@@ -5,6 +5,9 @@
  * Both Chrome and Firefox extensions use this module with platform-specific renderers.
  */
 
+// Firefox WebExtension API declaration (undefined in Chrome)
+declare const browser: typeof chrome | undefined;
+
 import DocxExporter from '../../../src/exporters/docx-exporter';
 import Localization, { DEFAULT_SETTING_LOCALE } from '../../../src/utils/localization';
 import themeManager from '../../../src/utils/theme-manager';
