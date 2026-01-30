@@ -121,6 +121,9 @@ tags: [markdown, test, demo]
 **本地图片（相对路径）：**
 ![Icon](../icons/icon128.png)
 
+**Base64 Data URI 图片：**
+![Red Dot](data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAUAAAAFCAYAAACNbyblAAAAHElEQVQI12P4//8/w38GIAXDIBKE0DHxgljNBAAO9TXL0Y4OHwAAAABJRU5ErkJggg==)
+
 ### 2.3 引用块
 
 > 这是一个简单的引用块。
