@@ -296,7 +296,7 @@ V: Kasutage Markdownis ````vega-lite` koodiplokki JSON-vormingus graafiku spetsi
 
 ## 🆘 Hankige abi
 
-📖 [Täielik dokumentatsioon](https://github.com/xicilion/markdown-viewer-extension) · 🐛 [Teatage probleemidest](https://github.com/xicilion/markdown-viewer-extension/issues) · 💡 [Funktsioonide taotlused](https://github.com/xicilion/markdown-viewer-extension/issues) · ⭐ [GitHub Star](https://github.com/xicilion/markdown-viewer-extension)
+📖 [Täielik dokumentatsioon](https://github.com/markdown-viewer/markdown-viewer-extension) · 🐛 [Teatage probleemidest](https://github.com/markdown-viewer/markdown-viewer-extension/issues) · 💡 [Funktsioonide taotlused](https://github.com/markdown-viewer/markdown-viewer-extension/issues) · ⭐ [GitHub Star](https://github.com/markdown-viewer/markdown-viewer-extension)
 
 ---
 
@@ -320,7 +320,7 @@ V: Kasutage Markdownis ````vega-lite` koodiplokki JSON-vormingus graafiku spetsi
 
 See projekt on avatud lähtekoodiga ISC litsentsi alusel. Tere tulemast Star'ima, teatama probleemidest, soovitama funktsioone ja panustama koodi.
 
-**Projekti URL:** https://github.com/xicilion/markdown-viewer-extension
+**Projekti URL:** https://github.com/markdown-viewer/markdown-viewer-extension
 
 ---
 

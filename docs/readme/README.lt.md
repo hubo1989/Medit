@@ -296,7 +296,7 @@ A: Naudokite ````vega-lite` kodo bloką Markdown su JSON formato diagramos speci
 
 ## 🆘 Gauti pagalbą
 
-📖 [Pilna dokumentacija](https://github.com/xicilion/markdown-viewer-extension) · 🐛 [Pranešti apie problemą](https://github.com/xicilion/markdown-viewer-extension/issues) · 💡 [Funkcijų užklausos](https://github.com/xicilion/markdown-viewer-extension/issues) · ⭐ [GitHub Star](https://github.com/xicilion/markdown-viewer-extension)
+📖 [Pilna dokumentacija](https://github.com/markdown-viewer/markdown-viewer-extension) · 🐛 [Pranešti apie problemą](https://github.com/markdown-viewer/markdown-viewer-extension/issues) · 💡 [Funkcijų užklausos](https://github.com/markdown-viewer/markdown-viewer-extension/issues) · ⭐ [GitHub Star](https://github.com/markdown-viewer/markdown-viewer-extension)
 
 ---
 
@@ -320,7 +320,7 @@ A: Naudokite ````vega-lite` kodo bloką Markdown su JSON formato diagramos speci
 
 Šis projektas yra atvirojo kodo pagal ISC licenciją. Kviečiame pridėti Star, pranešti apie problemas, siūlyti funkcijas ir prisidėti prie kodo.
 
-**Projekto URL:** https://github.com/xicilion/markdown-viewer-extension
+**Projekto URL:** https://github.com/markdown-viewer/markdown-viewer-extension
 
 ---
 

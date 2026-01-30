@@ -110,7 +110,7 @@ Different scenarios, different styles, one-click switch:
 
 **Chrome:** [Chrome Web Store](https://chromewebstore.google.com/detail/markdown-viewer/jekhhoflgcfoikceikgeenibinpojaoi)
 
-**GitHub:** [xicilion/markdown-viewer-extension](https://github.com/xicilion/markdown-viewer-extension)
+**GitHub:** [markdown-viewer-extension](https://github.com/markdown-viewer/markdown-viewer-extension)
 
 ---
 

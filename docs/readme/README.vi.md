@@ -296,7 +296,7 @@ English · 简体中文 · 繁體中文 · Русский · 日本語 · हि
 
 ## 🆘 Nhận trợ giúp
 
-📖 [Tài liệu đầy đủ](https://github.com/xicilion/markdown-viewer-extension) · 🐛 [Báo cáo vấn đề](https://github.com/xicilion/markdown-viewer-extension/issues) · 💡 [Yêu cầu tính năng](https://github.com/xicilion/markdown-viewer-extension/issues) · ⭐ [Sao GitHub](https://github.com/xicilion/markdown-viewer-extension)
+📖 [Tài liệu đầy đủ](https://github.com/markdown-viewer/markdown-viewer-extension) · 🐛 [Báo cáo vấn đề](https://github.com/markdown-viewer/markdown-viewer-extension/issues) · 💡 [Yêu cầu tính năng](https://github.com/markdown-viewer/markdown-viewer-extension/issues) · ⭐ [Sao GitHub](https://github.com/markdown-viewer/markdown-viewer-extension)
 
 ---
 
@@ -320,7 +320,7 @@ English · 简体中文 · 繁體中文 · Русский · 日本語 · हि
 
 Dự án này là mã nguồn mở theo giấy phép ISC. Hoan nghênh Star hỗ trợ, báo cáo vấn đề, đề xuất tính năng, đóng góp mã.
 
-**Địa chỉ dự án:** https://github.com/xicilion/markdown-viewer-extension
+**Địa chỉ dự án:** https://github.com/markdown-viewer/markdown-viewer-extension
 
 ---
 

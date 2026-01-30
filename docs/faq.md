@@ -16,7 +16,7 @@ Yes, completely free. No subscriptions, no premium features, no hidden costs.
 
 ### Is it open source?
 
-Yes, the entire project is open source under the ISC license. You can view, audit, and contribute to the code on [GitHub](https://github.com/xicilion/markdown-viewer-extension).
+Yes, the entire project is open source under the ISC license. You can view, audit, and contribute to the code on [GitHub](https://github.com/markdown-viewer/markdown-viewer-extension).
 
 ---
 
@@ -227,7 +227,7 @@ Safari doesn't support the required extension APIs. There are no plans for Safar
 
 ### How can I request a feature?
 
-Open an issue on [GitHub](https://github.com/xicilion/markdown-viewer-extension/issues) with:
+Open an issue on [GitHub](https://github.com/markdown-viewer/markdown-viewer-extension/issues) with:
 - Clear description of the feature
 - Use case / why it's needed
 - Examples if applicable
@@ -247,9 +247,9 @@ We consider all requests! Popular planned features:
 ### Where can I get help?
 
 - 📖 [Documentation](./README.md) — This GitBook
-- 🐛 [Bug Reports](https://github.com/xicilion/markdown-viewer-extension/issues) — GitHub Issues
-- 💡 [Feature Requests](https://github.com/xicilion/markdown-viewer-extension/issues) — GitHub Issues
-- ⭐ [Star on GitHub](https://github.com/xicilion/markdown-viewer-extension) — Show support
+- 🐛 [Bug Reports](https://github.com/markdown-viewer/markdown-viewer-extension/issues) — GitHub Issues
+- 💡 [Feature Requests](https://github.com/markdown-viewer/markdown-viewer-extension/issues) — GitHub Issues
+- ⭐ [Star on GitHub](https://github.com/markdown-viewer/markdown-viewer-extension) — Show support
 
 ### How can I contribute?
 

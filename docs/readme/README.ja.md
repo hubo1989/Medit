@@ -296,7 +296,7 @@ A: Markdownで````vega-lite`コードブロックを使用し、JSON形式のチ
 
 ## 🆘 ヘルプを得る
 
-📖 [完全ドキュメント](https://github.com/xicilion/markdown-viewer-extension) · 🐛 [問題を報告](https://github.com/xicilion/markdown-viewer-extension/issues) · 💡 [機能リクエスト](https://github.com/xicilion/markdown-viewer-extension/issues) · ⭐ [GitHub Star](https://github.com/xicilion/markdown-viewer-extension)
+📖 [完全ドキュメント](https://github.com/markdown-viewer/markdown-viewer-extension) · 🐛 [問題を報告](https://github.com/markdown-viewer/markdown-viewer-extension/issues) · 💡 [機能リクエスト](https://github.com/markdown-viewer/markdown-viewer-extension/issues) · ⭐ [GitHub Star](https://github.com/markdown-viewer/markdown-viewer-extension)
 
 ---
 
@@ -320,7 +320,7 @@ A: Markdownで````vega-lite`コードブロックを使用し、JSON形式のチ
 
 このプロジェクトはISCライセンスの下でオープンソースです。Starの歓迎、問題報告、機能提案、コード貢献。
 
-**プロジェクトURL:** https://github.com/xicilion/markdown-viewer-extension
+**プロジェクトURL:** https://github.com/markdown-viewer/markdown-viewer-extension
 
 ---
 

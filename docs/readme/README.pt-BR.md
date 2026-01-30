@@ -296,7 +296,7 @@ R: Use blocos de código ````vega-lite` no Markdown, com conteúdo em formato JS
 
 ## 🆘 Obtenha ajuda
 
-📖 [Documentação completa](https://github.com/xicilion/markdown-viewer-extension) · 🐛 [Relatar problema](https://github.com/xicilion/markdown-viewer-extension/issues) · 💡 [Sugerir funcionalidade](https://github.com/xicilion/markdown-viewer-extension/issues) · ⭐ [Suporte no GitHub](https://github.com/xicilion/markdown-viewer-extension)
+📖 [Documentação completa](https://github.com/markdown-viewer/markdown-viewer-extension) · 🐛 [Relatar problema](https://github.com/markdown-viewer/markdown-viewer-extension/issues) · 💡 [Sugerir funcionalidade](https://github.com/markdown-viewer/markdown-viewer-extension/issues) · ⭐ [Suporte no GitHub](https://github.com/markdown-viewer/markdown-viewer-extension)
 
 ---
 
@@ -320,7 +320,7 @@ R: Use blocos de código ````vega-lite` no Markdown, com conteúdo em formato JS
 
 Este projeto é open source sob licença ISC. Bem-vindas Estrelas de suporte, relatar problemas, sugestões, contribuições de código.
 
-**Endereço do projeto:** https://github.com/xicilion/markdown-viewer-extension
+**Endereço do projeto:** https://github.com/markdown-viewer/markdown-viewer-extension
 
 ---
 

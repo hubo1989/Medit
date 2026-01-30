@@ -40,17 +40,17 @@
     "chrome-manifest-v3"
   ],
   "author": {
-    "name": "xicilion",
-    "url": "https://github.com/xicilion"
+    "name": "Markdown Viewer Team",
+    "url": "https://github.com/markdown-viewer"
   },
   "license": "ISC",
-  "homepage": "https://github.com/xicilion/markdown-viewer-extension",
+  "homepage": "https://github.com/markdown-viewer/markdown-viewer-extension",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/xicilion/markdown-viewer-extension.git"
+    "url": "git+https://github.com/markdown-viewer/markdown-viewer-extension.git"
   },
   "bugs": {
-    "url": "https://github.com/xicilion/markdown-viewer-extension/issues"
+    "url": "https://github.com/markdown-viewer/markdown-viewer-extension/issues"
   },
   "dependencies": {
     "@antv/infographic": "^0.2.7",

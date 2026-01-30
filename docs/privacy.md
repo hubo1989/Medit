@@ -156,7 +156,7 @@ You can:
 - Build from source yourself
 - Verify our claims
 
-**Repository:** [github.com/xicilion/markdown-viewer-extension](https://github.com/xicilion/markdown-viewer-extension)
+**Repository:** [github.com/markdown-viewer/markdown-viewer-extension](https://github.com/markdown-viewer/markdown-viewer-extension)
 
 ---
 
@@ -218,7 +218,7 @@ Users are encouraged to review this policy periodically.
 
 For any questions about this privacy policy:
 
-- **GitHub Issues:** [Report an Issue](https://github.com/xicilion/markdown-viewer-extension/issues)
+- **GitHub Issues:** [Report an Issue](https://github.com/markdown-viewer/markdown-viewer-extension/issues)
 - **Email:** xicilion@gmail.com
 
 ---

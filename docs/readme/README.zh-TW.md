@@ -296,7 +296,7 @@ A: A: 在 Markdown 中使用 ````vega-lite` 程式碼區塊，內容為 JSON 格
 
 ## 🆘 獲取協助
 
-📖 [完整文檔](https://github.com/xicilion/markdown-viewer-extension) · 🐛 [回報問題](https://github.com/xicilion/markdown-viewer-extension/issues) · 💡 [功能建議](https://github.com/xicilion/markdown-viewer-extension/issues) · ⭐ [GitHub 支援](https://github.com/xicilion/markdown-viewer-extension)
+📖 [完整文檔](https://github.com/markdown-viewer/markdown-viewer-extension) · 🐛 [回報問題](https://github.com/markdown-viewer/markdown-viewer-extension/issues) · 💡 [功能建議](https://github.com/markdown-viewer/markdown-viewer-extension/issues) · ⭐ [GitHub 支援](https://github.com/markdown-viewer/markdown-viewer-extension)
 
 ---
 
@@ -320,7 +320,7 @@ A: A: 在 Markdown 中使用 ````vega-lite` 程式碼區塊，內容為 JSON 格
 
 本專案採用 ISC 協定開源。歡迎 Star 支援、回報問題、提出建議、貢獻程式碼。
 
-**專案位址：** https://github.com/xicilion/markdown-viewer-extension
+**專案位址：** https://github.com/markdown-viewer/markdown-viewer-extension
 
 ---
 

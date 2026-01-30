@@ -296,7 +296,7 @@ A: A: Markdown에서 ````vega-lite` 코드 블록을 사용하고 JSON 형식의
 
 ## 🆘 도움 받기
 
-📖 [전체 문서](https://github.com/xicilion/markdown-viewer-extension) · 🐛 [문제 보고](https://github.com/xicilion/markdown-viewer-extension/issues) · 💡 [기능 제안](https://github.com/xicilion/markdown-viewer-extension/issues) · ⭐ [GitHub 지원](https://github.com/xicilion/markdown-viewer-extension)
+📖 [전체 문서](https://github.com/markdown-viewer/markdown-viewer-extension) · 🐛 [문제 보고](https://github.com/markdown-viewer/markdown-viewer-extension/issues) · 💡 [기능 제안](https://github.com/markdown-viewer/markdown-viewer-extension/issues) · ⭐ [GitHub 지원](https://github.com/markdown-viewer/markdown-viewer-extension)
 
 ---
 
@@ -320,7 +320,7 @@ A: A: Markdown에서 ````vega-lite` 코드 블록을 사용하고 JSON 형식의
 
 이 프로젝트는 ISC 라이선스로 오픈 소스입니다. Star로 지원하고, 문제를 보고하고, 제안하고, 코드를 기여해 주세요.
 
-**프로젝트 주소:** https://github.com/xicilion/markdown-viewer-extension
+**프로젝트 주소:** https://github.com/markdown-viewer/markdown-viewer-extension
 
 ---
 

@@ -188,6 +188,6 @@ The extension updates automatically through Chrome Web Store. To check your vers
 
 ## Source Code
 
-GitHub: [xicilion/markdown-viewer-extension](https://github.com/xicilion/markdown-viewer-extension)
+GitHub: [markdown-viewer-extension](https://github.com/markdown-viewer/markdown-viewer-extension)
 
 The `chrome/` directory contains all Chrome-specific code.

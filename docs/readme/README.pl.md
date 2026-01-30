@@ -296,7 +296,7 @@ O: Użyj bloków kodu ````vega-lite` w Markdown, z zawartością w formacie JSON
 
 ## 🆘 Uzyskaj pomoc
 
-📖 [Pełna dokumentacja](https://github.com/xicilion/markdown-viewer-extension) · 🐛 [Zgłoś problem](https://github.com/xicilion/markdown-viewer-extension/issues) · 💡 [Zaproponuj funkcję](https://github.com/xicilion/markdown-viewer-extension/issues) · ⭐ [Wsparcie GitHub](https://github.com/xicilion/markdown-viewer-extension)
+📖 [Pełna dokumentacja](https://github.com/markdown-viewer/markdown-viewer-extension) · 🐛 [Zgłoś problem](https://github.com/markdown-viewer/markdown-viewer-extension/issues) · 💡 [Zaproponuj funkcję](https://github.com/markdown-viewer/markdown-viewer-extension/issues) · ⭐ [Wsparcie GitHub](https://github.com/markdown-viewer/markdown-viewer-extension)
 
 ---
 
@@ -320,7 +320,7 @@ O: Użyj bloków kodu ````vega-lite` w Markdown, z zawartością w formacie JSON
 
 Ten projekt jest otwartoźródłowy na licencji ISC. Mile widziane Gwiazdki wsparcia, zgłaszanie problemów, sugestie, wkład w kod.
 
-**Adres projektu:** https://github.com/xicilion/markdown-viewer-extension
+**Adres projektu:** https://github.com/markdown-viewer/markdown-viewer-extension
 
 ---
 

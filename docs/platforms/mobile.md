@@ -140,6 +140,6 @@ Fully supported! iPadOS and Android tablets have optimized layouts.
 
 ## Source Code
 
-GitHub: [xicilion/markdown-viewer-extension](https://github.com/xicilion/markdown-viewer-extension)
+GitHub: [markdown-viewer-extension](https://github.com/markdown-viewer/markdown-viewer-extension)
 
 Mobile app code is in the `mobile/` directory.

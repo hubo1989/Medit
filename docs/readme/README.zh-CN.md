@@ -296,7 +296,7 @@ A: 在 Markdown 中使用 ````vega-lite` 代码块，内容为 JSON 格式的图
 
 ## 🆘 获取帮助
 
-📖 [完整文档](https://github.com/xicilion/markdown-viewer-extension) · 🐛 [报告问题](https://github.com/xicilion/markdown-viewer-extension/issues) · 💡 [功能建议](https://github.com/xicilion/markdown-viewer-extension/issues) · ⭐ [GitHub 支持](https://github.com/xicilion/markdown-viewer-extension)
+📖 [完整文档](https://github.com/markdown-viewer/markdown-viewer-extension) · 🐛 [报告问题](https://github.com/markdown-viewer/markdown-viewer-extension/issues) · 💡 [功能建议](https://github.com/markdown-viewer/markdown-viewer-extension/issues) · ⭐ [GitHub 支持](https://github.com/markdown-viewer/markdown-viewer-extension)
 
 ---
 
@@ -320,7 +320,7 @@ A: 在 Markdown 中使用 ````vega-lite` 代码块，内容为 JSON 格式的图
 
 本项目采用 ISC 协议开源。欢迎 Star 支持、报告问题、提出建议、贡献代码。
 
-**项目地址：** https://github.com/xicilion/markdown-viewer-extension
+**项目地址：** https://github.com/markdown-viewer/markdown-viewer-extension
 
 ---
 

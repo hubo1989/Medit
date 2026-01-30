@@ -296,7 +296,7 @@ A: Використовуйте блок коду ````vega-lite` у Markdown з�
 
 ## 🆘 Отримати допомогу
 
-📖 [Повна документація](https://github.com/xicilion/markdown-viewer-extension) · 🐛 [Повідомити про проблему](https://github.com/xicilion/markdown-viewer-extension/issues) · 💡 [Запити на функції](https://github.com/xicilion/markdown-viewer-extension/issues) · ⭐ [GitHub Star](https://github.com/xicilion/markdown-viewer-extension)
+📖 [Повна документація](https://github.com/markdown-viewer/markdown-viewer-extension) · 🐛 [Повідомити про проблему](https://github.com/markdown-viewer/markdown-viewer-extension/issues) · 💡 [Запити на функції](https://github.com/markdown-viewer/markdown-viewer-extension/issues) · ⭐ [GitHub Star](https://github.com/markdown-viewer/markdown-viewer-extension)
 
 ---
 
@@ -320,7 +320,7 @@ A: Використовуйте блок коду ````vega-lite` у Markdown з�
 
 Цей проєкт має відкритий код під ліцензією ISC. Ласкаво просимо ставити Star, повідомляти про проблеми, пропонувати функції та робити внесок у код.
 
-**URL проєкту:** https://github.com/xicilion/markdown-viewer-extension
+**URL проєкту:** https://github.com/markdown-viewer/markdown-viewer-extension
 
 ---
 

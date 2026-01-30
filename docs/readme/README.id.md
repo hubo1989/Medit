@@ -296,7 +296,7 @@ J: Gunakan blok kode ````vega-lite` dalam Markdown dengan spesifikasi grafik for
 
 ## 🆘 Dapatkan Bantuan
 
-📖 [Dokumentasi Lengkap](https://github.com/xicilion/markdown-viewer-extension) · 🐛 [Laporkan Masalah](https://github.com/xicilion/markdown-viewer-extension/issues) · 💡 [Permintaan Fitur](https://github.com/xicilion/markdown-viewer-extension/issues) · ⭐ [Bintang GitHub](https://github.com/xicilion/markdown-viewer-extension)
+📖 [Dokumentasi Lengkap](https://github.com/markdown-viewer/markdown-viewer-extension) · 🐛 [Laporkan Masalah](https://github.com/markdown-viewer/markdown-viewer-extension/issues) · 💡 [Permintaan Fitur](https://github.com/markdown-viewer/markdown-viewer-extension/issues) · ⭐ [Bintang GitHub](https://github.com/markdown-viewer/markdown-viewer-extension)
 
 ---
 
@@ -320,7 +320,7 @@ J: Gunakan blok kode ````vega-lite` dalam Markdown dengan spesifikasi grafik for
 
 Proyek ini adalah open source di bawah lisensi ISC. Selamat datang untuk memberi bintang, melaporkan masalah, menyarankan fitur, dan berkontribusi kode.
 
-**URL Proyek:** https://github.com/xicilion/markdown-viewer-extension
+**URL Proyek:** https://github.com/markdown-viewer/markdown-viewer-extension
 
 ---
 

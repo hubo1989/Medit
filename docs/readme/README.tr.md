@@ -296,7 +296,7 @@ C: Markdown'da ````vega-lite` kod bloğunu JSON biçimli grafik spesifikasyonu i
 
 ## 🆘 Yardım Alın
 
-📖 [Tam Dokümantasyon](https://github.com/xicilion/markdown-viewer-extension) · 🐛 [Sorunları Bildirin](https://github.com/xicilion/markdown-viewer-extension/issues) · 💡 [Özellik İstekleri](https://github.com/xicilion/markdown-viewer-extension/issues) · ⭐ [GitHub Yıldızı](https://github.com/xicilion/markdown-viewer-extension)
+📖 [Tam Dokümantasyon](https://github.com/markdown-viewer/markdown-viewer-extension) · 🐛 [Sorunları Bildirin](https://github.com/markdown-viewer/markdown-viewer-extension/issues) · 💡 [Özellik İstekleri](https://github.com/markdown-viewer/markdown-viewer-extension/issues) · ⭐ [GitHub Yıldızı](https://github.com/markdown-viewer/markdown-viewer-extension)
 
 ---
 
@@ -320,7 +320,7 @@ C: Markdown'da ````vega-lite` kod bloğunu JSON biçimli grafik spesifikasyonu i
 
 Bu proje ISC lisansı altında açık kaynaktır. Yıldız vermeniz, sorun bildirmeniz, özellik önermeniz ve kod katkısında bulunmanız için bekliyoruz.
 
-**Proje URL'si:** https://github.com/xicilion/markdown-viewer-extension
+**Proje URL'si:** https://github.com/markdown-viewer/markdown-viewer-extension
 
 ---
 
