@@ -296,7 +296,7 @@ English · 简体中文 · 繁體中文 · Русский · 日本語 · हि
 
 ## 🆘 Получить помощь
 
-📖 [Полная документация](https://github.com/xicilion/markdown-viewer-extension) · 🐛 [Сообщить о проблеме](https://github.com/xicilion/markdown-viewer-extension/issues) · 💡 [Запрос функции](https://github.com/xicilion/markdown-viewer-extension/issues) · ⭐ [Поддержка GitHub](https://github.com/xicilion/markdown-viewer-extension)
+📖 [Полная документация](https://github.com/markdown-viewer/markdown-viewer-extension) · 🐛 [Сообщить о проблеме](https://github.com/markdown-viewer/markdown-viewer-extension/issues) · 💡 [Запрос функции](https://github.com/markdown-viewer/markdown-viewer-extension/issues) · ⭐ [Поддержка GitHub](https://github.com/markdown-viewer/markdown-viewer-extension)
 
 ---
 
@@ -320,7 +320,7 @@ English · 简体中文 · 繁體中文 · Русский · 日本語 · हि
 
 Этот проект является открытым исходным кодом по лицензии ISC. Приветствуется поддержка Star, сообщения о проблемах, предложения функций, вклад в код.
 
-**URL проекта:** https://github.com/xicilion/markdown-viewer-extension
+**URL проекта:** https://github.com/markdown-viewer/markdown-viewer-extension
 
 ---
 

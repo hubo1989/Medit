@@ -296,7 +296,7 @@ S: Använd ````vega-lite` kodblock i Markdown med JSON-format diagramspecifikati
 
 ## 🆘 Få hjälp
 
-📖 [Full dokumentation](https://github.com/xicilion/markdown-viewer-extension) · 🐛 [Rapportera problem](https://github.com/xicilion/markdown-viewer-extension/issues) · 💡 [Funktionsförfrågningar](https://github.com/xicilion/markdown-viewer-extension/issues) · ⭐ [GitHub-stjärna](https://github.com/xicilion/markdown-viewer-extension)
+📖 [Full dokumentation](https://github.com/markdown-viewer/markdown-viewer-extension) · 🐛 [Rapportera problem](https://github.com/markdown-viewer/markdown-viewer-extension/issues) · 💡 [Funktionsförfrågningar](https://github.com/markdown-viewer/markdown-viewer-extension/issues) · ⭐ [GitHub-stjärna](https://github.com/markdown-viewer/markdown-viewer-extension)
 
 ---
 
@@ -320,7 +320,7 @@ S: Använd ````vega-lite` kodblock i Markdown med JSON-format diagramspecifikati
 
 Detta projekt är öppen källkod under ISC-licens. Välkommen att ge stjärna, rapportera problem, föreslå funktioner och bidra med kod.
 
-**Projekt-URL:** https://github.com/xicilion/markdown-viewer-extension
+**Projekt-URL:** https://github.com/markdown-viewer/markdown-viewer-extension
 
 ---
 

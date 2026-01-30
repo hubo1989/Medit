@@ -176,6 +176,6 @@ Same privacy guarantees as the Chrome version.
 
 ## Source Code
 
-GitHub: [xicilion/markdown-viewer-extension](https://github.com/xicilion/markdown-viewer-extension)
+GitHub: [markdown-viewer-extension](https://github.com/markdown-viewer/markdown-viewer-extension)
 
 Firefox-specific code is in the `firefox/` directory.

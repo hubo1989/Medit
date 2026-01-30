@@ -296,7 +296,7 @@ A: Gebruik ````vega-lite` codeblok in Markdown met JSON-formaat grafiekspecifica
 
 ## 🆘 Hulp krijgen
 
-📖 [Volledige documentatie](https://github.com/xicilion/markdown-viewer-extension) · 🐛 [Problemen melden](https://github.com/xicilion/markdown-viewer-extension/issues) · 💡 [Functieverzoeken](https://github.com/xicilion/markdown-viewer-extension/issues) · ⭐ [GitHub Star](https://github.com/xicilion/markdown-viewer-extension)
+📖 [Volledige documentatie](https://github.com/markdown-viewer/markdown-viewer-extension) · 🐛 [Problemen melden](https://github.com/markdown-viewer/markdown-viewer-extension/issues) · 💡 [Functieverzoeken](https://github.com/markdown-viewer/markdown-viewer-extension/issues) · ⭐ [GitHub Star](https://github.com/markdown-viewer/markdown-viewer-extension)
 
 ---
 
@@ -320,7 +320,7 @@ A: Gebruik ````vega-lite` codeblok in Markdown met JSON-formaat grafiekspecifica
 
 Dit project is open source onder ISC-licentie. Welkom om te sterren, problemen te melden, functies voor te stellen en code bij te dragen.
 
-**Project-URL:** https://github.com/xicilion/markdown-viewer-extension
+**Project-URL:** https://github.com/markdown-viewer/markdown-viewer-extension
 
 ---
 

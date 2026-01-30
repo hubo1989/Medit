@@ -241,6 +241,6 @@ npm run test
 
 ## Source Code
 
-GitHub: [xicilion/markdown-viewer-extension](https://github.com/xicilion/markdown-viewer-extension)
+GitHub: [markdown-viewer-extension](https://github.com/markdown-viewer/markdown-viewer-extension)
 
 VS Code-specific code is in the `vscode/` directory.

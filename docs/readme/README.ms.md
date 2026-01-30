@@ -296,7 +296,7 @@ J: Gunakan blok kod ````vega-lite` dalam Markdown dengan spesifikasi carta forma
 
 ## 🆘 Dapatkan Bantuan
 
-📖 [Dokumentasi Lengkap](https://github.com/xicilion/markdown-viewer-extension) · 🐛 [Laporkan Isu](https://github.com/xicilion/markdown-viewer-extension/issues) · 💡 [Permintaan Ciri](https://github.com/xicilion/markdown-viewer-extension/issues) · ⭐ [GitHub Star](https://github.com/xicilion/markdown-viewer-extension)
+📖 [Dokumentasi Lengkap](https://github.com/markdown-viewer/markdown-viewer-extension) · 🐛 [Laporkan Isu](https://github.com/markdown-viewer/markdown-viewer-extension/issues) · 💡 [Permintaan Ciri](https://github.com/markdown-viewer/markdown-viewer-extension/issues) · ⭐ [GitHub Star](https://github.com/markdown-viewer/markdown-viewer-extension)
 
 ---
 
@@ -320,7 +320,7 @@ J: Gunakan blok kod ````vega-lite` dalam Markdown dengan spesifikasi carta forma
 
 Projek ini adalah sumber terbuka di bawah lesen ISC. Selamat datang untuk Star, laporkan isu, cadangkan ciri, dan sumbangkan kod.
 
-**URL Projek:** https://github.com/xicilion/markdown-viewer-extension
+**URL Projek:** https://github.com/markdown-viewer/markdown-viewer-extension
 
 ---
 

@@ -296,7 +296,7 @@ A: Use ````vega-lite` code block in Markdown with JSON format chart specificatio
 
 ## 🆘 Get Help
 
-📖 [Full Documentation](https://github.com/xicilion/markdown-viewer-extension) · 🐛 [Report Issues](https://github.com/xicilion/markdown-viewer-extension/issues) · 💡 [Feature Requests](https://github.com/xicilion/markdown-viewer-extension/issues) · ⭐ [GitHub Star](https://github.com/xicilion/markdown-viewer-extension)
+📖 [Full Documentation](https://github.com/markdown-viewer/markdown-viewer-extension) · 🐛 [Report Issues](https://github.com/markdown-viewer/markdown-viewer-extension/issues) · 💡 [Feature Requests](https://github.com/markdown-viewer/markdown-viewer-extension/issues) · ⭐ [GitHub Star](https://github.com/markdown-viewer/markdown-viewer-extension)
 
 ---
 
@@ -319,7 +319,7 @@ A: Use ````vega-lite` code block in Markdown with JSON format chart specificatio
 
 This project is open source under ISC license. Welcome to Star, report issues, suggest features, and contribute code.
 
-**Project URL:** https://github.com/xicilion/markdown-viewer-extension
+**Project URL:** https://github.com/markdown-viewer/markdown-viewer-extension
 
 ---
 

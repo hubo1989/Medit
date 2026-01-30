@@ -89,7 +89,7 @@ Markdown Viewer（以下简称"本扩展"）尊重并保护用户隐私。本隐
 
 如对本隐私政策有任何疑问，请通过以下方式联系：
 
-- GitHub Issues: https://github.com/xicilion/markdown-viewer-extension/issues
+- GitHub Issues: https://github.com/markdown-viewer/markdown-viewer-extension/issues
 - Email: xicilion@gmail.com
 
 ---
@@ -185,5 +185,5 @@ If there are any changes to this privacy policy, we will update this page and mo
 
 For any questions about this privacy policy, please contact:
 
-- GitHub Issues: https://github.com/xicilion/markdown-viewer-extension/issues
+- GitHub Issues: https://github.com/markdown-viewer/markdown-viewer-extension/issues
 - Email: xicilion@gmail.com

@@ -296,7 +296,7 @@ A: Käytä ````vega-lite` koodilohkoa Markdownissa JSON-muotoisella kaaviomäär
 
 ## 🆘 Hanki apua
 
-📖 [Täysi dokumentaatio](https://github.com/xicilion/markdown-viewer-extension) · 🐛 [Ilmoita ongelmista](https://github.com/xicilion/markdown-viewer-extension/issues) · 💡 [Ominaisuuspyynnöt](https://github.com/xicilion/markdown-viewer-extension/issues) · ⭐ [GitHub-tähti](https://github.com/xicilion/markdown-viewer-extension)
+📖 [Täysi dokumentaatio](https://github.com/markdown-viewer/markdown-viewer-extension) · 🐛 [Ilmoita ongelmista](https://github.com/markdown-viewer/markdown-viewer-extension/issues) · 💡 [Ominaisuuspyynnöt](https://github.com/markdown-viewer/markdown-viewer-extension/issues) · ⭐ [GitHub-tähti](https://github.com/markdown-viewer/markdown-viewer-extension)
 
 ---
 
@@ -320,7 +320,7 @@ A: Käytä ````vega-lite` koodilohkoa Markdownissa JSON-muotoisella kaaviomäär
 
 Tämä projekti on avoimen lähdekoodin ISC-lisenssillä. Tervetuloa antamaan tähti, ilmoittamaan ongelmista, ehdottamaan ominaisuuksia ja osallistumaan koodiin.
 
-**Projektin URL:** https://github.com/xicilion/markdown-viewer-extension
+**Projektin URL:** https://github.com/markdown-viewer/markdown-viewer-extension
 
 ---
 

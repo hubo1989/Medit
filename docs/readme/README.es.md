@@ -296,7 +296,7 @@ R: Usa bloque de código ````vega-lite` en Markdown con especificación de gráf
 
 ## 🆘 Obtener Ayuda
 
-📖 [Documentación Completa](https://github.com/xicilion/markdown-viewer-extension) · 🐛 [Reportar Problemas](https://github.com/xicilion/markdown-viewer-extension/issues) · 💡 [Solicitudes de Funciones](https://github.com/xicilion/markdown-viewer-extension/issues) · ⭐ [GitHub Star](https://github.com/xicilion/markdown-viewer-extension)
+📖 [Documentación Completa](https://github.com/markdown-viewer/markdown-viewer-extension) · 🐛 [Reportar Problemas](https://github.com/markdown-viewer/markdown-viewer-extension/issues) · 💡 [Solicitudes de Funciones](https://github.com/markdown-viewer/markdown-viewer-extension/issues) · ⭐ [GitHub Star](https://github.com/markdown-viewer/markdown-viewer-extension)
 
 ---
 
@@ -320,7 +320,7 @@ R: Usa bloque de código ````vega-lite` en Markdown con especificación de gráf
 
 Este proyecto es de código abierto bajo licencia ISC. Bienvenido a Star, reportar problemas, sugerir funciones y contribuir código.
 
-**URL del proyecto:** https://github.com/xicilion/markdown-viewer-extension
+**URL del proyecto:** https://github.com/markdown-viewer/markdown-viewer-extension
 
 ---
 
