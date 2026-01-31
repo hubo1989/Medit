@@ -1,6 +1,6 @@
 # Markdown Viewer
 
-**Markdown 一键导出完美 Word — Mermaid 流程图、Graphviz、Vega 图表、信息图、LaTeX 公式自动转为可编辑格式，代码高亮，本地处理**
+**Markdown 一键导出完美 Word — Mermaid 流程图、Vega 图表、Draw.io、Canvas、信息图、Graphviz、LaTeX 公式自动转为可编辑格式，代码高亮，本地处理**
 
 *完全免费 · 29+ 专业主题 · 支持 28 种语言*
 
@@ -23,6 +23,10 @@
 
 点击下载，获得完美 Word 文档：
 - ✅ Mermaid 图表 → 高清图片
+- ✅ Vega/Vega-Lite 数据图表 → 高清图片
+- ✅ Draw.io 架构图 → 高清图片
+- ✅ Canvas 思维导图 → 高清图片
+- ✅ Infographic 统计图表 → 高清图片
 - ✅ Graphviz DOT 图 → 高清图片
 - ✅ LaTeX 公式 → Word 可编辑公式
 - ✅ 代码自动高亮（100+ 语言）
@@ -92,12 +96,14 @@ $$
 
 ### 1. 图表自动转换
 
-**Mermaid 流程图** · **Graphviz DOT 图** · **Vega/Vega-Lite 数据图表** · **Infographic** · SVG 图片 · 复杂 HTML 表格
+**Mermaid** · **Vega/Vega-Lite** · **Draw.io** · **Canvas** · **Infographic** · **Graphviz DOT** · SVG 图片 · 复杂 HTML 表格
 
 **Mermaid：** 流程图、时序图、类图、状态图 → 技术文档、架构设计  
-**Graphviz DOT：** 有向图/无向图、网络拓扑、状态机 → 系统架构、依赖分析  
 **Vega/Vega-Lite：** 柱状图、折线图、散点图、热力图 → 商务报告、数据分析  
-**Infographic：** 统计图表、信息图、数据可视化 → 数据展示、视觉叙事
+**Draw.io：** 架构图、网络拓扑、UML 图 → 系统设计、技术文档  
+**Canvas：** 思维导图、知识图谱、概念图 → 头脑风暴、规划板  
+**Infographic：** 统计图表、信息图、数据可视化 → 数据展示、视觉叙事  
+**Graphviz DOT：** 有向图/无向图、网络拓扑、状态机 → 依赖分析、复杂图表
 
 **时间对比：** 复杂时序图（10个对象）
 - 传统工具：画图30分钟 + 修改20分钟 + 调整10分钟 + 导出5分钟 = **65分钟**
@@ -199,7 +205,7 @@ LaTeX → Word 可编辑公式（不是图片！）
 
 ### Markdown 语法全支持
 
-标题 · 段落 · 粗体 · 斜体 · 删除线 · 列表 · 任务列表 · 引用 · 代码块（100+ 语言高亮）· 表格 · 链接 · 图片 · Mermaid 图表 · Vega / Vega-Lite 图表 · Infographic 图表 · LaTeX 公式 · HTML · GFM 扩展
+标题 · 段落 · 粗体 · 斜体 · 删除线 · 列表 · 任务列表 · 引用 · 代码块（100+ 语言高亮）· 表格 · 链接 · 图片 · Mermaid 图表 · Vega / Vega-Lite 图表 · Draw.io 架构图 · Canvas 思维导图 · Infographic 图表 · Graphviz DOT 图 · LaTeX 公式 · HTML · GFM 扩展
 
 ### 29 个主题
 
@@ -240,7 +246,7 @@ English · 简体中文 · 繁體中文 · Русский · 日本語 · हि
 A: 能。标准 .docx 格式，数学公式可编辑，不是图片。
 
 **Q: 支持哪些图表？**  
-A: 所有 Mermaid 图表（流程图、时序图、甘特图、类图、状态图、饼图、ER图等）、Vega / Vega-Lite 数据可视化图表、Infographic 统计图表 + SVG 自动转换。
+A: 所有 Mermaid 图表（流程图、时序图、甘特图、类图、状态图、饼图、ER图等）、Vega / Vega-Lite 数据可视化图表、Draw.io 架构图、Canvas 思维导图、Infographic 统计图表、Graphviz DOT 图 + SVG 自动转换。
 
 **Q: 文件大小有限制吗？**  
 A: 无限制。智能缓存，100+ 图表的文档也秒开。
@@ -310,7 +316,7 @@ A: 在 Markdown 中使用 ````vega-lite` 代码块，内容为 JSON 格式的图
 4. 拖拽 `.md` 文件到浏览器
 5. ✅ 开始使用
 
-**您将获得：** Markdown → Word 一键转换 · Mermaid 自动转图 · LaTeX 可编辑公式 · 100+ 语言代码高亮 · 29+ 主题 · 智能缓存 · 完全免费
+**您将获得：** Markdown → Word 一键转换 · Mermaid/Vega/Draw.io/Canvas/Infographic/Graphviz 自动转图 · LaTeX 可编辑公式 · 100+ 语言代码高亮 · 29+ 主题 · 智能缓存 · 完全免费
 
 **适合：** 技术写作者 · 学生/研究员 · 产品经理 · 开发者 · 任何用 Markdown 的人
 

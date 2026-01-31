@@ -1,6 +1,6 @@
 # Markdown Viewer
 
-**Markdown ke Word sempurna dalam satu klik — Mermaid, Graphviz, Vega, infografis, LaTeX (dapat diedit), penyorotan kode, pemrosesan lokal**
+**Markdown ke Word sempurna dalam satu klik — Mermaid, Vega, Draw.io, Canvas, infografis, Graphviz, LaTeX (dapat diedit), penyorotan kode, pemrosesan lokal**
 
 *Sepenuhnya gratis · 29+ tema profesional · Dukungan 28 bahasa*
 
@@ -23,7 +23,11 @@ Tapi pada akhirnya, Anda selalu memerlukan dokumen Word.
 
 Klik unduh dan dapatkan dokumen Word sempurna:
 - ✅ Diagram Mermaid → Gambar resolusi tinggi
-- ✅ Graphviz DOT → Gambar resolusi tinggi
+- ✅ Grafik data Vega/Vega-Lite → Gambar resolusi tinggi
+- ✅ Diagram Draw.io → Gambar resolusi tinggi
+- ✅ Diagram Canvas → Gambar resolusi tinggi
+- ✅ Grafik Infographic → Gambar resolusi tinggi
+- ✅ Graf Graphviz DOT → Gambar resolusi tinggi
 - ✅ Rumus LaTeX → Persamaan Word yang dapat diedit
 - ✅ Penyorotan sintaks otomatis (100+ bahasa)
 - ✅ 29+ tema profesional dengan satu klik
@@ -92,12 +96,14 @@ Biarkan data berbicara, hasilkan laporan profesional dengan satu klik.
 
 ### 1. Konversi Diagram Otomatis
 
-**Diagram Mermaid** · **Graphviz DOT** · **Grafik Data Vega/Vega-Lite** · **Infographic** · Gambar SVG · Tabel HTML kompleks
+**Mermaid** · **Vega/Vega-Lite** · **Draw.io** · **Canvas** · **Infographic** · **Graphviz DOT** · Gambar SVG · Tabel HTML kompleks
 
 **Mermaid:** Diagram alur, diagram urutan, diagram kelas, diagram status → Dokumen teknis, desain arsitektur  
-**Graphviz DOT:** Grafik berarah/tak berarah, topologi jaringan, mesin status → Arsitektur sistem, analisis ketergantungan  
 **Vega/Vega-Lite:** Grafik batang, grafik garis, plot sebar, peta panas → Laporan bisnis, analisis data  
-**Infographic:** Grafik statistik, infografis, visualisasi data → Presentasi data, penceritaan visual
+**Draw.io:** Diagram arsitektur, topologi jaringan, diagram UML → Desain sistem, dokumentasi teknis  
+**Canvas:** Peta pikiran, graf pengetahuan, peta konsep → Brainstorming, papan perencanaan  
+**Infographic:** Grafik statistik, infografis, visualisasi data → Presentasi data, penceritaan visual  
+**Graphviz DOT:** Graf berarah/tak berarah, pohon ketergantungan → Arsitektur sistem, analisis ketergantungan
 
 **Perbandingan waktu:** Diagram urutan kompleks (10 objek)
 - Alat tradisional: Menggambar 30mnt + Memodifikasi 20mnt + Menyesuaikan 10mnt + Mengekspor 5mnt = **65 menit**
@@ -199,7 +205,7 @@ Dokumen dengan 50 diagram Mermaid:
 
 ### Dukungan Sintaks Markdown Penuh
 
-Judul · Paragraf · Tebal · Miring · Coret · Daftar · Daftar tugas · Kutipan · Blok kode (penyorotan 100+ bahasa) · Tabel · Tautan · Gambar · Diagram Mermaid · Grafik Vega / Vega-Lite · Grafik Infographic · Rumus LaTeX · HTML · Ekstensi GFM
+Judul · Paragraf · Tebal · Miring · Coret · Daftar · Daftar tugas · Kutipan · Blok kode (penyorotan 100+ bahasa) · Tabel · Tautan · Gambar · Diagram Mermaid · Grafik Vega / Vega-Lite · Diagram Draw.io · Diagram Canvas · Grafik Infographic · Graf Graphviz DOT · Rumus LaTeX · HTML · Ekstensi GFM
 
 ### 29 Tema
 
@@ -240,7 +246,7 @@ English · 简体中文 · 繁體中文 · Русский · 日本語 · हि
 J: Ya. Format .docx standar, rumus matematika dapat diedit, bukan gambar.
 
 **T: Diagram apa yang didukung?**  
-J: Semua diagram Mermaid (flowchart, sequence, gantt, class, state, pie, ER, dll.), grafik visualisasi data Vega / Vega-Lite, grafik statistik Infographic + konversi SVG otomatis.
+J: Semua diagram Mermaid (flowchart, sequence, gantt, class, state, pie, ER, dll.), grafik visualisasi data Vega / Vega-Lite, diagram Draw.io, diagram JSON Canvas, grafik statistik Infographic, graf Graphviz DOT + konversi SVG otomatis.
 
 **T: Apakah ada batasan ukuran file?**  
 J: Tidak ada batasan. Cache cerdas, dokumen dengan 100+ diagram terbuka langsung.
@@ -310,7 +316,7 @@ J: Gunakan blok kode ````vega-lite` dalam Markdown dengan spesifikasi grafik for
 4. Seret file `.md` ke browser
 5. ✅ Mulai gunakan
 
-**Anda akan mendapatkan:** Konversi Markdown → Word satu klik · Konversi Mermaid otomatis · Rumus LaTeX yang dapat diedit · Penyorotan sintaks 100+ bahasa · 29+ tema · Cache cerdas · Sepenuhnya gratis
+**Anda akan mendapatkan:** Konversi Markdown → Word satu klik · 6 jenis diagram (Mermaid / Vega / Draw.io / Canvas / Infographic / Graphviz) · Rumus LaTeX yang dapat diedit · Penyorotan sintaks 100+ bahasa · 29+ tema · Cache cerdas · Sepenuhnya gratis
 
 **Sempurna untuk:** Penulis teknis · Mahasiswa/peneliti · Manajer produk · Pengembang · Siapa saja yang menggunakan Markdown
 

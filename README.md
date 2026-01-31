@@ -2,7 +2,7 @@
 
 [English](docs/readme/README.en.md) · [简体中文](docs/readme/README.zh-CN.md) · [繁體中文](docs/readme/README.zh-TW.md) · [Русский](docs/readme/README.ru.md) · [日本語](docs/readme/README.ja.md) · [हिन्दी](docs/readme/README.hi.md) · [한국어](docs/readme/README.ko.md) · [Deutsch](docs/readme/README.de.md) · [Português (Brasil)](docs/readme/README.pt-BR.md) · [Português (Portugal)](docs/readme/README.pt-PT.md) · [Nederlands](docs/readme/README.nl.md) · [Українська](docs/readme/README.uk.md) · [Tiếng Việt](docs/readme/README.vi.md) · [Беларуская](docs/readme/README.be.md) · [Français](docs/readme/README.fr.md) · [Italiano](docs/readme/README.it.md) · [Bahasa Indonesia](docs/readme/README.id.md) · [Español](docs/readme/README.es.md) · [ไทย](docs/readme/README.th.md) · [Svenska](docs/readme/README.sv.md) · [Türkçe](docs/readme/README.tr.md) · [Eesti](docs/readme/README.et.md) · [Bahasa Melayu](docs/readme/README.ms.md) · [Polski](docs/readme/README.pl.md) · [Suomi](docs/readme/README.fi.md) · [Lietuvių](docs/readme/README.lt.md) · [Norsk](docs/readme/README.no.md) · [Dansk](docs/readme/README.da.md)
 
-**Markdown to perfect Word in one click — Mermaid, Graphviz, Vega, Infographic, LaTeX (editable), code highlighting, local processing**
+**Markdown to perfect Word in one click — Mermaid, Vega, Draw.io, Canvas, Infographic, Graphviz, LaTeX (editable), code highlighting, local processing**
 
 *Completely Free · 29 Professional Themes · 28 Languages Support*
 
@@ -30,6 +30,10 @@ But eventually, you always need a Word document.
 
 Click to download and get a perfect Word document:
 - ✅ Mermaid diagrams → High-resolution images
+- ✅ Vega/Vega-Lite data charts → High-resolution images
+- ✅ Draw.io diagrams → High-resolution images
+- ✅ Canvas diagrams → High-resolution images
+- ✅ Infographic charts → High-resolution images
 - ✅ Graphviz DOT graphs → High-resolution images
 - ✅ LaTeX formulas → Word editable equations
 - ✅ Auto syntax highlighting (100+ languages)
@@ -112,12 +116,14 @@ Let data speak, generate professional reports with one click.
 
 ### 1. Automatic Diagram Conversion
 
-**Mermaid Diagrams** · **Graphviz DOT** · **Vega/Vega-Lite Data Charts** · **Infographic** · SVG images · Complex HTML tables
+**Mermaid** · **Vega/Vega-Lite** · **Draw.io** · **Canvas** · **Infographic** · **Graphviz DOT** · SVG images · Complex HTML tables
 
 **Mermaid:** Flowcharts, sequence diagrams, class diagrams, state diagrams → Technical docs, architecture design  
-**Graphviz DOT:** Directed/undirected graphs, network topology, state machines → System architecture, dependency analysis  
 **Vega/Vega-Lite:** Bar charts, line charts, scatter plots, heatmaps → Business reports, data analytics  
-**Infographic:** Statistical charts, infographics, data visualization → Data presentation, visual storytelling
+**Draw.io:** Architecture diagrams, network topologies, UML diagrams → System design, technical documentation  
+**Canvas:** Mind maps, knowledge graphs, concept maps → Brainstorming, planning boards  
+**Infographic:** Statistical charts, infographics, data visualization → Data presentation, visual storytelling  
+**Graphviz DOT:** Directed/undirected graphs, network topology, state machines → Dependency analysis, complex graphs
 
 **Time comparison:** Complex sequence diagram (10 objects)
 - Traditional tools: Draw 30min + Modify 20min + Adjust 10min + Export 5min = **65 minutes**
@@ -208,7 +214,7 @@ Pick one platform and install:
 
 ### Quick Start
 
-**Open documents:** Local `.md` files / supported diagram files (`.mermaid` `.dot` `.vega` `.vl` `.infographic`) depending on platform
+**Open documents:** Local `.md` files / supported diagram files (`.mermaid` `.vega` `.vl` `.drawio` `.canvas` `.infographic` `.dot` `.gv`) depending on platform
 
 **Export to Word:** Click download button or `Ctrl/Cmd + S` → See progress → Auto-save
 
@@ -222,7 +228,7 @@ Pick one platform and install:
 
 ### Full Markdown Syntax Support
 
-Headings · Paragraphs · Bold · Italic · Strikethrough · Lists · Task lists · Blockquotes · Code blocks (100+ languages highlighted) · Tables · Links · Images · Mermaid diagrams · Vega / Vega-Lite charts · Infographic charts · LaTeX formulas · HTML · GFM extensions
+Headings · Paragraphs · Bold · Italic · Strikethrough · Lists · Task lists · Blockquotes · Code blocks (100+ languages highlighted) · Tables · Links · Images · Mermaid diagrams · Vega / Vega-Lite charts · Draw.io diagrams · Canvas diagrams · Infographic charts · Graphviz DOT graphs · LaTeX formulas · HTML · GFM extensions
 
 ### 29 Themes
 
@@ -263,7 +269,7 @@ English · 简体中文 · 繁體中文 · Русский · 日本語 · हि
 A: Yes. Standard .docx format, math formulas are editable, not images.
 
 **Q: Which diagrams are supported?**  
-A: All Mermaid diagrams (flowchart, sequence, gantt, class, state, pie, ER, etc.), Vega / Vega-Lite data visualization charts, Infographic statistical charts + SVG auto-conversion.
+A: All Mermaid diagrams (flowchart, sequence, gantt, class, state, pie, ER, etc.), Vega / Vega-Lite data visualization charts, Draw.io architecture diagrams, Canvas mind maps, Infographic statistical charts, Graphviz DOT graphs + SVG auto-conversion.
 
 **Q: Is there a file size limit?**  
 A: No limit. Smart cache, documents with 100+ diagrams open instantly.
@@ -332,7 +338,7 @@ A: Use ````vega-lite` code block in Markdown with JSON format chart specificatio
 3. Preview and click export (or use `Ctrl/Cmd + S` where supported)
 4. ✅ Get a clean, ready-to-share Word document
 
-**You'll get:** Markdown → Word one-click conversion · Mermaid auto-convert · LaTeX editable formulas · 100+ languages syntax highlighting · 29 themes · Smart cache · Completely free
+**You'll get:** Markdown → Word one-click conversion · Mermaid/Vega/Draw.io/Canvas/Infographic/Graphviz auto-convert · LaTeX editable formulas · 100+ languages syntax highlighting · 29 themes · Smart cache · Completely free
 
 **Perfect for:** Technical writers · Students/researchers · Product managers · Developers · Anyone using Markdown
 

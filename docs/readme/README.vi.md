@@ -1,6 +1,6 @@
 # Markdown Viewer
 
-**Markdown sang Word hoàn hảo chỉ với một click — Mermaid, Graphviz, Vega, infographic, LaTeX (có thể chỉnh sửa), tô sáng mã, xử lý cục bộ**
+**Markdown sang Word hoàn hảo chỉ với một click — Mermaid, Vega, Draw.io, Canvas, Infographic, Graphviz, LaTeX (có thể chỉnh sửa), tô sáng mã, xử lý cục bộ**
 
 *Hoàn toàn miễn phí · 29+ chủ đề chuyên nghiệp · Hỗ trợ 28 ngôn ngữ*
 
@@ -23,7 +23,11 @@ Nhưng cuối cùng, bạn luôn cần một tài liệu Word.
 
 Nhấp tải xuống và nhận tài liệu Word hoàn hảo:
 - ✅ Sơ đồ Mermaid → Hình ảnh độ phân giải cao
-- ✅ Graphviz DOT → Hình ảnh độ phân giải cao
+- ✅ Biểu đồ dữ liệu Vega/Vega-Lite → Hình ảnh độ phân giải cao
+- ✅ Sơ đồ Draw.io → Hình ảnh độ phân giải cao
+- ✅ Sơ đồ Canvas → Hình ảnh độ phân giải cao
+- ✅ Biểu đồ Infographic → Hình ảnh độ phân giải cao
+- ✅ Đồ thị Graphviz DOT → Hình ảnh độ phân giải cao
 - ✅ Công thức LaTeX → Phương trình Word có thể chỉnh sửa
 - ✅ Tự động làm nổi bật cú pháp (100+ ngôn ngữ)
 - ✅ 29+ chủ đề chuyên nghiệp chỉ một cú nhấp chuột
@@ -92,12 +96,14 @@ Chọn chủ đề "Business", biểu đồ dữ liệu Vega-Lite tự động c
 
 ### 1. Chuyển đổi sơ đồ tự động
 
-**Sơ đồ Mermaid** · **Graphviz DOT** · **Biểu đồ dữ liệu Vega/Vega-Lite** · **Infographic** · Hình ảnh SVG · Bảng HTML phức tạp
+**Mermaid** · **Vega/Vega-Lite** · **Draw.io** · **Canvas** · **Infographic** · **Graphviz DOT** · Hình ảnh SVG · Bảng HTML phức tạp
 
 **Mermaid:** Sơ đồ luồng, sơ đồ tuần tự, sơ đồ lớp, sơ đồ trạng thái → Tài liệu kỹ thuật, thiết kế kiến trúc  
-**Graphviz DOT:** Đồ thị có hướng/vô hướng, cấu trúc liên kết mạng, máy trạng thái → Kiến trúc hệ thống, phân tích phụ thuộc  
 **Vega/Vega-Lite:** Biểu đồ cột, biểu đồ đường, biểu đồ phân tán, bản đồ nhiệt → Báo cáo kinh doanh, phân tích dữ liệu  
-**Infographic:** Biểu đồ thống kê, infographic, trực quan hóa dữ liệu → Trình bày dữ liệu, kể chuyện bằng hình ảnh
+**Draw.io:** Sơ đồ kiến trúc, cấu trúc liên kết mạng, sơ đồ UML → Thiết kế hệ thống, tài liệu kỹ thuật  
+**Canvas:** Sơ đồ tư duy, đồ thị tri thức, bản đồ khái niệm → Động não, bảng kế hoạch  
+**Infographic:** Biểu đồ thống kê, infographic, trực quan hóa dữ liệu → Trình bày dữ liệu, kể chuyện bằng hình ảnh  
+**Graphviz DOT:** Đồ thị có hướng/vô hướng, cây phụ thuộc → Kiến trúc hệ thống, phân tích phụ thuộc
 
 **So sánh thời gian:** Sơ đồ tuần tự phức tạp (10 đối tượng)
 - Công cụ truyền thống: Vẽ 30phút + Sửa đổi 20phút + Điều chỉnh 10phút + Xuất 5phút = **65 phút**
@@ -199,7 +205,7 @@ Tài liệu có 50 sơ đồ Mermaid:
 
 ### Hỗ trợ cú pháp Markdown đầy đủ
 
-Tiêu đề · Đoạn văn · Đậm · Nghiêng · Gạch ngang · Danh sách · Danh sách nhiệm vụ · Trích dẫn · Khối mã (làm nổi bật 100+ ngôn ngữ) · Bảng · Liên kết · Hình ảnh · Sơ đồ Mermaid · Biểu đồ Vega / Vega-Lite · Biểu đồ Infographic · Công thức LaTeX · HTML · Phần mở rộng GFM
+Tiêu đề · Đoạn văn · Đậm · Nghiêng · Gạch ngang · Danh sách · Danh sách nhiệm vụ · Trích dẫn · Khối mã (làm nổi bật 100+ ngôn ngữ) · Bảng · Liên kết · Hình ảnh · Sơ đồ Mermaid · Biểu đồ Vega / Vega-Lite · Sơ đồ Draw.io · Sơ đồ Canvas · Biểu đồ Infographic · Đồ thị Graphviz DOT · Công thức LaTeX · HTML · Phần mở rộng GFM
 
 ### 29 chủ đề
 
@@ -240,7 +246,7 @@ English · 简体中文 · 繁體中文 · Русский · 日本語 · हि
 Đ: Có. Định dạng .docx tiêu chuẩn, công thức toán học có thể chỉnh sửa, không phải hình ảnh.
 
 **H: Những sơ đồ nào được hỗ trợ?**  
-Đ: Tất cả sơ đồ Mermaid (sơ đồ luồng, tuần tự, gantt, lớp, trạng thái, tròn, ER, v.v.), biểu đồ trực quan hóa dữ liệu Vega / Vega-Lite, biểu đồ thống kê Infographic + chuyển đổi SVG tự động.
+Đ: Tất cả sơ đồ Mermaid (sơ đồ luồng, tuần tự, gantt, lớp, trạng thái, tròn, ER, v.v.), biểu đồ trực quan hóa dữ liệu Vega / Vega-Lite, sơ đồ Draw.io, sơ đồ JSON Canvas, biểu đồ thống kê Infographic, đồ thị Graphviz DOT + chuyển đổi SVG tự động.
 
 **H: Có giới hạn kích thước tệp không?**  
 Đ: Không có giới hạn. Bộ nhớ cache thông minh, tài liệu có 100+ sơ đồ mở ngay lập tức.
@@ -310,7 +316,7 @@ English · 简体中文 · 繁體中文 · Русский · 日本語 · हि
 4. Kéo tệp `.md` vào trình duyệt
 5. ✅ Bắt đầu sử dụng
 
-**Bạn sẽ nhận được:** Chuyển đổi Markdown → Word một cú nhấp chuột · Chuyển đổi Mermaid tự động · Công thức LaTeX có thể chỉnh sửa · Làm nổi bật cú pháp 100+ ngôn ngữ · 29+ chủ đề · Bộ nhớ cache thông minh · Hoàn toàn miễn phí
+**Bạn sẽ nhận được:** Chuyển đổi Markdown → Word một cú nhấp chuột · 6 loại sơ đồ (Mermaid / Vega / Draw.io / Canvas / Infographic / Graphviz) · Công thức LaTeX có thể chỉnh sửa · Làm nổi bật cú pháp 100+ ngôn ngữ · 29+ chủ đề · Bộ nhớ cache thông minh · Hoàn toàn miễn phí
 
 **Hoàn hảo cho:** Nhà văn kỹ thuật · Sinh viên/nhà nghiên cứu · Người quản lý sản phẩm · Nhà phát triển · Bất kỳ ai sử dụng Markdown
 

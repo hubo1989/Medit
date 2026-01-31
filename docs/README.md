@@ -1,6 +1,6 @@
 # Markdown Viewer
 
-**Markdown to perfect Word in one click — Mermaid, Graphviz, Vega, Infographic, LaTeX (editable), code highlighting, local processing**
+**Markdown to perfect Word in one click — Mermaid, Vega, Draw.io, Canvas, Infographic, Graphviz, LaTeX (editable), code highlighting, local processing**
 
 *Completely Free · 29 Professional Themes · 28 Languages Support*
 
@@ -31,8 +31,11 @@ You love writing in Markdown — clean, efficient, version control friendly. But
 Click to download and get a perfect Word document:
 
 - ✅ **Mermaid diagrams** → High-resolution images
-- ✅ **Graphviz DOT graphs** → High-resolution images  
 - ✅ **Vega/Vega-Lite charts** → High-resolution images
+- ✅ **Draw.io diagrams** → High-resolution images
+- ✅ **Canvas diagrams** → High-resolution images
+- ✅ **Infographic charts** → High-resolution images
+- ✅ **Graphviz DOT graphs** → High-resolution images
 - ✅ **LaTeX formulas** → Word editable equations (not images!)
 - ✅ **Auto syntax highlighting** for 100+ programming languages
 - ✅ **29 professional themes** with one click
@@ -49,9 +52,11 @@ Click to download and get a perfect Word document:
 Convert diagrams written in code to high-resolution images:
 
 - **Mermaid** - Flowcharts, sequence diagrams, class diagrams, state diagrams, Gantt charts, and more
-- **Graphviz DOT** - Directed graphs, network topology, state machines
 - **Vega/Vega-Lite** - Bar charts, line charts, scatter plots, heatmaps for data visualization
+- **Draw.io** - Architecture diagrams, network topologies, UML diagrams
+- **Canvas** - Mind maps, knowledge graphs, concept maps
 - **Infographic** - Statistical charts, infographics, data presentations
+- **Graphviz DOT** - Directed graphs, network topology, state machines
 
 ### 📐 Perfect Formula Conversion
 

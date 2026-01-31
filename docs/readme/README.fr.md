@@ -1,6 +1,6 @@
 # Markdown Viewer
 
-**Markdown vers Word parfait en un clic — Mermaid, Graphviz, Vega, infographie, LaTeX (modifiable), coloration syntaxique, traitement local**
+**Markdown vers Word parfait en un clic — Mermaid, Vega, Draw.io, Canvas, infographie, Graphviz, LaTeX (modifiable), coloration syntaxique, traitement local**
 
 *Entièrement gratuit · 29+ thèmes professionnels · 28 langues*
 
@@ -23,6 +23,10 @@ Mais finalement, vous avez toujours besoin d'un document Word.
 
 Cliquez pour télécharger et obtenir un document Word parfait:
 - ✅ Diagrammes Mermaid → Images haute résolution
+- ✅ Graphiques Vega/Vega-Lite → Images haute résolution
+- ✅ Diagrammes Draw.io → Images haute résolution
+- ✅ Diagrammes Canvas → Images haute résolution
+- ✅ Graphiques Infographic → Images haute résolution
 - ✅ Graphes Graphviz DOT → Images haute résolution
 - ✅ Formules LaTeX → Équations Word éditables
 - ✅ Coloration syntaxique automatique (100+ langages)
@@ -92,12 +96,14 @@ Laissez les données parler, générez des rapports professionnels en un clic.
 
 ### 1. Conversion Automatique de Diagrammes
 
-**Diagrammes Mermaid** · **Graphviz DOT** · **Graphiques de Données Vega/Vega-Lite** · **Infographic** · Images SVG · Tableaux HTML complexes
+**Mermaid** · **Vega/Vega-Lite** · **Draw.io** · **Canvas** · **Infographic** · **Graphviz DOT** · Images SVG · Tableaux HTML complexes
 
 **Mermaid:** Organigrammes, diagrammes de séquence, diagrammes de classe, diagrammes d'état → Documents techniques, conception d'architecture  
-**Graphviz DOT:** Graphes orientés/non orientés, topologie réseau, machines à états → Architecture système, analyse des dépendances  
 **Vega/Vega-Lite:** Graphiques à barres, graphiques linéaires, nuages de points, cartes thermiques → Rapports d'affaires, analyse de données  
-**Infographic:** Graphiques statistiques, infographies, visualisation de données → Présentation de données, narration visuelle
+**Draw.io:** Diagrammes d'architecture, topologie réseau, diagrammes UML → Conception système, documentation technique  
+**Canvas:** Cartes mentales, graphes de connaissances, cartes conceptuelles → Brainstorming, tableaux de planification  
+**Infographic:** Graphiques statistiques, infographies, visualisation de données → Présentation de données, narration visuelle  
+**Graphviz DOT:** Graphes orientés/non orientés, topologie réseau, machines à états → Analyse des dépendances, graphes complexes
 
 **Comparaison de temps:** Diagramme de séquence complexe (10 objets)
 - Outils traditionnels: Dessiner 30min + Modifier 20min + Ajuster 10min + Exporter 5min = **65 minutes**
@@ -199,7 +205,7 @@ Document avec 50 diagrammes Mermaid:
 
 ### Support Complet de la Syntaxe Markdown
 
-En-têtes · Paragraphes · Gras · Italique · Barré · Listes · Listes de tâches · Citations · Blocs de code (100+ langages surlignés) · Tableaux · Liens · Images · Diagrammes Mermaid · Graphiques Vega / Vega-Lite · Graphiques Infographic · Formules LaTeX · HTML · Extensions GFM
+En-têtes · Paragraphes · Gras · Italique · Barré · Listes · Listes de tâches · Citations · Blocs de code (100+ langages surlignés) · Tableaux · Liens · Images · Diagrammes Mermaid · Graphiques Vega / Vega-Lite · Diagrammes Draw.io · Diagrammes Canvas · Graphiques Infographic · Graphes Graphviz DOT · Formules LaTeX · HTML · Extensions GFM
 
 ### 29 Thèmes
 
@@ -240,7 +246,7 @@ English · 简体中文 · 繁體中文 · Русский · 日本語 · हि
 A: Oui. Format .docx standard, les formules mathématiques sont éditables, pas des images.
 
 **Q: Quels diagrammes sont supportés?**  
-A: Tous les diagrammes Mermaid (flux, séquence, gantt, classe, état, camembert, ER, etc.), graphiques de visualisation de données Vega / Vega-Lite, graphiques statistiques Infographic + auto-conversion SVG.
+A: Tous les diagrammes Mermaid (flux, séquence, gantt, classe, état, camembert, ER, etc.), graphiques de visualisation de données Vega / Vega-Lite, diagrammes Draw.io, diagrammes JSON Canvas, graphiques statistiques Infographic, graphes Graphviz DOT + auto-conversion SVG.
 
 **Q: Y a-t-il une limite de taille de fichier?**  
 A: Aucune limite. Cache intelligent, les documents avec 100+ diagrammes s'ouvrent instantanément.
@@ -310,7 +316,7 @@ A: Utilisez un bloc de code ````vega-lite` dans Markdown avec spécification de 
 4. Faites glisser les fichiers `.md` vers le navigateur
 5. ✅ Commencez à utiliser
 
-**Vous obtiendrez:** Conversion Markdown → Word en un clic · Auto-conversion Mermaid · Formules LaTeX éditables · Coloration syntaxique de 100+ langages · 29+ thèmes · Cache intelligent · Entièrement gratuit
+**Vous obtiendrez:** Conversion Markdown → Word en un clic · 6 types de diagrammes (Mermaid / Vega / Draw.io / Canvas / Infographic / Graphviz) · Formules LaTeX éditables · Coloration syntaxique de 100+ langages · 29+ thèmes · Cache intelligent · Entièrement gratuit
 
 **Parfait pour:** Rédacteurs techniques · Étudiants/chercheurs · Chefs de produit · Développeurs · Toute personne utilisant Markdown
 

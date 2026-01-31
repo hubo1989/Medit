@@ -1,6 +1,6 @@
 # Markdown Viewer
 
-**Markdown'dan mükemmel Word'e tek tıkla — Mermaid, Graphviz, Vega, infografik, LaTeX (düzenlenebilir), kod vurgulama, yerel işleme**
+**Markdown'dan mükemmel Word'e tek tıkla — Mermaid, Vega, Draw.io, Canvas, infografik, Graphviz, LaTeX (düzenlenebilir), kod vurgulama, yerel işleme**
 
 *Tamamen ücretsiz · 29+ profesyonel tema · 28 dil desteği*
 
@@ -23,6 +23,10 @@ Ama sonunda her zaman bir Word belgesine ihtiyacınız oluyor.
 
 İndirmek için tıklayın ve mükemmel bir Word belgesi alın:
 - ✅ Mermaid diyagramları → Yüksek çözünürlüklü görüntüler
+- ✅ Vega/Vega-Lite veri grafikleri → Yüksek çözünürlüklü görüntüler
+- ✅ Draw.io diyagramları → Yüksek çözünürlüklü görüntüler
+- ✅ Canvas diyagramları → Yüksek çözünürlüklü görüntüler
+- ✅ Infographic grafikleri → Yüksek çözünürlüklü görüntüler
 - ✅ Graphviz DOT grafikleri → Yüksek çözünürlüklü görüntüler
 - ✅ LaTeX formülleri → Düzenlenebilir Word denklemleri
 - ✅ Otomatik sözdizimi vurgulama (100+ dil)
@@ -92,12 +96,14 @@ Verilerin konuşmasına izin verin, tek tıkla profesyonel raporlar oluşturun.
 
 ### 1. Otomatik Diyagram Dönüştürme
 
-**Mermaid Diyagramları** · **Graphviz DOT** · **Vega/Vega-Lite Veri Grafikleri** · **Infographic** · SVG görselleri · Karmaşık HTML tabloları
+**Mermaid** · **Vega/Vega-Lite** · **Draw.io** · **Canvas** · **Infographic** · **Graphviz DOT** · SVG görselleri · Karmaşık HTML tabloları
 
 **Mermaid:** Akış şemaları, sıra diyagramları, sınıf diyagramları, durum diyagramları → Teknik belgeler, mimari tasarım  
-**Graphviz DOT:** Yönlendirilmiş/yönlendirilmemiş graflar, ağ topolojisi, durum makineleri → Sistem mimarisi, bağımlılık analizi  
 **Vega/Vega-Lite:** Çubuk grafikler, çizgi grafikler, dağılım grafikleri, ısı haritaları → İş raporları, veri analizi  
-**Infographic:** İstatistiksel grafikler, infografikler, veri görselleştirme → Veri sunumu, görsel hikaye anlatımı
+**Draw.io:** Mimari diyagramlar, ağ topolojisi, UML diyagramları → Sistem tasarımı, teknik belgeler  
+**Canvas:** Zihin haritaları, bilgi grafları, kavram haritaları → Beyin fırtınası, planlama panoları  
+**Infographic:** İstatistiksel grafikler, infografikler, veri görselleştirme → Veri sunumu, görsel hikaye anlatımı  
+**Graphviz DOT:** Yönlendirilmiş/yönlendirilmemiş graflar, bağımlılık ağaçları → Sistem mimarisi, bağımlılık analizi
 
 **Zaman karşılaştırması:** Karmaşık sıra diyagramı (10 nesne)
 - Geleneksel araçlar: Çizim 30dk + Değiştirme 20dk + Ayarlama 10dk + Dışa aktarma 5dk = **65 dakika**
@@ -199,7 +205,7 @@ Farklı senaryolar, farklı stiller, tek tıkla geçiş yapın:
 
 ### Tam Markdown Sözdizimi Desteği
 
-Başlıklar · Paragraflar · Kalın · İtalik · Üstü çizili · Listeler · Görev listeleri · Alıntılar · Kod blokları (100+ dil vurgulanmış) · Tablolar · Bağlantılar · Resimler · Mermaid diyagramları · Vega / Vega-Lite grafikleri · Infographic grafikleri · LaTeX formülleri · HTML · GFM uzantıları
+Başlıklar · Paragraflar · Kalın · İtalik · Üstü çizili · Listeler · Görev listeleri · Alıntılar · Kod blokları (100+ dil vurgulanmış) · Tablolar · Bağlantılar · Resimler · Mermaid diyagramları · Vega / Vega-Lite grafikleri · Draw.io diyagramları · Canvas diyagramları · Infographic grafikleri · Graphviz DOT grafları · LaTeX formülleri · HTML · GFM uzantıları
 
 ### 29 Tema
 
@@ -240,7 +246,7 @@ English · 简体中文 · 繁體中文 · Русский · 日本語 · हि
 C: Evet. Standart .docx biçimi, matematik formülleri düzenlenebilir, görüntü değil.
 
 **S: Hangi diyagramlar destekleniyor?**  
-C: Tüm Mermaid diyagramları (akış şeması, sıra, gantt, sınıf, durum, pasta, ER vb.), Vega / Vega-Lite veri görselleştirme grafikleri, Infographic istatistiksel grafikler + SVG otomatik dönüştürme.
+C: Tüm Mermaid diyagramları (akış şeması, sıra, gantt, sınıf, durum, pasta, ER vb.), Vega / Vega-Lite veri görselleştirme grafikleri, Draw.io diyagramları, JSON Canvas diyagramları, Infographic istatistiksel grafikler, Graphviz DOT grafları + SVG otomatik dönüştürme.
 
 **S: Dosya boyutu sınırı var mı?**  
 C: Sınır yok. Akıllı önbellek, 100+ diyagramlı belgeler anında açılır.
@@ -310,7 +316,7 @@ C: Markdown'da ````vega-lite` kod bloğunu JSON biçimli grafik spesifikasyonu i
 4. `.md` dosyalarını tarayıcıya sürükleyin
 5. ✅ Kullanmaya başlayın
 
-**Elde edecekleriniz:** Markdown → Word tek tık dönüştürme · Mermaid otomatik dönüştürme · LaTeX düzenlenebilir formüller · 100+ dil sözdizimi vurgulama · 29+ tema · Akıllı önbellek · Tamamen ücretsiz
+**Elde edecekleriniz:** Markdown → Word tek tık dönüştürme · 6 diyagram türü (Mermaid / Vega / Draw.io / Canvas / Infographic / Graphviz) · LaTeX düzenlenebilir formüller · 100+ dil sözdizimi vurgulama · 29+ tema · Akıllı önbellek · Tamamen ücretsiz
 
 **Mükemmel:** Teknik yazarlar · Öğrenciler/araştırmacılar · Ürün yöneticileri · Geliştiriciler · Markdown kullanan herkes
 

@@ -11,9 +11,11 @@ This page provides a comprehensive comparison of features available across all M
 | **Math Formulas (KaTeX)** | ✅ | ✅ | ✅ | ✅ |
 | **Code Syntax Highlighting** | ✅ | ✅ | ✅ | ✅ |
 | **Mermaid Diagrams** | ✅ | ✅ | ✅ | ✅ |
-| **Graphviz DOT Diagrams** | ✅ | ✅ | ✅ | ✅ |
 | **Vega/Vega-Lite Charts** | ✅ | ✅ | ✅ | ✅ |
+| **Draw.io Diagrams** | ✅ | ✅ | ✅ | ✅ |
+| **Canvas Diagrams** | ✅ | ✅ | ✅ | ✅ |
 | **Infographics** | ✅ | ✅ | ✅ | ✅ |
+| **Graphviz DOT Diagrams** | ✅ | ✅ | ✅ | ✅ |
 | **Word Export (DOCX)** | ✅ | ✅ | ✅ | ✅ |
 | **Table of Contents** | ✅ | ✅ | ✅ | ✅ |
 | **29 Themes** | ✅ | ✅ | ✅ | ✅ |
@@ -60,10 +62,12 @@ All platforms share the same core rendering engine built on unified/remark/rehyp
 | Mermaid Gantt | ✅ | ✅ | ✅ | ✅ |
 | Mermaid Pie | ✅ | ✅ | ✅ | ✅ |
 | Mermaid Mindmap | ✅ | ✅ | ✅ | ✅ |
-| Graphviz DOT | ✅ | ✅ | ✅ | ✅ |
 | Vega Charts | ✅ | ✅ | ✅ | ✅ |
 | Vega-Lite Charts | ✅ | ✅ | ✅ | ✅ |
+| Draw.io | ✅ | ✅ | ✅ | ✅ |
+| Canvas | ✅ | ✅ | ✅ | ✅ |
 | Infographic | ✅ | ✅ | ✅ | ✅ |
+| Graphviz DOT | ✅ | ✅ | ✅ | ✅ |
 
 ### Standalone File Formats
 
@@ -73,10 +77,12 @@ Support for opening dedicated diagram files:
 |-------------|:------:|:-------:|:-------:|:------:|
 | `.md`, `.markdown` | ✅ | ✅ | ✅ | ✅ |
 | `.mermaid` | ✅ | ✅ | ✅ | ✅ |
-| `.gv`, `.dot` | ✅ | ✅ | ✅ | ✅ |
 | `.vega` | ✅ | ✅ | ✅ | ✅ |
 | `.vl`, `.vega-lite` | ✅ | ✅ | ✅ | ✅ |
+| `.drawio` | ✅ | ✅ | ✅ | ✅ |
+| `.canvas` | ✅ | ✅ | ✅ | ✅ |
 | `.infographic` | ✅ | ✅ | ✅ | ✅ |
+| `.gv`, `.dot` | ✅ | ✅ | ✅ | ✅ |
 
 ### Export Capabilities
 

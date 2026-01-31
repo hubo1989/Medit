@@ -37,9 +37,11 @@ All major diagram types:
 | Type | Examples |
 |------|----------|
 | **Mermaid** | Flowcharts, sequences, class diagrams, Gantt, ER, state, pie |
-| **Graphviz DOT** | Directed graphs, network topology, state machines |
 | **Vega/Vega-Lite** | Bar charts, line charts, scatter plots, heatmaps |
+| **Draw.io** | Architecture diagrams, network topologies, UML |
+| **Canvas** | Mind maps, knowledge graphs, concept maps |
 | **Infographic** | Statistical charts, presentations |
+| **Graphviz DOT** | Directed graphs, network topology, state machines |
 | **SVG** | Auto-converted to images |
 
 ### Are there file size limits?

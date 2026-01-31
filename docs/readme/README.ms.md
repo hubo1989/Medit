@@ -1,6 +1,6 @@
 # Markdown Viewer
 
-**Markdown ke Word sempurna dengan satu klik — Mermaid, Graphviz, Vega, infografik, LaTeX (boleh diedit), penyerlahan kod, pemprosesan tempatan**
+**Markdown ke Word sempurna dengan satu klik — Mermaid, Vega, Draw.io, Canvas, infografik, Graphviz, LaTeX (boleh diedit), penyerlahan kod, pemprosesan tempatan**
 
 *Sepenuhnya percuma · 29+ tema profesional · Sokongan 28 bahasa*
 
@@ -23,6 +23,10 @@ Tetapi akhirnya, anda sentiasa memerlukan dokumen Word.
 
 Klik untuk muat turun dan dapatkan dokumen Word yang sempurna:
 - ✅ Gambar rajah Mermaid → Imej resolusi tinggi
+- ✅ Carta data Vega/Vega-Lite → Imej resolusi tinggi
+- ✅ Gambar rajah Draw.io → Imej resolusi tinggi
+- ✅ Gambar rajah Canvas → Imej resolusi tinggi
+- ✅ Carta Infographic → Imej resolusi tinggi
 - ✅ Graf Graphviz DOT → Imej resolusi tinggi
 - ✅ Formula LaTeX → Persamaan Word boleh diedit
 - ✅ Penyorotan sintaks automatik (100+ bahasa)
@@ -92,12 +96,14 @@ Biarkan data bercakap, jana laporan profesional dengan satu klik.
 
 ### 1. Penukaran Gambar Rajah Automatik
 
-**Gambar Rajah Mermaid** · **Graphviz DOT** · **Carta Data Vega/Vega-Lite** · **Infographic** · Imej SVG · Jadual HTML kompleks
+**Mermaid** · **Vega/Vega-Lite** · **Draw.io** · **Canvas** · **Infographic** · **Graphviz DOT** · Imej SVG · Jadual HTML kompleks
 
 **Mermaid:** Carta alir, gambar rajah urutan, gambar rajah kelas, gambar rajah keadaan → Dokumen teknikal, reka bentuk seni bina  
-**Graphviz DOT:** Graf berarah/tidak berarah, topologi rangkaian, mesin keadaan → Seni bina sistem, analisis kebergantungan  
 **Vega/Vega-Lite:** Carta bar, carta garis, plot serakan, peta haba → Laporan perniagaan, analitik data  
-**Infographic:** Carta statistik, infografik, visualisasi data → Persembahan data, penceritaan visual
+**Draw.io:** Gambar rajah seni bina, topologi rangkaian, gambar rajah UML → Reka bentuk sistem, dokumentasi teknikal  
+**Canvas:** Peta minda, graf pengetahuan, peta konsep → Sumbang saran, papan perancangan  
+**Infographic:** Carta statistik, infografik, visualisasi data → Persembahan data, penceritaan visual  
+**Graphviz DOT:** Graf berarah/tidak berarah, topologi rangkaian, mesin keadaan → Analisis kebergantungan, graf kompleks
 
 **Perbandingan masa:** Gambar rajah urutan kompleks (10 objek)
 - Alat tradisional: Lukis 30min + Ubah suai 20min + Laraskan 10min + Eksport 5min = **65 minit**
@@ -199,7 +205,7 @@ Dokumen dengan 50 gambar rajah Mermaid:
 
 ### Sokongan Sintaks Markdown Penuh
 
-Tajuk · Perenggan · Tebal · Italik · Garis lorek · Senarai · Senarai tugas · Petikan blok · Blok kod (100+ bahasa ditonjolkan) · Jadual · Pautan · Imej · Gambar rajah Mermaid · Carta Vega / Vega-Lite · Carta Infographic · Formula LaTeX · HTML · Sambungan GFM
+Tajuk · Perenggan · Tebal · Italik · Garis lorek · Senarai · Senarai tugas · Petikan blok · Blok kod (100+ bahasa ditonjolkan) · Jadual · Pautan · Imej · Gambar rajah Mermaid · Carta Vega / Vega-Lite · Gambar rajah Draw.io · Gambar rajah Canvas · Carta Infographic · Graf Graphviz DOT · Formula LaTeX · HTML · Sambungan GFM
 
 ### 29 Tema
 
@@ -240,7 +246,7 @@ English · 简体中文 · 繁體中文 · Русский · 日本語 · हि
 J: Ya. Format .docx standard, formula matematik boleh diedit, bukan imej.
 
 **S: Gambar rajah mana yang disokong?**  
-J: Semua gambar rajah Mermaid (carta alir, urutan, gantt, kelas, keadaan, pai, ER, dll.), carta visualisasi data Vega / Vega-Lite, carta statistik Infographic + penukaran auto SVG.
+J: Semua gambar rajah Mermaid (carta alir, urutan, gantt, kelas, keadaan, pai, ER, dll.), carta visualisasi data Vega / Vega-Lite, gambar rajah seni bina Draw.io, peta minda Canvas, carta statistik Infographic, graf Graphviz DOT + penukaran auto SVG.
 
 **S: Adakah had saiz fail?**  
 J: Tiada had. Cache pintar, dokumen dengan 100+ gambar rajah dibuka serta-merta.
@@ -310,7 +316,7 @@ J: Gunakan blok kod ````vega-lite` dalam Markdown dengan spesifikasi carta forma
 4. Seret fail `.md` ke pelayar
 5. ✅ Mula guna
 
-**Anda akan dapat:** Markdown → Word penukaran satu klik · Mermaid auto-tukar · Formula LaTeX boleh diedit · 100+ bahasa penyorotan sintaks · 29+ tema · Cache pintar · Percuma sepenuhnya
+**Anda akan dapat:** Markdown → Word penukaran satu klik · Mermaid/Vega/Draw.io/Canvas/Infographic/Graphviz auto-tukar · Formula LaTeX boleh diedit · 100+ bahasa penyorotan sintaks · 29+ tema · Cache pintar · Percuma sepenuhnya
 
 **Sempurna untuk:** Penulis teknikal · Pelajar/penyelidik · Pengurus produk · Pembangun · Sesiapa yang menggunakan Markdown
 

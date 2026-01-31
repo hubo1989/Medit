@@ -9,9 +9,11 @@ Markdown Viewer is packed with features designed to make your Markdown-to-Word w
 Transform code-based diagrams into high-resolution images automatically:
 
 - **[Mermaid](diagrams/mermaid.md)** — Flowcharts, sequence diagrams, class diagrams, and more
-- **[Graphviz DOT](diagrams/graphviz.md)** — Network graphs, state machines, dependency diagrams
 - **[Vega/Vega-Lite](diagrams/vega.md)** — Data visualization charts
+- **[Draw.io](diagrams/drawio.md)** — Architecture diagrams, network topologies, UML
+- **[Canvas](diagrams/canvas.md)** — Mind maps, knowledge graphs, concept maps
 - **[Infographic](diagrams/infographic.md)** — Statistical charts and infographics
+- **[Graphviz DOT](diagrams/graphviz.md)** — Network graphs, state machines, dependency diagrams
 
 ### 📐 Math Formulas
 
@@ -82,9 +84,11 @@ Markdown Viewer supports the complete Markdown specification plus extensions:
 ### Extended Syntax
 
 - Mermaid diagrams
-- Graphviz DOT graphs
 - Vega/Vega-Lite charts
+- Draw.io diagrams
+- Canvas diagrams
 - Infographic syntax
+- Graphviz DOT graphs
 - LaTeX math (inline and block)
 - Footnotes
 - Definition lists
@@ -167,9 +171,11 @@ Markdown Viewer supports the complete Markdown specification plus extensions:
 Dive deeper into each feature:
 
 - [Mermaid Diagrams](diagrams/mermaid.md)
-- [Graphviz DOT](diagrams/graphviz.md)
 - [Vega/Vega-Lite Charts](diagrams/vega.md)
+- [Draw.io Diagrams](diagrams/drawio.md)
+- [Canvas Diagrams](diagrams/canvas.md)
 - [Infographic](diagrams/infographic.md)
+- [Graphviz DOT](diagrams/graphviz.md)
 - [Math Formulas](formulas.md)
 - [Themes](themes.md)
 - [Code Highlighting](code-highlight.md)

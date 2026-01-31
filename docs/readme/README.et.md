@@ -1,6 +1,6 @@
 # Markdown Viewer
 
-**Markdown täiuslikuks Wordiks ühe klõpsuga — Mermaid, Graphviz, Vega, infograafika, LaTeX (redigeeritav), koodi esiletõstmine, kohalik töötlemine**
+**Markdown täiuslikuks Wordiks ühe klõpsuga — Mermaid, Vega, Draw.io, Canvas, infograafika, Graphviz, LaTeX (redigeeritav), koodi esiletõstmine, kohalik töötlemine**
 
 *Täiesti tasuta · 29+ professionaalset teemat · 28 keele tugi*
 
@@ -23,6 +23,10 @@ Kuid lõpuks vajate alati Word-dokumenti.
 
 Klõpsake allalaadimiseks ja saage täiuslik Word-dokument:
 - ✅ Mermaid diagrammid → Kõrge eraldusvõimega pildid
+- ✅ Vega/Vega-Lite andmegraafikud → Kõrge eraldusvõimega pildid
+- ✅ Draw.io diagrammid → Kõrge eraldusvõimega pildid
+- ✅ Canvas diagrammid → Kõrge eraldusvõimega pildid
+- ✅ Infographic graafikud → Kõrge eraldusvõimega pildid
 - ✅ Graphviz DOT graafikud → Kõrge eraldusvõimega pildid
 - ✅ LaTeX valemid → Word redigeeritavad võrrandid
 - ✅ Automaatne süntaksi esiletõstmine (100+ keelt)
@@ -92,12 +96,14 @@ Laseme andmetel rääkida, looge professionaalseid aruandeid ühe klikiga.
 
 ### 1. Automaatne diagrammide teisendamine
 
-**Mermaid diagrammid** · **Graphviz DOT** · **Vega/Vega-Lite andmegraafikud** · **Infographic** · SVG pildid · Keerukad HTML tabelid
+**Mermaid** · **Vega/Vega-Lite** · **Draw.io** · **Canvas** · **Infographic** · **Graphviz DOT** · SVG pildid · Keerukad HTML tabelid
 
 **Mermaid:** Voodiagrammid, järjestusdiagrammid, klassi diagrammid, olekudiagrammid → Tehniline dokumentatsioon, arhitektuuri kujundus  
-**Graphviz DOT:** Suunatud/suunamata graafikud, võrgu topoloogia, olekuautomaadid → Süsteemi arhitektuur, sõltuvuste analüüs  
 **Vega/Vega-Lite:** Tulpdiagrammid, joondiagrammid, hajuvusdiagrammid, soojuskaardid → Äriaruanded, andmeanalüüs  
-**Infographic:** Statistilised graafikud, infograafikud, andmete visualiseerimine → Andmete esitlus, visuaalne jutustamine
+**Draw.io:** Arhitektuuri diagrammid, võrgu topoloogiad, UML diagrammid → Süsteemi kujundus, tehniline dokumentatsioon  
+**Canvas:** Mõttekaardid, teadmiste graafikud, kontseptsiooni kaardid → Ajurünnak, planeerimistahvlid  
+**Infographic:** Statistilised graafikud, infograafikud, andmete visualiseerimine → Andmete esitlus, visuaalne jutustamine  
+**Graphviz DOT:** Suunatud/suunamata graafikud, võrgu topoloogia, olekuautomaadid → Sõltuvuste analüüs, keerukad graafikud
 
 **Aja võrdlus:** Keeruline järjestusdiagramm (10 objekti)
 - Traditsioonilised tööriistad: Joonistamine 30min + Muutmine 20min + Kohendamine 10min + Eksportimine 5min = **65 minutit**
@@ -199,7 +205,7 @@ Dokument 50 Mermaid diagrammiga:
 
 ### Täielik Markdowni süntaksi tugi
 
-Pealkirjad · Lõigud · Rasvane · Kursiiv · Läbikriipsutatud · Loendid · Ülesannete loendid · Plokki tsitaadid · Koodiplokid (100+ keelt esiletõstetud) · Tabelid · Lingid · Pildid · Mermaid diagrammid · Vega / Vega-Lite graafikud · Infographic graafikud · LaTeX valemid · HTML · GFM laiendused
+Pealkirjad · Lõigud · Rasvane · Kursiiv · Läbikriipsutatud · Loendid · Ülesannete loendid · Plokki tsitaadid · Koodiplokid (100+ keelt esiletõstetud) · Tabelid · Lingid · Pildid · Mermaid diagrammid · Vega / Vega-Lite graafikud · Draw.io diagrammid · Canvas diagrammid · Infographic graafikud · Graphviz DOT graafikud · LaTeX valemid · HTML · GFM laiendused
 
 ### 29 teemat
 
@@ -240,7 +246,7 @@ English · 简体中文 · 繁體中文 · Русский · 日本語 · हि
 V: Jah. Standardne .docx formaat, matemaatilised valemid on redigeeritavad, mitte pildid.
 
 **K: Millised diagrammid on toetatud?**  
-V: Kõik Mermaid diagrammid (voodiagramm, järjestus, gantt, klass, olek, piruk, ER jne), Vega / Vega-Lite andmete visualiseerimise graafikud, Infographic statistilised graafikud + SVG automaatne teisendamine.
+V: Kõik Mermaid diagrammid (voodiagramm, järjestus, gantt, klass, olek, piruk, ER jne), Vega / Vega-Lite andmete visualiseerimise graafikud, Draw.io arhitektuuri diagrammid, Canvas mõttekaardid, Infographic statistilised graafikud, Graphviz DOT graafikud + SVG automaatne teisendamine.
 
 **K: Kas failisuurusel on piirang?**  
 V: Pirangut pole. Nutikas vahemälu, 100+ diagrammiga dokumendid avanevad kohe.
@@ -310,7 +316,7 @@ V: Kasutage Markdownis ````vega-lite` koodiplokki JSON-vormingus graafiku spetsi
 4. Lohistage `.md` failid brauserisse
 5. ✅ Hakake kasutama
 
-**Saate:** Markdown → Word ühe klikiga teisendamine · Mermaid automaatne teisendamine · LaTeX redigeeritavad valemid · 100+ keele süntaksi esiletõstmine · 29+ teemat · Nutikas vahemälu · Täiesti tasuta
+**Saate:** Markdown → Word ühe klikiga teisendamine · Mermaid/Vega/Draw.io/Canvas/Infographic/Graphviz automaatne teisendamine · LaTeX redigeeritavad valemid · 100+ keele süntaksi esiletõstmine · 29+ teemat · Nutikas vahemälu · Täiesti tasuta
 
 **Ideaalne:** Tehnilised kirjutajad · Üliõpilased/teadlased · Tootejuhid · Arendajad · Igaüks, kes kasutab Markdowni
 

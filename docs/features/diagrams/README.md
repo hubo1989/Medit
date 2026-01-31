@@ -7,9 +7,11 @@ Markdown Viewer can convert code-based diagrams into high-resolution images duri
 | Type | Syntax | Best For |
 |------|--------|----------|
 | [Mermaid](mermaid.md) | `mermaid` | Flowcharts, sequences, architecture |
-| [Graphviz DOT](graphviz.md) | `dot` | Network graphs, dependencies |
 | [Vega/Vega-Lite](vega.md) | `vega`, `vega-lite` | Data visualization |
+| [Draw.io](drawio.md) | `drawio` | Architecture, network, UML |
+| [Canvas](canvas.md) | `canvas` | Mind maps, knowledge graphs |
 | [Infographic](infographic.md) | `infographic` | Statistics, presentations |
+| [Graphviz DOT](graphviz.md) | `dot` | Network graphs, dependencies |
 
 ---
 
@@ -55,9 +57,11 @@ graph TD
 | Diagram Type | Use Cases | Examples |
 |--------------|-----------|----------|
 | **Mermaid** | Process flows, system architecture, sequences | Workflows, API flows, class diagrams |
-| **Graphviz DOT** | Complex relationships, hierarchies | Dependency trees, org charts, state machines |
 | **Vega/Vega-Lite** | Data-driven charts | Sales data, analytics, dashboards |
+| **Draw.io** | Professional diagrams, rich shape libraries | AWS/Azure architecture, UML, network topology |
+| **Canvas** | Spatial layouts, free positioning | Mind maps, concept maps, planning boards |
 | **Infographic** | Presentations, statistics | KPIs, comparisons, summaries |
+| **Graphviz DOT** | Complex relationships, hierarchies | Dependency trees, org charts, state machines |
 
 ---
 
@@ -75,6 +79,8 @@ All diagrams are rendered at high resolution for crisp output:
 ## Explore Each Type
 
 - [Mermaid Diagrams](mermaid.md) — The most versatile option
-- [Graphviz DOT](graphviz.md) — For complex graphs
 - [Vega/Vega-Lite](vega.md) — For data visualization
+- [Draw.io](drawio.md) — For professional architecture diagrams
+- [Canvas](canvas.md) — For spatial mind maps
 - [Infographic](infographic.md) — For presentations
+- [Graphviz DOT](graphviz.md) — For complex graphs
