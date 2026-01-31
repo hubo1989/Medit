@@ -503,9 +503,17 @@
     "message": "บันทึกการตั้งค่าแล้ว",
     "description": "Toast when settings saved"
   },
+  "settings_support_canvas": {
+    "message": "ไดอะแกรม JSON Canvas (.canvas)",
+    "description": "Checkbox label for enabling JSON Canvas file support"
+  },
   "settings_support_dot": {
     "message": "ไดอะแกรม Graphviz DOT (.gv)",
     "description": "Checkbox label for Graphviz DOT format support"
+  },
+  "settings_support_drawio": {
+    "message": "ไดอะแกรม Draw.io (.drawio)",
+    "description": "Checkbox label for enabling Draw.io file support"
   },
   "settings_support_infographic": {
     "message": "อินโฟกราฟิก (.infographic)",

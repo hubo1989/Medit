@@ -503,9 +503,17 @@
     "message": "Pengaturan disimpan",
     "description": "Toast when settings saved"
   },
+  "settings_support_canvas": {
+    "message": "Diagram JSON Canvas (.canvas)",
+    "description": "Checkbox label for enabling JSON Canvas file support"
+  },
   "settings_support_dot": {
     "message": "Diagram Graphviz DOT (.gv)",
     "description": "Checkbox label for Graphviz DOT format support"
+  },
+  "settings_support_drawio": {
+    "message": "Diagram Draw.io (.drawio)",
+    "description": "Checkbox label for enabling Draw.io file support"
   },
   "settings_support_infographic": {
     "message": "Infografis (.infographic)",

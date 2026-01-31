@@ -503,9 +503,17 @@
     "message": "Sätted salvestatud",
     "description": "Toast when settings saved"
   },
+  "settings_support_canvas": {
+    "message": "JSON Canvas diagrammid (.canvas)",
+    "description": "Checkbox label for enabling JSON Canvas file support"
+  },
   "settings_support_dot": {
     "message": "Graphviz DOT diagrammid (.gv)",
     "description": "Checkbox label for enabling DOT file support"
+  },
+  "settings_support_drawio": {
+    "message": "Draw.io diagrammid (.drawio)",
+    "description": "Checkbox label for enabling Draw.io file support"
   },
   "settings_support_infographic": {
     "message": "Infograafika (.infographic)",

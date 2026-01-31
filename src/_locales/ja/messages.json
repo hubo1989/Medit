@@ -503,9 +503,17 @@
     "message": "設定を保存しました",
     "description": "保存成功の通知"
   },
+  "settings_support_canvas": {
+    "message": "JSON Canvas図 (.canvas)",
+    "description": "Checkbox label for enabling JSON Canvas file support"
+  },
   "settings_support_dot": {
     "message": "Graphviz DOT図 (.gv)",
     "description": "Checkbox label for Graphviz DOT format support"
+  },
+  "settings_support_drawio": {
+    "message": "Draw.io図 (.drawio)",
+    "description": "Checkbox label for enabling Draw.io file support"
   },
   "settings_support_infographic": {
     "message": "インフォグラフィック (.infographic)",

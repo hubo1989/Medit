@@ -138,6 +138,8 @@ interface SupportedExtensions {
   vegaLite: boolean;
   dot: boolean;
   infographic: boolean;
+  canvas: boolean;
+  drawio: boolean;
 }
 
 /**
@@ -200,6 +202,8 @@ export function createSettingsTabManager({
       vegaLite: true,
       dot: true,
       infographic: true,
+      canvas: true,
+      drawio: true,
     },
     frontmatterDisplay: 'hide',
     tableMergeEmpty: true,
@@ -359,6 +363,8 @@ export function createSettingsTabManager({
       vegaLite: true,
       dot: true,
       infographic: true,
+      canvas: true,
+      drawio: true,
     };
 
     const supportMermaidEl = document.getElementById('support-mermaid') as HTMLInputElement | null;
@@ -389,6 +395,18 @@ export function createSettingsTabManager({
     if (supportInfographicEl) {
       supportInfographicEl.checked = ext.infographic;
       addExtensionChangeListener(supportInfographicEl, 'infographic');
+    }
+
+    const supportCanvasEl = document.getElementById('support-canvas') as HTMLInputElement | null;
+    if (supportCanvasEl) {
+      supportCanvasEl.checked = ext.canvas;
+      addExtensionChangeListener(supportCanvasEl, 'canvas');
+    }
+
+    const supportDrawioEl = document.getElementById('support-drawio') as HTMLInputElement | null;
+    if (supportDrawioEl) {
+      supportDrawioEl.checked = ext.drawio;
+      addExtensionChangeListener(supportDrawioEl, 'drawio');
     }
   }
 
@@ -441,6 +459,8 @@ export function createSettingsTabManager({
             vegaLite: true,
             dot: true,
             infographic: true,
+            canvas: true,
+            drawio: true,
           };
         }
         settings.supportedExtensions[key] = el.checked;
@@ -709,6 +729,8 @@ export function createSettingsTabManager({
       const supportVegaLiteEl = document.getElementById('support-vega-lite') as HTMLInputElement | null;
       const supportDotEl = document.getElementById('support-dot') as HTMLInputElement | null;
       const supportInfographicEl = document.getElementById('support-infographic') as HTMLInputElement | null;
+      const supportCanvasEl = document.getElementById('support-canvas') as HTMLInputElement | null;
+      const supportDrawioEl = document.getElementById('support-drawio') as HTMLInputElement | null;
 
       settings.supportedExtensions = {
         mermaid: supportMermaidEl?.checked ?? true,
@@ -716,6 +738,8 @@ export function createSettingsTabManager({
         vegaLite: supportVegaLiteEl?.checked ?? true,
         dot: supportDotEl?.checked ?? true,
         infographic: supportInfographicEl?.checked ?? true,
+        canvas: supportCanvasEl?.checked ?? true,
+        drawio: supportDrawioEl?.checked ?? true,
       };
 
       await storageSet({
@@ -759,6 +783,8 @@ export function createSettingsTabManager({
           vegaLite: true,
           dot: true,
           infographic: true,
+          canvas: true,
+          drawio: true,
         },
         tableMergeEmpty: true,
       };

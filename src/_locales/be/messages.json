@@ -503,9 +503,17 @@
     "message": "Налады захаваны",
     "description": "Toast when settings saved"
   },
+  "settings_support_canvas": {
+    "message": "JSON Canvas дыяграмы (.canvas)",
+    "description": "Checkbox label for enabling JSON Canvas file support"
+  },
   "settings_support_dot": {
     "message": "Дыяграмы Graphviz DOT (.gv)",
     "description": "Checkbox label for enabling DOT file support"
+  },
+  "settings_support_drawio": {
+    "message": "Draw.io дыяграмы (.drawio)",
+    "description": "Checkbox label for enabling Draw.io file support"
   },
   "settings_support_infographic": {
     "message": "Інфаграфіка (.infographic)",

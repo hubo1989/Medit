@@ -503,9 +503,17 @@
     "message": "सेटिंग्स सहेजी गईं",
     "description": "Toast when settings saved"
   },
+  "settings_support_canvas": {
+    "message": "JSON Canvas आरेख (.canvas)",
+    "description": "Checkbox label for enabling JSON Canvas file support"
+  },
   "settings_support_dot": {
     "message": "Graphviz DOT आरेख (.gv)",
     "description": "Checkbox label for Graphviz DOT format support"
+  },
+  "settings_support_drawio": {
+    "message": "Draw.io आरेख (.drawio)",
+    "description": "Checkbox label for enabling Draw.io file support"
   },
   "settings_support_infographic": {
     "message": "इन्फोग्राफिक्स (.infographic)",

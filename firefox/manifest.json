@@ -49,6 +49,8 @@
         "file://*/*.vega-lite",
         "file://*/*.gv",
         "file://*/*.infographic",
+        "file://*/*.canvas",
+        "file://*/*.drawio",
         "*://*/*.md",
         "*://*/*.markdown",
         "*://*/*.mermaid",
@@ -56,7 +58,9 @@
         "*://*/*.vl",
         "*://*/*.vega-lite",
         "*://*/*.gv",
-        "*://*/*.infographic"
+        "*://*/*.infographic",
+        "*://*/*.canvas",
+        "*://*/*.drawio"
       ],
       "js": [
         "core/content-detector.js"

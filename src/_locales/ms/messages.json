@@ -503,9 +503,17 @@
     "message": "Tetapan disimpan",
     "description": "Toast when settings saved"
   },
+  "settings_support_canvas": {
+    "message": "Rajah JSON Canvas (.canvas)",
+    "description": "Checkbox label for enabling JSON Canvas file support"
+  },
   "settings_support_dot": {
     "message": "Gambarajah Graphviz DOT (.gv)",
     "description": "Checkbox label for enabling DOT file support"
+  },
+  "settings_support_drawio": {
+    "message": "Rajah Draw.io (.drawio)",
+    "description": "Checkbox label for enabling Draw.io file support"
   },
   "settings_support_infographic": {
     "message": "Infografik (.infographic)",

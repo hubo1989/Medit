@@ -25,6 +25,10 @@ export function getFileType(filePath: string): string {
       return 'dot';
     case 'infographic':
       return 'infographic';
+    case 'canvas':
+      return 'canvas';
+    case 'drawio':
+      return 'drawio';
     case 'svg':
       return 'svg';
     case 'html':
@@ -100,6 +104,8 @@ export function isFileSupportedBySettings(
     'vega-lite': 'vegaLite',
     'dot': 'dot',
     'infographic': 'infographic',
+    'canvas': 'canvas',
+    'drawio': 'drawio',
   };
   
   const settingsKey = settingsKeyMap[fileType];

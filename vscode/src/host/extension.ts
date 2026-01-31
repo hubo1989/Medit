@@ -15,7 +15,7 @@ let renderStatusBarItem: vscode.StatusBarItem;
 let renderStatusTimeout: ReturnType<typeof setTimeout> | null = null;
 
 // Supported language IDs for preview
-const SUPPORTED_LANGUAGES = ['markdown', 'mermaid', 'vega', 'graphviz', 'infographic'];
+const SUPPORTED_LANGUAGES = ['markdown', 'mermaid', 'vega', 'graphviz', 'infographic', 'canvas', 'drawio'];
 
 /**
  * Helper to check if a document is supported for preview

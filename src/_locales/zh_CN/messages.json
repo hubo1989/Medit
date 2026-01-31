@@ -163,6 +163,18 @@
     "message": "确定要清除所有最近打开的文件记录吗？",
     "description": "Confirmation message for clearing recent files"
   },
+  "clipboard_empty": {
+    "message": "剪贴板为空",
+    "description": "剪贴板为空错误"
+  },
+  "clipboard_open": {
+    "message": "从剪贴板打开",
+    "description": "剪贴板项标题"
+  },
+  "clipboard_read_failed": {
+    "message": "读取剪贴板失败",
+    "description": "读取剪贴板失败错误"
+  },
   "close": {
     "message": "关闭",
     "description": "Close button text/tooltip"
@@ -298,18 +310,6 @@
   "history_title": {
     "message": "最近访问的文档",
     "description": "历史文档标题"
-  },
-  "clipboard_open": {
-    "message": "从剪贴板打开",
-    "description": "剪贴板项标题"
-  },
-  "clipboard_empty": {
-    "message": "剪贴板为空",
-    "description": "剪贴板为空错误"
-  },
-  "clipboard_read_failed": {
-    "message": "读取剪贴板失败",
-    "description": "读取剪贴板失败错误"
   },
   "language": {
     "message": "语言",
@@ -503,9 +503,17 @@
     "message": "设置已保存",
     "description": "保存设置成功提示"
   },
+  "settings_support_canvas": {
+    "message": "JSON Canvas 图表 (.canvas)",
+    "description": "Checkbox label for enabling JSON Canvas file support"
+  },
   "settings_support_dot": {
     "message": "Graphviz DOT 图表 (.dot)",
     "description": "启用 DOT 文件支持的复选框标签"
+  },
+  "settings_support_drawio": {
+    "message": "Draw.io 图表 (.drawio)",
+    "description": "Checkbox label for enabling Draw.io file support"
   },
   "settings_support_infographic": {
     "message": "信息图表 (.infographic)",

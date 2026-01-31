@@ -503,9 +503,17 @@
     "message": "Đã lưu cài đặt",
     "description": "Toast when settings saved"
   },
+  "settings_support_canvas": {
+    "message": "Biểu đồ JSON Canvas (.canvas)",
+    "description": "Checkbox label for enabling JSON Canvas file support"
+  },
   "settings_support_dot": {
     "message": "Biểu đồ Graphviz DOT (.gv)",
     "description": "Checkbox label for Graphviz DOT format support"
+  },
+  "settings_support_drawio": {
+    "message": "Biểu đồ Draw.io (.drawio)",
+    "description": "Checkbox label for enabling Draw.io file support"
   },
   "settings_support_infographic": {
     "message": "Infographic (.infographic)",

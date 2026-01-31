@@ -503,9 +503,17 @@
     "message": "설정을 저장했습니다",
     "description": "저장 성공 알림"
   },
+  "settings_support_canvas": {
+    "message": "JSON Canvas 다이어그램 (.canvas)",
+    "description": "Checkbox label for enabling JSON Canvas file support"
+  },
   "settings_support_dot": {
     "message": "Graphviz DOT 다이어그램 (.gv)",
     "description": "Checkbox label for Graphviz DOT format support"
+  },
+  "settings_support_drawio": {
+    "message": "Draw.io 다이어그램 (.drawio)",
+    "description": "Checkbox label for enabling Draw.io file support"
   },
   "settings_support_infographic": {
     "message": "인포그래픽 (.infographic)",

@@ -108,6 +108,8 @@
     "onLanguage:vega",
     "onLanguage:graphviz",
     "onLanguage:infographic",
+    "onLanguage:canvas",
+    "onLanguage:drawio",
     "onLanguage:xml"
   ],
   "contributes": {
@@ -174,6 +176,34 @@
         "icon": {
           "light": "icons/infographic.svg",
           "dark": "icons/infographic.svg"
+        }
+      },
+      {
+        "id": "canvas",
+        "aliases": [
+          "JSON Canvas",
+          "canvas"
+        ],
+        "extensions": [
+          ".canvas"
+        ],
+        "icon": {
+          "light": "icons/canvas.svg",
+          "dark": "icons/canvas.svg"
+        }
+      },
+      {
+        "id": "drawio",
+        "aliases": [
+          "Draw.io",
+          "drawio"
+        ],
+        "extensions": [
+          ".drawio"
+        ],
+        "icon": {
+          "light": "icons/drawio.svg",
+          "dark": "icons/drawio.svg"
         }
       }
     ],
@@ -351,7 +381,7 @@
         },
         {
           "command": "markdownViewer.previewToSide",
-          "when": "editorLangId == markdown || editorLangId == mermaid || editorLangId == vega || editorLangId == graphviz || editorLangId == infographic",
+          "when": "editorLangId == markdown || editorLangId == mermaid || editorLangId == vega || editorLangId == graphviz || editorLangId == infographic || editorLangId == canvas || editorLangId == drawio",
           "group": "navigation"
         },
         {
@@ -368,22 +398,22 @@
       "editor/context": [
         {
           "command": "markdownViewer.preview",
-          "when": "editorLangId == markdown || editorLangId == mermaid || editorLangId == vega || editorLangId == graphviz || editorLangId == infographic",
+          "when": "editorLangId == markdown || editorLangId == mermaid || editorLangId == vega || editorLangId == graphviz || editorLangId == infographic || editorLangId == canvas || editorLangId == drawio",
           "group": "navigation"
         }
       ],
       "commandPalette": [
         {
           "command": "markdownViewer.preview",
-          "when": "editorLangId == markdown || editorLangId == mermaid || editorLangId == vega || editorLangId == graphviz || editorLangId == infographic"
+          "when": "editorLangId == markdown || editorLangId == mermaid || editorLangId == vega || editorLangId == graphviz || editorLangId == infographic || editorLangId == canvas || editorLangId == drawio"
         },
         {
           "command": "markdownViewer.previewToSide",
-          "when": "editorLangId == markdown || editorLangId == mermaid || editorLangId == vega || editorLangId == graphviz || editorLangId == infographic"
+          "when": "editorLangId == markdown || editorLangId == mermaid || editorLangId == vega || editorLangId == graphviz || editorLangId == infographic || editorLangId == canvas || editorLangId == drawio"
         },
         {
           "command": "markdownViewer.exportDocx",
-          "when": "editorLangId == markdown || editorLangId == mermaid || editorLangId == vega || editorLangId == graphviz || editorLangId == infographic"
+          "when": "editorLangId == markdown || editorLangId == mermaid || editorLangId == vega || editorLangId == graphviz || editorLangId == infographic || editorLangId == canvas || editorLangId == drawio"
         }
       ]
     },

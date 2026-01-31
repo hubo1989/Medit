@@ -14,6 +14,8 @@ interface SupportedExtensions {
   vegaLite: boolean;
   dot: boolean;
   infographic: boolean;
+  canvas: boolean;
+  drawio: boolean;
 }
 
 /**
@@ -26,6 +28,8 @@ function getExtensionSettingsKey(ext: string): keyof SupportedExtensions | null 
     '.vl': 'vegaLite',
     '.vega-lite': 'vegaLite',    '.gv': 'dot',    '.dot': 'dot',
     '.infographic': 'infographic',
+    '.canvas': 'canvas',
+    '.drawio': 'drawio',
   };
   return map[ext] || null;
 }
@@ -42,6 +46,8 @@ function getMatchedExtension(path: string): string | null {
     '.vl', '.vega-lite',
     '.gv', '.dot',
     '.infographic',
+    '.canvas',
+    '.drawio',
     '.html'
   ];
   
@@ -190,6 +196,8 @@ async function detectAndInject(): Promise<void> {
       vegaLite: true,
       dot: true,
       infographic: true,
+      canvas: true,
+      drawio: true,
     };
 
     const extensions = settings?.supportedExtensions || defaultExtensions;

@@ -511,6 +511,14 @@
     "message": "Infographics (.infographic)",
     "description": "Checkbox label for enabling infographic file support"
   },
+  "settings_support_canvas": {
+    "message": "JSON Canvas diagrams (.canvas)",
+    "description": "Checkbox label for enabling JSON Canvas file support"
+  },
+  "settings_support_drawio": {
+    "message": "Draw.io diagrams (.drawio)",
+    "description": "Checkbox label for enabling Draw.io file support"
+  },
   "settings_support_mermaid": {
     "message": "Mermaid diagrams (.mermaid)",
     "description": "Checkbox label for enabling Mermaid file support"
