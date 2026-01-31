@@ -153,7 +153,7 @@ export type FrontmatterDisplay = 'hide' | 'table' | 'raw';
 interface Settings {
   maxCacheItems: number;
   preferredLocale: string;
-  docxHrAsPageBreak: boolean;
+  docxHrDisplay: 'pageBreak' | 'line' | 'hide';
   docxEmojiStyle?: EmojiStyle;
   supportedExtensions?: SupportedExtensions;
   frontmatterDisplay?: FrontmatterDisplay;
@@ -194,7 +194,7 @@ export function createSettingsTabManager({
   let settings: Settings = {
     maxCacheItems: 1000,
     preferredLocale: DEFAULT_SETTING_LOCALE,
-    docxHrAsPageBreak: true,
+    docxHrDisplay: 'hide',
     docxEmojiStyle: 'system',
     supportedExtensions: {
       mermaid: true,
@@ -221,6 +221,10 @@ export function createSettingsTabManager({
       const result = await storageGet(['markdownViewerSettings']);
       if (result.markdownViewerSettings) {
         settings = { ...settings, ...result.markdownViewerSettings };
+      }
+
+      if (!settings.docxHrDisplay) {
+        settings.docxHrDisplay = 'hide';
       }
 
       // Load selected theme
@@ -295,16 +299,16 @@ export function createSettingsTabManager({
     // Load themes
     loadThemes();
 
-    // DOCX: Treat horizontal rule as page break
-    const docxHrPageBreakEl = document.getElementById('docx-hr-page-break') as HTMLInputElement | null;
-    if (docxHrPageBreakEl) {
-      docxHrPageBreakEl.checked = settings.docxHrAsPageBreak !== false;
-      
+    // DOCX: Horizontal rule display
+    const docxHrDisplayEl = document.getElementById('docx-hr-display') as HTMLSelectElement | null;
+    if (docxHrDisplayEl) {
+      docxHrDisplayEl.value = settings.docxHrDisplay || 'hide';
+
       // Add change listener for immediate save
-      if (!docxHrPageBreakEl.dataset.listenerAdded) {
-        docxHrPageBreakEl.dataset.listenerAdded = 'true';
-        docxHrPageBreakEl.addEventListener('change', async () => {
-          settings.docxHrAsPageBreak = docxHrPageBreakEl.checked;
+      if (!docxHrDisplayEl.dataset.listenerAdded) {
+        docxHrDisplayEl.dataset.listenerAdded = 'true';
+        docxHrDisplayEl.addEventListener('change', async () => {
+          settings.docxHrDisplay = docxHrDisplayEl.value as Settings['docxHrDisplay'];
           await saveSettingsToStorage();
         });
       }
@@ -713,9 +717,9 @@ export function createSettingsTabManager({
 
       settings.maxCacheItems = maxCacheItems;
 
-      const docxHrPageBreakEl = document.getElementById('docx-hr-page-break') as HTMLInputElement | null;
-      if (docxHrPageBreakEl) {
-        settings.docxHrAsPageBreak = Boolean(docxHrPageBreakEl.checked);
+      const docxHrDisplayEl = document.getElementById('docx-hr-display') as HTMLSelectElement | null;
+      if (docxHrDisplayEl) {
+        settings.docxHrDisplay = docxHrDisplayEl.value as Settings['docxHrDisplay'];
       }
 
       const docxEmojiStyleEl = document.getElementById('docx-emoji-style') as HTMLSelectElement | null;
@@ -775,7 +779,7 @@ export function createSettingsTabManager({
       settings = {
         maxCacheItems: 1000,
         preferredLocale: DEFAULT_SETTING_LOCALE,
-        docxHrAsPageBreak: true,
+        docxHrDisplay: 'hide',
         docxEmojiStyle: 'system',
         supportedExtensions: {
           mermaid: true,

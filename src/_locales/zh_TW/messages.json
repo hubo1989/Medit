@@ -419,6 +419,26 @@
     "message": "Windows 樣式",
     "description": "Option for Windows emoji style"
   },
+  "settings_docx_hr_display": {
+    "message": "DOCX：分隔線處理",
+    "description": "Label for DOCX horizontal rule handling selector"
+  },
+  "settings_docx_hr_display_hide": {
+    "message": "隱藏（空行）",
+    "description": "Option to hide horizontal rules in DOCX"
+  },
+  "settings_docx_hr_display_line": {
+    "message": "分割線",
+    "description": "Option to export horizontal rules as a line in DOCX"
+  },
+  "settings_docx_hr_display_note": {
+    "message": "選擇 Markdown 分隔線（---）在匯出的 Word 文件中的處理方式。",
+    "description": "Helper note for DOCX horizontal rule handling"
+  },
+  "settings_docx_hr_display_page_break": {
+    "message": "分頁",
+    "description": "Option to export horizontal rules as page breaks in DOCX"
+  },
   "settings_docx_hr_page_break": {
     "message": "DOCX：將分隔線(hr)匯出為分頁",
     "description": "Checkbox label for exporting Markdown horizontal rules (---) as page breaks in DOCX"

@@ -4874,7 +4874,7 @@ sequenceDiagram
 | 步骤 | 操作 | 说明 |
 |-----|-----|-----|
 | 1 | 设置基准 URL | 用于解析相对路径的图片和链接 |
-| 2 | 加载用户设置 | 读取 `docxHrAsPageBreak` 等配置项 |
+| 2 | 加载用户设置 | 读取 `docxHrDisplay` 等配置项 |
 | 3 | 加载 DOCX 主题 | 将 JSON 主题转换为 DOCX 样式对象 |
 | 4 | 初始化 MathJax | 加载 TeX 解析器和 MathML 输出（单例模式） |
 | 5 | 创建转换器 | 实例化各专用转换器 |

@@ -12,7 +12,7 @@ export type SettingKey =
   | 'tableMergeEmpty'
   | 'frontmatterDisplay'
   | 'preferredLocale'
-  | 'docxHrAsPageBreak'
+  | 'docxHrDisplay'
   | 'docxEmojiStyle';
 
 /**
@@ -23,7 +23,7 @@ export interface SettingTypes {
   tableMergeEmpty: boolean;
   frontmatterDisplay: 'hide' | 'table' | 'raw';
   preferredLocale: string;
-  docxHrAsPageBreak: boolean;
+  docxHrDisplay: 'pageBreak' | 'line' | 'hide';
   docxEmojiStyle: 'native' | 'twemoji';
 }
 
@@ -35,7 +35,7 @@ export const DEFAULT_SETTINGS: SettingTypes = {
   tableMergeEmpty: true,
   frontmatterDisplay: 'hide',
   preferredLocale: 'auto',
-  docxHrAsPageBreak: false,
+  docxHrDisplay: 'hide',
   docxEmojiStyle: 'twemoji',
 };
 

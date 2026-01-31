@@ -419,6 +419,26 @@
     "message": "Styl Windows",
     "description": "Option for Windows emoji style"
   },
+  "settings_docx_hr_display": {
+    "message": "DOCX: Obsługa linii poziomych",
+    "description": "Label for DOCX horizontal rule handling selector"
+  },
+  "settings_docx_hr_display_hide": {
+    "message": "Ukryj (pusty wiersz)",
+    "description": "Option to hide horizontal rules in DOCX"
+  },
+  "settings_docx_hr_display_line": {
+    "message": "Linia pozioma",
+    "description": "Option to export horizontal rules as a line in DOCX"
+  },
+  "settings_docx_hr_display_note": {
+    "message": "Wybierz, jak separatory Markdown (---) są eksportowane do DOCX.",
+    "description": "Helper note for DOCX horizontal rule handling"
+  },
+  "settings_docx_hr_display_page_break": {
+    "message": "Podział strony",
+    "description": "Option to export horizontal rules as page breaks in DOCX"
+  },
   "settings_docx_hr_page_break": {
     "message": "DOCX: Traktuj linie poziome jako podziały stron",
     "description": "Checkbox label for exporting Markdown horizontal rules (---) as page breaks in DOCX"

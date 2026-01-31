@@ -419,6 +419,26 @@
     "message": "Windowsi stiil",
     "description": "Option for Windows emoji style"
   },
+  "settings_docx_hr_display": {
+    "message": "DOCX: Horisontaaljoone käsitlemine",
+    "description": "Label for DOCX horizontal rule handling selector"
+  },
+  "settings_docx_hr_display_hide": {
+    "message": "Peida (tühi rida)",
+    "description": "Option to hide horizontal rules in DOCX"
+  },
+  "settings_docx_hr_display_line": {
+    "message": "Horisontaaljoon",
+    "description": "Option to export horizontal rules as a line in DOCX"
+  },
+  "settings_docx_hr_display_note": {
+    "message": "Valige, kuidas Markdown eraldajad (---) DOCX-is eksporditakse.",
+    "description": "Helper note for DOCX horizontal rule handling"
+  },
+  "settings_docx_hr_display_page_break": {
+    "message": "Leheküljevahetus",
+    "description": "Option to export horizontal rules as page breaks in DOCX"
+  },
   "settings_docx_hr_page_break": {
     "message": "DOCX: Käsitle horisontaalseid jooni lehepiiridena",
     "description": "Checkbox label for exporting Markdown horizontal rules (---) as page breaks in DOCX"

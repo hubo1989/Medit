@@ -419,6 +419,26 @@
     "message": "Windows stilius",
     "description": "Option for Windows emoji style"
   },
+  "settings_docx_hr_display": {
+    "message": "DOCX: Horizontalių linijų apdorojimas",
+    "description": "Label for DOCX horizontal rule handling selector"
+  },
+  "settings_docx_hr_display_hide": {
+    "message": "Slėpti (tuščia eilutė)",
+    "description": "Option to hide horizontal rules in DOCX"
+  },
+  "settings_docx_hr_display_line": {
+    "message": "Horizontali linija",
+    "description": "Option to export horizontal rules as a line in DOCX"
+  },
+  "settings_docx_hr_display_note": {
+    "message": "Pasirinkite, kaip Markdown skyrikliai (---) eksportuojami į DOCX.",
+    "description": "Helper note for DOCX horizontal rule handling"
+  },
+  "settings_docx_hr_display_page_break": {
+    "message": "Puslapio lūžis",
+    "description": "Option to export horizontal rules as page breaks in DOCX"
+  },
   "settings_docx_hr_page_break": {
     "message": "DOCX: Horizontalias linijas traktuoti kaip puslapių lūžius",
     "description": "Checkbox label for exporting Markdown horizontal rules (---) as page breaks in DOCX"

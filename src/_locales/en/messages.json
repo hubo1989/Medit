@@ -163,6 +163,18 @@
     "message": "Remove all recent files from the list?",
     "description": "Confirmation message for clearing recent files"
   },
+  "clipboard_empty": {
+    "message": "Clipboard is empty",
+    "description": "Error when clipboard is empty"
+  },
+  "clipboard_open": {
+    "message": "Open from Clipboard",
+    "description": "Clipboard item title in history"
+  },
+  "clipboard_read_failed": {
+    "message": "Failed to read clipboard",
+    "description": "Error when clipboard read fails"
+  },
   "close": {
     "message": "Close",
     "description": "Close button text/tooltip"
@@ -299,18 +311,6 @@
     "message": "Recent documents",
     "description": "History documents title"
   },
-  "clipboard_open": {
-    "message": "Open from Clipboard",
-    "description": "Clipboard item title in history"
-  },
-  "clipboard_empty": {
-    "message": "Clipboard is empty",
-    "description": "Error when clipboard is empty"
-  },
-  "clipboard_read_failed": {
-    "message": "Failed to read clipboard",
-    "description": "Error when clipboard read fails"
-  },
   "language": {
     "message": "Language",
     "description": "Menu item for language"
@@ -419,6 +419,26 @@
     "message": "Windows style",
     "description": "Option to use Segoe UI Emoji"
   },
+  "settings_docx_hr_display": {
+    "message": "DOCX: Horizontal rule handling",
+    "description": "Label for DOCX horizontal rule handling selector"
+  },
+  "settings_docx_hr_display_hide": {
+    "message": "Hide (empty line)",
+    "description": "Option to hide horizontal rules in DOCX"
+  },
+  "settings_docx_hr_display_line": {
+    "message": "Horizontal line",
+    "description": "Option to export horizontal rules as a line in DOCX"
+  },
+  "settings_docx_hr_display_note": {
+    "message": "Choose how Markdown separators (---) are exported in DOCX.",
+    "description": "Helper note for DOCX horizontal rule handling"
+  },
+  "settings_docx_hr_display_page_break": {
+    "message": "Page break",
+    "description": "Option to export horizontal rules as page breaks in DOCX"
+  },
   "settings_docx_hr_page_break": {
     "message": "DOCX: Treat horizontal rules as page breaks",
     "description": "Checkbox label for exporting Markdown horizontal rules (---) as page breaks in DOCX"
@@ -503,21 +523,21 @@
     "message": "Settings saved",
     "description": "Toast when settings saved"
   },
-  "settings_support_dot": {
-    "message": "Graphviz DOT diagrams (.gv)",
-    "description": "Checkbox label for enabling DOT file support"
-  },
-  "settings_support_infographic": {
-    "message": "Infographics (.infographic)",
-    "description": "Checkbox label for enabling infographic file support"
-  },
   "settings_support_canvas": {
     "message": "JSON Canvas diagrams (.canvas)",
     "description": "Checkbox label for enabling JSON Canvas file support"
   },
+  "settings_support_dot": {
+    "message": "Graphviz DOT diagrams (.gv)",
+    "description": "Checkbox label for enabling DOT file support"
+  },
   "settings_support_drawio": {
     "message": "Draw.io diagrams (.drawio)",
     "description": "Checkbox label for enabling Draw.io file support"
+  },
+  "settings_support_infographic": {
+    "message": "Infographics (.infographic)",
+    "description": "Checkbox label for enabling infographic file support"
   },
   "settings_support_mermaid": {
     "message": "Mermaid diagrams (.mermaid)",

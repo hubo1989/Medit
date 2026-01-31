@@ -501,8 +501,8 @@ export class MarkdownPreviewPanel {
 
                 if (key === 'locale' || key === 'preferredLocale') {
                   next.preferredLocale = value;
-                } else if (key === 'docxHrAsPageBreak') {
-                  next.docxHrAsPageBreak = value;
+                } else if (key === 'docxHrDisplay') {
+                  next.docxHrDisplay = value;
                 } else if (key === 'tableMergeEmpty') {
                   next.tableMergeEmpty = value;
                 } else if (key === 'docxEmojiStyle') {
@@ -896,7 +896,10 @@ export class MarkdownPreviewPanel {
     // Theme is stored separately at storage.selectedTheme (used by theme-manager.ts and settings-tab.ts)
     const theme = globalState?.get<string>('storage.selectedTheme') || 'default';
     const locale = (typeof settings.preferredLocale === 'string' && settings.preferredLocale) ? settings.preferredLocale : 'auto';
-    const docxHrAsPageBreak = (typeof settings.docxHrAsPageBreak === 'boolean') ? settings.docxHrAsPageBreak : true;
+    const storedHrDisplay = settings.docxHrDisplay;
+    const docxHrDisplay = (storedHrDisplay === 'pageBreak' || storedHrDisplay === 'line' || storedHrDisplay === 'hide')
+      ? storedHrDisplay
+      : 'hide';
     const tableMergeEmpty = (typeof settings.tableMergeEmpty === 'boolean') ? settings.tableMergeEmpty : true;
     const storedEmojiStyle = settings.docxEmojiStyle;
     const docxEmojiStyle: EmojiStyle = (storedEmojiStyle === 'apple' || storedEmojiStyle === 'windows' || storedEmojiStyle === 'system') ? storedEmojiStyle : 'system';
@@ -906,7 +909,7 @@ export class MarkdownPreviewPanel {
     return {
       theme,
       locale,
-      docxHrAsPageBreak,
+      docxHrDisplay,
       tableMergeEmpty,
       docxEmojiStyle,
       frontmatterDisplay,

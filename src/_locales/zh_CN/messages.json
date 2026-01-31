@@ -419,6 +419,26 @@
     "message": "Windows 样式",
     "description": "Option to use Segoe UI Emoji"
   },
+  "settings_docx_hr_display": {
+    "message": "DOCX：分隔线处理",
+    "description": "Label for DOCX horizontal rule handling selector"
+  },
+  "settings_docx_hr_display_hide": {
+    "message": "隐藏（空行）",
+    "description": "Option to hide horizontal rules in DOCX"
+  },
+  "settings_docx_hr_display_line": {
+    "message": "分割线",
+    "description": "Option to export horizontal rules as a line in DOCX"
+  },
+  "settings_docx_hr_display_note": {
+    "message": "选择 Markdown 分隔线（---）在导出的 Word 文档中的处理方式。",
+    "description": "Helper note for DOCX horizontal rule handling"
+  },
+  "settings_docx_hr_display_page_break": {
+    "message": "分页",
+    "description": "Option to export horizontal rules as page breaks in DOCX"
+  },
   "settings_docx_hr_page_break": {
     "message": "DOCX：将分隔线(hr)导出为分页",
     "description": "Checkbox label for exporting Markdown horizontal rules (---) as page breaks in DOCX"

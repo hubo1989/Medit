@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class SettingsService {
   static const String _keyTheme = 'theme';
   static const String _keyFontSize = 'fontSize';
-  static const String _keyHrPageBreak = 'hrPageBreak';
+  static const String _keyHrDisplay = 'hrDisplay';
   static const String _keyEmojiStyle = 'emojiStyle';
   static const String _keyFrontmatterDisplay = 'frontmatterDisplay';
   static const String _keyLocale = 'locale';
@@ -33,9 +33,9 @@ class SettingsService {
   int get fontSize => _prefs?.getInt(_keyFontSize) ?? 16;
   set fontSize(int value) => _prefs?.setInt(_keyFontSize, value);
 
-  // HR as page break in DOCX export
-  bool get hrPageBreak => _prefs?.getBool(_keyHrPageBreak) ?? true;
-  set hrPageBreak(bool value) => _prefs?.setBool(_keyHrPageBreak, value);
+  // HR display mode in DOCX export: 'pageBreak', 'line', or 'hide'
+  String get hrDisplay => _prefs?.getString(_keyHrDisplay) ?? 'hide';
+  set hrDisplay(String value) => _prefs?.setString(_keyHrDisplay, value);
 
   // Emoji style in DOCX export: 'apple', 'windows', or 'system'
   String get emojiStyle => _prefs?.getString(_keyEmojiStyle) ?? 'system';
@@ -88,7 +88,7 @@ class SettingsService {
     return {
       'theme': theme,
       'fontSize': fontSize,
-      'hrPageBreak': hrPageBreak,
+      'hrDisplay': hrDisplay,
       'emojiStyle': emojiStyle,
       'frontmatterDisplay': frontmatterDisplay,
       'locale': locale,

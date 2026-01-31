@@ -419,6 +419,26 @@
     "message": "Gaya Windows",
     "description": "Option for Windows emoji style"
   },
+  "settings_docx_hr_display": {
+    "message": "DOCX: Penanganan garis horizontal",
+    "description": "Label for DOCX horizontal rule handling selector"
+  },
+  "settings_docx_hr_display_hide": {
+    "message": "Sembunyikan (baris kosong)",
+    "description": "Option to hide horizontal rules in DOCX"
+  },
+  "settings_docx_hr_display_line": {
+    "message": "Garis horizontal",
+    "description": "Option to export horizontal rules as a line in DOCX"
+  },
+  "settings_docx_hr_display_note": {
+    "message": "Pilih bagaimana pemisah Markdown (---) diekspor dalam DOCX.",
+    "description": "Helper note for DOCX horizontal rule handling"
+  },
+  "settings_docx_hr_display_page_break": {
+    "message": "Batas halaman",
+    "description": "Option to export horizontal rules as page breaks in DOCX"
+  },
   "settings_docx_hr_page_break": {
     "message": "DOCX: Perlakukan garis horizontal sebagai pemisah halaman",
     "description": "Checkbox label for exporting Markdown horizontal rules (---) as page breaks in DOCX"

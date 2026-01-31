@@ -16,8 +16,8 @@ export interface SettingsPanelOptions {
   currentTheme?: string;
   /** Current locale */
   currentLocale?: string;
-  /** DOCX HR as page break setting */
-  docxHrAsPageBreak?: boolean;
+  /** DOCX HR display mode setting */
+  docxHrDisplay?: 'pageBreak' | 'line' | 'hide';
   /** DOCX emoji style setting */
   docxEmojiStyle?: EmojiStyle;
   /** Frontmatter display mode */
@@ -28,8 +28,8 @@ export interface SettingsPanelOptions {
   onThemeChange?: (themeId: string) => void;
   /** Locale changed callback */
   onLocaleChange?: (locale: string) => void;
-  /** DOCX setting changed callback */
-  onDocxSettingChange?: (hrAsPageBreak: boolean) => void;
+  /** DOCX HR display changed callback */
+  onDocxHrDisplayChange?: (display: 'pageBreak' | 'line' | 'hide') => void;
   /** DOCX emoji style changed callback */
   onDocxEmojiStyleChange?: (style: EmojiStyle) => void;
   /** Frontmatter display changed callback */
@@ -91,13 +91,13 @@ export function createSettingsPanel(options: SettingsPanelOptions): SettingsPane
   const {
     currentTheme = 'default',
     currentLocale = 'auto',
-    docxHrAsPageBreak = true,
+    docxHrDisplay = 'hide',
     docxEmojiStyle = 'windows',
     frontmatterDisplay = 'hide',
     tableMergeEmpty = true,
     onThemeChange,
     onLocaleChange,
-    onDocxSettingChange,
+    onDocxHrDisplayChange,
     onDocxEmojiStyleChange,
     onClose
   } = options;
@@ -151,10 +151,12 @@ export function createSettingsPanel(options: SettingsPanelOptions): SettingsPane
         </label>
       </div>
       <div class="vscode-settings-group">
-        <label class="vscode-settings-checkbox">
-          <input type="checkbox" data-setting="docxHrPageBreak" ${docxHrAsPageBreak ? 'checked' : ''}>
-          <span data-i18n="settings_docx_hr_page_break">${Localization.translate('settings_docx_hr_page_break')}</span>
-        </label>
+        <label class="vscode-settings-label" data-i18n="settings_docx_hr_display">${Localization.translate('settings_docx_hr_display')}</label>
+        <select class="vscode-settings-select" data-setting="docxHrDisplay">
+          <option value="hide" ${docxHrDisplay === 'hide' ? 'selected' : ''} data-i18n="settings_docx_hr_display_hide">${Localization.translate('settings_docx_hr_display_hide')}</option>
+          <option value="line" ${docxHrDisplay === 'line' ? 'selected' : ''} data-i18n="settings_docx_hr_display_line">${Localization.translate('settings_docx_hr_display_line')}</option>
+          <option value="pageBreak" ${docxHrDisplay === 'pageBreak' ? 'selected' : ''} data-i18n="settings_docx_hr_display_page_break">${Localization.translate('settings_docx_hr_display_page_break')}</option>
+        </select>
       </div>
       <div class="vscode-settings-divider"></div>
       <div class="vscode-settings-group">
@@ -177,7 +179,7 @@ export function createSettingsPanel(options: SettingsPanelOptions): SettingsPane
   const closeBtn = panel.querySelector('.vscode-settings-close') as HTMLButtonElement;
   const themeSelect = panel.querySelector('[data-setting="theme"]') as HTMLSelectElement;
   const localeSelect = panel.querySelector('[data-setting="locale"]') as HTMLSelectElement;
-  const docxCheckbox = panel.querySelector('[data-setting="docxHrPageBreak"]') as HTMLInputElement;
+  const docxHrDisplaySelect = panel.querySelector('[data-setting="docxHrDisplay"]') as HTMLSelectElement;
   const tableMergeEmptyCheckbox = panel.querySelector('[data-setting="tableMergeEmpty"]') as HTMLInputElement;
   const emojiStyleSelect = panel.querySelector('[data-setting="emojiStyle"]') as HTMLSelectElement;
   const frontmatterDisplaySelect = panel.querySelector('[data-setting="frontmatterDisplay"]') as HTMLSelectElement;
@@ -188,7 +190,7 @@ export function createSettingsPanel(options: SettingsPanelOptions): SettingsPane
   // Set initial values
   if (themeSelect) themeSelect.value = currentTheme;
   if (localeSelect) localeSelect.value = currentLocale;
-  if (docxCheckbox) docxCheckbox.checked = docxHrAsPageBreak;
+  if (docxHrDisplaySelect) docxHrDisplaySelect.value = docxHrDisplay;
   if (tableMergeEmptyCheckbox) tableMergeEmptyCheckbox.checked = tableMergeEmpty;
   if (emojiStyleSelect) emojiStyleSelect.value = docxEmojiStyle;
   if (frontmatterDisplaySelect) frontmatterDisplaySelect.value = frontmatterDisplay;
@@ -207,8 +209,8 @@ export function createSettingsPanel(options: SettingsPanelOptions): SettingsPane
     onLocaleChange?.(localeSelect.value);
   });
 
-  docxCheckbox?.addEventListener('change', () => {
-    onDocxSettingChange?.(docxCheckbox.checked);
+  docxHrDisplaySelect?.addEventListener('change', () => {
+    onDocxHrDisplayChange?.(docxHrDisplaySelect.value as 'pageBreak' | 'line' | 'hide');
   });
 
   tableMergeEmptyCheckbox?.addEventListener('change', () => {

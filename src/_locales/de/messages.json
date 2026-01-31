@@ -419,6 +419,26 @@
     "message": "Windows-Stil",
     "description": "Option for Windows emoji style"
   },
+  "settings_docx_hr_display": {
+    "message": "DOCX: Trennlinien-Behandlung",
+    "description": "Label for DOCX horizontal rule handling selector"
+  },
+  "settings_docx_hr_display_hide": {
+    "message": "Ausblenden (leere Zeile)",
+    "description": "Option to hide horizontal rules in DOCX"
+  },
+  "settings_docx_hr_display_line": {
+    "message": "Horizontale Linie",
+    "description": "Option to export horizontal rules as a line in DOCX"
+  },
+  "settings_docx_hr_display_note": {
+    "message": "Wählen Sie, wie Markdown-Trennzeichen (---) in DOCX exportiert werden.",
+    "description": "Helper note for DOCX horizontal rule handling"
+  },
+  "settings_docx_hr_display_page_break": {
+    "message": "Seitenumbruch",
+    "description": "Option to export horizontal rules as page breaks in DOCX"
+  },
   "settings_docx_hr_page_break": {
     "message": "DOCX: Horizontale Trennlinien als Seitenumbruch behandeln",
     "description": "Checkbox label for exporting Markdown horizontal rules (---) as page breaks in DOCX"

@@ -313,13 +313,14 @@ function analyzeColumn(
   // Tree column criteria (relaxed):
   // 1. Has at least one multi-row segment (most important)
   // 2. Segment count is reasonable (allow up to 90% of effective rows, was 80%)
-  // 3. First segment starts early (row 0 or 1)
+  // 3. First segment starts early (row 0, 1, or 2) - allow late start for tables
+  //    with leading empty cells in first column
   // 4. OR: average segment length > 1.2 (shows meaningful grouping)
   const avgSegmentLength = effectiveRows / segmentCount;
   const isTreeColumn = 
     hasMultiRowSegment &&
     (segmentCount <= effectiveRows * 0.9 || avgSegmentLength > 1.2) &&
-    segments[0].anchorRow <= 1;
+    segments[0].anchorRow <= 2;
   
   return {
     colIndex,

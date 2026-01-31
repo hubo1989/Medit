@@ -140,16 +140,18 @@ class _SettingsPageState extends State<SettingsPage> {
               _notifySettingChanged();
             },
           ),
-          _SwitchTile(
-            title: localization.t('settings_docx_hr_page_break'),
-            subtitle: localization.t('settings_docx_hr_page_break_note'),
-            value: settingsService.hrPageBreak,
-            onChanged: (value) {
-              setState(() {
-                settingsService.hrPageBreak = value;
-              });
-              // HR page break only affects DOCX export, no need to re-render
-            },
+          GFListTile(
+            avatar: GFAvatar(
+              backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+              child: Icon(
+                Icons.horizontal_rule_outlined,
+                color: Theme.of(context).colorScheme.onPrimaryContainer,
+              ),
+            ),
+            titleText: localization.t('settings_docx_hr_display'),
+            subTitleText: _getHrDisplayName(),
+            icon: const Icon(Icons.chevron_right),
+            onTap: _pickHrDisplay,
           ),
           _FontSizeTile(
             fontSize: settingsService.fontSize,
@@ -333,6 +335,71 @@ class _SettingsPageState extends State<SettingsPage> {
       default:
         return localization.t('settings_docx_emoji_style_system');
     }
+  }
+
+  String _getHrDisplayName() {
+    final display = settingsService.hrDisplay;
+    switch (display) {
+      case 'pageBreak':
+        return localization.t('settings_docx_hr_display_page_break');
+      case 'line':
+        return localization.t('settings_docx_hr_display_line');
+      case 'hide':
+        return localization.t('settings_docx_hr_display_hide');
+      default:
+        return localization.t('settings_docx_hr_display_hide');
+    }
+  }
+
+  void _pickHrDisplay() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildHrDisplayOption('hide'),
+              _buildHrDisplayOption('line'),
+              _buildHrDisplayOption('pageBreak'),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildHrDisplayOption(String display) {
+    final isSelected = settingsService.hrDisplay == display;
+    String displayName;
+    switch (display) {
+      case 'pageBreak':
+        displayName = localization.t('settings_docx_hr_display_page_break');
+        break;
+      case 'line':
+        displayName = localization.t('settings_docx_hr_display_line');
+        break;
+      case 'hide':
+        displayName = localization.t('settings_docx_hr_display_hide');
+        break;
+      default:
+        displayName = display;
+    }
+
+    return ListTile(
+      title: Text(displayName),
+      trailing: isSelected ? const Icon(Icons.check, color: Colors.blue) : null,
+      onTap: () {
+        setState(() {
+          settingsService.hrDisplay = display;
+        });
+        Navigator.pop(context);
+      },
+    );
   }
 
   void _pickEmojiStyle() {

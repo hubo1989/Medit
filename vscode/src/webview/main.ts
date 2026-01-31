@@ -416,7 +416,7 @@ function initializeUI(): void {
   settingsPanel = createSettingsPanel({
     currentTheme: currentThemeId,
     currentLocale: window.VSCODE_CONFIG?.locale as string || 'auto',
-    docxHrAsPageBreak: window.VSCODE_CONFIG?.docxHrAsPageBreak !== false,
+    docxHrDisplay: (window.VSCODE_CONFIG?.docxHrDisplay as 'pageBreak' | 'line' | 'hide') || 'hide',
     docxEmojiStyle: (window.VSCODE_CONFIG?.docxEmojiStyle as EmojiStyle) || 'system',
     frontmatterDisplay: (window.VSCODE_CONFIG?.frontmatterDisplay as FrontmatterDisplay) || 'hide',
     tableMergeEmpty: window.VSCODE_CONFIG?.tableMergeEmpty !== false,
@@ -442,8 +442,8 @@ function initializeUI(): void {
         await handleUpdateContent({ content: currentMarkdown, filename: currentFilename });
       }
     },
-    onDocxSettingChange: (hrAsPageBreak) => {
-      vscodeBridge.postMessage('SAVE_SETTING', { key: 'docxHrAsPageBreak', value: hrAsPageBreak });
+    onDocxHrDisplayChange: (display) => {
+      vscodeBridge.postMessage('SAVE_SETTING', { key: 'docxHrDisplay', value: display });
     },
     onTableMergeEmptyChange: async (enabled) => {
       vscodeBridge.postMessage('SAVE_SETTING', { key: 'tableMergeEmpty', value: enabled });

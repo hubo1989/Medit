@@ -419,6 +419,26 @@
     "message": "Windows 스타일",
     "description": "Option for Windows emoji style"
   },
+  "settings_docx_hr_display": {
+    "message": "DOCX: 가로줄 처리",
+    "description": "Label for DOCX horizontal rule handling selector"
+  },
+  "settings_docx_hr_display_hide": {
+    "message": "숨기기 (빈 줄)",
+    "description": "Option to hide horizontal rules in DOCX"
+  },
+  "settings_docx_hr_display_line": {
+    "message": "가로줄",
+    "description": "Option to export horizontal rules as a line in DOCX"
+  },
+  "settings_docx_hr_display_note": {
+    "message": "Markdown 구분선(---)을 DOCX에서 어떻게 내보낼지 선택합니다.",
+    "description": "Helper note for DOCX horizontal rule handling"
+  },
+  "settings_docx_hr_display_page_break": {
+    "message": "페이지 나누기",
+    "description": "Option to export horizontal rules as page breaks in DOCX"
+  },
   "settings_docx_hr_page_break": {
     "message": "DOCX: 가로줄을 페이지 나눔으로 처리",
     "description": "Checkbox label for exporting Markdown horizontal rules (---) as page breaks in DOCX"

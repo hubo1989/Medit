@@ -419,6 +419,26 @@
     "message": "Стыль Windows",
     "description": "Option for Windows emoji style"
   },
+  "settings_docx_hr_display": {
+    "message": "DOCX: Апрацоўка гарызантальных ліній",
+    "description": "Label for DOCX horizontal rule handling selector"
+  },
+  "settings_docx_hr_display_hide": {
+    "message": "Схаваць (пусты радок)",
+    "description": "Option to hide horizontal rules in DOCX"
+  },
+  "settings_docx_hr_display_line": {
+    "message": "Гарызантальная лінія",
+    "description": "Option to export horizontal rules as a line in DOCX"
+  },
+  "settings_docx_hr_display_note": {
+    "message": "Выберыце, як Markdown раздзяляльнікі (---) экспартуюцца ў DOCX.",
+    "description": "Helper note for DOCX horizontal rule handling"
+  },
+  "settings_docx_hr_display_page_break": {
+    "message": "Разрыў старонкі",
+    "description": "Option to export horizontal rules as page breaks in DOCX"
+  },
   "settings_docx_hr_page_break": {
     "message": "DOCX: Лічыць гарызантальныя лініі разрывамі старонак",
     "description": "Checkbox label for exporting Markdown horizontal rules (---) as page breaks in DOCX"

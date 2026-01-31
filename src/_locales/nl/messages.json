@@ -419,6 +419,26 @@
     "message": "Windows-stijl",
     "description": "Option for Windows emoji style"
   },
+  "settings_docx_hr_display": {
+    "message": "DOCX: Horizontale lijn verwerking",
+    "description": "Label for DOCX horizontal rule handling selector"
+  },
+  "settings_docx_hr_display_hide": {
+    "message": "Verbergen (lege regel)",
+    "description": "Option to hide horizontal rules in DOCX"
+  },
+  "settings_docx_hr_display_line": {
+    "message": "Horizontale lijn",
+    "description": "Option to export horizontal rules as a line in DOCX"
+  },
+  "settings_docx_hr_display_note": {
+    "message": "Kies hoe Markdown-scheidingstekens (---) worden geëxporteerd in DOCX.",
+    "description": "Helper note for DOCX horizontal rule handling"
+  },
+  "settings_docx_hr_display_page_break": {
+    "message": "Pagina-einde",
+    "description": "Option to export horizontal rules as page breaks in DOCX"
+  },
   "settings_docx_hr_page_break": {
     "message": "DOCX: Horizontale lijnen als pagina-einde behandelen",
     "description": "Checkbox label for exporting Markdown horizontal rules (---) as page breaks in DOCX"

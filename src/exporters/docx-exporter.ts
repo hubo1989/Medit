@@ -87,7 +87,7 @@ class DocxExporter {
   private totalResources = 0;
   private processedResources = 0;
 
-  private docxHrAsPageBreak = true;
+  private docxHrDisplay: 'pageBreak' | 'line' | 'hide' = 'hide';
   private docxEmojiStyle: EmojiStyle = 'windows';
   private frontmatterDisplay: FrontmatterDisplay = 'hide';
   private tableMergeEmpty = true;  // Default: enabled
@@ -210,23 +210,23 @@ class DocxExporter {
       try {
         const settings = globalThis.platform?.settings;
         if (settings) {
-          const [hrAsPageBreak, emojiStyle, frontmatterDisplay, tableMergeEmpty] = await Promise.all([
-            settings.get('docxHrAsPageBreak'),
+          const [hrDisplay, emojiStyle, frontmatterDisplay, tableMergeEmpty] = await Promise.all([
+            settings.get('docxHrDisplay'),
             settings.get('docxEmojiStyle'),
             settings.get('frontmatterDisplay'),
             settings.get('tableMergeEmpty'),
           ]);
-          this.docxHrAsPageBreak = hrAsPageBreak;
+          this.docxHrDisplay = hrDisplay;
           this.docxEmojiStyle = emojiStyle === 'native' ? 'system' : 'system'; // Map to internal naming
           this.frontmatterDisplay = frontmatterDisplay;
           this.tableMergeEmpty = tableMergeEmpty;
         } else {
-          this.docxHrAsPageBreak = true;
+          this.docxHrDisplay = 'hide';
           this.frontmatterDisplay = 'hide';
           this.tableMergeEmpty = true;
         }
       } catch {
-        this.docxHrAsPageBreak = true;
+        this.docxHrDisplay = 'hide';
         this.frontmatterDisplay = 'hide';
         this.tableMergeEmpty = true;
       }
@@ -604,7 +604,7 @@ class DocxExporter {
         continue;
       }
 
-      if (!this.docxHrAsPageBreak && node.type === 'thematicBreak' && lastNodeType === 'thematicBreak') {
+      if (this.docxHrDisplay === 'line' && node.type === 'thematicBreak' && lastNodeType === 'thematicBreak') {
         elements.push(new Paragraph({
           text: '',
           alignment: AlignmentType.LEFT,
@@ -796,7 +796,7 @@ class DocxExporter {
   }
 
   private convertThematicBreak(): Paragraph {
-    if (this.docxHrAsPageBreak) {
+    if (this.docxHrDisplay === 'pageBreak') {
       return new Paragraph({
         // Use pageBreakBefore instead of an explicit PageBreak run.
         // This avoids creating an extra blank page when the break happens to land
@@ -805,6 +805,15 @@ class DocxExporter {
         children: [new TextRun({ text: '', size: 1 })],
         spacing: { before: 0, after: 0, line: 1, lineRule: 'exact' },
         alignment: AlignmentType.LEFT,
+      });
+    }
+
+    if (this.docxHrDisplay === 'hide') {
+      const spacing = this.themeStyles?.default?.paragraph?.spacing || { before: 0, after: 200, line: 276 };
+      return new Paragraph({
+        text: '',
+        alignment: AlignmentType.LEFT,
+        spacing: { before: spacing.before, after: spacing.after, line: spacing.line },
       });
     }
 
