@@ -13,6 +13,7 @@ import {
   BorderStyle,
   convertInchesToTwip,
   TableOfContents,
+  ParagraphChild,
   type IStylesOptions,
   type IBaseParagraphStyleOptions,
   type IDocumentDefaultsOptions,
@@ -692,7 +693,7 @@ class DocxExporter {
 
     switch (node.type) {
       case 'heading':
-        return this.convertHeading(node);
+        return await this.convertHeading(node);
       case 'paragraph':
         return await this.convertParagraph(node, parentStyle);
       case 'list':
@@ -714,27 +715,35 @@ class DocxExporter {
     }
   }
 
-  private convertHeading(node: DOCXASTNode): Paragraph {
+  private async convertHeading(node: DOCXASTNode): Promise<Paragraph> {
     const levels: Record<number, typeof HeadingLevel[keyof typeof HeadingLevel]> = {
       1: HeadingLevel.HEADING_1, 2: HeadingLevel.HEADING_2,
       3: HeadingLevel.HEADING_3, 4: HeadingLevel.HEADING_4,
       5: HeadingLevel.HEADING_5, 6: HeadingLevel.HEADING_6,
     };
-    const text = this.inlineConverter!.extractText({
-      type: 'root',
-      children: (node.children || []) as unknown as InlineNode[],
-    });
     const depth = node.depth || 1;
     const headingStyle = this.themeStyles?.paragraphStyles?.[`heading${depth}` as keyof typeof this.themeStyles.paragraphStyles];
 
+    // Convert inline nodes to support styles (bold, italic, code, etc.)
+    const children = await this.inlineConverter!.convertInlineNodes(
+      (node.children || []) as unknown as InlineNode[],
+      {}
+    );
+
     const config: {
-      text: string;
+      children?: ParagraphChild[];
+      text?: string;
       heading: typeof HeadingLevel[keyof typeof HeadingLevel];
       alignment?: typeof AlignmentType[keyof typeof AlignmentType];
     } = {
-      text: text,
       heading: levels[depth] || HeadingLevel.HEADING_1,
     };
+
+    if (children.length > 0) {
+      config.children = children;
+    } else {
+      config.text = '';
+    }
 
     if (headingStyle?.paragraph?.alignment === 'center') {
       config.alignment = AlignmentType.CENTER;
