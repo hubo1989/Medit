@@ -3,6 +3,7 @@
 
 import { unified, type Processor } from 'unified';
 import remarkParse from 'remark-parse';
+import remarkInlineHtml from '../plugins/remark-inline-html';
 import remarkCjkFriendly from 'remark-cjk-friendly';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
@@ -576,6 +577,7 @@ export function createMarkdownProcessor(
 
   const processor = unified()
     .use(remarkParse)
+    .use(remarkInlineHtml)  // Convert inline HTML to MDAST nodes (before other remark plugins)
     .use(remarkCjkFriendly)
     .use(remarkGfm, { singleTilde: false })
     .use(remarkMath)

@@ -34,6 +34,7 @@ tags: [markdown, test, demo]
 12. **HTML 混合** - [完整演示](./html-demo.md)
 13. **Emoji 短代码** - [完整演示](./emoji-demo.md)
 14. **边界测试** - 错误处理、极端情况
+15. **Inline HTML 详测** - [完整演示](./inline-html-test.md)
 
 ---
 
@@ -564,7 +565,16 @@ digraph G {
   </div>
 </div>
 
-### 10.3 本地图片
+### 10.3 Inline HTML 详测
+
+> 📖 完整演示请查看 [Inline HTML 全面测试](./inline-html-test.md)
+
+- 无效标签应显示为文本：<M> <X> <myTag>
+- 上下标：x<sup>2</sup> + H<sub>2</sub>O
+- 常见样式标签（移除标签保留内容）：<mark>highlight</mark> <small>small</small>
+- 键盘按键：Press <kbd>Ctrl</kbd>+<kbd>C</kbd>
+
+### 10.4 本地图片
 
 <div>
   <img src="../icons/icon128.png">

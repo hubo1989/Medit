@@ -21,6 +21,7 @@ import {
 import { mathJaxReady, convertLatex2Math } from './docx-math-converter';
 import { unified } from 'unified';
 import remarkParse from 'remark-parse';
+import remarkInlineHtml from '../plugins/remark-inline-html';
 import remarkCjkFriendly from 'remark-cjk-friendly';
 import remarkGfm from 'remark-gfm';
 import remarkMath from 'remark-math';
@@ -438,6 +439,7 @@ class DocxExporter {
 
     const processor = unified()
       .use(remarkParse)
+      .use(remarkInlineHtml)  // Convert inline HTML to MDAST nodes
       .use(remarkCjkFriendly)
       .use(remarkGfm, { singleTilde: false })
       .use(remarkMath)
