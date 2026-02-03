@@ -19,9 +19,15 @@ const SUPPORTED_LANGUAGES = ['markdown', 'mermaid', 'vega', 'graphviz', 'infogra
 
 /**
  * Helper to check if a document is supported for preview
+ * Also supports .md files that may have different languageId (e.g., prompt files in .github/)
  */
 export const isSupportedDocument = (document: vscode.TextDocument): boolean => {
-  return SUPPORTED_LANGUAGES.includes(document.languageId);
+  if (SUPPORTED_LANGUAGES.includes(document.languageId)) {
+    return true;
+  }
+  // Also support .md files regardless of languageId
+  const fileName = document.fileName;
+  return fileName.endsWith('.md');
 };
 
 /**
