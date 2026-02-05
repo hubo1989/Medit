@@ -439,14 +439,6 @@
     "message": "改ページ",
     "description": "Option to export horizontal rules as page breaks in DOCX"
   },
-  "settings_docx_hr_page_break": {
-    "message": "DOCX: 水平線を改ページとして扱う",
-    "description": "Checkbox label for exporting Markdown horizontal rules (---) as page breaks in DOCX"
-  },
-  "settings_docx_hr_page_break_note": {
-    "message": "有効にすると、Markdown の区切り線（---）がエクスポートされた Word 文書で改ページになります。",
-    "description": "Helper note for the DOCX hr page break option"
-  },
   "settings_frontmatter_display": {
     "message": "Frontmatter表示:",
     "description": "Label for frontmatter display mode selector"
@@ -554,6 +546,18 @@
   "settings_supported_formats_title": {
     "message": "対応フォーマット",
     "description": "Title for supported file formats section in settings"
+  },
+  "settings_table_layout": {
+    "message": "テーブルレイアウト",
+    "description": "Label for table layout selector"
+  },
+  "settings_table_layout_center": {
+    "message": "中央",
+    "description": "Table layout option: center aligned"
+  },
+  "settings_table_layout_left": {
+    "message": "左",
+    "description": "Table layout option: left aligned"
   },
   "settings_table_merge_empty": {
     "message": "スマートセル結合",

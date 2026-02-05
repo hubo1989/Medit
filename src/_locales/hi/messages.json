@@ -439,14 +439,6 @@
     "message": "पृष्ठ विराम",
     "description": "Option to export horizontal rules as page breaks in DOCX"
   },
-  "settings_docx_hr_page_break": {
-    "message": "DOCX: क्षैतिज रेखाओं को पेज ब्रेक के रूप में मानें",
-    "description": "Checkbox label for exporting Markdown horizontal rules (---) as page breaks in DOCX"
-  },
-  "settings_docx_hr_page_break_note": {
-    "message": "सक्षम होने पर, Markdown विभाजक (---) निर्यात किए गए Word दस्तावेज़ों में नया पृष्ठ बनाएंगे।",
-    "description": "Helper note for the DOCX hr page break option"
-  },
   "settings_frontmatter_display": {
     "message": "Frontmatter प्रदर्शन:",
     "description": "Label for frontmatter display mode selector"
@@ -554,6 +546,18 @@
   "settings_supported_formats_title": {
     "message": "समर्थित प्रारूप",
     "description": "Title for supported file formats section in settings"
+  },
+  "settings_table_layout": {
+    "message": "तालिका लेआउट",
+    "description": "Label for table layout selector"
+  },
+  "settings_table_layout_center": {
+    "message": "केंद्र",
+    "description": "Table layout option: center aligned"
+  },
+  "settings_table_layout_left": {
+    "message": "बाएं",
+    "description": "Table layout option: left aligned"
   },
   "settings_table_merge_empty": {
     "message": "स्मार्ट टेबल सेल मर्ज",

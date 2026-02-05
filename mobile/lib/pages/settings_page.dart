@@ -144,6 +144,19 @@ class _SettingsPageState extends State<SettingsPage> {
             avatar: GFAvatar(
               backgroundColor: Theme.of(context).colorScheme.primaryContainer,
               child: Icon(
+                Icons.table_chart_outlined,
+                color: Theme.of(context).colorScheme.onPrimaryContainer,
+              ),
+            ),
+            titleText: localization.t('settings_table_layout'),
+            subTitleText: _getTableLayoutName(),
+            icon: const Icon(Icons.chevron_right),
+            onTap: _pickTableLayout,
+          ),
+          GFListTile(
+            avatar: GFAvatar(
+              backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+              child: Icon(
                 Icons.horizontal_rule_outlined,
                 color: Theme.of(context).colorScheme.onPrimaryContainer,
               ),
@@ -337,6 +350,18 @@ class _SettingsPageState extends State<SettingsPage> {
     }
   }
 
+  String _getTableLayoutName() {
+    final layout = settingsService.tableLayout;
+    switch (layout) {
+      case 'center':
+        return localization.t('settings_table_layout_center');
+      case 'left':
+        return localization.t('settings_table_layout_left');
+      default:
+        return localization.t('settings_table_layout_left');
+    }
+  }
+
   String _getHrDisplayName() {
     final display = settingsService.hrDisplay;
     switch (display) {
@@ -398,6 +423,54 @@ class _SettingsPageState extends State<SettingsPage> {
           settingsService.hrDisplay = display;
         });
         Navigator.pop(context);
+      },
+    );
+  }
+
+  void _pickTableLayout() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildTableLayoutOption('left'),
+              _buildTableLayoutOption('center'),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildTableLayoutOption(String layout) {
+    final isSelected = settingsService.tableLayout == layout;
+    String displayName;
+    switch (layout) {
+      case 'center':
+        displayName = localization.t('settings_table_layout_center');
+        break;
+      case 'left':
+        displayName = localization.t('settings_table_layout_left');
+        break;
+      default:
+        displayName = layout;
+    }
+
+    return ListTile(
+      title: Text(displayName),
+      trailing: isSelected ? const Icon(Icons.check, color: Colors.blue) : null,
+      onTap: () {
+        setState(() {
+          settingsService.tableLayout = layout;
+        });
+        Navigator.pop(context);
+        _notifySettingChanged();
       },
     );
   }

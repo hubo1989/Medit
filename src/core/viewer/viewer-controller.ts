@@ -43,6 +43,11 @@ export type ViewerRenderResult = {
  */
 export type FrontmatterDisplay = 'hide' | 'table' | 'raw';
 
+/**
+ * Table layout mode
+ */
+export type TableLayout = 'left' | 'center';
+
 export type RenderMarkdownOptions = {
   markdown: string;
   container: HTMLElement;
@@ -79,6 +84,9 @@ export type RenderMarkdownOptions = {
   
   /** Enable auto-merge of empty table cells */
   tableMergeEmpty?: boolean;
+
+  /** Table layout: 'left' or 'center' */
+  tableLayout?: TableLayout;
 };
 
 // Global document instance for incremental updates
@@ -154,6 +162,7 @@ export async function renderMarkdownDocument(options: RenderMarkdownOptions): Pr
     onStreamingComplete,
     frontmatterDisplay = 'hide',
     tableMergeEmpty = false,
+    tableLayout = 'center',
   } = options;
 
   const taskManager = providedTaskManager ?? new AsyncTaskManager(translate);
@@ -178,10 +187,10 @@ export async function renderMarkdownDocument(options: RenderMarkdownOptions): Pr
   
   if (isFirstRender) {
     // First render: render all blocks with streaming
-    await renderAllBlocksStreaming(doc, processor, container, taskManager, frontmatterDisplay, onHeadings);
+    await renderAllBlocksStreaming(doc, processor, container, taskManager, frontmatterDisplay, onHeadings, tableLayout);
   } else {
     // Incremental update: apply DOM commands
-    await applyIncrementalUpdate(doc, processor, container, updateResult.commands, taskManager, frontmatterDisplay);
+    await applyIncrementalUpdate(doc, processor, container, updateResult.commands, taskManager, frontmatterDisplay, tableLayout);
   }
 
   // Notify streaming complete
@@ -225,7 +234,8 @@ async function renderAllBlocksStreaming(
   container: HTMLElement,
   taskManager: AsyncTaskManager,
   frontmatterDisplay: FrontmatterDisplay,
-  onHeadings?: (headings: HeadingInfo[]) => void
+  onHeadings?: (headings: HeadingInfo[]) => void,
+  tableLayout: 'left' | 'center' = 'center'
 ): Promise<void> {
   const blocks = doc.getBlocks();
   
@@ -265,7 +275,7 @@ async function renderAllBlocksStreaming(
     }
     
     // Render block content
-    const html = await renderBlockContent(block.content, processor);
+    const html = await renderBlockContent(block.content, processor, tableLayout);
     doc.setBlockHtml(i, html);
     
     // Create and append DOM element
@@ -305,7 +315,8 @@ async function applyIncrementalUpdate(
   container: HTMLElement,
   commands: DOMCommand[],
   taskManager: AsyncTaskManager,
-  frontmatterDisplay: FrontmatterDisplay
+  frontmatterDisplay: FrontmatterDisplay,
+  tableLayout: 'left' | 'center' = 'center'
 ): Promise<void> {
   // First, render HTML for all blocks that need it
   for (const cmd of commands) {
@@ -331,7 +342,7 @@ async function applyIncrementalUpdate(
           doc.setBlockHtmlById(cmd.blockId, html);
           cmd.html = html;
         } else {
-          const html = await renderBlockContent(block.content, processor);
+          const html = await renderBlockContent(block.content, processor, tableLayout);
           doc.setBlockHtmlById(cmd.blockId, html);
           cmd.html = html;
         }
@@ -353,7 +364,7 @@ async function applyIncrementalUpdate(
           doc.setBlockHtmlById(cmd.blockId, html);
           cmd.html = html;
         } else {
-          const html = await renderBlockContent(block.content, processor);
+          const html = await renderBlockContent(block.content, processor, tableLayout);
           doc.setBlockHtmlById(cmd.blockId, html);
           cmd.html = html;
         }
@@ -368,10 +379,10 @@ async function applyIncrementalUpdate(
 /**
  * Render a single block's content to HTML
  */
-async function renderBlockContent(content: string, processor: Processor): Promise<string> {
+async function renderBlockContent(content: string, processor: Processor, tableLayout: 'left' | 'center' = 'center'): Promise<string> {
   const file = await processor.process(content);
   let html = String(file);
-  html = processTablesForWordCompatibility(html);
+  html = processTablesForWordCompatibility(html, tableLayout);
   html = sanitizeRenderedHtml(html);
   return html;
 }

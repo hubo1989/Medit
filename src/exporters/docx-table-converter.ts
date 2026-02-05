@@ -28,17 +28,24 @@ import {
 
 type ConvertInlineNodesFunction = (children: InlineNode[], options?: { bold?: boolean; size?: number; color?: string }) => Promise<InlineResult[]>;
 
+/** Table layout mode */
+export type TableLayout = 'left' | 'center';
+
 interface TableConverterOptions {
   themeStyles: DOCXThemeStyles;
   convertInlineNodes: ConvertInlineNodesFunction;
   /** Enable auto-merge of empty table cells */
   mergeEmptyCells?: boolean;
+  /** Table layout: 'left' or 'center' */
+  tableLayout?: TableLayout;
 }
 
 export interface TableConverter {
   convertTable(node: DOCXTableNode, listLevel?: number): Promise<Table>;
   /** Update merge setting at runtime */
   setMergeEmptyCells(enabled: boolean): void;
+  /** Update table layout at runtime */
+  setTableLayout(layout: TableLayout): void;
 }
 
 /**
@@ -46,7 +53,7 @@ export interface TableConverter {
  * @param options - Configuration options
  * @returns Table converter
  */
-export function createTableConverter({ themeStyles, convertInlineNodes, mergeEmptyCells = false }: TableConverterOptions): TableConverter {
+export function createTableConverter({ themeStyles, convertInlineNodes, mergeEmptyCells = false, tableLayout = 'center' }: TableConverterOptions): TableConverter {
   // Default table styles
   const defaultMargins = { top: 80, bottom: 80, left: 100, right: 100 };
   
@@ -57,8 +64,9 @@ export function createTableConverter({ themeStyles, convertInlineNodes, mergeEmp
   const borderStyles = tableStyles.borders || {};
   const zebraStyles = tableStyles.zebra;
   
-  // Mutable merge setting
+  // Mutable settings
   let enableMerge = mergeEmptyCells;
+  let currentLayout: TableLayout = tableLayout;
   
   /**
    * Extract cell text content matrix from data rows (excluding header)
@@ -245,7 +253,7 @@ export function createTableConverter({ themeStyles, convertInlineNodes, mergeEmp
     return new Table({
       rows: rows,
       layout: TableLayoutType.AUTOFIT,
-      alignment: AlignmentType.CENTER,
+      alignment: currentLayout === 'center' ? AlignmentType.CENTER : AlignmentType.LEFT,
       indent: indentSize ? { size: indentSize, type: WidthType.DXA } : undefined,
     });
   }
@@ -254,5 +262,9 @@ export function createTableConverter({ themeStyles, convertInlineNodes, mergeEmp
     enableMerge = enabled;
   }
 
-  return { convertTable, setMergeEmptyCells };
+  function setTableLayout(layout: TableLayout): void {
+    currentLayout = layout;
+  }
+
+  return { convertTable, setMergeEmptyCells, setTableLayout };
 }

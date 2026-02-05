@@ -439,14 +439,6 @@
     "message": "Pemisah halaman",
     "description": "Option to export horizontal rules as page breaks in DOCX"
   },
-  "settings_docx_hr_page_break": {
-    "message": "DOCX: Anggap garisan mendatar sebagai pemisah halaman",
-    "description": "Checkbox label for exporting Markdown horizontal rules (---) as page breaks in DOCX"
-  },
-  "settings_docx_hr_page_break_note": {
-    "message": "Apabila didayakan, pemisah Markdown (---) akan mencipta halaman baru dalam dokumen Word yang dieksport.",
-    "description": "Helper note for the DOCX hr page break option"
-  },
   "settings_frontmatter_display": {
     "message": "Paparan Frontmatter:",
     "description": "Label for frontmatter display mode selector"
@@ -554,6 +546,18 @@
   "settings_supported_formats_title": {
     "message": "Format Yang Disokong",
     "description": "Heading for supported formats section"
+  },
+  "settings_table_layout": {
+    "message": "Susun atur jadual",
+    "description": "Label for table layout selector"
+  },
+  "settings_table_layout_center": {
+    "message": "Tengah",
+    "description": "Table layout option: center aligned"
+  },
+  "settings_table_layout_left": {
+    "message": "Kiri",
+    "description": "Table layout option: left aligned"
   },
   "settings_table_merge_empty": {
     "message": "Penggabungan sel jadual pintar",

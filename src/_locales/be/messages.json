@@ -439,14 +439,6 @@
     "message": "Разрыў старонкі",
     "description": "Option to export horizontal rules as page breaks in DOCX"
   },
-  "settings_docx_hr_page_break": {
-    "message": "DOCX: Лічыць гарызантальныя лініі разрывамі старонак",
-    "description": "Checkbox label for exporting Markdown horizontal rules (---) as page breaks in DOCX"
-  },
-  "settings_docx_hr_page_break_note": {
-    "message": "Калі ўключана, падзяляльнікі Markdown (---) створаць новую старонку ў экспартаваных дакументах Word.",
-    "description": "Helper note for the DOCX hr page break option"
-  },
   "settings_frontmatter_display": {
     "message": "Адлюстраванне Frontmatter:",
     "description": "Label for frontmatter display mode selector"
@@ -554,6 +546,18 @@
   "settings_supported_formats_title": {
     "message": "Падтрымліваемыя фарматы",
     "description": "Heading for supported formats section"
+  },
+  "settings_table_layout": {
+    "message": "Размяшчэнне табліцы",
+    "description": "Label for table layout selector"
+  },
+  "settings_table_layout_center": {
+    "message": "Па цэнтры",
+    "description": "Table layout option: center aligned"
+  },
+  "settings_table_layout_left": {
+    "message": "Злева",
+    "description": "Table layout option: left aligned"
   },
   "settings_table_merge_empty": {
     "message": "Разумнае аб'яднанне вочак табліцы",

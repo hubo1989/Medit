@@ -420,6 +420,7 @@ function initializeUI(): void {
     docxEmojiStyle: (window.VSCODE_CONFIG?.docxEmojiStyle as EmojiStyle) || 'system',
     frontmatterDisplay: (window.VSCODE_CONFIG?.frontmatterDisplay as FrontmatterDisplay) || 'hide',
     tableMergeEmpty: window.VSCODE_CONFIG?.tableMergeEmpty !== false,
+    tableLayout: (window.VSCODE_CONFIG?.tableLayout as 'left' | 'center') || 'center',
     onThemeChange: async (themeId) => {
       // handleSetTheme saves via themeManager.saveSelectedTheme (same as Chrome)
       await handleSetTheme({ themeId });
@@ -448,6 +449,14 @@ function initializeUI(): void {
     onTableMergeEmptyChange: async (enabled) => {
       vscodeBridge.postMessage('SAVE_SETTING', { key: 'tableMergeEmpty', value: enabled });
       // Re-render to apply new table merge setting
+      if (currentMarkdown) {
+        const scrollLine = scrollSyncController?.getCurrentLine() ?? 0;
+        await handleUpdateContent({ content: currentMarkdown, filename: currentFilename, forceRender: true, scrollLine });
+      }
+    },
+    onTableLayoutChange: async (layout) => {
+      vscodeBridge.postMessage('SAVE_SETTING', { key: 'tableLayout', value: layout });
+      // Re-render to apply new table layout setting
       if (currentMarkdown) {
         const scrollLine = scrollSyncController?.getCurrentLine() ?? 0;
         await handleUpdateContent({ content: currentMarkdown, filename: currentFilename, forceRender: true, scrollLine });

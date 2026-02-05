@@ -439,14 +439,6 @@
     "message": "ตัดหน้า",
     "description": "Option to export horizontal rules as page breaks in DOCX"
   },
-  "settings_docx_hr_page_break": {
-    "message": "DOCX: ใช้เส้นคั่นเป็นการขึ้นหน้าใหม่",
-    "description": "Checkbox label for exporting Markdown horizontal rules (---) as page breaks in DOCX"
-  },
-  "settings_docx_hr_page_break_note": {
-    "message": "เมื่อเปิดใช้งาน ตัวคั่น Markdown (---) จะสร้างหน้าใหม่ในเอกสาร Word ที่ส่งออก",
-    "description": "Helper note for the DOCX hr page break option"
-  },
   "settings_frontmatter_display": {
     "message": "การแสดง Frontmatter:",
     "description": "Label for frontmatter display mode selector"
@@ -554,6 +546,18 @@
   "settings_supported_formats_title": {
     "message": "รูปแบบที่รองรับ",
     "description": "Title for supported file formats section in settings"
+  },
+  "settings_table_layout": {
+    "message": "เค้าโครงตาราง",
+    "description": "Label for table layout selector"
+  },
+  "settings_table_layout_center": {
+    "message": "กลาง",
+    "description": "Table layout option: center aligned"
+  },
+  "settings_table_layout_left": {
+    "message": "ซ้าย",
+    "description": "Table layout option: left aligned"
   },
   "settings_table_merge_empty": {
     "message": "รวมเซลล์ตารางอัจฉริยะ",

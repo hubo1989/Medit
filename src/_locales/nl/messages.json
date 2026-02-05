@@ -439,14 +439,6 @@
     "message": "Pagina-einde",
     "description": "Option to export horizontal rules as page breaks in DOCX"
   },
-  "settings_docx_hr_page_break": {
-    "message": "DOCX: Horizontale lijnen als pagina-einde behandelen",
-    "description": "Checkbox label for exporting Markdown horizontal rules (---) as page breaks in DOCX"
-  },
-  "settings_docx_hr_page_break_note": {
-    "message": "Wanneer ingeschakeld maken Markdown-scheidingstekens (---) een nieuwe pagina in geëxporteerde Word-documenten.",
-    "description": "Helper note for the DOCX hr page break option"
-  },
   "settings_frontmatter_display": {
     "message": "Frontmatter weergave:",
     "description": "Label for frontmatter display mode selector"
@@ -554,6 +546,18 @@
   "settings_supported_formats_title": {
     "message": "Ondersteunde formaten",
     "description": "Title for supported file formats section in settings"
+  },
+  "settings_table_layout": {
+    "message": "Tabelindeling",
+    "description": "Label for table layout selector"
+  },
+  "settings_table_layout_center": {
+    "message": "Gecentreerd",
+    "description": "Table layout option: center aligned"
+  },
+  "settings_table_layout_left": {
+    "message": "Links",
+    "description": "Table layout option: left aligned"
   },
   "settings_table_merge_empty": {
     "message": "Slimme tabelcel-samenvoeging",

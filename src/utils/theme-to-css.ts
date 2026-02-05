@@ -300,11 +300,17 @@ ${styles.join('\n')}
 function generateTableCSS(tableStyle: TableStyleConfig, colorScheme: ColorScheme): string {
   const css: string[] = [];
 
-  // Base table styles
+  // Base table styles - default to center layout
   css.push(`#markdown-content table {
   border-collapse: collapse;
   margin: 13px auto;
   overflow: auto;
+}
+
+/* Table layout: left alignment */
+#markdown-content.table-layout-left table {
+  margin-left: 0;
+  margin-right: auto;
 }`);
 
   // Border styles

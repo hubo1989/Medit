@@ -439,14 +439,6 @@
     "message": "分頁",
     "description": "Option to export horizontal rules as page breaks in DOCX"
   },
-  "settings_docx_hr_page_break": {
-    "message": "DOCX：將分隔線(hr)匯出為分頁",
-    "description": "Checkbox label for exporting Markdown horizontal rules (---) as page breaks in DOCX"
-  },
-  "settings_docx_hr_page_break_note": {
-    "message": "開啟後，Markdown 分隔線（---）在匯出的 Word 文件中會產生分頁。",
-    "description": "Helper note for the DOCX hr page break option"
-  },
   "settings_frontmatter_display": {
     "message": "Frontmatter 顯示:",
     "description": "Label for frontmatter display mode selector"
@@ -554,6 +546,18 @@
   "settings_supported_formats_title": {
     "message": "支援的格式",
     "description": "Title for supported file formats section in settings"
+  },
+  "settings_table_layout": {
+    "message": "表格佈局",
+    "description": "Label for table layout selector"
+  },
+  "settings_table_layout_center": {
+    "message": "置中",
+    "description": "Table layout option: center aligned"
+  },
+  "settings_table_layout_left": {
+    "message": "靠左",
+    "description": "Table layout option: left aligned"
   },
   "settings_table_merge_empty": {
     "message": "智慧表格儲存格合併",

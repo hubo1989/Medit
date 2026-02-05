@@ -15,6 +15,7 @@ class SettingsService {
   static const String _keySupportDot = 'supportDot';
   static const String _keySupportInfographic = 'supportInfographic';
   static const String _keyTableMergeEmpty = 'tableMergeEmpty';
+  static const String _keyTableLayout = 'tableLayout';
   static const String _keyScrollPositions = 'scrollPositions';
   static const int _maxScrollPositions = 100; // Limit stored positions
 
@@ -69,6 +70,10 @@ class SettingsService {
   bool get tableMergeEmpty => _prefs?.getBool(_keyTableMergeEmpty) ?? true;
   set tableMergeEmpty(bool value) => _prefs?.setBool(_keyTableMergeEmpty, value);
 
+  // Table layout: 'left' or 'center'
+  String get tableLayout => _prefs?.getString(_keyTableLayout) ?? 'center';
+  set tableLayout(String value) => _prefs?.setString(_keyTableLayout, value);
+
   /// Get list of allowed file extensions based on settings
   List<String> get allowedExtensions {
     final extensions = ['md', 'markdown'];
@@ -98,6 +103,7 @@ class SettingsService {
       'supportDot': supportDot,
       'supportInfographic': supportInfographic,
       'tableMergeEmpty': tableMergeEmpty,
+      'tableLayout': tableLayout,
     };
   }
 

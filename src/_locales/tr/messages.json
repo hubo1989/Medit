@@ -439,14 +439,6 @@
     "message": "Sayfa sonu",
     "description": "Option to export horizontal rules as page breaks in DOCX"
   },
-  "settings_docx_hr_page_break": {
-    "message": "DOCX: Yatay çizgileri sayfa sonu olarak işle",
-    "description": "Checkbox label for exporting Markdown horizontal rules (---) as page breaks in DOCX"
-  },
-  "settings_docx_hr_page_break_note": {
-    "message": "Etkinleştirildiğinde, Markdown ayraçları (---) dışa aktarılan Word belgelerinde yeni bir sayfa oluşturur.",
-    "description": "Helper note for the DOCX hr page break option"
-  },
   "settings_frontmatter_display": {
     "message": "Frontmatter görüntüleme:",
     "description": "Label for frontmatter display mode selector"
@@ -554,6 +546,18 @@
   "settings_supported_formats_title": {
     "message": "Desteklenen Formatlar",
     "description": "Title for supported file formats section in settings"
+  },
+  "settings_table_layout": {
+    "message": "Tablo düzeni",
+    "description": "Label for table layout selector"
+  },
+  "settings_table_layout_center": {
+    "message": "Orta",
+    "description": "Table layout option: center aligned"
+  },
+  "settings_table_layout_left": {
+    "message": "Sol",
+    "description": "Table layout option: left aligned"
   },
   "settings_table_merge_empty": {
     "message": "Akıllı tablo hücresi birleştirme",

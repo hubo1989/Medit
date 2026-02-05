@@ -322,13 +322,17 @@ export function sanitizeRenderedHtml(html: string): string {
 }
 
 /**
- * Process tables to add centering attributes for Word compatibility
+ * Process tables to add alignment attributes for Word compatibility
  * @param html - HTML content
- * @returns HTML with centered tables
+ * @param layout - Table layout: 'left' or 'center' (default: 'left')
+ * @returns HTML with table alignment applied
  */
-export function processTablesForWordCompatibility(html: string): string {
-  html = html.replace(/<table>/g, '<div align="center"><table align="center">');
-  html = html.replace(/<\/table>/g, '</table></div>');
+export function processTablesForWordCompatibility(html: string, layout: 'left' | 'center' = 'center'): string {
+  if (layout === 'center') {
+    html = html.replace(/<table>/g, '<div align="center"><table align="center">');
+    html = html.replace(/<\/table>/g, '</table></div>');
+  }
+  // For 'left' layout, no wrapping needed - tables are left-aligned by default
   return html;
 }
 

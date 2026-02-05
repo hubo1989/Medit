@@ -148,6 +148,11 @@ interface SupportedExtensions {
 export type FrontmatterDisplay = 'hide' | 'table' | 'raw';
 
 /**
+ * Table layout mode
+ */
+export type TableLayout = 'left' | 'center';
+
+/**
  * User settings structure
  */
 interface Settings {
@@ -158,6 +163,7 @@ interface Settings {
   supportedExtensions?: SupportedExtensions;
   frontmatterDisplay?: FrontmatterDisplay;
   tableMergeEmpty?: boolean;
+  tableLayout?: TableLayout;
 }
 
 /**
@@ -207,6 +213,7 @@ export function createSettingsTabManager({
     },
     frontmatterDisplay: 'hide',
     tableMergeEmpty: true,
+    tableLayout: 'center',
   };
   let currentTheme = 'default';
   let themes: ThemeDefinition[] = [];
@@ -353,6 +360,21 @@ export function createSettingsTabManager({
           await saveSettingsToStorage();
           // Notify all tabs to re-render
           notifySettingChanged('tableMergeEmpty', settings.tableMergeEmpty);
+        });
+      }
+    }
+
+    // Table layout
+    const tableLayoutEl = document.getElementById('table-layout') as HTMLSelectElement | null;
+    if (tableLayoutEl) {
+      tableLayoutEl.value = settings.tableLayout || 'center';
+      if (!tableLayoutEl.dataset.listenerAdded) {
+        tableLayoutEl.dataset.listenerAdded = 'true';
+        tableLayoutEl.addEventListener('change', async () => {
+          settings.tableLayout = tableLayoutEl.value as TableLayout;
+          await saveSettingsToStorage();
+          // Notify all tabs to re-render
+          notifySettingChanged('tableLayout', settings.tableLayout);
         });
       }
     }
@@ -791,6 +813,7 @@ export function createSettingsTabManager({
           drawio: true,
         },
         tableMergeEmpty: true,
+        tableLayout: 'center',
       };
 
       await storageSet({

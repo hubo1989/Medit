@@ -105,7 +105,7 @@ describe('markdown-processor', () => {
   });
 
   describe('processTablesForWordCompatibility', () => {
-    it('should wrap tables with center div', () => {
+    it('should wrap tables with center div by default', () => {
       const input = '<table><tr><td>test</td></tr></table>';
       const result = processTablesForWordCompatibility(input);
       assert.ok(result.includes('<div align="center">'), 'Should have center div');
@@ -113,11 +113,23 @@ describe('markdown-processor', () => {
       assert.ok(result.includes('</table></div>'), 'Should close properly');
     });
 
-    it('should handle multiple tables', () => {
+    it('should handle multiple tables with center layout (default)', () => {
       const input = '<table></table><p>text</p><table></table>';
       const result = processTablesForWordCompatibility(input);
       const matches = result.match(/<div align="center">/g);
       assert.strictEqual(matches?.length, 2, 'Should wrap both tables');
+    });
+
+    it('should not wrap tables when layout is left', () => {
+      const input = '<table><tr><td>test</td></tr></table>';
+      const result = processTablesForWordCompatibility(input, 'left');
+      assert.strictEqual(result, input, 'Should not modify table');
+    });
+
+    it('should wrap tables when layout is explicitly center', () => {
+      const input = '<table><tr><td>test</td></tr></table>';
+      const result = processTablesForWordCompatibility(input, 'center');
+      assert.ok(result.includes('<div align="center">'), 'Should have center div');
     });
 
     it('should not affect non-table content', () => {

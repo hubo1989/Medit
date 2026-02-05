@@ -439,14 +439,6 @@
     "message": "Ngắt trang",
     "description": "Option to export horizontal rules as page breaks in DOCX"
   },
-  "settings_docx_hr_page_break": {
-    "message": "DOCX: Xem đường kẻ ngang như ngắt trang",
-    "description": "Checkbox label for exporting Markdown horizontal rules (---) as page breaks in DOCX"
-  },
-  "settings_docx_hr_page_break_note": {
-    "message": "Khi bật, dấu phân cách Markdown (---) sẽ tạo trang mới trong tài liệu Word xuất ra.",
-    "description": "Helper note for the DOCX hr page break option"
-  },
   "settings_frontmatter_display": {
     "message": "Hiển thị Frontmatter:",
     "description": "Label for frontmatter display mode selector"
@@ -554,6 +546,18 @@
   "settings_supported_formats_title": {
     "message": "Định dạng được hỗ trợ",
     "description": "Title for supported file formats section in settings"
+  },
+  "settings_table_layout": {
+    "message": "Bố cục bảng",
+    "description": "Label for table layout selector"
+  },
+  "settings_table_layout_center": {
+    "message": "Giữa",
+    "description": "Table layout option: center aligned"
+  },
+  "settings_table_layout_left": {
+    "message": "Trái",
+    "description": "Table layout option: left aligned"
   },
   "settings_table_merge_empty": {
     "message": "Hợp nhất ô bảng thông minh",

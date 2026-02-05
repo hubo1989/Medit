@@ -169,6 +169,21 @@ export async function getTableMergeEmpty(platform: PlatformAPI): Promise<boolean
   }
 }
 
+/**
+ * Get the table layout setting.
+ * Uses platform.settings service exclusively.
+ *
+ * @returns 'left' | 'center' (default: 'center')
+ */
+export async function getTableLayout(platform: PlatformAPI): Promise<'left' | 'center'> {
+  try {
+    const layout = await platform.settings.get('tableLayout');
+    return layout === 'left' ? 'left' : 'center';
+  } catch {
+    return 'center';
+  }
+}
+
 // ============================================================================
 // Zoom
 // ============================================================================
@@ -417,6 +432,13 @@ export async function renderMarkdownFlow(options: RenderMarkdownFlowOptions): Pr
     // Get table merge empty setting
     const tableMergeEmpty = await getTableMergeEmpty(platform);
 
+    // Get table layout setting
+    const tableLayout = await getTableLayout(platform);
+
+    // Apply table layout class to container
+    container.classList.remove('table-layout-left', 'table-layout-center');
+    container.classList.add(`table-layout-${tableLayout}`);
+
     // Render markdown
     const renderResult = await renderMarkdownDocument({
       markdown,
@@ -427,6 +449,7 @@ export async function renderMarkdownFlow(options: RenderMarkdownFlowOptions): Pr
       clearContainer: false, // Already cleared above if needed
       frontmatterDisplay,
       tableMergeEmpty,
+      tableLayout,
       onHeadings,
       onStreamingComplete: () => {
         scrollController?.onStreamingComplete();

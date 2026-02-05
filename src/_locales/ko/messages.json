@@ -439,14 +439,6 @@
     "message": "페이지 나누기",
     "description": "Option to export horizontal rules as page breaks in DOCX"
   },
-  "settings_docx_hr_page_break": {
-    "message": "DOCX: 가로줄을 페이지 나눔으로 처리",
-    "description": "Checkbox label for exporting Markdown horizontal rules (---) as page breaks in DOCX"
-  },
-  "settings_docx_hr_page_break_note": {
-    "message": "활성화하면 Markdown 구분선(---)이 내보낸 Word 문서에서 새 페이지를 만듭니다.",
-    "description": "Helper note for the DOCX hr page break option"
-  },
   "settings_frontmatter_display": {
     "message": "Frontmatter 표시:",
     "description": "Label for frontmatter display mode selector"
@@ -554,6 +546,18 @@
   "settings_supported_formats_title": {
     "message": "지원 형식",
     "description": "Title for supported file formats section in settings"
+  },
+  "settings_table_layout": {
+    "message": "테이블 레이아웃",
+    "description": "Label for table layout selector"
+  },
+  "settings_table_layout_center": {
+    "message": "가운데",
+    "description": "Table layout option: center aligned"
+  },
+  "settings_table_layout_left": {
+    "message": "왼쪽",
+    "description": "Table layout option: left aligned"
   },
   "settings_table_merge_empty": {
     "message": "스마트 테이블 셀 병합",

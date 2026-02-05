@@ -93,6 +93,7 @@ class DocxExporter {
   private docxEmojiStyle: EmojiStyle = 'windows';
   private frontmatterDisplay: FrontmatterDisplay = 'hide';
   private tableMergeEmpty = true;  // Default: enabled
+  private tableLayout: 'left' | 'center' = 'center';  // Default: center
   
   // Converters (initialized in exportToDocx)
   private tableConverter: TableConverter | null = null;
@@ -178,6 +179,7 @@ class DocxExporter {
       themeStyles: this.themeStyles,
       convertInlineNodes: (nodes, style) => this.inlineConverter!.convertInlineNodes(nodes, style),
       mergeEmptyCells: this.tableMergeEmpty,
+      tableLayout: this.tableLayout,
     });
 
     this.blockquoteConverter = createBlockquoteConverter({
@@ -212,25 +214,29 @@ class DocxExporter {
       try {
         const settings = globalThis.platform?.settings;
         if (settings) {
-          const [hrDisplay, emojiStyle, frontmatterDisplay, tableMergeEmpty] = await Promise.all([
+          const [hrDisplay, emojiStyle, frontmatterDisplay, tableMergeEmpty, tableLayout] = await Promise.all([
             settings.get('docxHrDisplay'),
             settings.get('docxEmojiStyle'),
             settings.get('frontmatterDisplay'),
             settings.get('tableMergeEmpty'),
+            settings.get('tableLayout'),
           ]);
           this.docxHrDisplay = hrDisplay;
           this.docxEmojiStyle = emojiStyle === 'native' ? 'system' : 'system'; // Map to internal naming
           this.frontmatterDisplay = frontmatterDisplay;
           this.tableMergeEmpty = tableMergeEmpty;
+          this.tableLayout = tableLayout || 'center';
         } else {
           this.docxHrDisplay = 'hide';
           this.frontmatterDisplay = 'hide';
           this.tableMergeEmpty = true;
+          this.tableLayout = 'center';
         }
       } catch {
         this.docxHrDisplay = 'hide';
         this.frontmatterDisplay = 'hide';
         this.tableMergeEmpty = true;
+        this.tableLayout = 'center';
       }
 
       const selectedThemeId = await themeManager.loadSelectedTheme();

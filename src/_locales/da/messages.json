@@ -439,14 +439,6 @@
     "message": "Sideskift",
     "description": "Option to export horizontal rules as page breaks in DOCX"
   },
-  "settings_docx_hr_page_break": {
-    "message": "DOCX: Behandl vandrette linjer som sideskift",
-    "description": "Checkbox label for exporting Markdown horizontal rules (---) as page breaks in DOCX"
-  },
-  "settings_docx_hr_page_break_note": {
-    "message": "Når dette er slået til, opretter Markdown-separatorer (---) en ny side i eksporterede Word-dokumenter.",
-    "description": "Helper note for the DOCX hr page break option"
-  },
   "settings_frontmatter_display": {
     "message": "Frontmatter visning:",
     "description": "Label for frontmatter display mode selector"
@@ -554,6 +546,18 @@
   "settings_supported_formats_title": {
     "message": "Understøttede formater",
     "description": "Title for supported file formats section in settings"
+  },
+  "settings_table_layout": {
+    "message": "Tabellayout",
+    "description": "Label for table layout selector"
+  },
+  "settings_table_layout_center": {
+    "message": "Centreret",
+    "description": "Table layout option: center aligned"
+  },
+  "settings_table_layout_left": {
+    "message": "Venstre",
+    "description": "Table layout option: left aligned"
   },
   "settings_table_merge_empty": {
     "message": "Smart sammenfletning af tabelceller",

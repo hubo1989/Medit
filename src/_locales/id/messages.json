@@ -439,14 +439,6 @@
     "message": "Batas halaman",
     "description": "Option to export horizontal rules as page breaks in DOCX"
   },
-  "settings_docx_hr_page_break": {
-    "message": "DOCX: Perlakukan garis horizontal sebagai pemisah halaman",
-    "description": "Checkbox label for exporting Markdown horizontal rules (---) as page breaks in DOCX"
-  },
-  "settings_docx_hr_page_break_note": {
-    "message": "Jika diaktifkan, pemisah Markdown (---) akan membuat halaman baru di dokumen Word yang diekspor.",
-    "description": "Helper note for the DOCX hr page break option"
-  },
   "settings_frontmatter_display": {
     "message": "Tampilan Frontmatter:",
     "description": "Label for frontmatter display mode selector"
@@ -554,6 +546,18 @@
   "settings_supported_formats_title": {
     "message": "Format yang Didukung",
     "description": "Title for supported file formats section in settings"
+  },
+  "settings_table_layout": {
+    "message": "Tata letak tabel",
+    "description": "Label for table layout selector"
+  },
+  "settings_table_layout_center": {
+    "message": "Tengah",
+    "description": "Table layout option: center aligned"
+  },
+  "settings_table_layout_left": {
+    "message": "Kiri",
+    "description": "Table layout option: left aligned"
   },
   "settings_table_merge_empty": {
     "message": "Penggabungan sel tabel cerdas",

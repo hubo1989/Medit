@@ -439,14 +439,6 @@
     "message": "Page break",
     "description": "Option to export horizontal rules as page breaks in DOCX"
   },
-  "settings_docx_hr_page_break": {
-    "message": "DOCX: Treat horizontal rules as page breaks",
-    "description": "Checkbox label for exporting Markdown horizontal rules (---) as page breaks in DOCX"
-  },
-  "settings_docx_hr_page_break_note": {
-    "message": "When enabled, Markdown separators (---) will create a new page in exported Word documents.",
-    "description": "Helper note for the DOCX hr page break option"
-  },
   "settings_frontmatter_display": {
     "message": "Frontmatter display:",
     "description": "Label for frontmatter display mode selector"
@@ -554,6 +546,18 @@
   "settings_supported_formats_title": {
     "message": "Supported Formats",
     "description": "Heading for supported formats section"
+  },
+  "settings_table_layout": {
+    "message": "Table layout",
+    "description": "Label for table layout selector"
+  },
+  "settings_table_layout_center": {
+    "message": "Center",
+    "description": "Option for centered tables"
+  },
+  "settings_table_layout_left": {
+    "message": "Left",
+    "description": "Option for left-aligned tables"
   },
   "settings_table_merge_empty": {
     "message": "Smart table cell merge",

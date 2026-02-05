@@ -439,14 +439,6 @@
     "message": "Розрив сторінки",
     "description": "Option to export horizontal rules as page breaks in DOCX"
   },
-  "settings_docx_hr_page_break": {
-    "message": "DOCX: Розділювачі як розриви сторінок",
-    "description": "Checkbox label for exporting Markdown horizontal rules (---) as page breaks in DOCX"
-  },
-  "settings_docx_hr_page_break_note": {
-    "message": "Якщо увімкнено, розділювачі Markdown (---) створюватимуть нову сторінку в експортованих Word-документах.",
-    "description": "Helper note for the DOCX hr page break option"
-  },
   "settings_frontmatter_display": {
     "message": "Відображення Frontmatter:",
     "description": "Label for frontmatter display mode selector"
@@ -554,6 +546,18 @@
   "settings_supported_formats_title": {
     "message": "Підтримувані формати",
     "description": "Heading for supported formats section"
+  },
+  "settings_table_layout": {
+    "message": "Макет таблиці",
+    "description": "Label for table layout selector"
+  },
+  "settings_table_layout_center": {
+    "message": "По центру",
+    "description": "Table layout option: center aligned"
+  },
+  "settings_table_layout_left": {
+    "message": "Зліва",
+    "description": "Table layout option: left aligned"
   },
   "settings_table_merge_empty": {
     "message": "Розумне об'єднання комірок таблиці",

@@ -11,6 +11,9 @@ import Localization from '../../../src/utils/localization';
 import type { EmojiStyle } from '../../../src/types/docx.js';
 import type { FrontmatterDisplay } from '../../../src/core/viewer/viewer-controller';
 
+/** Table layout mode */
+export type TableLayout = 'left' | 'center';
+
 export interface SettingsPanelOptions {
   /** Current theme ID */
   currentTheme?: string;
@@ -24,6 +27,8 @@ export interface SettingsPanelOptions {
   frontmatterDisplay?: FrontmatterDisplay;
   /** Table merge empty cells setting */
   tableMergeEmpty?: boolean;
+  /** Table layout setting */
+  tableLayout?: TableLayout;
   /** Theme changed callback */
   onThemeChange?: (themeId: string) => void;
   /** Locale changed callback */
@@ -36,6 +41,8 @@ export interface SettingsPanelOptions {
   onFrontmatterDisplayChange?: (display: FrontmatterDisplay) => void;
   /** Table merge empty cells changed callback */
   onTableMergeEmptyChange?: (enabled: boolean) => void;
+  /** Table layout changed callback */
+  onTableLayoutChange?: (layout: TableLayout) => void;
   /** Cache clear callback */
   onClearCache?: () => Promise<void>;
   /** Called when panel is shown, use to refresh dynamic data */
@@ -95,6 +102,7 @@ export function createSettingsPanel(options: SettingsPanelOptions): SettingsPane
     docxEmojiStyle = 'windows',
     frontmatterDisplay = 'hide',
     tableMergeEmpty = true,
+    tableLayout = 'center',
     onThemeChange,
     onLocaleChange,
     onDocxHrDisplayChange,
@@ -151,6 +159,13 @@ export function createSettingsPanel(options: SettingsPanelOptions): SettingsPane
         </label>
       </div>
       <div class="vscode-settings-group">
+        <label class="vscode-settings-label" data-i18n="settings_table_layout">${Localization.translate('settings_table_layout')}</label>
+        <select class="vscode-settings-select" data-setting="tableLayout">
+          <option value="left" ${tableLayout === 'left' ? 'selected' : ''} data-i18n="settings_table_layout_left">${Localization.translate('settings_table_layout_left')}</option>
+          <option value="center" ${tableLayout === 'center' ? 'selected' : ''} data-i18n="settings_table_layout_center">${Localization.translate('settings_table_layout_center')}</option>
+        </select>
+      </div>
+      <div class="vscode-settings-group">
         <label class="vscode-settings-label" data-i18n="settings_docx_hr_display">${Localization.translate('settings_docx_hr_display')}</label>
         <select class="vscode-settings-select" data-setting="docxHrDisplay">
           <option value="hide" ${docxHrDisplay === 'hide' ? 'selected' : ''} data-i18n="settings_docx_hr_display_hide">${Localization.translate('settings_docx_hr_display_hide')}</option>
@@ -181,6 +196,7 @@ export function createSettingsPanel(options: SettingsPanelOptions): SettingsPane
   const localeSelect = panel.querySelector('[data-setting="locale"]') as HTMLSelectElement;
   const docxHrDisplaySelect = panel.querySelector('[data-setting="docxHrDisplay"]') as HTMLSelectElement;
   const tableMergeEmptyCheckbox = panel.querySelector('[data-setting="tableMergeEmpty"]') as HTMLInputElement;
+  const tableLayoutSelect = panel.querySelector('[data-setting="tableLayout"]') as HTMLSelectElement;
   const emojiStyleSelect = panel.querySelector('[data-setting="emojiStyle"]') as HTMLSelectElement;
   const frontmatterDisplaySelect = panel.querySelector('[data-setting="frontmatterDisplay"]') as HTMLSelectElement;
   const clearCacheBtn = panel.querySelector('.vscode-cache-clear-btn') as HTMLButtonElement;
@@ -192,6 +208,7 @@ export function createSettingsPanel(options: SettingsPanelOptions): SettingsPane
   if (localeSelect) localeSelect.value = currentLocale;
   if (docxHrDisplaySelect) docxHrDisplaySelect.value = docxHrDisplay;
   if (tableMergeEmptyCheckbox) tableMergeEmptyCheckbox.checked = tableMergeEmpty;
+  if (tableLayoutSelect) tableLayoutSelect.value = tableLayout;
   if (emojiStyleSelect) emojiStyleSelect.value = docxEmojiStyle;
   if (frontmatterDisplaySelect) frontmatterDisplaySelect.value = frontmatterDisplay;
 
@@ -215,6 +232,10 @@ export function createSettingsPanel(options: SettingsPanelOptions): SettingsPane
 
   tableMergeEmptyCheckbox?.addEventListener('change', () => {
     options.onTableMergeEmptyChange?.(tableMergeEmptyCheckbox.checked);
+  });
+
+  tableLayoutSelect?.addEventListener('change', () => {
+    options.onTableLayoutChange?.(tableLayoutSelect.value as TableLayout);
   });
 
   emojiStyleSelect?.addEventListener('change', () => {
