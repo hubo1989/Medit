@@ -1,6 +1,6 @@
 # Markdown Viewer
 
-**Markdown do perfekcyjnego Worda jednym kliknięciem — Mermaid, Vega, Draw.io, Canvas, infografika, Graphviz, LaTeX (edytowalny), podświetlanie kodu, lokalne przetwarzanie**
+**Markdown do perfekcyjnego Worda jednym kliknięciem — Mermaid, Vega, drawio, Canvas, infografika, Graphviz, LaTeX (edytowalny), podświetlanie kodu, lokalne przetwarzanie**
 
 *Całkowicie za darmo · 29+ profesjonalnych motywów · Obsługa 28 języków*
 
@@ -24,7 +24,7 @@ Ale ostatecznie zawsze potrzebujesz dokumentu Word.
 Kliknij, aby pobrać i uzyskać doskonały dokument Word:
 - ✅ Diagramy Mermaid → Obrazy w wysokiej rozdzielczości
 - ✅ Wykresy danych Vega/Vega-Lite → Obrazy w wysokiej rozdzielczości
-- ✅ Diagramy Draw.io → Obrazy w wysokiej rozdzielczości
+- ✅ Diagramy drawio → Obrazy w wysokiej rozdzielczości
 - ✅ Diagramy Canvas → Obrazy w wysokiej rozdzielczości
 - ✅ Wykresy Infographic → Obrazy w wysokiej rozdzielczości
 - ✅ Grafy Graphviz DOT → Obrazy w wysokiej rozdzielczości
@@ -96,11 +96,11 @@ Mów danymi, generuj profesjonalne raporty jednym kliknięciem.
 
 ### 1. Automatyczna konwersja wykresów
 
-**Mermaid** · **Vega/Vega-Lite** · **Draw.io** · **Canvas** · **Infographic** · **Graphviz DOT** · Obrazy SVG · Złożone tabele HTML
+**Mermaid** · **Vega/Vega-Lite** · **drawio** · **Canvas** · **Infographic** · **Graphviz DOT** · Obrazy SVG · Złożone tabele HTML
 
 **Mermaid:** Schematy blokowe, diagramy sekwencji, diagramy klas, diagramy stanów → Dokumentacja techniczna, projektowanie architektury  
 **Vega/Vega-Lite:** Wykresy słupkowe, liniowe, punktowe, mapy cieplne → Raporty biznesowe, analiza danych  
-**Draw.io:** Diagramy architektury, topologie sieci, diagramy UML → Projektowanie systemów, dokumentacja techniczna  
+**drawio:** Diagramy architektury, topologie sieci, diagramy UML → Projektowanie systemów, dokumentacja techniczna  
 **Canvas:** Mapy myśli, grafy wiedzy, mapy konceptów → Burza mózgów, tablice planowania  
 **Infographic:** Wykresy statystyczne, infografiki, wizualizacja danych → Prezentacja danych, wizualne opowiadanie historii  
 **Graphviz DOT:** Grafy skierowane/nieskierowane, topologia sieci, automaty stanowe → Analiza zależności, złożone grafy
@@ -205,7 +205,7 @@ Dokument zawierający 50 diagramów Mermaid:
 
 ### Pełne wsparcie składni Markdown
 
-Nagłówki · Akapity · Pogrubienie · Kursywa · Przekreślenie · Listy · Listy zadań · Cytaty · Bloki kodu (podświetlanie 100+ języków) · Tabele · Linki · Obrazy · Diagramy Mermaid · Wykresy Vega / Vega-Lite · Diagramy Draw.io · Diagramy Canvas · Wykresy Infographic · Grafy Graphviz DOT · Formuły LaTeX · HTML · Rozszerzenia GFM
+Nagłówki · Akapity · Pogrubienie · Kursywa · Przekreślenie · Listy · Listy zadań · Cytaty · Bloki kodu (podświetlanie 100+ języków) · Tabele · Linki · Obrazy · Diagramy Mermaid · Wykresy Vega / Vega-Lite · Diagramy drawio · Diagramy Canvas · Wykresy Infographic · Grafy Graphviz DOT · Formuły LaTeX · HTML · Rozszerzenia GFM
 
 ### 29 motywów
 
@@ -246,7 +246,7 @@ English · 简体中文 · 繁體中文 · Русский · 日本語 · हि
 O: Tak. Standardowy format .docx, formuły matematyczne edytowalne, nie są obrazami.
 
 **P: Jakie wykresy są obsługiwane?**  
-O: Wszystkie diagramy Mermaid (schematy blokowe, diagramy sekwencji, wykresy Gantta, diagramy klas, diagramy stanów, wykresy kołowe, diagramy ER itp.), wykresy wizualizacji danych Vega / Vega-Lite, diagramy architektury Draw.io, mapy myśli Canvas, wykresy statystyczne Infographic, grafy Graphviz DOT + automatyczna konwersja SVG.
+O: Wszystkie diagramy Mermaid (schematy blokowe, diagramy sekwencji, wykresy Gantta, diagramy klas, diagramy stanów, wykresy kołowe, diagramy ER itp.), wykresy wizualizacji danych Vega / Vega-Lite, diagramy architektury drawio, mapy myśli Canvas, wykresy statystyczne Infographic, grafy Graphviz DOT + automatyczna konwersja SVG.
 
 **P: Czy jest limit rozmiaru pliku?**  
 O: Bez limitu. Inteligentna pamięć podręczna, dokumenty ze 100+ wykresami otwierają się natychmiast.
@@ -316,7 +316,7 @@ O: Użyj bloków kodu ````vega-lite` w Markdown, z zawartością w formacie JSON
 4. Przeciągnij plik `.md` do przeglądarki
 5. ✅ Zacznij używać
 
-**Otrzymasz:** Konwersję Markdown → Word jednym kliknięciem · Automatyczną konwersję Mermaid/Vega/Draw.io/Canvas/Infographic/Graphviz · Edytowalne formuły LaTeX · Podświetlanie kodu 100+ języków · 29+ motywów · Inteligentną pamięć podręczną · Całkowicie za darmo
+**Otrzymasz:** Konwersję Markdown → Word jednym kliknięciem · Automatyczną konwersję Mermaid/Vega/drawio/Canvas/Infographic/Graphviz · Edytowalne formuły LaTeX · Podświetlanie kodu 100+ języków · 29+ motywów · Inteligentną pamięć podręczną · Całkowicie za darmo
 
 **Odpowiedni dla:** Pisarzy technicznych · Studentów/Badaczy · Product Managerów · Deweloperów · Każdego korzystającego z Markdown
 

@@ -12,7 +12,7 @@ This page provides a comprehensive comparison of features available across all M
 | **Code Syntax Highlighting** | ✅ | ✅ | ✅ | ✅ |
 | **Mermaid Diagrams** | ✅ | ✅ | ✅ | ✅ |
 | **Vega/Vega-Lite Charts** | ✅ | ✅ | ✅ | ✅ |
-| **Draw.io Diagrams** | ✅ | ✅ | ✅ | ✅ |
+| **drawio Diagrams** | ✅ | ✅ | ✅ | ✅ |
 | **Canvas Diagrams** | ✅ | ✅ | ✅ | ✅ |
 | **Infographics** | ✅ | ✅ | ✅ | ✅ |
 | **Graphviz DOT Diagrams** | ✅ | ✅ | ✅ | ✅ |
@@ -64,7 +64,7 @@ All platforms share the same core rendering engine built on unified/remark/rehyp
 | Mermaid Mindmap | ✅ | ✅ | ✅ | ✅ |
 | Vega Charts | ✅ | ✅ | ✅ | ✅ |
 | Vega-Lite Charts | ✅ | ✅ | ✅ | ✅ |
-| Draw.io | ✅ | ✅ | ✅ | ✅ |
+| drawio | ✅ | ✅ | ✅ | ✅ |
 | Canvas | ✅ | ✅ | ✅ | ✅ |
 | Infographic | ✅ | ✅ | ✅ | ✅ |
 | Graphviz DOT | ✅ | ✅ | ✅ | ✅ |

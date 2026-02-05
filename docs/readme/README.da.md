@@ -1,6 +1,6 @@
 # Markdown Viewer
 
-**Markdown til perfekt Word med ét klik — Mermaid, Vega, Draw.io, Canvas, infografik, Graphviz, LaTeX (redigerbar), kodefremhævning, lokal behandling**
+**Markdown til perfekt Word med ét klik — Mermaid, Vega, drawio, Canvas, infografik, Graphviz, LaTeX (redigerbar), kodefremhævning, lokal behandling**
 
 *Helt gratis · 29+ professionelle temaer · 28 sprog*
 
@@ -24,7 +24,7 @@ Men til sidst har du altid brug for et Word-dokument.
 Klik for at downloade og få et perfekt Word-dokument:
 - ✅ Mermaid-diagrammer → Højopløsningsbilleder
 - ✅ Vega/Vega-Lite datadiagrammer → Højopløsningsbilleder
-- ✅ Draw.io-diagrammer → Højopløsningsbilleder
+- ✅ drawio-diagrammer → Højopløsningsbilleder
 - ✅ Canvas-diagrammer → Højopløsningsbilleder
 - ✅ Infographic-diagrammer → Højopløsningsbilleder
 - ✅ Graphviz DOT-grafer → Højopløsningsbilleder
@@ -96,11 +96,11 @@ Lad data tale, generer professionelle rapporter med ét klik.
 
 ### 1. Automatisk diagramkonvertering
 
-**Mermaid** · **Vega/Vega-Lite** · **Draw.io** · **Canvas** · **Infographic** · **Graphviz DOT** · SVG-billeder · Komplekse HTML-tabeller
+**Mermaid** · **Vega/Vega-Lite** · **drawio** · **Canvas** · **Infographic** · **Graphviz DOT** · SVG-billeder · Komplekse HTML-tabeller
 
 **Mermaid:** Flowcharts, sekvensdiagrammer, klassediagrammer, tilstandsdiagrammer → Teknisk dokumentation, arkitekturdesign  
 **Vega/Vega-Lite:** Søjlediagrammer, linjediagrammer, punktdiagrammer, varmekort → Forretningsrapporter, dataanalyse  
-**Draw.io:** Arkitekturdiagrammer, netværkstopologier, UML-diagrammer → Systemdesign, teknisk dokumentation  
+**drawio:** Arkitekturdiagrammer, netværkstopologier, UML-diagrammer → Systemdesign, teknisk dokumentation  
 **Canvas:** Mindmaps, videngrafer, konceptkort → Brainstorming, planlægningstavler  
 **Infographic:** Statistiske diagrammer, infografikker, datavisualisering → Datapræsentation, visuel historiefortælling  
 **Graphviz DOT:** Rettede/urettede grafer, netværkstopologi, tilstandsmaskiner → Afhængighedsanalyse, komplekse grafer
@@ -205,7 +205,7 @@ Dokument med 50 Mermaid-diagrammer:
 
 ### Fuld Markdown-syntaksstøtte
 
-Overskrifter · Afsnit · Fed · Kursiv · Gennemstreget · Lister · Opgavelister · Blokcitater · Kodeblokke (100+ sprog fremhævet) · Tabeller · Links · Billeder · Mermaid-diagrammer · Vega / Vega-Lite diagrammer · Draw.io-diagrammer · Canvas-diagrammer · Infographic diagrammer · Graphviz DOT-grafer · LaTeX-formler · HTML · GFM-udvidelser
+Overskrifter · Afsnit · Fed · Kursiv · Gennemstreget · Lister · Opgavelister · Blokcitater · Kodeblokke (100+ sprog fremhævet) · Tabeller · Links · Billeder · Mermaid-diagrammer · Vega / Vega-Lite diagrammer · drawio-diagrammer · Canvas-diagrammer · Infographic diagrammer · Graphviz DOT-grafer · LaTeX-formler · HTML · GFM-udvidelser
 
 ### 29 temaer
 
@@ -246,7 +246,7 @@ English · 简体中文 · 繁體中文 · Русский · 日本語 · हि
 Sv: Ja. Standard .docx-format, matematikformler er redigerbare, ikke billeder.
 
 **Sp: Hvilke diagrammer understøttes?**  
-Sv: Alle Mermaid-diagrammer (flowchart, sekvens, gantt, klasse, tilstand, cirkel, ER osv.), Vega / Vega-Lite datavisualiseringsdiagrammer, Draw.io arkitekturdiagrammer, Canvas mindmaps, Infographic statistiske diagrammer, Graphviz DOT-grafer + SVG auto-konvertering.
+Sv: Alle Mermaid-diagrammer (flowchart, sekvens, gantt, klasse, tilstand, cirkel, ER osv.), Vega / Vega-Lite datavisualiseringsdiagrammer, drawio arkitekturdiagrammer, Canvas mindmaps, Infographic statistiske diagrammer, Graphviz DOT-grafer + SVG auto-konvertering.
 
 **Sp: Er der en filstørrelsesbegrænsning?**  
 Sv: Ingen begrænsning. Smart cache, dokumenter med 100+ diagrammer åbner øjeblikkeligt.
@@ -316,7 +316,7 @@ Sv: Brug ````vega-lite` kodeblok i Markdown med JSON-format diagramspecifikation
 4. Træk `.md`-filer til browser
 5. ✅ Begynd at bruge
 
-**Du får:** Markdown → Word ét-klik konvertering · Mermaid/Vega/Draw.io/Canvas/Infographic/Graphviz auto-konvertering · LaTeX redigerbare formler · 100+ sprog syntaksfremhævning · 29+ temaer · Smart cache · Fuldstændig gratis
+**Du får:** Markdown → Word ét-klik konvertering · Mermaid/Vega/drawio/Canvas/Infographic/Graphviz auto-konvertering · LaTeX redigerbare formler · 100+ sprog syntaksfremhævning · 29+ temaer · Smart cache · Fuldstændig gratis
 
 **Perfekt til:** Tekniske forfattere · Studerende/forskere · Produktchefer · Udviklere · Alle der bruger Markdown
 

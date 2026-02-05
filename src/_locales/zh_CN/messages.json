@@ -524,8 +524,8 @@
     "description": "启用 DOT 文件支持的复选框标签"
   },
   "settings_support_drawio": {
-    "message": "Draw.io 图表 (.drawio)",
-    "description": "Checkbox label for enabling Draw.io file support"
+    "message": "drawio 图表 (.drawio)",
+    "description": "Checkbox label for enabling drawio file support"
   },
   "settings_support_infographic": {
     "message": "信息图表 (.infographic)",

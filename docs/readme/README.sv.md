@@ -1,6 +1,6 @@
 # Markdown Viewer
 
-**Markdown till perfekt Word med ett klick — Mermaid, Vega, Draw.io, Canvas, infografik, Graphviz, LaTeX (redigerbar), kodmarkering, lokal bearbetning**
+**Markdown till perfekt Word med ett klick — Mermaid, Vega, drawio, Canvas, infografik, Graphviz, LaTeX (redigerbar), kodmarkering, lokal bearbetning**
 
 *Helt gratis · 29+ professionella teman · 28 språk*
 
@@ -24,7 +24,7 @@ Men till slut behöver du alltid ett Word-dokument.
 Klicka för att ladda ner och få ett perfekt Word-dokument:
 - ✅ Mermaid-diagram → Högupplösta bilder
 - ✅ Vega/Vega-Lite datadiagram → Högupplösta bilder
-- ✅ Draw.io-diagram → Högupplösta bilder
+- ✅ drawio-diagram → Högupplösta bilder
 - ✅ Canvas-diagram → Högupplösta bilder
 - ✅ Infographic-diagram → Högupplösta bilder
 - ✅ Graphviz DOT-grafer → Högupplösta bilder
@@ -96,11 +96,11 @@ Låt data tala, generera professionella rapporter med ett klick.
 
 ### 1. Automatisk diagramkonvertering
 
-**Mermaid** · **Vega/Vega-Lite** · **Draw.io** · **Canvas** · **Infographic** · **Graphviz DOT** · SVG-bilder · Komplexa HTML-tabeller
+**Mermaid** · **Vega/Vega-Lite** · **drawio** · **Canvas** · **Infographic** · **Graphviz DOT** · SVG-bilder · Komplexa HTML-tabeller
 
 **Mermaid:** Flödesscheman, sekvensdiagram, klassdiagram, tillståndsdiagram → Tekniska dokument, arkitekturdesign  
 **Vega/Vega-Lite:** Stapeldiagram, linjediagram, spridningsdiagram, värmekarta → Affärsrapporter, dataanalys  
-**Draw.io:** Arkitekturdiagram, nätverkstopologier, UML-diagram → Systemdesign, teknisk dokumentation  
+**drawio:** Arkitekturdiagram, nätverkstopologier, UML-diagram → Systemdesign, teknisk dokumentation  
 **Canvas:** Tankekarta, kunskapsgrafer, konceptkartor → Brainstorming, planeringstavlor  
 **Infographic:** Statistiska diagram, infografik, datavisualisering → Datapresentation, visuellt berättande  
 **Graphviz DOT:** Riktade och oriktade grafer, nätverkstopologi, tillståndsmaskiner → Beroendeanalys, komplexa grafer
@@ -205,7 +205,7 @@ Dokument med 50 Mermaid-diagram:
 
 ### Fullt Markdown-syntaxstöd
 
-Rubriker · Stycken · Fetstil · Kursiv · Genomstruken · Listor · Uppgiftslistor · Citat · Kodblock (100+ språk markerade) · Tabeller · Länkar · Bilder · Mermaid-diagram · Vega / Vega-Lite-diagram · Draw.io-diagram · Canvas-diagram · Infographic-diagram · Graphviz DOT-grafer · LaTeX-formler · HTML · GFM-tillägg
+Rubriker · Stycken · Fetstil · Kursiv · Genomstruken · Listor · Uppgiftslistor · Citat · Kodblock (100+ språk markerade) · Tabeller · Länkar · Bilder · Mermaid-diagram · Vega / Vega-Lite-diagram · drawio-diagram · Canvas-diagram · Infographic-diagram · Graphviz DOT-grafer · LaTeX-formler · HTML · GFM-tillägg
 
 ### 29 teman
 
@@ -246,7 +246,7 @@ English · 简体中文 · 繁體中文 · Русский · 日本語 · हि
 S: Ja. Standard .docx-format, matematiska formler är redigerbara, inte bilder.
 
 **F: Vilka diagram stöds?**  
-S: Alla Mermaid-diagram (flödesschema, sekvens, gantt, klass, tillstånd, cirkel, ER, etc.), Vega / Vega-Lite datavisualiseringsdiagram, Draw.io arkitekturdiagram, Canvas tankekartor, Infographic statistiska diagram, Graphviz DOT-grafer + SVG automatisk konvertering.
+S: Alla Mermaid-diagram (flödesschema, sekvens, gantt, klass, tillstånd, cirkel, ER, etc.), Vega / Vega-Lite datavisualiseringsdiagram, drawio arkitekturdiagram, Canvas tankekartor, Infographic statistiska diagram, Graphviz DOT-grafer + SVG automatisk konvertering.
 
 **F: Finns det en filstorleksgräns?**  
 S: Ingen gräns. Smart cache, dokument med 100+ diagram öppnas omedelbart.
@@ -316,7 +316,7 @@ S: Använd ````vega-lite` kodblock i Markdown med JSON-format diagramspecifikati
 4. Dra `.md`-filer till webbläsare
 5. ✅ Börja använda
 
-**Du får:** Markdown → Word ett-klicks-konvertering · Mermaid/Vega/Draw.io/Canvas/Infographic/Graphviz automatisk konvertering · LaTeX redigerbara formler · 100+ språk syntaxmarkering · 29+ teman · Smart cache · Helt gratis
+**Du får:** Markdown → Word ett-klicks-konvertering · Mermaid/Vega/drawio/Canvas/Infographic/Graphviz automatisk konvertering · LaTeX redigerbara formler · 100+ språk syntaxmarkering · 29+ teman · Smart cache · Helt gratis
 
 **Perfekt för:** Tekniska författare · Studenter/forskare · Produktchefer · Utvecklare · Alla som använder Markdown
 

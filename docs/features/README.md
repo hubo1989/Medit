@@ -10,7 +10,7 @@ Transform code-based diagrams into high-resolution images automatically:
 
 - **[Mermaid](diagrams/mermaid.md)** — Flowcharts, sequence diagrams, class diagrams, and more
 - **[Vega/Vega-Lite](diagrams/vega.md)** — Data visualization charts
-- **[Draw.io](diagrams/drawio.md)** — Architecture diagrams, network topologies, UML
+- **[drawio](diagrams/drawio.md)** — Architecture diagrams, network topologies, UML
 - **[Canvas](diagrams/canvas.md)** — Mind maps, knowledge graphs, concept maps
 - **[Infographic](diagrams/infographic.md)** — Statistical charts and infographics
 - **[Graphviz DOT](diagrams/graphviz.md)** — Network graphs, state machines, dependency diagrams
@@ -85,7 +85,7 @@ Markdown Viewer supports the complete Markdown specification plus extensions:
 
 - Mermaid diagrams
 - Vega/Vega-Lite charts
-- Draw.io diagrams
+- drawio diagrams
 - Canvas diagrams
 - Infographic syntax
 - Graphviz DOT graphs
@@ -172,7 +172,7 @@ Dive deeper into each feature:
 
 - [Mermaid Diagrams](diagrams/mermaid.md)
 - [Vega/Vega-Lite Charts](diagrams/vega.md)
-- [Draw.io Diagrams](diagrams/drawio.md)
+- [drawio Diagrams](diagrams/drawio.md)
 - [Canvas Diagrams](diagrams/canvas.md)
 - [Infographic](diagrams/infographic.md)
 - [Graphviz DOT](diagrams/graphviz.md)

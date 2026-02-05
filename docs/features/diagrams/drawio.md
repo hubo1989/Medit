@@ -1,6 +1,6 @@
-# Draw.io Diagrams
+# drawio Diagrams
 
-Draw.io (also known as diagrams.net) is a powerful diagramming tool that uses XML format. Markdown Viewer supports rendering Draw.io diagrams directly in Markdown, making it ideal for architecture diagrams, network topologies, and complex technical documentation.
+drawio (also known as diagrams.net) is a powerful diagramming tool that uses XML format. Markdown Viewer supports rendering drawio diagrams directly in Markdown, making it ideal for architecture diagrams, network topologies, and complex technical documentation.
 
 ## Use Cases
 
@@ -14,7 +14,7 @@ Draw.io (also known as diagrams.net) is a powerful diagramming tool that uses XM
 
 ## Basic Syntax
 
-Wrap your Draw.io XML in a code block with the `drawio` language identifier:
+Wrap your drawio XML in a code block with the `drawio` language identifier:
 
 ````markdown
 ```drawio
@@ -37,7 +37,7 @@ Wrap your Draw.io XML in a code block with the `drawio` language identifier:
 
 ## Document Structure
 
-Every Draw.io diagram requires this basic structure:
+Every drawio diagram requires this basic structure:
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -244,6 +244,6 @@ Place child elements inside by setting their `parent` to the container's ID.
 
 ## Resources
 
-- [Draw.io Official](https://www.drawio.com/)
-- [Draw.io Documentation](https://www.drawio.com/doc/)
+- [drawio Official](https://www.drawio.com/)
+- [drawio Documentation](https://www.drawio.com/doc/)
 - [diagrams.net](https://www.diagrams.net/)

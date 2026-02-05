@@ -1,6 +1,6 @@
 # Markdown Viewer
 
-**Markdown į tobulą Word vienu spustelėjimu — Mermaid, Vega, Draw.io, Canvas, infografika, Graphviz, LaTeX (redaguojamas), kodo paryškinimas, vietinis apdorojimas**
+**Markdown į tobulą Word vienu spustelėjimu — Mermaid, Vega, drawio, Canvas, infografika, Graphviz, LaTeX (redaguojamas), kodo paryškinimas, vietinis apdorojimas**
 
 *Visiškai nemokama · 29+ profesionalių temų · 28 kalbų palaikymas*
 
@@ -23,7 +23,7 @@ Tačiau galiausiai vis tiek prireikia Word dokumento.
 
 Paspauskite atsisiuntimą ir gaukite tvarkingą Word dokumentą:
 - ✅ Mermaid diagramos → aukštos raiškos vaizdai- ✅ Vega/Vega-Lite duomenų diagramos → aukštos raiškos vaizdai
-- ✅ Draw.io diagramos → aukštos raiškos vaizdai
+- ✅ drawio diagramos → aukštos raiškos vaizdai
 - ✅ Canvas diagramos → aukštos raiškos vaizdai
 - ✅ Infographic diagramos → aukštos raiškos vaizdai- ✅ Graphviz DOT grafai → aukštos raiškos vaizdai
 - ✅ LaTeX formulės → redaguojamos Word lygtys
@@ -94,11 +94,11 @@ Tegul duomenys kalba patys, generuokite profesionalias ataskaitas vienu paspaudi
 
 ### 1. Automatinis diagramų konvertavimas
 
-**Mermaid** · **Vega/Vega-Lite** · **Draw.io** · **Canvas** · **Infographic** · **Graphviz DOT** · SVG vaizdai · Sudėtingos HTML lentelės
+**Mermaid** · **Vega/Vega-Lite** · **drawio** · **Canvas** · **Infographic** · **Graphviz DOT** · SVG vaizdai · Sudėtingos HTML lentelės
 
 **Mermaid:** Srautų schemos, sekų diagramos, klasių diagramos, būsenų diagramos → Techninė dokumentacija, architektūros projektavimas  
 **Vega/Vega-Lite:** Stulpelinės, linijinės, taškinės diagramos, šilumos žemėlapiai → Verslo ataskaitos, duomenų analitika  
-**Draw.io:** Architektūros diagramos, tinklo topologijos, UML diagramos → Sistemų projektavimas, techninė dokumentacija  
+**drawio:** Architektūros diagramos, tinklo topologijos, UML diagramos → Sistemų projektavimas, techninė dokumentacija  
 **Canvas:** Mindžemėlapiai, žinių grafai, konceptų žemėlapiai → Minčių šturmas, planavimo lentos  
 **Infographic:** Statistinės diagramos, infografika, duomenų vizualizacija → Duomenų pristatymas, vizualinis pasakojimas  
 **Graphviz DOT:** Kryptiniai/nekryptiniai grafai, tinklo topologija, būsenų mašinos → Priklausomybių analizė, sudėtingi grafai
@@ -203,7 +203,7 @@ Dokumentas su 50 Mermaid diagramų:
 
 ### Pilnas Markdown sintaksės palaikymas
 
-Antraštės · Pastraipos · Pusjuodis · Kursyvas · Perbrauktas · Sąrašai · Užduotių sąrašai · Citatos · Kodo blokai (100+ kalbų paryškinimas) · Lentelės · Nuorodos · Vaizdai · Mermaid diagramos · Vega / Vega-Lite diagramos · Draw.io diagramos · Canvas diagramos · Infographic diagramos · Graphviz DOT grafai · LaTeX formulės · HTML · GFM plėtiniai
+Antraštės · Pastraipos · Pusjuodis · Kursyvas · Perbrauktas · Sąrašai · Užduotių sąrašai · Citatos · Kodo blokai (100+ kalbų paryškinimas) · Lentelės · Nuorodos · Vaizdai · Mermaid diagramos · Vega / Vega-Lite diagramos · drawio diagramos · Canvas diagramos · Infographic diagramos · Graphviz DOT grafai · LaTeX formulės · HTML · GFM plėtiniai
 
 ### 29 temų
 
@@ -244,7 +244,7 @@ English · 简体中文 · 繁體中文 · Русский · 日本語 · हि
 A: Taip. Standartinis .docx formatas, matematinės formulės redaguojamos, ne vaizdai.
 
 **Q: Kokios diagramos palaikomos?**  
-A: Visos Mermaid diagramos (srautų schema, seka, Gantt, klasė, būsena, skritulinė, ER ir kt.), Vega / Vega-Lite duomenų vizualizacijos diagramos, Draw.io architektūros diagramos, Canvas mindžemėlapiai, Infographic statistinės diagramos, Graphviz DOT grafai + SVG automatinis konvertavimas.
+A: Visos Mermaid diagramos (srautų schema, seka, Gantt, klasė, būsena, skritulinė, ER ir kt.), Vega / Vega-Lite duomenų vizualizacijos diagramos, drawio architektūros diagramos, Canvas mindžemėlapiai, Infographic statistinės diagramos, Graphviz DOT grafai + SVG automatinis konvertavimas.
 
 **Q: Ar yra failo dydžio limitas?**  
 A: Jokių limitų. Išmani talpykla, dokumentai su 100+ diagramų atsidaro akimirksniu.
@@ -314,7 +314,7 @@ A: Naudokite ````vega-lite` kodo bloką Markdown su JSON formato diagramos speci
 4. Vilkite `.md` failus į naršyklę
 5. ✅ Pradėkite naudoti
 
-**Jūs gausite:** Markdown → Word konvertavimas vienu paspaudimu · Mermaid/Vega/Draw.io/Canvas/Infographic/Graphviz automatinis konvertavimas · Redaguojamos LaTeX formulės · 100+ kalbų sintaksės paryškinimas · 29+ temų · Išmani talpykla · Visiškai nemokama
+**Jūs gausite:** Markdown → Word konvertavimas vienu paspaudimu · Mermaid/Vega/drawio/Canvas/Infographic/Graphviz automatinis konvertavimas · Redaguojamos LaTeX formulės · 100+ kalbų sintaksės paryškinimas · 29+ temų · Išmani talpykla · Visiškai nemokama
 
 **Puikiai tinka:** Techniniams rašytojams · Studentams/tyrėjams · Produktų vadybininkams · Programuotojams · Visiems, naudojantiems Markdown
 

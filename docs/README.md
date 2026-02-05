@@ -1,6 +1,6 @@
 # Markdown Viewer
 
-**Markdown to perfect Word in one click — Mermaid, Vega, Draw.io, Canvas, Infographic, Graphviz, LaTeX (editable), code highlighting, local processing**
+**Markdown to perfect Word in one click — Mermaid, Vega, drawio, Canvas, Infographic, Graphviz, LaTeX (editable), code highlighting, local processing**
 
 *Completely Free · 29 Professional Themes · 28 Languages Support*
 
@@ -32,7 +32,7 @@ Click to download and get a perfect Word document:
 
 - ✅ **Mermaid diagrams** → High-resolution images
 - ✅ **Vega/Vega-Lite charts** → High-resolution images
-- ✅ **Draw.io diagrams** → High-resolution images
+- ✅ **drawio diagrams** → High-resolution images
 - ✅ **Canvas diagrams** → High-resolution images
 - ✅ **Infographic charts** → High-resolution images
 - ✅ **Graphviz DOT graphs** → High-resolution images
@@ -53,7 +53,7 @@ Convert diagrams written in code to high-resolution images:
 
 - **Mermaid** - Flowcharts, sequence diagrams, class diagrams, state diagrams, Gantt charts, and more
 - **Vega/Vega-Lite** - Bar charts, line charts, scatter plots, heatmaps for data visualization
-- **Draw.io** - Architecture diagrams, network topologies, UML diagrams
+- **drawio** - Architecture diagrams, network topologies, UML diagrams
 - **Canvas** - Mind maps, knowledge graphs, concept maps
 - **Infographic** - Statistical charts, infographics, data presentations
 - **Graphviz DOT** - Directed graphs, network topology, state machines

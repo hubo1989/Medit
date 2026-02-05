@@ -117,7 +117,7 @@ for (const category of sortedCategories) {
 console.log(`\nTotal: ${totalFiles} category files created in ${outputDir}`);
 
 // Also create an index file
-const indexLines = ['# Draw.io Stencil Reference', ''];
+const indexLines = ['# drawio Stencil Reference', ''];
 indexLines.push('| Category | Count | File |');
 indexLines.push('|----------|-------|------|');
 

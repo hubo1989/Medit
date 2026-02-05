@@ -38,7 +38,7 @@ All major diagram types:
 |------|----------|
 | **Mermaid** | Flowcharts, sequences, class diagrams, Gantt, ER, state, pie |
 | **Vega/Vega-Lite** | Bar charts, line charts, scatter plots, heatmaps |
-| **Draw.io** | Architecture diagrams, network topologies, UML |
+| **drawio** | Architecture diagrams, network topologies, UML |
 | **Canvas** | Mind maps, knowledge graphs, concept maps |
 | **Infographic** | Statistical charts, presentations |
 | **Graphviz DOT** | Directed graphs, network topology, state machines |

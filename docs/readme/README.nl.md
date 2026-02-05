@@ -1,6 +1,6 @@
 # Markdown Viewer
 
-**Markdown naar perfect Word met één klik — Mermaid, Vega, Draw.io, Canvas, Infographic, Graphviz, LaTeX (bewerkbaar), code-accentuering, lokale verwerking**
+**Markdown naar perfect Word met één klik — Mermaid, Vega, drawio, Canvas, Infographic, Graphviz, LaTeX (bewerkbaar), code-accentuering, lokale verwerking**
 
 *Volledig gratis · 29+ professionele thema's · 28 talen*
 
@@ -24,7 +24,7 @@ Maar uiteindelijk heb je altijd een Word-document nodig.
 Klik om te downloaden en krijg een perfect Word-document:
 - ✅ Mermaid-diagrammen → Afbeeldingen met hoge resolutie
 - ✅ Vega/Vega-Lite datagrafieken → Afbeeldingen met hoge resolutie
-- ✅ Draw.io-diagrammen → Afbeeldingen met hoge resolutie
+- ✅ drawio-diagrammen → Afbeeldingen met hoge resolutie
 - ✅ Canvas-diagrammen → Afbeeldingen met hoge resolutie
 - ✅ Infographic-grafieken → Afbeeldingen met hoge resolutie
 - ✅ Graphviz DOT-grafen → Afbeeldingen met hoge resolutie
@@ -96,11 +96,11 @@ Laat data spreken, genereer professionele rapporten met één klik.
 
 ### 1. Automatische diagramconversie
 
-**Mermaid-diagrammen** · **Vega/Vega-Lite datagrafieken** · **Draw.io diagrammen** · **Canvas diagrammen** · **Infographic grafieken** · **Graphviz DOT** · SVG-afbeeldingen · Complexe HTML-tabellen
+**Mermaid-diagrammen** · **Vega/Vega-Lite datagrafieken** · **drawio diagrammen** · **Canvas diagrammen** · **Infographic grafieken** · **Graphviz DOT** · SVG-afbeeldingen · Complexe HTML-tabellen
 
 **Mermaid:** Stroomdiagrammen, sequentiediagrammen, klassediagrammen, toestandsdiagrammen → Technische documentatie, architectuurontwerp  
 **Vega/Vega-Lite:** Staafdiagrammen, lijngrafieken, spreidingsdiagrammen, heatmaps → Zakelijke rapporten, data-analyse  
-**Draw.io:** Architectuurdiagrammen, netwerktopologie, UML-diagrammen → Systeemontwerp, technische documentatie  
+**drawio:** Architectuurdiagrammen, netwerktopologie, UML-diagrammen → Systeemontwerp, technische documentatie  
 **Canvas:** Mindmaps, planningsborden, kennisgrafen → Brainstormen, conceptmapping  
 **Infographic:** Statistische grafieken, infographics, datavisualisatie → Datapresentatie, visueel verhalen vertellen  
 **Graphviz DOT:** Gerichte/ongerichte grafen, afhankelijkheidsbomen → Systeemarchitectuur, afhankelijkheidsanalyse
@@ -205,7 +205,7 @@ Document met 50 Mermaid-diagrammen:
 
 ### Volledige ondersteuning voor Markdown-syntaxis
 
-Koppen · Alinea's · Vet · Cursief · Doorhalen · Lijsten · Takenlijsten · Citaten · Codeblokken (100+ talen gemarkeerd) · Tabellen · Links · Afbeeldingen · Mermaid-diagrammen · Vega / Vega-Lite grafieken · Draw.io diagrammen · Canvas diagrammen · Infographic grafieken · Graphviz DOT grafen · LaTeX-formules · HTML · GFM-extensies
+Koppen · Alinea's · Vet · Cursief · Doorhalen · Lijsten · Takenlijsten · Citaten · Codeblokken (100+ talen gemarkeerd) · Tabellen · Links · Afbeeldingen · Mermaid-diagrammen · Vega / Vega-Lite grafieken · drawio diagrammen · Canvas diagrammen · Infographic grafieken · Graphviz DOT grafen · LaTeX-formules · HTML · GFM-extensies
 
 ### 29 thema's
 
@@ -246,7 +246,7 @@ English · 简体中文 · 繁體中文 · Русский · 日本語 · हि
 A: Ja. Standaard .docx-formaat, wiskundige formules zijn bewerkbaar, geen afbeeldingen.
 
 **V: Welke diagrammen worden ondersteund?**  
-A: Alle Mermaid-diagrammen (stroomdiagram, sequentie, gantt, klasse, toestand, taart, ER, enz.), Vega / Vega-Lite datavisualisatiegrafieken, Draw.io diagrammen, JSON Canvas diagrammen, Infographic statistische grafieken, Graphviz DOT grafen + SVG automatische conversie.
+A: Alle Mermaid-diagrammen (stroomdiagram, sequentie, gantt, klasse, toestand, taart, ER, enz.), Vega / Vega-Lite datavisualisatiegrafieken, drawio diagrammen, JSON Canvas diagrammen, Infographic statistische grafieken, Graphviz DOT grafen + SVG automatische conversie.
 
 **V: Is er een bestandsgroottelimiet?**  
 A: Geen limiet. Slimme cache, documenten met 100+ diagrammen openen direct.
@@ -316,7 +316,7 @@ A: Gebruik ````vega-lite` codeblok in Markdown met JSON-formaat grafiekspecifica
 4. Sleep `.md`-bestanden naar browser
 5. ✅ Begin met gebruiken
 
-**U krijgt:** Markdown → Word één klik conversie · 6 diagramtypen (Mermaid / Vega / Draw.io / Canvas / Infographic / Graphviz) · LaTeX bewerkbare formules · 100+ talen syntaxisaccentuering · 29+ thema's · Slimme cache · Volledig gratis
+**U krijgt:** Markdown → Word één klik conversie · 6 diagramtypen (Mermaid / Vega / drawio / Canvas / Infographic / Graphviz) · LaTeX bewerkbare formules · 100+ talen syntaxisaccentuering · 29+ thema's · Slimme cache · Volledig gratis
 
 **Perfect voor:** Technische schrijvers · Studenten/onderzoekers · Productmanagers · Ontwikkelaars · Iedereen die Markdown gebruikt
 

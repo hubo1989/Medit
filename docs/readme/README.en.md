@@ -1,6 +1,6 @@
 # Markdown Viewer
 
-**Markdown to perfect Word in one click — Mermaid, Vega, Draw.io, Canvas, Infographic, Graphviz, LaTeX (editable), code highlighting, local processing**
+**Markdown to perfect Word in one click — Mermaid, Vega, drawio, Canvas, Infographic, Graphviz, LaTeX (editable), code highlighting, local processing**
 
 *Completely Free · 29+ Professional Themes · 28 Languages Support*
 
@@ -24,7 +24,7 @@ But eventually, you always need a Word document.
 Click to download and get a perfect Word document:
 - ✅ Mermaid diagrams → High-resolution images
 - ✅ Vega/Vega-Lite data charts → High-resolution images
-- ✅ Draw.io diagrams → High-resolution images
+- ✅ drawio diagrams → High-resolution images
 - ✅ Canvas diagrams → High-resolution images
 - ✅ Infographic charts → High-resolution images
 - ✅ Graphviz DOT graphs → High-resolution images
@@ -96,11 +96,11 @@ Let data speak, generate professional reports with one click.
 
 ### 1. Automatic Diagram Conversion
 
-**Mermaid** · **Vega/Vega-Lite** · **Draw.io** · **Canvas** · **Infographic** · **Graphviz DOT** · SVG images · Complex HTML tables
+**Mermaid** · **Vega/Vega-Lite** · **drawio** · **Canvas** · **Infographic** · **Graphviz DOT** · SVG images · Complex HTML tables
 
 **Mermaid:** Flowcharts, sequence diagrams, class diagrams, state diagrams → Technical docs, architecture design  
 **Vega/Vega-Lite:** Bar charts, line charts, scatter plots, heatmaps → Business reports, data analytics  
-**Draw.io:** Architecture diagrams, network topologies, UML diagrams → System design, technical documentation  
+**drawio:** Architecture diagrams, network topologies, UML diagrams → System design, technical documentation  
 **Canvas:** Mind maps, knowledge graphs, concept maps → Brainstorming, planning boards  
 **Infographic:** Statistical charts, infographics, data visualization → Data presentation, visual storytelling  
 **Graphviz DOT:** Directed/undirected graphs, network topology, state machines → Dependency analysis, complex graphs
@@ -205,7 +205,7 @@ Document with 50 Mermaid diagrams:
 
 ### Full Markdown Syntax Support
 
-Headings · Paragraphs · Bold · Italic · Strikethrough · Lists · Task lists · Blockquotes · Code blocks (100+ languages highlighted) · Tables · Links · Images · Mermaid diagrams · Vega / Vega-Lite charts · Draw.io diagrams · Canvas diagrams · Infographic charts · Graphviz DOT graphs · LaTeX formulas · HTML · GFM extensions
+Headings · Paragraphs · Bold · Italic · Strikethrough · Lists · Task lists · Blockquotes · Code blocks (100+ languages highlighted) · Tables · Links · Images · Mermaid diagrams · Vega / Vega-Lite charts · drawio diagrams · Canvas diagrams · Infographic charts · Graphviz DOT graphs · LaTeX formulas · HTML · GFM extensions
 
 ### 29 Themes
 
@@ -246,7 +246,7 @@ English · 简体中文 · 繁體中文 · Русский · 日本語 · हि
 A: Yes. Standard .docx format, math formulas are editable, not images.
 
 **Q: Which diagrams are supported?**  
-A: All Mermaid diagrams (flowchart, sequence, gantt, class, state, pie, ER, etc.), Vega / Vega-Lite data visualization charts, Draw.io architecture diagrams, Canvas mind maps, Infographic statistical charts, Graphviz DOT graphs + SVG auto-conversion.
+A: All Mermaid diagrams (flowchart, sequence, gantt, class, state, pie, ER, etc.), Vega / Vega-Lite data visualization charts, drawio architecture diagrams, Canvas mind maps, Infographic statistical charts, Graphviz DOT graphs + SVG auto-conversion.
 
 **Q: Is there a file size limit?**  
 A: No limit. Smart cache, documents with 100+ diagrams open instantly.
@@ -316,7 +316,7 @@ A: Use ````vega-lite` code block in Markdown with JSON format chart specificatio
 4. Drag `.md` files to browser
 5. ✅ Start using
 
-**You'll get:** Markdown → Word one-click conversion · Mermaid/Vega/Draw.io/Canvas/Infographic/Graphviz auto-convert · LaTeX editable formulas · 100+ languages syntax highlighting · 29+ themes · Smart cache · Completely free
+**You'll get:** Markdown → Word one-click conversion · Mermaid/Vega/drawio/Canvas/Infographic/Graphviz auto-convert · LaTeX editable formulas · 100+ languages syntax highlighting · 29+ themes · Smart cache · Completely free
 
 **Perfect for:** Technical writers · Students/researchers · Product managers · Developers · Anyone using Markdown
 

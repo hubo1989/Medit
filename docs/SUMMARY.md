@@ -14,7 +14,7 @@
 * [Diagrams](features/diagrams/README.md)
   * [Mermaid](features/diagrams/mermaid.md)
   * [Vega/Vega-Lite](features/diagrams/vega.md)
-  * [Draw.io](features/diagrams/drawio.md)
+  * [drawio](features/diagrams/drawio.md)
   * [Canvas](features/diagrams/canvas.md)
   * [Infographic](features/diagrams/infographic.md)
   * [Graphviz DOT](features/diagrams/graphviz.md)

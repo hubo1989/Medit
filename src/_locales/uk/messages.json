@@ -524,8 +524,8 @@
     "description": "Checkbox label for enabling DOT file support"
   },
   "settings_support_drawio": {
-    "message": "Draw.io діаграми (.drawio)",
-    "description": "Checkbox label for enabling Draw.io file support"
+    "message": "drawio діаграми (.drawio)",
+    "description": "Checkbox label for enabling drawio file support"
   },
   "settings_support_infographic": {
     "message": "Інфографіка (.infographic)",

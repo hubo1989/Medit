@@ -524,8 +524,8 @@
     "description": "Checkbox label for Graphviz DOT format support"
   },
   "settings_support_drawio": {
-    "message": "Diagramas Draw.io (.drawio)",
-    "description": "Checkbox label for enabling Draw.io file support"
+    "message": "Diagramas drawio (.drawio)",
+    "description": "Checkbox label for enabling drawio file support"
   },
   "settings_support_infographic": {
     "message": "Infografias (.infographic)",

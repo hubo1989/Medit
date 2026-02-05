@@ -1,6 +1,6 @@
 # Markdown Viewer
 
-**Markdown täydelliseksi Wordiksi yhdellä napsautuksella — Mermaid, Vega, Draw.io, Canvas, infografiikka, Graphviz, LaTeX (muokattava), koodin korostus, paikallinen käsittely**
+**Markdown täydelliseksi Wordiksi yhdellä napsautuksella — Mermaid, Vega, drawio, Canvas, infografiikka, Graphviz, LaTeX (muokattava), koodin korostus, paikallinen käsittely**
 
 *Täysin ilmainen · 29+ ammattimaista teemaa · 28 kielen tuki*
 
@@ -24,7 +24,7 @@ Mutta lopulta tarvitset aina Word-dokumentin.
 Klikkaa lataa ja saat täydellisen Word-dokumentin:
 - ✅ Mermaid-kaaviot → Korkearesoluutioiset kuvat
 - ✅ Vega/Vega-Lite-datakaaviot → Korkearesoluutioiset kuvat
-- ✅ Draw.io-kaaviot → Korkearesoluutioiset kuvat
+- ✅ drawio-kaaviot → Korkearesoluutioiset kuvat
 - ✅ Canvas-kaaviot → Korkearesoluutioiset kuvat
 - ✅ Infographic-kaaviot → Korkearesoluutioiset kuvat
 - ✅ Graphviz DOT -kaaviot → Korkearesoluutioiset kuvat
@@ -96,11 +96,11 @@ Anna datan puhua, luo ammattimaiset raportit yhdellä klikkauksella.
 
 ### 1. Automaattinen kaaviomuunnos
 
-**Mermaid** · **Vega/Vega-Lite** · **Draw.io** · **Canvas** · **Infographic** · **Graphviz DOT** · SVG-kuvat · Monimutkaiset HTML-taulukot
+**Mermaid** · **Vega/Vega-Lite** · **drawio** · **Canvas** · **Infographic** · **Graphviz DOT** · SVG-kuvat · Monimutkaiset HTML-taulukot
 
 **Mermaid:** Vuokaaviot, sekvenssikaaviot, luokkakaaviot, tilakaaviot → Tekniset dokumentit, arkkitehtuurisuunnittelu  
 **Vega/Vega-Lite:** Pylväskaaviot, viivakaaviot, hajontakaaviot, lämpökartat → Liiketoimintaraportit, data-analyysi  
-**Draw.io:** Arkkitehtuurikaaviot, verkkotopologiat, UML-kaaviot → Järjestelmäsuunnittelu, tekninen dokumentaatio  
+**drawio:** Arkkitehtuurikaaviot, verkkotopologiat, UML-kaaviot → Järjestelmäsuunnittelu, tekninen dokumentaatio  
 **Canvas:** Miellekartat, tietograafit, käsitekartat → Aivoriihi, suunnittelutaulut  
 **Infographic:** Tilastokaaviot, infografiikat, datan visualisointi → Datan esittäminen, visuaalinen tarinankerto  
 **Graphviz DOT:** Ohjatut ja ohjaamattomat kaaviot, verkkotopologia, tilakonekartat → Riippuvuusanalyysi, monimutkaiset kaaviot
@@ -205,7 +205,7 @@ Dokumentti, jossa 50 Mermaid-kaaviota:
 
 ### Täysi Markdown-syntaksituki
 
-Otsikot · Kappaleet · Lihavoitu · Kursivoitu · Yliviivaus · Luettelot · Tehtävälistat · Lainaukset · Koodilohkot (100+ kielen korostus) · Taulukot · Linkit · Kuvat · Mermaid-kaaviot · Vega / Vega-Lite -kaaviot · Draw.io-kaaviot · Canvas-kaaviot · Infographic-kaaviot · Graphviz DOT -kaaviot · LaTeX-kaavat · HTML · GFM-laajennukset
+Otsikot · Kappaleet · Lihavoitu · Kursivoitu · Yliviivaus · Luettelot · Tehtävälistat · Lainaukset · Koodilohkot (100+ kielen korostus) · Taulukot · Linkit · Kuvat · Mermaid-kaaviot · Vega / Vega-Lite -kaaviot · drawio-kaaviot · Canvas-kaaviot · Infographic-kaaviot · Graphviz DOT -kaaviot · LaTeX-kaavat · HTML · GFM-laajennukset
 
 ### 29 teemaa
 
@@ -246,7 +246,7 @@ English · 简体中文 · 繁體中文 · Русский · 日本語 · हि
 A: Kyllä. Standardi .docx-muoto, matemaattiset kaavat ovat muokattavissa, eivät kuvia.
 
 **K: Mitä kaavioita tuetaan?**  
-A: Kaikki Mermaid-kaaviot (vuokaavio, sekvenssi, gantt, luokka, tila, piirakka, ER jne.), Vega / Vega-Lite -datavisualisointikaaviot, Draw.io-arkkitehtuurikaaviot, Canvas-miellekartat, Infographic-tilastokaaviot, Graphviz DOT -kaaviot + SVG-automaattimuunnos.
+A: Kaikki Mermaid-kaaviot (vuokaavio, sekvenssi, gantt, luokka, tila, piirakka, ER jne.), Vega / Vega-Lite -datavisualisointikaaviot, drawio-arkkitehtuurikaaviot, Canvas-miellekartat, Infographic-tilastokaaviot, Graphviz DOT -kaaviot + SVG-automaattimuunnos.
 
 **K: Onko tiedoston koolle rajoitusta?**  
 A: Ei rajoitusta. Älykäs välimuisti, dokumentit, joissa on 100+ kaaviota, avautuvat välittömästi.
@@ -316,7 +316,7 @@ A: Käytä ````vega-lite` koodilohkoa Markdownissa JSON-muotoisella kaaviomäär
 4. Vedä `.md`-tiedostot selaimeen
 5. ✅ Aloita käyttö
 
-**Saat:** Markdown → Word yhden klikkauksen muunnos · Mermaid/Vega/Draw.io/Canvas/Infographic/Graphviz automaattimuunnos · LaTeX muokattavat kaavat · 100+ kielen syntaksikorostus · 29+ teemaa · Älykäs välimuisti · Täysin ilmainen
+**Saat:** Markdown → Word yhden klikkauksen muunnos · Mermaid/Vega/drawio/Canvas/Infographic/Graphviz automaattimuunnos · LaTeX muokattavat kaavat · 100+ kielen syntaksikorostus · 29+ teemaa · Älykäs välimuisti · Täysin ilmainen
 
 **Täydellinen:** Tekniset kirjoittajat · Opiskelijat/tutkijat · Tuotepäälliköt · Kehittäjät · Kuka tahansa Markdownia käyttävä
 
