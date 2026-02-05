@@ -63,14 +63,6 @@
     "message": "bilinmeyen",
     "description": "Fallback label when cache type is missing"
   },
-  "cache_items_empty": {
-    "message": "Henüz önbellekte öğe yok",
-    "description": "Shown when the cache list is empty"
-  },
-  "cache_items_title": {
-    "message": "Önbellekteki öğeler (son 20)",
-    "description": "Heading for cache items list"
-  },
   "cache_loading_failed": {
     "message": "Önbellek yükleme başarısız: {0}",
     "description": "Displayed when cache loading throws an error"
@@ -131,10 +123,6 @@
     "message": "Yenile",
     "description": "Refresh cache button"
   },
-  "cache_stat_capacity_label": {
-    "message": "Maksimum kapasite",
-    "description": "Label for max cache entries"
-  },
   "cache_stat_item_label": {
     "message": "Önbellekteki öğeler",
     "description": "Label for number of cached items"
@@ -142,10 +130,6 @@
   "cache_stat_size_label": {
     "message": "Kullanılan alan",
     "description": "Label for cache size"
-  },
-  "cache_stat_usage_label": {
-    "message": "Kullanılan kapasite",
-    "description": "Label for usage percentage"
   },
   "cancel": {
     "message": "İptal",
@@ -399,6 +383,14 @@
     "message": "Yerel dosya değiştiğinde otomatik olarak yeniden yükle (yalnızca file://).",
     "description": "Helper note for auto refresh option"
   },
+  "settings_auto_refresh_title": {
+    "message": "Otomatik Yenileme",
+    "description": "Title for auto refresh settings section"
+  },
+  "settings_cache_title": {
+    "message": "Önbellek",
+    "description": "Title for cache settings section"
+  },
   "settings_docx_emoji_style": {
     "message": "Emoji Stili",
     "description": "Label for the emoji style selector in DOCX export settings"
@@ -478,14 +470,6 @@
   "settings_language_changed": {
     "message": "Arayüz dili değiştirildi",
     "description": "Toast when language is changed successfully"
-  },
-  "settings_language_label": {
-    "message": "Arayüz dili:",
-    "description": "Label for language selector"
-  },
-  "settings_language_note": {
-    "message": "Bunu değiştirmek uzantı için sistemin arayüz dilini geçersiz kılar.",
-    "description": "Helper note for language selector"
   },
   "settings_max_cache_label": {
     "message": "Maksimum önbellekteki öğe sayısı:",
@@ -579,10 +563,6 @@
     "message": "Paylaş",
     "description": "Share button tooltip"
   },
-  "tab_cache": {
-    "message": "Önbellek",
-    "description": "Label for cache tab"
-  },
   "tab_history": {
     "message": "Geçmiş",
     "description": "Label for history tab"
@@ -590,6 +570,10 @@
   "tab_settings": {
     "message": "Ayarlar",
     "description": "Label for settings tab"
+  },
+  "tab_theme": {
+    "message": "Tema",
+    "description": "Label for theme tab"
   },
   "theme": {
     "message": "Tema",

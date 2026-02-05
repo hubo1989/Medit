@@ -63,14 +63,6 @@
     "message": "tuntematon",
     "description": "Fallback label when cache type is missing"
   },
-  "cache_items_empty": {
-    "message": "Ei vielä välimuistissa olevia kohteita",
-    "description": "Shown when the cache list is empty"
-  },
-  "cache_items_title": {
-    "message": "Välimuistissa olevat kohteet (viimeisimmät 20)",
-    "description": "Heading for cache items list"
-  },
   "cache_loading_failed": {
     "message": "Välimuistin lataaminen epäonnistui: {0}",
     "description": "Displayed when cache loading throws an error"
@@ -131,10 +123,6 @@
     "message": "Päivitä",
     "description": "Refresh cache button"
   },
-  "cache_stat_capacity_label": {
-    "message": "Maksimi kapasiteetti",
-    "description": "Label for max cache entries"
-  },
   "cache_stat_item_label": {
     "message": "Välimuistissa olevat kohteet",
     "description": "Label for number of cached items"
@@ -142,10 +130,6 @@
   "cache_stat_size_label": {
     "message": "Käytetty tila",
     "description": "Label for cache size"
-  },
-  "cache_stat_usage_label": {
-    "message": "Käytetty kapasiteetti",
-    "description": "Label for usage percentage"
   },
   "cancel": {
     "message": "Peruuta",
@@ -399,6 +383,14 @@
     "message": "Lataa automaattisesti uudelleen, kun paikallinen tiedosto muuttuu (vain file://).",
     "description": "Helper note for auto refresh option"
   },
+  "settings_auto_refresh_title": {
+    "message": "Automaattinen päivitys",
+    "description": "Title for auto refresh settings section"
+  },
+  "settings_cache_title": {
+    "message": "Välimuisti",
+    "description": "Title for cache settings section"
+  },
   "settings_docx_emoji_style": {
     "message": "Emoji-tyyli",
     "description": "Label for the emoji style selector in DOCX export settings"
@@ -478,14 +470,6 @@
   "settings_language_changed": {
     "message": "Käyttöliittymän kieli vaihdettu",
     "description": "Toast when language is changed successfully"
-  },
-  "settings_language_label": {
-    "message": "Käyttöliittymän kieli",
-    "description": "Settings label for interface language"
-  },
-  "settings_language_note": {
-    "message": "Tämän muuttaminen ohittaa järjestelmän kielen laajennuksessa.",
-    "description": "Note explaining language changes take effect immediately"
   },
   "settings_max_cache_label": {
     "message": "Maksimi välimuistissa olevat kohteet:",
@@ -579,10 +563,6 @@
     "message": "Jaa",
     "description": "Share button tooltip"
   },
-  "tab_cache": {
-    "message": "Välimuisti",
-    "description": "Label for cache tab"
-  },
   "tab_history": {
     "message": "Historia",
     "description": "Label for history tab"
@@ -590,6 +570,10 @@
   "tab_settings": {
     "message": "Asetukset",
     "description": "Label for settings tab"
+  },
+  "tab_theme": {
+    "message": "Teema",
+    "description": "Label for theme tab"
   },
   "theme": {
     "message": "Teema",

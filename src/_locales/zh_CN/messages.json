@@ -63,14 +63,6 @@
     "message": "未知",
     "description": "缓存条目类型未知时的提示"
   },
-  "cache_items_empty": {
-    "message": "暂无缓存项目",
-    "description": "缓存列表为空提示"
-  },
-  "cache_items_title": {
-    "message": "缓存项目（最近访问的 20 项）",
-    "description": "缓存列表标题"
-  },
   "cache_loading_failed": {
     "message": "加载缓存信息失败: {0}",
     "description": "缓存加载异常提示"
@@ -131,20 +123,12 @@
     "message": "刷新",
     "description": "刷新按钮"
   },
-  "cache_stat_capacity_label": {
-    "message": "最大容量",
-    "description": "缓存统计标签"
-  },
   "cache_stat_item_label": {
     "message": "缓存项目",
     "description": "缓存统计标签"
   },
   "cache_stat_size_label": {
     "message": "占用空间",
-    "description": "缓存统计标签"
-  },
-  "cache_stat_usage_label": {
-    "message": "容量使用",
     "description": "缓存统计标签"
   },
   "cancel": {
@@ -399,6 +383,14 @@
     "message": "本地文件变化时自动刷新预览（仅限 file:// 协议）。",
     "description": "自动刷新选项说明"
   },
+  "settings_auto_refresh_title": {
+    "message": "自动刷新",
+    "description": "自动刷新设置区块标题"
+  },
+  "settings_cache_title": {
+    "message": "缓存",
+    "description": "缓存设置区块标题"
+  },
   "settings_docx_emoji_style": {
     "message": "表情符号样式",
     "description": "Label for emoji style selector in DOCX export settings"
@@ -478,14 +470,6 @@
   "settings_language_changed": {
     "message": "界面语言已更改",
     "description": "语言更改成功提示"
-  },
-  "settings_language_label": {
-    "message": "界面语言:",
-    "description": "语言选择标签"
-  },
-  "settings_language_note": {
-    "message": "设置后将覆盖系统界面语言，仅影响扩展界面。",
-    "description": "语言选择说明"
   },
   "settings_max_cache_label": {
     "message": "最大缓存项目数:",
@@ -579,10 +563,6 @@
     "message": "分享",
     "description": "Share button tooltip"
   },
-  "tab_cache": {
-    "message": "缓存",
-    "description": "缓存标签"
-  },
   "tab_history": {
     "message": "历史",
     "description": "历史标签"
@@ -590,6 +570,10 @@
   "tab_settings": {
     "message": "设置",
     "description": "设置标签"
+  },
+  "tab_theme": {
+    "message": "主题",
+    "description": "主题标签"
   },
   "theme": {
     "message": "主题",

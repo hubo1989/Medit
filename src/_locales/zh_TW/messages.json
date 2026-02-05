@@ -63,14 +63,6 @@
     "message": "未知",
     "description": "快取條目類型未知時的提示"
   },
-  "cache_items_empty": {
-    "message": "暫無快取項目",
-    "description": "快取列表為空提示"
-  },
-  "cache_items_title": {
-    "message": "快取項目（最近存取的 20 項）",
-    "description": "快取列表標題"
-  },
   "cache_loading_failed": {
     "message": "載入快取資訊失敗: {0}",
     "description": "快取載入異常提示"
@@ -131,20 +123,12 @@
     "message": "重新整理",
     "description": "重新整理按鈕"
   },
-  "cache_stat_capacity_label": {
-    "message": "最大容量",
-    "description": "快取統計標籤"
-  },
   "cache_stat_item_label": {
     "message": "快取項目",
     "description": "快取統計標籤"
   },
   "cache_stat_size_label": {
     "message": "佔用空間",
-    "description": "快取統計標籤"
-  },
-  "cache_stat_usage_label": {
-    "message": "容量使用",
     "description": "快取統計標籤"
   },
   "cancel": {
@@ -399,6 +383,14 @@
     "message": "本機檔案變更時自動重新載入（僅限 file:// 協定）。",
     "description": "Helper note for auto refresh option"
   },
+  "settings_auto_refresh_title": {
+    "message": "自動重新整理",
+    "description": "Title for auto refresh settings section"
+  },
+  "settings_cache_title": {
+    "message": "快取",
+    "description": "Title for cache settings section"
+  },
   "settings_docx_emoji_style": {
     "message": "表情符號樣式",
     "description": "Label for the emoji style selector in DOCX export settings"
@@ -478,14 +470,6 @@
   "settings_language_changed": {
     "message": "介面語言已變更",
     "description": "語言變更成功提示"
-  },
-  "settings_language_label": {
-    "message": "介面語言:",
-    "description": "語言選擇標籤"
-  },
-  "settings_language_note": {
-    "message": "設定後將覆蓋系統介面語言，僅影響擴充功能介面。",
-    "description": "語言選擇說明"
   },
   "settings_max_cache_label": {
     "message": "最大快取項目數:",
@@ -579,10 +563,6 @@
     "message": "分享",
     "description": "Share button tooltip"
   },
-  "tab_cache": {
-    "message": "快取",
-    "description": "快取標籤"
-  },
   "tab_history": {
     "message": "歷史記錄",
     "description": "歷史記錄標籤"
@@ -590,6 +570,10 @@
   "tab_settings": {
     "message": "設定",
     "description": "設定標籤"
+  },
+  "tab_theme": {
+    "message": "主題",
+    "description": "Label for theme tab"
   },
   "theme": {
     "message": "主題",

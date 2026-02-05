@@ -63,14 +63,6 @@
     "message": "sconosciuto",
     "description": "Fallback label when cache type is missing"
   },
-  "cache_items_empty": {
-    "message": "Nessun elemento in cache ancora",
-    "description": "Shown when the cache list is empty"
-  },
-  "cache_items_title": {
-    "message": "Elementi in cache (ultimi 20)",
-    "description": "Heading for cache items list"
-  },
   "cache_loading_failed": {
     "message": "Caricamento cache fallito: {0}",
     "description": "Displayed when cache loading throws an error"
@@ -131,10 +123,6 @@
     "message": "Aggiorna",
     "description": "Refresh cache button"
   },
-  "cache_stat_capacity_label": {
-    "message": "Capacità massima",
-    "description": "Label for max cache entries"
-  },
   "cache_stat_item_label": {
     "message": "Elementi in cache",
     "description": "Label for number of cached items"
@@ -142,10 +130,6 @@
   "cache_stat_size_label": {
     "message": "Spazio utilizzato",
     "description": "Label for cache size"
-  },
-  "cache_stat_usage_label": {
-    "message": "Capacità utilizzata",
-    "description": "Label for usage percentage"
   },
   "cancel": {
     "message": "Annulla",
@@ -399,6 +383,14 @@
     "message": "Ricarica automaticamente quando il file locale cambia (solo file://).",
     "description": "Helper note for auto refresh option"
   },
+  "settings_auto_refresh_title": {
+    "message": "Aggiornamento automatico",
+    "description": "Title for auto refresh settings section"
+  },
+  "settings_cache_title": {
+    "message": "Cache",
+    "description": "Title for cache settings section"
+  },
   "settings_docx_emoji_style": {
     "message": "Stile emoji",
     "description": "Label for the emoji style selector in DOCX export settings"
@@ -478,14 +470,6 @@
   "settings_language_changed": {
     "message": "Lingua dell'interfaccia modificata",
     "description": "Toast when language is changed successfully"
-  },
-  "settings_language_label": {
-    "message": "Lingua interfaccia:",
-    "description": "Label for language selector"
-  },
-  "settings_language_note": {
-    "message": "La modifica sostituisce la lingua di sistema per l'estensione.",
-    "description": "Helper note for language selector"
   },
   "settings_max_cache_label": {
     "message": "Massimo elementi in cache:",
@@ -579,10 +563,6 @@
     "message": "Condividi",
     "description": "Share button tooltip"
   },
-  "tab_cache": {
-    "message": "Cache",
-    "description": "Label for cache tab"
-  },
   "tab_history": {
     "message": "Cronologia",
     "description": "Label for history tab"
@@ -590,6 +570,10 @@
   "tab_settings": {
     "message": "Impostazioni",
     "description": "Label for settings tab"
+  },
+  "tab_theme": {
+    "message": "Tema",
+    "description": "Label for theme tab"
   },
   "theme": {
     "message": "Tema",

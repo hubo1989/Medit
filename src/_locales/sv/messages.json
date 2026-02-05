@@ -63,14 +63,6 @@
     "message": "okänd",
     "description": "Fallback label when cache type is missing"
   },
-  "cache_items_empty": {
-    "message": "Inga cachade objekt ännu",
-    "description": "Shown when the cache list is empty"
-  },
-  "cache_items_title": {
-    "message": "Cachade objekt (senaste 20)",
-    "description": "Heading for cache items list"
-  },
   "cache_loading_failed": {
     "message": "Kunde inte ladda cache: {0}",
     "description": "Displayed when cache loading throws an error"
@@ -131,10 +123,6 @@
     "message": "Uppdatera",
     "description": "Refresh cache button"
   },
-  "cache_stat_capacity_label": {
-    "message": "Max kapacitet",
-    "description": "Label for max cache entries"
-  },
   "cache_stat_item_label": {
     "message": "Cachade objekt",
     "description": "Label for number of cached items"
@@ -142,10 +130,6 @@
   "cache_stat_size_label": {
     "message": "Använt utrymme",
     "description": "Label for cache size"
-  },
-  "cache_stat_usage_label": {
-    "message": "Använd kapacitet",
-    "description": "Label for usage percentage"
   },
   "cancel": {
     "message": "Avbryt",
@@ -399,6 +383,14 @@
     "message": "Ladda om automatiskt när lokal fil ändras (endast file://).",
     "description": "Helper note for auto refresh option"
   },
+  "settings_auto_refresh_title": {
+    "message": "Automatisk uppdatering",
+    "description": "Title for auto refresh settings section"
+  },
+  "settings_cache_title": {
+    "message": "Cache",
+    "description": "Title for cache settings section"
+  },
   "settings_docx_emoji_style": {
     "message": "Emoji-stil",
     "description": "Label for the emoji style selector in DOCX export settings"
@@ -478,14 +470,6 @@
   "settings_language_changed": {
     "message": "Gränssnittspråk har ändrats",
     "description": "Toast when language is changed successfully"
-  },
-  "settings_language_label": {
-    "message": "Gränssnittsspråk",
-    "description": "Settings label for interface language"
-  },
-  "settings_language_note": {
-    "message": "Att ändra detta åsidosätter systemets språk för tillägget.",
-    "description": "Note explaining language changes take effect immediately"
   },
   "settings_max_cache_label": {
     "message": "Maximalt antal cachade objekt:",
@@ -579,10 +563,6 @@
     "message": "Dela",
     "description": "Share button tooltip"
   },
-  "tab_cache": {
-    "message": "Cache",
-    "description": "Label for cache tab"
-  },
   "tab_history": {
     "message": "Historik",
     "description": "Label for history tab"
@@ -590,6 +570,10 @@
   "tab_settings": {
     "message": "Inställningar",
     "description": "Label for settings tab"
+  },
+  "tab_theme": {
+    "message": "Tema",
+    "description": "Label for theme tab"
   },
   "theme": {
     "message": "Tema",

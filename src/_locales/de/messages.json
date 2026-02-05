@@ -63,14 +63,6 @@
     "message": "unbekannt",
     "description": "Beschriftung bei fehlendem Typ"
   },
-  "cache_items_empty": {
-    "message": "Noch keine Cache-Einträge",
-    "description": "Angezeigt bei leerer Liste"
-  },
-  "cache_items_title": {
-    "message": "Cache-Einträge (letzte 20)",
-    "description": "Überschrift der Liste"
-  },
   "cache_loading_failed": {
     "message": "Cache konnte nicht geladen werden: {0}",
     "description": "Fehlermeldung beim Laden"
@@ -131,10 +123,6 @@
     "message": "Aktualisieren",
     "description": "Knopf zum Aktualisieren"
   },
-  "cache_stat_capacity_label": {
-    "message": "Maximale Kapazität",
-    "description": "Beschriftung für Kapazität"
-  },
   "cache_stat_item_label": {
     "message": "Zwischengespeicherte Elemente",
     "description": "Beschriftung für Anzahl"
@@ -142,10 +130,6 @@
   "cache_stat_size_label": {
     "message": "Genutzter Speicher",
     "description": "Beschriftung für Größe"
-  },
-  "cache_stat_usage_label": {
-    "message": "Auslastung",
-    "description": "Beschriftung für Prozent"
   },
   "cancel": {
     "message": "Abbrechen",
@@ -399,6 +383,14 @@
     "message": "Automatisch neu laden, wenn lokale Datei geändert wird (nur file://).",
     "description": "Helper note for auto refresh option"
   },
+  "settings_auto_refresh_title": {
+    "message": "Automatische Aktualisierung",
+    "description": "Title for auto refresh settings section"
+  },
+  "settings_cache_title": {
+    "message": "Cache",
+    "description": "Title for cache settings section"
+  },
   "settings_docx_emoji_style": {
     "message": "Emoji-Stil",
     "description": "Label for the emoji style selector in DOCX export settings"
@@ -478,14 +470,6 @@
   "settings_language_changed": {
     "message": "Oberflächensprache geändert",
     "description": "Toast when language is changed successfully"
-  },
-  "settings_language_label": {
-    "message": "Oberflächensprache:",
-    "description": "Beschriftung für Sprachauswahl"
-  },
-  "settings_language_note": {
-    "message": "Durch Ändern wird die Systemsprache für die Erweiterung überschrieben.",
-    "description": "Hinweis zur Sprachauswahl"
   },
   "settings_max_cache_label": {
     "message": "Maximale Cache-Einträge:",
@@ -579,10 +563,6 @@
     "message": "Teilen",
     "description": "Share button tooltip"
   },
-  "tab_cache": {
-    "message": "Cache",
-    "description": "Beschriftung für den Cache-Tab"
-  },
   "tab_history": {
     "message": "Verlauf",
     "description": "Beschriftung für den Verlaufs-Tab"
@@ -590,6 +570,10 @@
   "tab_settings": {
     "message": "Optionen",
     "description": "Beschriftung für den Einstellungs-Tab"
+  },
+  "tab_theme": {
+    "message": "Design",
+    "description": "Label for theme tab"
   },
   "theme": {
     "message": "Design",

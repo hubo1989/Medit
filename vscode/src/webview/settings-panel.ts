@@ -117,9 +117,27 @@ export function createSettingsPanel(options: SettingsPanelOptions): SettingsPane
   panel.className = 'vscode-settings-panel';
   panel.style.display = 'none';
 
+  // Helper to get display code from locale
+  const getLocaleDisplayCode = (localeCode: string): string => {
+    if (localeCode === 'auto') {
+      // Use VSCode's UI language
+      const uiLang = document.documentElement.lang || navigator.language || 'en';
+      const baseLang = uiLang.split('-')[0].split('_')[0];
+      return baseLang.toLowerCase();
+    }
+    // Extract base language code (e.g., "zh" from "zh_CN", "en" from "en")
+    return localeCode.split('_')[0].split('-')[0].toLowerCase();
+  };
+
   panel.innerHTML = `
     <div class="vscode-settings-header">
       <span class="vscode-settings-title" data-i18n="tab_settings">${Localization.translate('tab_settings')}</span>
+      <div class="vscode-language-selector">
+        <button class="vscode-language-btn" data-setting="locale-btn">${getLocaleDisplayCode(currentLocale)}</button>
+        <div class="vscode-language-dropdown" style="display: none;">
+          <div class="vscode-language-option" data-locale="auto" data-i18n="settings_language_auto">${Localization.translate('settings_language_auto')}</div>
+        </div>
+      </div>
       <button class="vscode-settings-close" data-i18n-title="close" title="${Localization.translate('close') || 'Close'}">×</button>
     </div>
     <div class="vscode-settings-content">
@@ -129,13 +147,6 @@ export function createSettingsPanel(options: SettingsPanelOptions): SettingsPane
           <option value="default">Default</option>
         </select>
       </div>
-      <div class="vscode-settings-group">
-        <label class="vscode-settings-label" data-i18n="settings_language_label">${Localization.translate('settings_language_label')}</label>
-        <select class="vscode-settings-select" data-setting="locale">
-          <option value="auto" data-i18n="settings_language_auto">${Localization.translate('settings_language_auto')}</option>
-        </select>
-      </div>
-      <div class="vscode-settings-divider"></div>
       <div class="vscode-settings-group">
         <label class="vscode-settings-label" data-i18n="settings_frontmatter_display">${Localization.translate('settings_frontmatter_display')}</label>
         <select class="vscode-settings-select" data-setting="frontmatterDisplay">
@@ -193,7 +204,8 @@ export function createSettingsPanel(options: SettingsPanelOptions): SettingsPane
   // Get elements
   const closeBtn = panel.querySelector('.vscode-settings-close') as HTMLButtonElement;
   const themeSelect = panel.querySelector('[data-setting="theme"]') as HTMLSelectElement;
-  const localeSelect = panel.querySelector('[data-setting="locale"]') as HTMLSelectElement;
+  const languageBtn = panel.querySelector('.vscode-language-btn') as HTMLButtonElement;
+  const languageDropdown = panel.querySelector('.vscode-language-dropdown') as HTMLDivElement;
   const docxHrDisplaySelect = panel.querySelector('[data-setting="docxHrDisplay"]') as HTMLSelectElement;
   const tableMergeEmptyCheckbox = panel.querySelector('[data-setting="tableMergeEmpty"]') as HTMLInputElement;
   const tableLayoutSelect = panel.querySelector('[data-setting="tableLayout"]') as HTMLSelectElement;
@@ -203,9 +215,11 @@ export function createSettingsPanel(options: SettingsPanelOptions): SettingsPane
   const cacheItemsValue = panel.querySelector('[data-cache-stat="items"]') as HTMLElement;
   const cacheSizeValue = panel.querySelector('[data-cache-stat="size"]') as HTMLElement;
 
+  // Track current locale for language button
+  let activeLocale = currentLocale;
+
   // Set initial values
   if (themeSelect) themeSelect.value = currentTheme;
-  if (localeSelect) localeSelect.value = currentLocale;
   if (docxHrDisplaySelect) docxHrDisplaySelect.value = docxHrDisplay;
   if (tableMergeEmptyCheckbox) tableMergeEmptyCheckbox.checked = tableMergeEmpty;
   if (tableLayoutSelect) tableLayoutSelect.value = tableLayout;
@@ -222,8 +236,18 @@ export function createSettingsPanel(options: SettingsPanelOptions): SettingsPane
     onThemeChange?.(themeSelect.value);
   });
 
-  localeSelect?.addEventListener('change', () => {
-    onLocaleChange?.(localeSelect.value);
+  // Language button click handler
+  languageBtn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const isVisible = languageDropdown.style.display !== 'none';
+    languageDropdown.style.display = isVisible ? 'none' : 'block';
+  });
+
+  // Close language dropdown when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!languageBtn?.contains(e.target as Node) && !languageDropdown?.contains(e.target as Node)) {
+      if (languageDropdown) languageDropdown.style.display = 'none';
+    }
   });
 
   docxHrDisplaySelect?.addEventListener('change', () => {
@@ -376,17 +400,42 @@ export function createSettingsPanel(options: SettingsPanelOptions): SettingsPane
   }
 
   function setLocales(locales: LocaleOption[]): void {
-    if (!localeSelect) return;
+    if (!languageDropdown) return;
 
-    // Keep auto option, add loaded locales
-    localeSelect.innerHTML = `<option value="auto" data-i18n="settings_language_auto">${Localization.translate('settings_language_auto')}</option>`;
+    // Clear and rebuild dropdown options
+    languageDropdown.innerHTML = `<div class="vscode-language-option${activeLocale === 'auto' ? ' selected' : ''}" data-locale="auto" data-i18n="settings_language_auto">${Localization.translate('settings_language_auto')}</div>`;
     
     locales.forEach(loc => {
-      const opt = document.createElement('option');
-      opt.value = loc.code;
-      opt.textContent = loc.name;
-      opt.selected = loc.code === currentLocale;
-      localeSelect.appendChild(opt);
+      const option = document.createElement('div');
+      option.className = `vscode-language-option${loc.code === activeLocale ? ' selected' : ''}`;
+      option.setAttribute('data-locale', loc.code);
+      option.textContent = loc.name;
+      option.addEventListener('click', (e) => {
+        e.stopPropagation();
+        activeLocale = loc.code;
+        if (languageBtn) languageBtn.textContent = getLocaleDisplayCode(loc.code);
+        languageDropdown.style.display = 'none';
+        // Update selected state
+        languageDropdown.querySelectorAll('.vscode-language-option').forEach(opt => {
+          opt.classList.toggle('selected', opt.getAttribute('data-locale') === loc.code);
+        });
+        onLocaleChange?.(loc.code);
+      });
+      languageDropdown.appendChild(option);
+    });
+
+    // Add click handler for auto option
+    const autoOption = languageDropdown.querySelector('[data-locale="auto"]');
+    autoOption?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      activeLocale = 'auto';
+      if (languageBtn) languageBtn.textContent = getLocaleDisplayCode('auto');
+      languageDropdown.style.display = 'none';
+      // Update selected state
+      languageDropdown.querySelectorAll('.vscode-language-option').forEach(opt => {
+        opt.classList.toggle('selected', opt.getAttribute('data-locale') === 'auto');
+      });
+      onLocaleChange?.('auto');
     });
   }
 

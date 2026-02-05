@@ -21,13 +21,14 @@
               <span class="star-icon">⭐</span>
               <span data-i18n="popup_review_link">Rate</span>
             </a>
+            <button id="language-selector" class="language-btn" title="Language">en</button>
           </div>
         </div>
       </div>
     </div>
     <div class="tabs">
       <button class="tab active" data-tab="history" data-i18n="tab_history"></button>
-      <button class="tab" data-tab="cache" data-i18n="tab_cache"></button>
+      <button class="tab" data-tab="theme" data-i18n="tab_theme"></button>
       <button class="tab" data-tab="settings" data-i18n="tab_settings"></button>
     </div>
 
@@ -80,67 +81,11 @@
         </div>
       </template>
 
-      <!-- Cache tab -->
-      <div class="tab-panel" id="cache">
-        <div id="cache-content">
-          <div class="cache-stats" id="cache-stats">
-            <div class="stat-item">
-              <div class="stat-value" id="cache-stat-item-count">--</div>
-              <div class="stat-label" data-i18n="cache_stat_item_label"></div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-value" id="cache-stat-size">--</div>
-              <div class="stat-label" data-i18n="cache_stat_size_label"></div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-value" id="cache-stat-usage">--</div>
-              <div class="stat-label" data-i18n="cache_stat_usage_label"></div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-value" id="cache-stat-capacity">--</div>
-              <div class="stat-label" data-i18n="cache_stat_capacity_label"></div>
-            </div>
-          </div>
-
-          <div class="cache-message" id="cache-message" hidden>
-            <div class="cache-message-text" id="cache-message-text"></div>
-            <div class="cache-message-details" id="cache-message-details"></div>
-          </div>
-
-          <div class="cache-actions">
-            <button class="btn" id="refresh-cache" data-i18n="cache_refresh"></button>
-            <button class="btn danger" id="clear-cache" data-i18n="cache_clear"></button>
-          </div>
-
-          <div class="info-section">
-            <h3 data-i18n="cache_items_title"></h3>
-            <div class="cache-items" id="cache-items" data-empty="true">
-              <div class="cache-item cache-item--empty">
-                <div class="empty-state-icon">📦</div>
-                <div data-i18n="cache_items_empty"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <template id="cache-item-template">
-          <div class="cache-item" data-cache-item="dynamic">
-            <div class="cache-item-key"></div>
-            <div class="cache-item-info">
-              <span class="cache-item-type"></span>
-              <span class="cache-item-size"></span>
-            </div>
-            <div class="cache-item-meta cache-item-created"></div>
-            <div class="cache-item-meta cache-item-accessed"></div>
-          </div>
-        </template>
-      </div>
-
-      <!-- Settings tab -->
-      <div class="tab-panel" id="settings">
+      <!-- Theme tab -->
+      <div class="tab-panel" id="theme">
         <div class="info-section">
-          <h3 data-i18n="settings_interface_title">界面设置</h3>
+          <h3 data-i18n="settings_theme_label">Theme</h3>
           <div style="margin: 10px 0;">
-            <label for="theme-selector" data-i18n="settings_theme_label">Select Theme</label>
             <select id="theme-selector">
               <option value="default">Loading themes...</option>
             </select>
@@ -148,17 +93,57 @@
           </div>
 
           <div style="margin: 10px 0;">
-            <label for="interface-language" data-i18n="settings_language_label"></label>
-            <select id="interface-language">
-              <option value="auto" data-i18n="settings_language_auto"></option>
+            <label for="frontmatter-display" data-i18n="settings_frontmatter_display"></label>
+            <select id="frontmatter-display">
+              <option value="hide" selected data-i18n="settings_frontmatter_hide">Hide</option>
+              <option value="table" data-i18n="settings_frontmatter_table">Table</option>
+              <option value="raw" data-i18n="settings_frontmatter_raw">Raw (blockquote)</option>
             </select>
-            <div class="settings-note" data-i18n="settings_language_note"></div>
+            <div class="settings-note" data-i18n="settings_frontmatter_note"></div>
+          </div>
+
+          <div style="margin: 10px 0;">
+            <label for="table-layout" data-i18n="settings_table_layout"></label>
+            <select id="table-layout">
+              <option value="left" data-i18n="settings_table_layout_left"></option>
+              <option value="center" data-i18n="settings_table_layout_center"></option>
+            </select>
+          </div>
+
+          <div style="margin: 10px 0;">
+            <label class="checkbox-label">
+              <input type="checkbox" id="table-merge-empty" checked>
+              <span data-i18n="settings_table_merge_empty"></span>
+            </label>
+            <div class="settings-note" data-i18n="settings_table_merge_empty_note"></div>
+          </div>
+
+          <div style="margin: 10px 0;">
+            <label for="docx-emoji-style" data-i18n="settings_docx_emoji_style"></label>
+            <select id="docx-emoji-style">
+              <option value="system" selected data-i18n="settings_docx_emoji_style_system">System style</option>
+              <option value="windows" data-i18n="settings_docx_emoji_style_windows">Windows style</option>
+              <option value="apple" data-i18n="settings_docx_emoji_style_apple">Apple style</option>
+            </select>
+            <div class="settings-note" data-i18n="settings_docx_emoji_style_note"></div>
+          </div>
+
+          <div style="margin: 10px 0;">
+            <label for="docx-hr-display" data-i18n="settings_docx_hr_display"></label>
+            <select id="docx-hr-display">
+              <option value="hide" data-i18n="settings_docx_hr_display_hide"></option>
+              <option value="line" data-i18n="settings_docx_hr_display_line"></option>
+              <option value="pageBreak" data-i18n="settings_docx_hr_display_page_break"></option>
+            </select>
+            <div class="settings-note" data-i18n="settings_docx_hr_display_note"></div>
           </div>
         </div>
+      </div>
 
+      <!-- Settings tab -->
+      <div class="tab-panel" id="settings">
         <div class="info-section">
-          <h3 data-i18n="settings_general_title"></h3>
-
+          <h3 data-i18n="settings_auto_refresh_title">Auto Refresh</h3>
           <div style="margin: 10px 0;">
             <label class="checkbox-label">
               <input type="checkbox" id="auto-refresh-enabled" checked>
@@ -176,51 +161,53 @@
               <option value="5000">5s</option>
             </select>
           </div>
+        </div>
 
-          <div style="margin: 10px 0;">
-            <label for="frontmatter-display" data-i18n="settings_frontmatter_display"></label>
-            <select id="frontmatter-display">
-              <option value="hide" selected data-i18n="settings_frontmatter_hide">Hide</option>
-              <option value="table" data-i18n="settings_frontmatter_table">Table</option>
-              <option value="raw" data-i18n="settings_frontmatter_raw">Raw (blockquote)</option>
-            </select>
-            <div class="settings-note" data-i18n="settings_frontmatter_note"></div>
-          </div>
-
-          <div style="margin: 10px 0;">
-            <label for="docx-emoji-style" data-i18n="settings_docx_emoji_style"></label>
-            <select id="docx-emoji-style">
-              <option value="system" selected data-i18n="settings_docx_emoji_style_system">System style</option>
-              <option value="windows" data-i18n="settings_docx_emoji_style_windows">Windows style</option>
-              <option value="apple" data-i18n="settings_docx_emoji_style_apple">Apple style</option>
-            </select>
-            <div class="settings-note" data-i18n="settings_docx_emoji_style_note"></div>
-          </div>
-
-          <div style="margin: 10px 0;">
+        <div class="info-section">
+          <h3 data-i18n="settings_supported_formats_title"></h3>
+          <div class="format-checkboxes">
             <label class="checkbox-label">
-              <input type="checkbox" id="table-merge-empty" checked>
-              <span data-i18n="settings_table_merge_empty"></span>
+              <input type="checkbox" id="support-mermaid">
+              <span data-i18n="settings_support_mermaid"></span>
             </label>
-            <div class="settings-note" data-i18n="settings_table_merge_empty_note"></div>
+            <label class="checkbox-label">
+              <input type="checkbox" id="support-vega">
+              <span data-i18n="settings_support_vega"></span>
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" id="support-vega-lite">
+              <span data-i18n="settings_support_vega_lite"></span>
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" id="support-dot">
+              <span data-i18n="settings_support_dot"></span>
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" id="support-infographic">
+              <span data-i18n="settings_support_infographic"></span>
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" id="support-canvas">
+              <span data-i18n="settings_support_canvas"></span>
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" id="support-drawio">
+              <span data-i18n="settings_support_drawio"></span>
+            </label>
           </div>
+        </div>
 
-          <div style="margin: 10px 0;">
-            <label for="table-layout" data-i18n="settings_table_layout"></label>
-            <select id="table-layout">
-              <option value="left" data-i18n="settings_table_layout_left"></option>
-              <option value="center" data-i18n="settings_table_layout_center"></option>
-            </select>
-          </div>
-
-          <div style="margin: 10px 0;">
-            <label for="docx-hr-display" data-i18n="settings_docx_hr_display"></label>
-            <select id="docx-hr-display">
-              <option value="hide" data-i18n="settings_docx_hr_display_hide"></option>
-              <option value="line" data-i18n="settings_docx_hr_display_line"></option>
-              <option value="pageBreak" data-i18n="settings_docx_hr_display_page_break"></option>
-            </select>
-            <div class="settings-note" data-i18n="settings_docx_hr_display_note"></div>
+        <div class="info-section">
+          <h3 data-i18n="settings_cache_title">Cache</h3>
+          <div class="cache-stats" id="cache-stats">
+            <div class="stat-item">
+              <div class="stat-value" id="cache-stat-item-count">--</div>
+              <div class="stat-label" data-i18n="cache_stat_item_label"></div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value" id="cache-stat-size">--</div>
+              <div class="stat-label" data-i18n="cache_stat_size_label"></div>
+            </div>
           </div>
 
           <div style="margin: 10px 0;">
@@ -234,59 +221,19 @@
               <option value="5000">5000</option>
             </select>
           </div>
-        </div>
 
-        <div class="info-section">
-          <h3 data-i18n="settings_supported_formats_title"></h3>
-          <div style="margin: 10px 0;">
-            <label class="checkbox-label">
-              <input type="checkbox" id="support-mermaid">
-              <span data-i18n="settings_support_mermaid"></span>
-            </label>
-          </div>
-
-          <div style="margin: 10px 0;">
-            <label class="checkbox-label">
-              <input type="checkbox" id="support-vega">
-              <span data-i18n="settings_support_vega"></span>
-            </label>
-          </div>
-
-          <div style="margin: 10px 0;">
-            <label class="checkbox-label">
-              <input type="checkbox" id="support-vega-lite">
-              <span data-i18n="settings_support_vega_lite"></span>
-            </label>
-          </div>
-
-          <div style="margin: 10px 0;">
-            <label class="checkbox-label">
-              <input type="checkbox" id="support-dot">
-              <span data-i18n="settings_support_dot"></span>
-            </label>
-          </div>
-
-          <div style="margin: 10px 0;">
-            <label class="checkbox-label">
-              <input type="checkbox" id="support-infographic">
-              <span data-i18n="settings_support_infographic"></span>
-            </label>
-          </div>
-
-          <div style="margin: 10px 0;">
-            <label class="checkbox-label">
-              <input type="checkbox" id="support-canvas">
-              <span data-i18n="settings_support_canvas"></span>
-            </label>
-          </div>
-
-          <div style="margin: 10px 0;">
-            <label class="checkbox-label">
-              <input type="checkbox" id="support-drawio">
-              <span data-i18n="settings_support_drawio"></span>
-            </label>
+          <div class="cache-actions">
+            <button class="btn" id="refresh-cache" data-i18n="cache_refresh"></button>
+            <button class="btn danger" id="clear-cache" data-i18n="cache_clear"></button>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- Language Dropdown -->
+    <div id="language-dropdown" class="language-dropdown" style="display: none;">
+      <div class="language-dropdown-content" id="language-dropdown-content">
+        <!-- Language options will be populated by JavaScript -->
       </div>
     </div>
 

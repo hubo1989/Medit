@@ -24,13 +24,72 @@
 .vscode-settings-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 8px;
   padding: 8px 12px;
   border-bottom: 1px solid var(--vscode-panel-border, #454545);
 }
 
 .vscode-settings-title {
   font-weight: 500;
+  flex: 1;
+}
+
+/* Language selector in header */
+.vscode-language-selector {
+  position: relative;
+}
+
+.vscode-language-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 18px;
+  padding: 0 6px;
+  border: 1px solid var(--vscode-button-secondaryBorder, var(--vscode-contrastBorder, transparent));
+  border-radius: 3px;
+  background: transparent;
+  color: var(--vscode-foreground, #cccccc);
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  cursor: pointer;
+  opacity: 0.8;
+}
+
+.vscode-language-btn:hover {
+  opacity: 1;
+  background: var(--vscode-toolbar-hoverBackground, rgba(90, 93, 94, 0.5));
+}
+
+.vscode-language-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+  min-width: 150px;
+  max-height: 300px;
+  overflow-y: auto;
+  background: var(--vscode-dropdown-background, #3c3c3c);
+  border: 1px solid var(--vscode-dropdown-border, #454545);
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  z-index: 10001;
+}
+
+.vscode-language-option {
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.vscode-language-option:hover {
+  background: var(--vscode-list-hoverBackground, rgba(90, 93, 94, 0.31));
+}
+
+.vscode-language-option.selected {
+  background: var(--vscode-list-activeSelectionBackground, #094771);
+  color: var(--vscode-list-activeSelectionForeground, #ffffff);
 }
 
 .vscode-settings-close {

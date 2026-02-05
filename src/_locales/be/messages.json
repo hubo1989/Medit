@@ -63,14 +63,6 @@
     "message": "невядомы",
     "description": "Fallback label when cache type is missing"
   },
-  "cache_items_empty": {
-    "message": "Яшчэ няма кэшаваных элементаў",
-    "description": "Shown when the cache list is empty"
-  },
-  "cache_items_title": {
-    "message": "Кэшаваныя элементы (апошнія 20)",
-    "description": "Heading for cache items list"
-  },
   "cache_loading_failed": {
     "message": "Не атрымалася загрузіць кэш: {0}",
     "description": "Displayed when cache loading throws an error"
@@ -131,10 +123,6 @@
     "message": "Абнавіць",
     "description": "Refresh cache button"
   },
-  "cache_stat_capacity_label": {
-    "message": "Максімальная ёмістасць",
-    "description": "Label for max cache entries"
-  },
   "cache_stat_item_label": {
     "message": "Кэшаваныя элементы",
     "description": "Label for number of cached items"
@@ -142,10 +130,6 @@
   "cache_stat_size_label": {
     "message": "Выкарыстаная прастора",
     "description": "Label for cache size"
-  },
-  "cache_stat_usage_label": {
-    "message": "Выкарыстаная ёмістасць",
-    "description": "Label for usage percentage"
   },
   "cancel": {
     "message": "Адмяніць",
@@ -399,6 +383,14 @@
     "message": "Аўтаматычна перазагружаць пры змене лакальнага файла (толькі file://).",
     "description": "Helper note for auto refresh option"
   },
+  "settings_auto_refresh_title": {
+    "message": "Аўтаабнаўленне",
+    "description": "Title for auto refresh settings section"
+  },
+  "settings_cache_title": {
+    "message": "Кэш",
+    "description": "Title for cache settings section"
+  },
   "settings_docx_emoji_style": {
     "message": "Стыль эмодзі",
     "description": "Label for the emoji style selector in DOCX export settings"
@@ -478,14 +470,6 @@
   "settings_language_changed": {
     "message": "Мова інтэрфейсу зменена",
     "description": "Toast when language is changed successfully"
-  },
-  "settings_language_label": {
-    "message": "Мова інтэрфейсу:",
-    "description": "Label for language selector"
-  },
-  "settings_language_note": {
-    "message": "Змена гэтага параметра замяняе мову сістэмы для пашырэння.",
-    "description": "Helper note for language selector"
   },
   "settings_max_cache_label": {
     "message": "Максімальная колькасць элементаў у кэшы:",
@@ -579,10 +563,6 @@
     "message": "Падзяліцца",
     "description": "Share button tooltip"
   },
-  "tab_cache": {
-    "message": "Кэш",
-    "description": "Label for cache tab"
-  },
   "tab_history": {
     "message": "Гісторыя",
     "description": "Label for history tab"
@@ -590,6 +570,10 @@
   "tab_settings": {
     "message": "Налады",
     "description": "Label for settings tab"
+  },
+  "tab_theme": {
+    "message": "Тэма",
+    "description": "Label for theme tab"
   },
   "theme": {
     "message": "Тэма",

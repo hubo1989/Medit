@@ -63,14 +63,6 @@
     "message": "不明",
     "description": "種類不明時のラベル"
   },
-  "cache_items_empty": {
-    "message": "キャッシュ項目はありません",
-    "description": "リストが空の時のメッセージ"
-  },
-  "cache_items_title": {
-    "message": "キャッシュ項目 (最新 20 件)",
-    "description": "リストの見出し"
-  },
   "cache_loading_failed": {
     "message": "キャッシュを読み込めませんでした: {0}",
     "description": "キャッシュ読み込みエラー"
@@ -131,10 +123,6 @@
     "message": "更新",
     "description": "キャッシュ更新ボタン"
   },
-  "cache_stat_capacity_label": {
-    "message": "最大件数",
-    "description": "キャパシティラベル"
-  },
   "cache_stat_item_label": {
     "message": "キャッシュ件数",
     "description": "件数ラベル"
@@ -142,10 +130,6 @@
   "cache_stat_size_label": {
     "message": "使用容量",
     "description": "容量ラベル"
-  },
-  "cache_stat_usage_label": {
-    "message": "使用率",
-    "description": "割合ラベル"
   },
   "cancel": {
     "message": "キャンセル",
@@ -399,6 +383,14 @@
     "message": "ローカルファイルが変更されたときに自動的にリロードします（file://のみ）。",
     "description": "Helper note for auto refresh option"
   },
+  "settings_auto_refresh_title": {
+    "message": "自動更新",
+    "description": "Title for auto refresh settings section"
+  },
+  "settings_cache_title": {
+    "message": "キャッシュ",
+    "description": "Title for cache settings section"
+  },
   "settings_docx_emoji_style": {
     "message": "絵文字スタイル",
     "description": "Label for the emoji style selector in DOCX export settings"
@@ -478,14 +470,6 @@
   "settings_language_changed": {
     "message": "インターフェース言語が変更されました",
     "description": "Toast when language is changed successfully"
-  },
-  "settings_language_label": {
-    "message": "インターフェイス言語:",
-    "description": "言語選択のラベル"
-  },
-  "settings_language_note": {
-    "message": "ここでの変更は拡張機能の UI にのみ適用されます。",
-    "description": "言語選択の補足"
   },
   "settings_max_cache_label": {
     "message": "キャッシュ最大件数:",
@@ -579,10 +563,6 @@
     "message": "共有",
     "description": "Share button tooltip"
   },
-  "tab_cache": {
-    "message": "キャッシュ",
-    "description": "キャッシュタブのラベル"
-  },
   "tab_history": {
     "message": "履歴",
     "description": "履歴タブのラベル"
@@ -590,6 +570,10 @@
   "tab_settings": {
     "message": "設定",
     "description": "設定タブのラベル"
+  },
+  "tab_theme": {
+    "message": "テーマ",
+    "description": "Label for theme tab"
   },
   "theme": {
     "message": "テーマ",

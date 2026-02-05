@@ -63,14 +63,6 @@
     "message": "unknown",
     "description": "Fallback label when cache type is missing"
   },
-  "cache_items_empty": {
-    "message": "No cached items yet",
-    "description": "Shown when the cache list is empty"
-  },
-  "cache_items_title": {
-    "message": "Cached items (latest 20)",
-    "description": "Heading for cache items list"
-  },
   "cache_loading_failed": {
     "message": "Failed to load cache: {0}",
     "description": "Displayed when cache loading throws an error"
@@ -131,10 +123,6 @@
     "message": "Refresh",
     "description": "Refresh cache button"
   },
-  "cache_stat_capacity_label": {
-    "message": "Max capacity",
-    "description": "Label for max cache entries"
-  },
   "cache_stat_item_label": {
     "message": "Cached items",
     "description": "Label for number of cached items"
@@ -142,10 +130,6 @@
   "cache_stat_size_label": {
     "message": "Space used",
     "description": "Label for cache size"
-  },
-  "cache_stat_usage_label": {
-    "message": "Capacity used",
-    "description": "Label for usage percentage"
   },
   "cancel": {
     "message": "Cancel",
@@ -399,6 +383,14 @@
     "message": "Automatically reload when local file changes (file:// URLs only).",
     "description": "Helper note for auto refresh option"
   },
+  "settings_auto_refresh_title": {
+    "message": "Auto Refresh",
+    "description": "Title for auto refresh settings section"
+  },
+  "settings_cache_title": {
+    "message": "Cache",
+    "description": "Title for cache settings section"
+  },
   "settings_docx_emoji_style": {
     "message": "Emoji Style",
     "description": "Label for emoji style selector in DOCX export settings"
@@ -478,14 +470,6 @@
   "settings_language_changed": {
     "message": "Interface language changed",
     "description": "Toast when language is changed successfully"
-  },
-  "settings_language_label": {
-    "message": "Interface language:",
-    "description": "Label for language selector"
-  },
-  "settings_language_note": {
-    "message": "Changing this overrides the system UI language for the extension.",
-    "description": "Helper note for language selector"
   },
   "settings_max_cache_label": {
     "message": "Maximum cached items:",
@@ -579,10 +563,6 @@
     "message": "Share",
     "description": "Share button tooltip"
   },
-  "tab_cache": {
-    "message": "Cache",
-    "description": "Label for cache tab"
-  },
   "tab_history": {
     "message": "History",
     "description": "Label for history tab"
@@ -590,6 +570,10 @@
   "tab_settings": {
     "message": "Settings",
     "description": "Label for settings tab"
+  },
+  "tab_theme": {
+    "message": "Theme",
+    "description": "Label for theme tab"
   },
   "theme": {
     "message": "Theme",

@@ -63,14 +63,6 @@
     "message": "không xác định",
     "description": "Fallback label when cache type is missing"
   },
-  "cache_items_empty": {
-    "message": "Chưa có mục nào được lưu",
-    "description": "Shown when the cache list is empty"
-  },
-  "cache_items_title": {
-    "message": "Mục đã lưu (20 mới nhất)",
-    "description": "Heading for cache items list"
-  },
   "cache_loading_failed": {
     "message": "Tải bộ nhớ đệm thất bại: {0}",
     "description": "Displayed when cache loading throws an error"
@@ -131,10 +123,6 @@
     "message": "Làm mới",
     "description": "Refresh cache button"
   },
-  "cache_stat_capacity_label": {
-    "message": "Dung lượng tối đa",
-    "description": "Label for max cache entries"
-  },
   "cache_stat_item_label": {
     "message": "Mục đã lưu",
     "description": "Label for number of cached items"
@@ -142,10 +130,6 @@
   "cache_stat_size_label": {
     "message": "Dung lượng đã dùng",
     "description": "Label for cache size"
-  },
-  "cache_stat_usage_label": {
-    "message": "Dung lượng đã sử dụng",
-    "description": "Label for usage percentage"
   },
   "cancel": {
     "message": "Hủy",
@@ -399,6 +383,14 @@
     "message": "Tự động tải lại khi tệp cục bộ thay đổi (chỉ file://).",
     "description": "Helper note for auto refresh option"
   },
+  "settings_auto_refresh_title": {
+    "message": "Tự động làm mới",
+    "description": "Title for auto refresh settings section"
+  },
+  "settings_cache_title": {
+    "message": "Bộ nhớ đệm",
+    "description": "Title for cache settings section"
+  },
   "settings_docx_emoji_style": {
     "message": "Kiểu emoji",
     "description": "Label for the emoji style selector in DOCX export settings"
@@ -478,14 +470,6 @@
   "settings_language_changed": {
     "message": "Đã thay đổi ngôn ngữ giao diện",
     "description": "Toast when language is changed successfully"
-  },
-  "settings_language_label": {
-    "message": "Ngôn ngữ giao diện:",
-    "description": "Label for language selector"
-  },
-  "settings_language_note": {
-    "message": "Thay đổi này sẽ ghi đè ngôn ngữ hệ thống cho tiện ích mở rộng.",
-    "description": "Helper note for language selector"
   },
   "settings_max_cache_label": {
     "message": "Số mục tối đa trong bộ nhớ đệm:",
@@ -579,10 +563,6 @@
     "message": "Chia sẻ",
     "description": "Share button tooltip"
   },
-  "tab_cache": {
-    "message": "Bộ nhớ đệm",
-    "description": "Label for cache tab"
-  },
   "tab_history": {
     "message": "Lịch sử",
     "description": "Label for history tab"
@@ -590,6 +570,10 @@
   "tab_settings": {
     "message": "Cài đặt",
     "description": "Label for settings tab"
+  },
+  "tab_theme": {
+    "message": "Giao diện",
+    "description": "Label for theme tab"
   },
   "theme": {
     "message": "Chủ đề",

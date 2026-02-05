@@ -63,14 +63,6 @@
     "message": "nežinoma",
     "description": "Fallback label when cache type is missing"
   },
-  "cache_items_empty": {
-    "message": "Talpykloje dar nėra elementų",
-    "description": "Shown when the cache list is empty"
-  },
-  "cache_items_title": {
-    "message": "Talpyklos elementai (naujausi 20)",
-    "description": "Heading for cache items list"
-  },
   "cache_loading_failed": {
     "message": "Nepavyko įkelti talpyklos: {0}",
     "description": "Displayed when cache loading throws an error"
@@ -131,10 +123,6 @@
     "message": "Atnaujinti",
     "description": "Refresh cache button"
   },
-  "cache_stat_capacity_label": {
-    "message": "Maks. talpa",
-    "description": "Label for max cache entries"
-  },
   "cache_stat_item_label": {
     "message": "Talpyklos elementai",
     "description": "Label for number of cached items"
@@ -142,10 +130,6 @@
   "cache_stat_size_label": {
     "message": "Užimta vieta",
     "description": "Label for cache size"
-  },
-  "cache_stat_usage_label": {
-    "message": "Užimta talpos",
-    "description": "Label for usage percentage"
   },
   "cancel": {
     "message": "Atšaukti",
@@ -399,6 +383,14 @@
     "message": "Automatiškai perkrauti, kai pasikeičia vietinis failas (tik file://).",
     "description": "Helper note for auto refresh option"
   },
+  "settings_auto_refresh_title": {
+    "message": "Automatinis atnaujinimas",
+    "description": "Title for auto refresh settings section"
+  },
+  "settings_cache_title": {
+    "message": "Podėlis",
+    "description": "Title for cache settings section"
+  },
   "settings_docx_emoji_style": {
     "message": "Emoji stilius",
     "description": "Label for the emoji style selector in DOCX export settings"
@@ -478,14 +470,6 @@
   "settings_language_changed": {
     "message": "Sąsajos kalba pakeista",
     "description": "Toast when language is changed successfully"
-  },
-  "settings_language_label": {
-    "message": "Sąsajos kalba:",
-    "description": "Label for language selector"
-  },
-  "settings_language_note": {
-    "message": "Pakeitus tai, sistemos kalba bus perrašyta plėtinyje.",
-    "description": "Helper note for language selector"
   },
   "settings_max_cache_label": {
     "message": "Maks. talpyklos elementų:",
@@ -579,10 +563,6 @@
     "message": "Bendrinti",
     "description": "Share button tooltip"
   },
-  "tab_cache": {
-    "message": "Talpykla",
-    "description": "Label for cache tab"
-  },
   "tab_history": {
     "message": "Istorija",
     "description": "Label for history tab"
@@ -590,6 +570,10 @@
   "tab_settings": {
     "message": "Nustatymai",
     "description": "Label for settings tab"
+  },
+  "tab_theme": {
+    "message": "Tema",
+    "description": "Label for theme tab"
   },
   "theme": {
     "message": "Tema",

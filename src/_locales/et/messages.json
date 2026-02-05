@@ -63,14 +63,6 @@
     "message": "tundmatu",
     "description": "Fallback label when cache type is missing"
   },
-  "cache_items_empty": {
-    "message": "Vahemälus pole veel üksusi",
-    "description": "Shown when the cache list is empty"
-  },
-  "cache_items_title": {
-    "message": "Vahemällu salvestatud üksused (viimased 20)",
-    "description": "Heading for cache items list"
-  },
   "cache_loading_failed": {
     "message": "Vahemälu laadimine ebaõnnestus: {0}",
     "description": "Displayed when cache loading throws an error"
@@ -131,10 +123,6 @@
     "message": "Värskenda",
     "description": "Refresh cache button"
   },
-  "cache_stat_capacity_label": {
-    "message": "Maksimaalne maht",
-    "description": "Label for max cache entries"
-  },
   "cache_stat_item_label": {
     "message": "Vahemällu salvestatud üksused",
     "description": "Label for number of cached items"
@@ -142,10 +130,6 @@
   "cache_stat_size_label": {
     "message": "Kasutatud ruum",
     "description": "Label for cache size"
-  },
-  "cache_stat_usage_label": {
-    "message": "Kasutatud maht",
-    "description": "Label for usage percentage"
   },
   "cancel": {
     "message": "Tühista",
@@ -399,6 +383,14 @@
     "message": "Laadi automaatselt uuesti, kui kohalik fail muutub (ainult file://).",
     "description": "Helper note for auto refresh option"
   },
+  "settings_auto_refresh_title": {
+    "message": "Automaatne värskendamine",
+    "description": "Title for auto refresh settings section"
+  },
+  "settings_cache_title": {
+    "message": "Vahemälu",
+    "description": "Title for cache settings section"
+  },
   "settings_docx_emoji_style": {
     "message": "Emoji stiil",
     "description": "Label for the emoji style selector in DOCX export settings"
@@ -478,14 +470,6 @@
   "settings_language_changed": {
     "message": "Liidese keel muudetud",
     "description": "Toast when language is changed successfully"
-  },
-  "settings_language_label": {
-    "message": "Liidese keel:",
-    "description": "Label for language selector"
-  },
-  "settings_language_note": {
-    "message": "Selle muutmine alistab süsteemi keele laienduse jaoks.",
-    "description": "Helper note for language selector"
   },
   "settings_max_cache_label": {
     "message": "Maksimaalne vahemällu salvestatud üksuste arv:",
@@ -579,10 +563,6 @@
     "message": "Jaga",
     "description": "Share button tooltip"
   },
-  "tab_cache": {
-    "message": "Vahemälu",
-    "description": "Label for cache tab"
-  },
   "tab_history": {
     "message": "Ajalugu",
     "description": "Label for history tab"
@@ -590,6 +570,10 @@
   "tab_settings": {
     "message": "Sätted",
     "description": "Label for settings tab"
+  },
+  "tab_theme": {
+    "message": "Teema",
+    "description": "Label for theme tab"
   },
   "theme": {
     "message": "Teema",

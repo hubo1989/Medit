@@ -63,14 +63,6 @@
     "message": "неизвестно",
     "description": "Метка при отсутствующем типе"
   },
-  "cache_items_empty": {
-    "message": "Элементы кэша отсутствуют",
-    "description": "Сообщение при пустом списке"
-  },
-  "cache_items_title": {
-    "message": "Элементы кэша (последние 20)",
-    "description": "Заголовок списка"
-  },
   "cache_loading_failed": {
     "message": "Не удалось загрузить кэш: {0}",
     "description": "Ошибка при загрузке"
@@ -131,10 +123,6 @@
     "message": "Обновить",
     "description": "Кнопка обновления"
   },
-  "cache_stat_capacity_label": {
-    "message": "Максимальная емкость",
-    "description": "Метка емкости"
-  },
   "cache_stat_item_label": {
     "message": "Элементов в кэше",
     "description": "Метка количества"
@@ -142,10 +130,6 @@
   "cache_stat_size_label": {
     "message": "Использовано места",
     "description": "Метка размера"
-  },
-  "cache_stat_usage_label": {
-    "message": "Использование емкости",
-    "description": "Метка процента"
   },
   "cancel": {
     "message": "Отмена",
@@ -399,6 +383,14 @@
     "message": "Автоматически перезагружать при изменении локального файла (только file://).",
     "description": "Helper note for auto refresh option"
   },
+  "settings_auto_refresh_title": {
+    "message": "Автообновление",
+    "description": "Title for auto refresh settings section"
+  },
+  "settings_cache_title": {
+    "message": "Кэш",
+    "description": "Title for cache settings section"
+  },
   "settings_docx_emoji_style": {
     "message": "Стиль эмодзи",
     "description": "Label for the emoji style selector in DOCX export settings"
@@ -478,14 +470,6 @@
   "settings_language_changed": {
     "message": "Язык интерфейса изменён",
     "description": "Toast when language is changed successfully"
-  },
-  "settings_language_label": {
-    "message": "Язык интерфейса:",
-    "description": "Подпись выбора языка"
-  },
-  "settings_language_note": {
-    "message": "Изменение этого параметра переопределяет системный язык интерфейса для расширения.",
-    "description": "Примечание к выбору языка"
   },
   "settings_max_cache_label": {
     "message": "Максимум элементов в кэше:",
@@ -579,10 +563,6 @@
     "message": "Поделиться",
     "description": "Share button tooltip"
   },
-  "tab_cache": {
-    "message": "Кэш",
-    "description": "Метка вкладки кэша"
-  },
   "tab_history": {
     "message": "История",
     "description": "Метка вкладки истории"
@@ -590,6 +570,10 @@
   "tab_settings": {
     "message": "Настройки",
     "description": "Метка вкладки настроек"
+  },
+  "tab_theme": {
+    "message": "Тема",
+    "description": "Label for theme tab"
   },
   "theme": {
     "message": "Тема",

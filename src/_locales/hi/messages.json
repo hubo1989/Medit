@@ -63,14 +63,6 @@
     "message": "अज्ञात",
     "description": "Fallback label when cache type is missing"
   },
-  "cache_items_empty": {
-    "message": "अभी तक कोई कैश आइटम नहीं",
-    "description": "Shown when the cache list is empty"
-  },
-  "cache_items_title": {
-    "message": "कैश किए गए आइटम (नवीनतम 20)",
-    "description": "Heading for cache items list"
-  },
   "cache_loading_failed": {
     "message": "कैश लोड करना विफल रहा: {0}",
     "description": "Displayed when cache loading throws an error"
@@ -131,10 +123,6 @@
     "message": "रीफ्रेश करें",
     "description": "Refresh cache button"
   },
-  "cache_stat_capacity_label": {
-    "message": "अधिकतम क्षमता",
-    "description": "Label for max cache entries"
-  },
   "cache_stat_item_label": {
     "message": "कैश किए गए आइटम",
     "description": "Label for number of cached items"
@@ -142,10 +130,6 @@
   "cache_stat_size_label": {
     "message": "उपयोग की गई जगह",
     "description": "Label for cache size"
-  },
-  "cache_stat_usage_label": {
-    "message": "उपयोग की गई क्षमता",
-    "description": "Label for usage percentage"
   },
   "cancel": {
     "message": "रद्द करें",
@@ -399,6 +383,14 @@
     "message": "स्थानीय फ़ाइल बदलने पर स्वचालित रूप से पुनः लोड करें (केवल file://)।",
     "description": "Helper note for auto refresh option"
   },
+  "settings_auto_refresh_title": {
+    "message": "स्वतः रिफ़्रेश",
+    "description": "Title for auto refresh settings section"
+  },
+  "settings_cache_title": {
+    "message": "कैश",
+    "description": "Title for cache settings section"
+  },
   "settings_docx_emoji_style": {
     "message": "इमोजी शैली",
     "description": "Label for the emoji style selector in DOCX export settings"
@@ -478,14 +470,6 @@
   "settings_language_changed": {
     "message": "इंटरफेस भाषा बदल दी गई",
     "description": "Toast when language is changed successfully"
-  },
-  "settings_language_label": {
-    "message": "इंटरफ़ेस भाषा:",
-    "description": "Label for language selector"
-  },
-  "settings_language_note": {
-    "message": "इसे बदलने से एक्सटेंशन के लिए सिस्टम भाषा ओवरराइड हो जाती है।",
-    "description": "Helper note for language selector"
   },
   "settings_max_cache_label": {
     "message": "अधिकतम कैश आइटम:",
@@ -579,10 +563,6 @@
     "message": "साझा करें",
     "description": "Share button tooltip"
   },
-  "tab_cache": {
-    "message": "कैश",
-    "description": "Label for cache tab"
-  },
   "tab_history": {
     "message": "इतिहास",
     "description": "Label for history tab"
@@ -590,6 +570,10 @@
   "tab_settings": {
     "message": "सेटिंग्स",
     "description": "Label for settings tab"
+  },
+  "tab_theme": {
+    "message": "थीम",
+    "description": "Label for theme tab"
   },
   "theme": {
     "message": "थीम",

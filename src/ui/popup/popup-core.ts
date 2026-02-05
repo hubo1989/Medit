@@ -15,7 +15,7 @@ import { createSettingsTabManager, type SettingsTabManager } from './settings-ta
 /**
  * Tab name type
  */
-type TabName = 'history' | 'cache' | 'settings' | 'about';
+type TabName = 'history' | 'theme' | 'settings' | 'about';
 
 /**
  * Main popup manager class
@@ -56,6 +56,9 @@ class PopupManager {
     await this.settingsTab.loadSettings();
     this.setupEventListeners();
     checkFileAccess();
+
+    // Initialize language selector in header (always visible)
+    this.settingsTab.setupLanguageSelector();
 
     // Only load data for the active tab
     if (this.currentTab === 'cache') {
@@ -142,9 +145,10 @@ class PopupManager {
     this.currentTab = tabName;
 
     // Load tab-specific data
-    if (tabName === 'cache') {
-      this.cacheTab.loadCacheData();
-    } else if (tabName === 'settings') {
+    if (tabName === 'settings') {
+      this.settingsTab.loadSettingsUI();
+      this.cacheTab.loadCacheData(); // Load cache stats for settings tab
+    } else if (tabName === 'theme') {
       this.settingsTab.loadSettingsUI();
     } else if (tabName === 'history') {
       this.historyTab.loadHistoryData();
