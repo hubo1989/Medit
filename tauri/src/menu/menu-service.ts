@@ -11,6 +11,7 @@ export interface MenuServiceConfig {
   onSaveAs?: () => void;
   onExit?: () => void;
   onFind?: () => void;
+  onPreferences?: () => void;
   onEditMode?: () => void;
   onPreviewMode?: () => void;
   onSplitMode?: () => void;
@@ -60,6 +61,11 @@ export class MenuService {
     // Edit menu events
     this._unlisteners.push(
       await listen('menu:edit:find', () => this._config.onFind?.())
+    );
+
+    // Preferences menu event
+    this._unlisteners.push(
+      await listen('menu:preferences', () => this._config.onPreferences?.())
     );
 
     // View menu events

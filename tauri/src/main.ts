@@ -8,6 +8,7 @@ import { Toolbar, PreferencesPanel } from './ui/index.js';
 import { I18nService, type Language } from './i18n/index.js';
 import { MenuService } from './menu/index.js';
 import { PreferencesService, ThemeService } from './services/index.js';
+import { invoke } from '@tauri-apps/api/core';
 
 // Application state
 interface AppState {
@@ -259,11 +260,12 @@ class MeditApp {
   private _initMenuService(): void {
     this._menuService = new MenuService({
       onNewFile: () => this._handleNewFile(),
-      onOpenFile: () => this._handleOpenFile(),
-      onSave: () => this._manualSave(),
-      onSaveAs: () => this._handleSaveAs(),
-      onExit: () => this._handleExit(),
+      onOpenFile: () => void this._handleOpenFile(),
+      onSave: () => void this._manualSave(),
+      onSaveAs: () => void this._handleSaveAs(),
+      onExit: () => void this._handleExit(),
       onFind: () => this._handleFind(),
+      onPreferences: () => this._handlePreferences(),
       onEditMode: () => this._modeService.switchMode('edit'),
       onPreviewMode: () => this._modeService.switchMode('preview'),
       onSplitMode: () => this._modeService.switchMode('split'),
@@ -293,26 +295,121 @@ class MeditApp {
   /**
    * Handle open file from menu
    */
-  private _handleOpenFile(): void {
-    // TODO: Implement file open dialog using Tauri API
-    console.log('[Medit] Open file dialog');
+  private async _handleOpenFile(): Promise<void> {
+    try {
+      // Check for unsaved changes
+      if (this._fileSaveService?.hasUnsavedChanges(this._currentContent)) {
+        const confirmed = confirm(this._i18n.t('confirm.discardChanges') ?? '有未保存的更改，是否继续？');
+        if (!confirmed) return;
+      }
+
+      // Call backend to open file dialog
+      const result = await invoke<{ path: string | null; canceled: boolean }>('open_file_dialog');
+
+      if (result.canceled || !result.path) {
+        console.log('[Medit] Open file dialog canceled');
+        return;
+      }
+
+      // Read file content
+      const fileResult = await invoke<{ success: boolean; content: string | null; error: string | null }>(
+        'read_file',
+        { path: result.path }
+      );
+
+      if (!fileResult.success || fileResult.content === null) {
+        console.error('[Medit] Failed to read file:', fileResult.error);
+        alert(this._i18n.t('error.readFile') ?? '读取文件失败');
+        return;
+      }
+
+      // Update editor with file content
+      this._currentContent = fileResult.content;
+      this._editor?.setValue(fileResult.content);
+      this._state.filePath = result.path;
+      this._saveState();
+
+      // Update file save service with new path
+      this._fileSaveService?.updateConfig({ filePath: result.path });
+      this._fileSaveService?.setLastSavedContent(fileResult.content);
+
+      console.log('[Medit] File opened:', result.path);
+    } catch (error) {
+      console.error('[Medit] Error opening file:', error);
+      alert(this._i18n.t('error.openFile') ?? '打开文件失败');
+    }
   }
 
   /**
    * Handle save as from menu
    */
-  private _handleSaveAs(): void {
-    // TODO: Implement save as dialog using Tauri API
-    console.log('[Medit] Save as dialog');
+  private async _handleSaveAs(): Promise<void> {
+    try {
+      // Get default filename from current path
+      const defaultName = this._state.filePath.split('/').pop()?.split('\\').pop() ?? 'document.md';
+
+      // Call backend to open save file dialog
+      const result = await invoke<{ path: string | null; canceled: boolean }>(
+        'save_file_dialog',
+        { defaultName }
+      );
+
+      if (result.canceled || !result.path) {
+        console.log('[Medit] Save as dialog canceled');
+        return;
+      }
+
+      // Write content to selected path
+      const writeResult = await invoke<{ success: boolean; error: string | null }>(
+        'write_file',
+        { path: result.path, content: this._currentContent }
+      );
+
+      if (!writeResult.success) {
+        console.error('[Medit] Failed to save file:', writeResult.error);
+        alert(this._i18n.t('error.saveFile') ?? '保存文件失败');
+        return;
+      }
+
+      // Update state with new path
+      this._state.filePath = result.path;
+      this._saveState();
+
+      // Update file save service with new path
+      this._fileSaveService?.updateConfig({ filePath: result.path });
+      this._fileSaveService?.setLastSavedContent(this._currentContent);
+
+      console.log('[Medit] File saved as:', result.path);
+    } catch (error) {
+      console.error('[Medit] Error saving file:', error);
+      alert(this._i18n.t('error.saveFile') ?? '保存文件失败');
+    }
   }
 
   /**
    * Handle exit from menu
    */
-  private _handleExit(): void {
+  private async _handleExit(): Promise<void> {
+    // Check for unsaved changes
+    if (this._fileSaveService?.hasUnsavedChanges(this._currentContent)) {
+      const confirmed = confirm(this._i18n.t('confirm.unsavedChanges') ?? '有未保存的更改，确定要退出吗？');
+      if (!confirmed) return;
+    }
+
+    // Flush any pending saves
+    await this._fileSaveService?.flush();
+
+    // Save state
     this._saveState();
-    void this._fileSaveService?.flush();
+
     console.log('[Medit] Exit requested');
+
+    // Call backend to exit application
+    try {
+      await invoke('exit_app');
+    } catch (error) {
+      console.error('[Medit] Error exiting app:', error);
+    }
   }
 
   /**
@@ -322,6 +419,15 @@ class MeditApp {
     // Focus editor and trigger find
     this._editor?.focus();
     console.log('[Medit] Find dialog');
+  }
+
+  /**
+   * Handle preferences from menu
+   */
+  private _handlePreferences(): void {
+    this._preferencesPanel?.toggle();
+    this._toolbar?.refreshSettingsButtonState();
+    console.log('[Medit] Preferences panel toggled');
   }
 
   /**

@@ -234,11 +234,12 @@
         "pnpm lint 通过"
       ],
       "priority": 11,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "dependsOn": [
         "US-003"
-      ]
+      ],
+      "completionNotes": "Completed by agent"
     },
     {
       "id": "US-012",
@@ -262,6 +263,6 @@
     }
   ],
   "metadata": {
-    "updatedAt": "2026-02-10T09:21:39.772Z"
+    "updatedAt": "2026-02-10T10:48:37.668Z"
   }
 }
