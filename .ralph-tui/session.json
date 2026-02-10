@@ -1,0 +1,98 @@
+{
+  "version": 1,
+  "sessionId": "801865df-7b4d-40fa-bb6e-b23ea063e44c",
+  "status": "running",
+  "startedAt": "2026-02-10T04:45:13.227Z",
+  "updatedAt": "2026-02-10T04:47:27.477Z",
+  "currentIteration": 0,
+  "maxIterations": 10,
+  "tasksCompleted": 0,
+  "isPaused": false,
+  "agentPlugin": "claude",
+  "trackerState": {
+    "plugin": "json",
+    "prdPath": "./tasks/prd.json",
+    "totalTasks": 12,
+    "tasks": [
+      {
+        "id": "US-001",
+        "title": "添加 Vditor 依赖和类型定义",
+        "status": "open",
+        "completedInSession": false
+      },
+      {
+        "id": "US-002",
+        "title": "创建 VditorEditor 核心封装类",
+        "status": "open",
+        "completedInSession": false
+      },
+      {
+        "id": "US-003",
+        "title": "创建编辑模式状态管理服务",
+        "status": "open",
+        "completedInSession": false
+      },
+      {
+        "id": "US-004",
+        "title": "在 Tauri Toolbar 添加编辑模式切换按钮",
+        "status": "open",
+        "completedInSession": false
+      },
+      {
+        "id": "US-005",
+        "title": "实现预览模式（现有功能保留）",
+        "status": "open",
+        "completedInSession": false
+      },
+      {
+        "id": "US-006",
+        "title": "实现编辑模式（纯编辑）",
+        "status": "open",
+        "completedInSession": false
+      },
+      {
+        "id": "US-007",
+        "title": "实现分屏模式（编辑+预览同步）",
+        "status": "open",
+        "completedInSession": false
+      },
+      {
+        "id": "US-008",
+        "title": "实现内容保存和文件写入",
+        "status": "open",
+        "completedInSession": false
+      },
+      {
+        "id": "US-009",
+        "title": "在 Tauri 主进程中添加文件保存命令",
+        "status": "open",
+        "completedInSession": false
+      },
+      {
+        "id": "US-010",
+        "title": "更新 Tauri 前端集成编辑器",
+        "status": "open",
+        "completedInSession": false
+      },
+      {
+        "id": "US-011",
+        "title": "添加编辑模式样式和主题适配",
+        "status": "open",
+        "completedInSession": false
+      },
+      {
+        "id": "US-012",
+        "title": "添加本地化和快捷键支持",
+        "status": "open",
+        "completedInSession": false
+      }
+    ]
+  },
+  "iterations": [],
+  "skippedTaskIds": [],
+  "cwd": "/Users/hubo/.superset/worktrees/Medit/featadd-vditor",
+  "activeTaskIds": [
+    "US-001"
+  ],
+  "subagentPanelVisible": false
+}
