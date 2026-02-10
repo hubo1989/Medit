@@ -3,10 +3,10 @@
   "sessionId": "3882d4ed-ff59-41ff-9d2c-6070bf2c1948",
   "status": "running",
   "startedAt": "2026-02-10T08:47:38.545Z",
-  "updatedAt": "2026-02-10T09:03:13.874Z",
-  "currentIteration": 2,
+  "updatedAt": "2026-02-10T09:07:22.591Z",
+  "currentIteration": 3,
   "maxIterations": 10,
-  "tasksCompleted": 2,
+  "tasksCompleted": 3,
   "isPaused": false,
   "agentPlugin": "claude",
   "trackerState": {
@@ -29,8 +29,8 @@
       {
         "id": "US-003",
         "title": "创建偏好设置面板 UI",
-        "status": "open",
-        "completedInSession": false
+        "status": "completed",
+        "completedInSession": true
       },
       {
         "id": "US-004",
@@ -108,6 +108,16 @@
       "durationMs": 119028,
       "startedAt": "2026-02-10T08:55:21.619Z",
       "endedAt": "2026-02-10T08:57:20.647Z"
+    },
+    {
+      "iteration": 3,
+      "status": "completed",
+      "taskId": "US-003",
+      "taskTitle": "创建偏好设置面板 UI",
+      "taskCompleted": true,
+      "durationMs": 351980,
+      "startedAt": "2026-02-10T08:57:21.892Z",
+      "endedAt": "2026-02-10T09:03:13.872Z"
     }
   ],
   "skippedTaskIds": [],
