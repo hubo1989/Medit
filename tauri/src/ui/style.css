@@ -1,0 +1,584 @@
+/**
+ * Medit UI Styles
+ * Editor mode styles and theme adaptation for Vditor integration
+ */
+
+/* ============================================
+   EDITOR CONTAINER STYLES
+   ============================================ */
+
+/* Editor pane base styles */
+.editor-pane {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  background-color: var(--medit-bg-primary);
+  overflow: hidden;
+}
+
+/* Vditor editor container */
+#vditor-editor {
+  flex: 1;
+  overflow: auto;
+  background-color: var(--medit-bg-primary);
+}
+
+/* Ensure Vditor fills the container */
+#vditor-editor .vditor {
+  height: 100%;
+  border: none;
+  background-color: var(--medit-bg-primary);
+}
+
+/* Vditor toolbar styling to match Medit theme */
+#vditor-editor .vditor-toolbar {
+  background-color: var(--medit-bg-toolbar);
+  border-bottom: 1px solid var(--medit-border-color);
+}
+
+#vditor-editor .vditor-toolbar__item {
+  color: var(--medit-text-secondary);
+  transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+#vditor-editor .vditor-toolbar__item:hover {
+  color: var(--medit-text-primary);
+  background-color: var(--medit-bg-secondary);
+}
+
+#vditor-editor .vditor-toolbar__item svg {
+  fill: currentColor;
+}
+
+/* Vditor content area styling */
+#vditor-editor .vditor-content {
+  background-color: var(--medit-bg-primary);
+}
+
+#vditor-editor .vditor-textarea {
+  background-color: var(--medit-bg-primary);
+  color: var(--medit-text-primary);
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+#vditor-editor .vditor-textarea::placeholder {
+  color: var(--medit-text-secondary);
+}
+
+/* Vditor preview area within editor */
+#vditor-editor .vditor-preview {
+  background-color: var(--medit-bg-primary);
+}
+
+#vditor-editor .vditor-preview__content {
+  color: var(--medit-text-primary);
+}
+
+/* Vditor split view resizer */
+#vditor-editor .vditor-resize {
+  background-color: var(--medit-border-color);
+  transition: background-color 0.2s ease;
+}
+
+#vditor-editor .vditor-resize:hover {
+  background-color: var(--medit-accent-color);
+}
+
+/* ============================================
+   PREVIEW CONTAINER STYLES
+   ============================================ */
+
+.preview-pane {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--medit-bg-primary);
+  overflow: auto;
+}
+
+#markdown-content {
+  flex: 1;
+  padding: 24px 32px;
+  max-width: 1360px;
+  margin: 0 auto;
+  width: 100%;
+  color: var(--medit-text-primary);
+  line-height: 1.8;
+}
+
+/* Markdown content typography */
+#markdown-content h1,
+#markdown-content h2,
+#markdown-content h3,
+#markdown-content h4,
+#markdown-content h5,
+#markdown-content h6 {
+  color: var(--medit-text-primary);
+  margin-top: 24px;
+  margin-bottom: 16px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+#markdown-content h1 {
+  font-size: 2em;
+  border-bottom: 1px solid var(--medit-border-color);
+  padding-bottom: 8px;
+}
+
+#markdown-content h2 {
+  font-size: 1.5em;
+  border-bottom: 1px solid var(--medit-border-color);
+  padding-bottom: 6px;
+}
+
+#markdown-content p {
+  margin-bottom: 16px;
+}
+
+#markdown-content a {
+  color: var(--medit-accent-color);
+  text-decoration: none;
+}
+
+#markdown-content a:hover {
+  text-decoration: underline;
+}
+
+#markdown-content code {
+  background-color: var(--medit-bg-secondary);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+  font-size: 0.9em;
+}
+
+#markdown-content pre {
+  background-color: var(--medit-bg-secondary);
+  padding: 16px;
+  border-radius: 6px;
+  overflow-x: auto;
+  margin-bottom: 16px;
+}
+
+#markdown-content pre code {
+  background-color: transparent;
+  padding: 0;
+}
+
+#markdown-content blockquote {
+  border-left: 4px solid var(--medit-accent-color);
+  margin: 0 0 16px 0;
+  padding: 0 16px;
+  color: var(--medit-text-secondary);
+}
+
+#markdown-content ul,
+#markdown-content ol {
+  margin-bottom: 16px;
+  padding-left: 24px;
+}
+
+#markdown-content li {
+  margin-bottom: 4px;
+}
+
+#markdown-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 16px;
+}
+
+#markdown-content th,
+#markdown-content td {
+  border: 1px solid var(--medit-border-color);
+  padding: 8px 12px;
+  text-align: left;
+}
+
+#markdown-content th {
+  background-color: var(--medit-bg-secondary);
+  font-weight: 600;
+}
+
+#markdown-content tr:nth-child(even) {
+  background-color: var(--medit-bg-secondary);
+}
+
+#markdown-content hr {
+  border: none;
+  border-top: 1px solid var(--medit-border-color);
+  margin: 24px 0;
+}
+
+#markdown-content img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+}
+
+/* ============================================
+   SPLIT LAYOUT STYLES
+   ============================================ */
+
+/* Split mode container adjustments */
+[data-mode='split'] #main-container {
+  display: flex;
+  flex-direction: row;
+}
+
+[data-mode='split'] .editor-pane {
+  flex: 0 0 auto;
+  border-right: 1px solid var(--medit-border-color);
+}
+
+[data-mode='split'] .preview-pane {
+  flex: 1;
+}
+
+/* Split resizer styling */
+.split-resizer {
+  width: 6px;
+  background-color: var(--medit-border-color);
+  cursor: col-resize;
+  transition: background-color 0.2s ease;
+  flex-shrink: 0;
+  z-index: 10;
+  position: relative;
+}
+
+.split-resizer:hover,
+.split-resizer:active {
+  background-color: var(--medit-accent-color);
+}
+
+/* Resizer drag indicator */
+.split-resizer::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 2px;
+  height: 24px;
+  background-color: rgba(128, 128, 128, 0.5);
+  border-radius: 1px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.split-resizer:hover::after,
+.split-resizer:active::after {
+  opacity: 1;
+}
+
+/* ============================================
+   MODE-SPECIFIC VISIBILITY
+   ============================================ */
+
+/* Preview mode - hide editor */
+[data-mode='preview'] .editor-pane {
+  display: none;
+}
+
+[data-mode='preview'] .split-resizer {
+  display: none;
+}
+
+[data-mode='preview'] .preview-pane {
+  width: 100%;
+}
+
+/* Edit mode - hide preview */
+[data-mode='edit'] .preview-pane {
+  display: none;
+}
+
+[data-mode='edit'] .split-resizer {
+  display: none;
+}
+
+[data-mode='edit'] .editor-pane {
+  width: 100%;
+  border-right: none;
+}
+
+/* ============================================
+   TOOLBAR BUTTON STYLES
+   ============================================ */
+
+.medit-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  height: 100%;
+}
+
+.medit-toolbar-left,
+.medit-toolbar-center,
+.medit-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.medit-toolbar-center {
+  flex: 1;
+  justify-content: center;
+}
+
+/* Mode switcher button group */
+.medit-mode-switcher {
+  display: flex;
+  align-items: center;
+  background-color: var(--medit-bg-secondary);
+  border: 1px solid var(--medit-border-color);
+  border-radius: 6px;
+  padding: 2px;
+  gap: 2px;
+}
+
+/* Mode buttons - consistent with toolbar style */
+.medit-mode-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: none;
+  background: transparent;
+  color: var(--medit-text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.medit-mode-btn:hover {
+  background-color: var(--medit-bg-primary);
+  color: var(--medit-text-primary);
+}
+
+.medit-mode-btn.active {
+  background-color: var(--medit-bg-primary);
+  color: var(--medit-accent-color);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.medit-mode-btn svg {
+  width: 16px;
+  height: 16px;
+  stroke-width: 2;
+}
+
+.medit-mode-btn:focus-visible {
+  outline: 2px solid var(--medit-accent-color);
+  outline-offset: 2px;
+}
+
+/* ============================================
+   VDITOR THEME SYNCHRONIZATION
+   ============================================ */
+
+/* Light theme (default) - Vditor classic theme */
+:root[data-theme='light'] #vditor-editor .vditor {
+  --vditor-border-color: var(--medit-border-color);
+  --vditor-text-color: var(--medit-text-primary);
+  --vditor-bg-color: var(--medit-bg-primary);
+}
+
+/* Dark theme - Vditor dark theme overrides */
+:root[data-theme='dark'] #vditor-editor .vditor {
+  --vditor-border-color: var(--medit-border-color);
+  --vditor-text-color: var(--medit-text-primary);
+  --vditor-bg-color: var(--medit-bg-primary);
+}
+
+:root[data-theme='dark'] #vditor-editor .vditor-toolbar {
+  background-color: var(--medit-bg-toolbar);
+  border-bottom-color: var(--medit-border-color);
+}
+
+:root[data-theme='dark'] #vditor-editor .vditor-toolbar__item {
+  color: var(--medit-text-secondary);
+}
+
+:root[data-theme='dark'] #vditor-editor .vditor-toolbar__item:hover {
+  color: var(--medit-text-primary);
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+:root[data-theme='dark'] #vditor-editor .vditor-textarea {
+  background-color: var(--medit-bg-primary);
+  color: var(--medit-text-primary);
+  caret-color: var(--medit-accent-color);
+}
+
+:root[data-theme='dark'] #vditor-editor .vditor-content {
+  background-color: var(--medit-bg-primary);
+}
+
+:root[data-theme='dark'] #vditor-editor .vditor-preview {
+  background-color: var(--medit-bg-primary);
+}
+
+:root[data-theme='dark'] #vditor-editor .vditor-preview__content {
+  color: var(--medit-text-primary);
+}
+
+/* Vditor hint/emoji picker dark theme */
+:root[data-theme='dark'] #vditor-editor .vditor-hint {
+  background-color: var(--medit-bg-secondary);
+  border-color: var(--medit-border-color);
+}
+
+:root[data-theme='dark'] #vditor-editor .vditor-hint li {
+  color: var(--medit-text-primary);
+}
+
+:root[data-theme='dark'] #vditor-editor .vditor-hint li:hover,
+:root[data-theme='dark'] #vditor-editor .vditor-hint--current {
+  background-color: var(--medit-bg-toolbar);
+}
+
+/* Vditor tooltip dark theme */
+:root[data-theme='dark'] #vditor-editor .vditor-tooltipped::after {
+  background-color: var(--medit-bg-toolbar);
+  color: var(--medit-text-primary);
+}
+
+:root[data-theme='dark'] #vditor-editor .vditor-tooltipped::before {
+  border-top-color: var(--medit-bg-toolbar);
+}
+
+/* ============================================
+   TOC SIDEBAR STYLES
+   ============================================ */
+
+.toc-pane {
+  background-color: var(--medit-bg-secondary);
+  border-left: 1px solid var(--medit-border-color);
+}
+
+#toc-nav {
+  padding: 16px;
+}
+
+/* TOC visibility states */
+[data-toc='hidden'] .toc-pane {
+  display: none;
+}
+
+/* ============================================
+   RESPONSIVE ADAPTATIONS
+   ============================================ */
+
+@media (max-width: 1024px) {
+  /* Stack split mode vertically on smaller screens */
+  [data-mode='split'] #main-container {
+    flex-direction: column;
+  }
+
+  [data-mode='split'] .editor-pane,
+  [data-mode='split'] .preview-pane {
+    width: 100% !important;
+    height: 50%;
+  }
+
+  [data-mode='split'] .editor-pane {
+    border-right: none;
+    border-bottom: 1px solid var(--medit-border-color);
+  }
+
+  [data-mode='split'] .split-resizer {
+    width: 100%;
+    height: 6px;
+    cursor: row-resize;
+  }
+
+  [data-mode='split'] .split-resizer::after {
+    width: 24px;
+    height: 2px;
+  }
+
+  /* TOC as overlay on small screens */
+  .toc-pane {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 50;
+    box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
+  }
+}
+
+@media (max-width: 768px) {
+  #markdown-content {
+    padding: 16px 20px;
+  }
+
+  /* Hide button labels on small screens */
+  .medit-mode-btn span {
+    display: none;
+  }
+
+  .medit-mode-btn {
+    padding: 6px;
+  }
+
+  /* Smaller toolbar padding */
+  #toolbar-container {
+    padding: 0 12px;
+  }
+}
+
+/* ============================================
+   SCROLLBAR STYLING
+   ============================================ */
+
+/* Custom scrollbar for editor and preview */
+#vditor-editor::-webkit-scrollbar,
+#markdown-content::-webkit-scrollbar,
+#toc-nav::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+#vditor-editor::-webkit-scrollbar-track,
+#markdown-content::-webkit-scrollbar-track,
+#toc-nav::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#vditor-editor::-webkit-scrollbar-thumb,
+#markdown-content::-webkit-scrollbar-thumb,
+#toc-nav::-webkit-scrollbar-thumb {
+  background: var(--medit-border-color);
+  border-radius: 4px;
+}
+
+#vditor-editor::-webkit-scrollbar-thumb:hover,
+#markdown-content::-webkit-scrollbar-thumb:hover,
+#toc-nav::-webkit-scrollbar-thumb:hover {
+  background: var(--medit-text-secondary);
+}
+
+/* ============================================
+   FOCUS STATES
+   ============================================ */
+
+/* Ensure proper focus visibility for accessibility */
+.medit-mode-btn:focus,
+#vditor-editor .vditor-toolbar__item:focus {
+  outline: 2px solid var(--medit-accent-color);
+  outline-offset: 2px;
+}
+
+/* Remove default focus outline when using custom */
+.medit-mode-btn:focus:not(:focus-visible),
+#vditor-editor .vditor-toolbar__item:focus:not(:focus-visible) {
+  outline: none;
+}
