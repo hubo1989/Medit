@@ -4,9 +4,10 @@
  */
 
 import { EditorModeService, type EditorMode, VditorEditor, FileSaveService, type SaveStatus } from './editor/index.js';
-import { Toolbar } from './ui/index.js';
+import { Toolbar, PreferencesPanel } from './ui/index.js';
 import { I18nService, type Language } from './i18n/index.js';
 import { MenuService } from './menu/index.js';
+import { PreferencesService } from './services/preferences-service.js';
 
 // Application state
 interface AppState {
@@ -24,10 +25,12 @@ interface AppState {
 class MeditApp {
   private _modeService: EditorModeService;
   private _i18n: I18nService;
+  private _preferences: PreferencesService;
   private _toolbar: Toolbar | null = null;
   private _editor: VditorEditor | null = null;
   private _fileSaveService: FileSaveService | null = null;
   private _menuService: MenuService | null = null;
+  private _preferencesPanel: PreferencesPanel | null = null;
   private _appContainer: HTMLElement | null = null;
   private _state: AppState = {
     scrollPosition: 0,
@@ -50,6 +53,9 @@ class MeditApp {
       storageKey: 'medit:language',
       defaultLanguage: 'zh',
     });
+    this._preferences = new PreferencesService({
+      storageKeyPrefix: 'medit:pref:',
+    });
   }
 
   /**
@@ -65,6 +71,7 @@ class MeditApp {
     this._loadState();
 
     // Initialize UI
+    this._initPreferencesPanel();
     this._initToolbar();
     this._initEditor();
     this._initModeHandling();
@@ -86,6 +93,22 @@ class MeditApp {
   }
 
   /**
+   * Initialize preferences panel
+   */
+  private _initPreferencesPanel(): void {
+    if (!this._appContainer) return;
+
+    this._preferencesPanel = new PreferencesPanel({
+      container: this._appContainer,
+      preferences: this._preferences,
+      i18n: this._i18n,
+      onChange: (key, value) => {
+        console.log(`[Medit] Preference changed: ${key} = ${String(value)}`);
+      },
+    });
+  }
+
+  /**
    * Initialize toolbar component
    */
   private _initToolbar(): void {
@@ -99,6 +122,11 @@ class MeditApp {
       container: toolbarContainer,
       modeService: this._modeService,
       i18n: this._i18n,
+      onSettingsClick: () => {
+        this._preferencesPanel?.toggle();
+        this._toolbar?.refreshSettingsButtonState();
+      },
+      isSettingsOpen: () => this._preferencesPanel?.isOpen() ?? false,
     });
   }
 
@@ -737,6 +765,8 @@ class MeditApp {
     this._fileSaveService = null;
     this._menuService?.dispose();
     this._menuService = null;
+    this._preferencesPanel?.destroy();
+    this._preferencesPanel = null;
   }
 }
 

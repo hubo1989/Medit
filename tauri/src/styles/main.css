@@ -261,6 +261,37 @@ body {
   height: 16px;
 }
 
+/* Settings button */
+.medit-settings-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--medit-text-secondary);
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.medit-settings-btn:hover {
+  background-color: var(--medit-bg-secondary);
+  color: var(--medit-text-primary);
+}
+
+.medit-settings-btn.active {
+  background-color: var(--medit-accent-color);
+  color: white;
+}
+
+.medit-settings-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
 /* ============================================
    RESPONSIVE STYLES
    ============================================ */
