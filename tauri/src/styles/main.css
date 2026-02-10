@@ -333,6 +333,66 @@ body {
 }
 
 /* ============================================
+   SAVE STATUS INDICATOR
+   ============================================ */
+
+.save-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--medit-text-secondary);
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  min-width: 60px;
+  justify-content: center;
+}
+
+.save-status[data-status='saving'] {
+  color: var(--medit-accent-color);
+  background-color: var(--medit-bg-secondary);
+}
+
+.save-status[data-status='saving']::before {
+  content: '';
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--medit-border-color);
+  border-top-color: var(--medit-accent-color);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.save-status[data-status='saved'] {
+  color: #4caf50;
+  background-color: rgba(76, 175, 80, 0.1);
+}
+
+.save-status[data-status='saved']::before {
+  content: '✓';
+  font-size: 11px;
+}
+
+.save-status[data-status='error'] {
+  color: #f44336;
+  background-color: rgba(244, 67, 54, 0.1);
+}
+
+.save-status[data-status='error']::before {
+  content: '!';
+  font-size: 11px;
+  font-weight: bold;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ============================================
    UTILITY CLASSES
    ============================================ */
 

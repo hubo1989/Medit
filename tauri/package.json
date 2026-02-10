@@ -14,6 +14,7 @@
     "lint": "eslint src --ext .ts,.tsx"
   },
   "dependencies": {
+    "@tauri-apps/plugin-fs": "^2.4.5",
     "vditor": "^3.11.2"
   },
   "devDependencies": {

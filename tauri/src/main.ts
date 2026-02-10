@@ -3,7 +3,7 @@
  * Initializes the markdown editor with preview mode support
  */
 
-import { EditorModeService, type EditorMode, VditorEditor } from './editor/index.js';
+import { EditorModeService, type EditorMode, VditorEditor, FileSaveService, type SaveStatus } from './editor/index.js';
 import { Toolbar } from './ui/index.js';
 
 // Application state
@@ -13,6 +13,7 @@ interface AppState {
   theme: 'light' | 'dark';
   tocVisible: boolean;
   splitRatio: number; // 0.0 - 1.0, default 0.5
+  filePath: string;
 }
 
 /**
@@ -22,6 +23,7 @@ class MeditApp {
   private _modeService: EditorModeService;
   private _toolbar: Toolbar | null = null;
   private _editor: VditorEditor | null = null;
+  private _fileSaveService: FileSaveService | null = null;
   private _appContainer: HTMLElement | null = null;
   private _state: AppState = {
     scrollPosition: 0,
@@ -29,9 +31,11 @@ class MeditApp {
     theme: 'light',
     tocVisible: true,
     splitRatio: 0.5,
+    filePath: 'document.md',
   };
   private _currentContent = '';
   private _previewUpdateTimeout: ReturnType<typeof setTimeout> | null = null;
+  private _saveStatusElement: HTMLElement | null = null;
 
   constructor() {
     this._modeService = new EditorModeService({
@@ -56,6 +60,9 @@ class MeditApp {
     this._initToolbar();
     this._initEditor();
     this._initModeHandling();
+    this._initFileSaveService();
+    this._initSaveStatusIndicator();
+    this._initKeyboardShortcuts();
 
     // Load initial content
     await this._loadContent();
@@ -98,8 +105,88 @@ class MeditApp {
       onChange: (value) => {
         this._currentContent = value;
         this._updatePreview(value);
+        this._fileSaveService?.autoSave(value);
       },
     });
+  }
+
+  /**
+   * Initialize file save service
+   */
+  private _initFileSaveService(): void {
+    this._fileSaveService = new FileSaveService({
+      filePath: this._state.filePath,
+      autoSave: true,
+      autoSaveDelay: 2000,
+      onStatusChange: (status) => {
+        this._updateSaveStatusIndicator(status);
+      },
+      onSave: () => {
+        console.log('[Medit] File saved successfully');
+      },
+    });
+
+    // Set initial content as last saved
+    this._fileSaveService.setLastSavedContent(this._currentContent);
+  }
+
+  /**
+   * Initialize save status indicator
+   */
+  private _initSaveStatusIndicator(): void {
+    const toolbarContainer = document.getElementById('toolbar-container');
+    if (!toolbarContainer) return;
+
+    const statusElement = document.createElement('div');
+    statusElement.className = 'save-status';
+    statusElement.setAttribute('data-status', 'idle');
+    statusElement.textContent = '';
+
+    toolbarContainer.appendChild(statusElement);
+    this._saveStatusElement = statusElement;
+  }
+
+  /**
+   * Update save status indicator UI
+   */
+  private _updateSaveStatusIndicator(status: SaveStatus): void {
+    if (!this._saveStatusElement) return;
+
+    this._saveStatusElement.setAttribute('data-status', status);
+
+    const statusText: Record<SaveStatus, string> = {
+      idle: '',
+      saving: '保存中...',
+      saved: '已保存',
+      error: '保存失败',
+    };
+
+    this._saveStatusElement.textContent = statusText[status];
+  }
+
+  /**
+   * Initialize keyboard shortcuts
+   */
+  private _initKeyboardShortcuts(): void {
+    document.addEventListener('keydown', (e) => {
+      // Ctrl+S / Cmd+S for manual save
+      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+        e.preventDefault();
+        void this._manualSave();
+      }
+    });
+  }
+
+  /**
+   * Trigger manual save
+   */
+  private async _manualSave(): Promise<void> {
+    if (!this._fileSaveService) return;
+
+    const success = await this._fileSaveService.save(this._currentContent, { force: true });
+    if (!success) {
+      console.error('[Medit] Manual save failed');
+    }
   }
 
   /**
@@ -458,10 +545,15 @@ class MeditApp {
       this._previewUpdateTimeout = null;
     }
 
+    // Flush pending saves
+    void this._fileSaveService?.flush();
+
     this._toolbar?.destroy();
     this._toolbar = null;
     this._editor?.destroy();
     this._editor = null;
+    this._fileSaveService?.dispose();
+    this._fileSaveService = null;
   }
 }
 
