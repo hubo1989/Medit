@@ -940,6 +940,210 @@ body {
 }
 
 /* ============================================
+   FIND & REPLACE PANEL
+   ============================================ */
+
+.find-replace-panel {
+  position: absolute;
+  top: 0;
+  right: 16px;
+  z-index: 200;
+  opacity: 0;
+  transform: translateY(-100%);
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.find-replace-panel.open {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.find-replace-wrapper {
+  display: flex;
+  align-items: flex-start;
+  background-color: var(--medit-bg-elevated);
+  border: 1px solid var(--medit-border-color);
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  box-shadow: var(--medit-shadow-md);
+  padding: 8px 10px;
+  gap: 4px;
+}
+
+.find-replace-toggle-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 26px;
+  margin-top: 1px;
+  border: none;
+  background: transparent;
+  color: var(--medit-text-tertiary);
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.find-replace-toggle-btn:hover {
+  background-color: var(--medit-bg-secondary);
+  color: var(--medit-text-primary);
+}
+
+.find-replace-toggle-btn.expanded {
+  transform: rotate(90deg);
+}
+
+.find-replace-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.find-replace-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.find-replace-replace-row {
+  display: none;
+}
+
+.find-replace-replace-row.visible {
+  display: flex;
+}
+
+.find-replace-input-wrapper {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--medit-border-color);
+  border-radius: 6px;
+  background-color: var(--medit-bg-secondary);
+  overflow: hidden;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.find-replace-input-wrapper:focus-within {
+  border-color: var(--medit-accent-color);
+  box-shadow: 0 0 0 2px var(--medit-accent-light);
+}
+
+.find-replace-input {
+  border: none;
+  background: transparent;
+  color: var(--medit-text-primary);
+  font-size: 13px;
+  padding: 5px 8px;
+  outline: none;
+  width: 200px;
+  min-width: 0;
+}
+
+.find-replace-input::placeholder {
+  color: var(--medit-text-tertiary);
+}
+
+.find-replace-option-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  color: var(--medit-text-tertiary);
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.find-replace-option-btn:hover {
+  background-color: var(--medit-bg-primary);
+  color: var(--medit-text-primary);
+}
+
+.find-replace-option-btn.active {
+  background-color: var(--medit-accent-light);
+  color: var(--medit-accent-color);
+}
+
+.find-replace-match-count {
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  color: var(--medit-text-secondary);
+  min-width: 52px;
+  text-align: center;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.find-replace-match-count.no-results {
+  color: #f44336;
+}
+
+.find-replace-nav-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border: none;
+  background: transparent;
+  color: var(--medit-text-secondary);
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.find-replace-nav-btn:hover {
+  background-color: var(--medit-bg-secondary);
+  color: var(--medit-text-primary);
+}
+
+.find-replace-action-btn {
+  padding: 4px 10px;
+  border: 1px solid var(--medit-border-color);
+  border-radius: 5px;
+  background-color: var(--medit-bg-secondary);
+  color: var(--medit-text-primary);
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.find-replace-action-btn:hover {
+  background-color: var(--medit-accent-light);
+  border-color: var(--medit-accent-color);
+  color: var(--medit-accent-color);
+}
+
+@media (max-width: 640px) {
+  .find-replace-panel {
+    right: 8px;
+    left: 8px;
+  }
+
+  .find-replace-input {
+    width: 100%;
+    min-width: 80px;
+  }
+
+  .find-replace-match-count {
+    min-width: 40px;
+  }
+}
+
+/* ============================================
    UTILITY CLASSES
    ============================================ */
 

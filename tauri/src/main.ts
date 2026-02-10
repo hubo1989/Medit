@@ -4,7 +4,7 @@
  */
 
 import { EditorModeService, type EditorMode, VditorEditor, FileSaveService, type SaveStatus } from './editor/index.js';
-import { Toolbar, PreferencesPanel } from './ui/index.js';
+import { Toolbar, PreferencesPanel, FindReplacePanel } from './ui/index.js';
 import { I18nService, type Language } from './i18n/index.js';
 import { MenuService } from './menu/index.js';
 import { PreferencesService, ThemeService } from './services/index.js';
@@ -33,6 +33,7 @@ class MeditApp {
   private _fileSaveService: FileSaveService | null = null;
   private _menuService: MenuService | null = null;
   private _preferencesPanel: PreferencesPanel | null = null;
+  private _findReplacePanel: FindReplacePanel | null = null;
   private _appContainer: HTMLElement | null = null;
   private _state: AppState = {
     scrollPosition: 0,
@@ -127,6 +128,7 @@ class MeditApp {
     this._initSaveStatusIndicator();
     this._initKeyboardShortcuts();
     this._initMenuService();
+    this._initFindReplacePanel();
 
     // Load initial content
     await this._loadContent();
@@ -184,6 +186,9 @@ class MeditApp {
         this._toolbar?.refreshSettingsButtonState();
       },
       isSettingsOpen: () => this._preferencesPanel?.isOpen() ?? false,
+      onFindClick: () => {
+        this._findReplacePanel?.toggle();
+      },
     });
   }
 
@@ -252,6 +257,24 @@ class MeditApp {
 
     this._saveStatusElement.setAttribute('data-status', status);
     this._saveStatusElement.textContent = this._i18n.getSaveStatus(status);
+  }
+
+  /**
+   * Initialize find/replace panel
+   */
+  private _initFindReplacePanel(): void {
+    const mainContainer = document.getElementById('main-container');
+    if (!mainContainer) return;
+
+    this._findReplacePanel = new FindReplacePanel({
+      container: mainContainer,
+      i18n: this._i18n,
+      getContent: () => this._currentContent,
+      setContent: (value: string) => {
+        this._currentContent = value;
+        this._editor?.setValue(value);
+      },
+    });
   }
 
   /**
@@ -416,9 +439,7 @@ class MeditApp {
    * Handle find from menu
    */
   private _handleFind(): void {
-    // Focus editor and trigger find
-    this._editor?.focus();
-    console.log('[Medit] Find dialog');
+    this._findReplacePanel?.toggle();
   }
 
   /**
@@ -505,6 +526,20 @@ class MeditApp {
       if ((e.ctrlKey || e.metaKey) && e.key === 'b' && !e.shiftKey) {
         e.preventDefault();
         this.toggleToc();
+        return;
+      }
+
+      // Ctrl+F / Cmd+F for find
+      if ((e.ctrlKey || e.metaKey) && e.key === 'f' && !e.shiftKey) {
+        e.preventDefault();
+        this._findReplacePanel?.toggle();
+        return;
+      }
+
+      // Ctrl+H / Cmd+H for find & replace
+      if ((e.ctrlKey || e.metaKey) && e.key === 'h' && !e.shiftKey) {
+        e.preventDefault();
+        this._findReplacePanel?.toggle(true);
         return;
       }
 
@@ -1025,6 +1060,8 @@ class MeditApp {
     this._menuService = null;
     this._preferencesPanel?.destroy();
     this._preferencesPanel = null;
+    this._findReplacePanel?.destroy();
+    this._findReplacePanel = null;
     this._themeService?.dispose();
     (this as unknown as { _themeService: null })._themeService = null;
   }

@@ -128,6 +128,21 @@ const TRANSLATIONS = {
         quit: 'Quit',
       },
     },
+    // Find & Replace
+    findReplace: {
+      find: 'Find',
+      findPlaceholder: 'Find...',
+      replacePlaceholder: 'Replace...',
+      replace: 'Replace',
+      replaceAll: 'Replace All',
+      caseSensitive: 'Match Case',
+      wholeWord: 'Match Whole Word',
+      previousMatch: 'Previous Match',
+      nextMatch: 'Next Match',
+      noResults: 'No results',
+      close: 'Close',
+      toggleReplace: 'Toggle Replace',
+    },
   },
   zh: {
     // Mode labels
@@ -242,6 +257,21 @@ const TRANSLATIONS = {
         resetZoom: '重置缩放',
         quit: '退出应用',
       },
+    },
+    // 查找替换
+    findReplace: {
+      find: '查找',
+      findPlaceholder: '查找...',
+      replacePlaceholder: '替换...',
+      replace: '替换',
+      replaceAll: '全部替换',
+      caseSensitive: '区分大小写',
+      wholeWord: '全字匹配',
+      previousMatch: '上一个匹配',
+      nextMatch: '下一个匹配',
+      noResults: '无结果',
+      close: '关闭',
+      toggleReplace: '切换替换',
     },
   },
 } as const;
