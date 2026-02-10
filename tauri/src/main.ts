@@ -3,7 +3,7 @@
  * Initializes the markdown editor with preview mode support
  */
 
-import { EditorModeService, type EditorMode } from './editor/index.js';
+import { EditorModeService, type EditorMode, VditorEditor } from './editor/index.js';
 import { Toolbar } from './ui/index.js';
 
 // Application state
@@ -19,12 +19,14 @@ interface AppState {
 class MeditApp {
   private _modeService: EditorModeService;
   private _toolbar: Toolbar | null = null;
+  private _editor: VditorEditor | null = null;
   private _appContainer: HTMLElement | null = null;
   private _state: AppState = {
     scrollPosition: 0,
     theme: 'light',
     tocVisible: true,
   };
+  private _currentContent = '';
 
   constructor() {
     this._modeService = new EditorModeService({
@@ -47,7 +49,11 @@ class MeditApp {
 
     // Initialize UI
     this._initToolbar();
+    this._initEditor();
     this._initModeHandling();
+
+    // Load initial content
+    await this._loadContent();
 
     // Apply initial mode
     this._applyMode(this._modeService.getCurrentMode());
@@ -72,6 +78,73 @@ class MeditApp {
       container: toolbarContainer,
       modeService: this._modeService,
     });
+  }
+
+  /**
+   * Initialize Vditor editor
+   */
+  private _initEditor(): void {
+    this._editor = new VditorEditor({
+      container: '#vditor-editor',
+      theme: this._state.theme,
+      initialValue: this._currentContent,
+      placeholder: '开始编写 Markdown...',
+      mode: 'sv',
+      onChange: (value) => {
+        this._currentContent = value;
+        this._updatePreview(value);
+      },
+    });
+  }
+
+  /**
+   * Load content from storage or default
+   */
+  private async _loadContent(): Promise<void> {
+    // Try to load from localStorage first
+    const savedContent = localStorage.getItem('medit:content');
+    if (savedContent) {
+      this._currentContent = savedContent;
+      return;
+    }
+
+    // Default welcome content
+    this._currentContent = `# 欢迎使用 Medit
+
+这是一个简洁的 Markdown 编辑器。
+
+## 功能特性
+
+- **实时预览**: 编辑时即时查看渲染效果
+- **多种模式**: 支持编辑、预览、分屏三种模式
+- **主题切换**: 支持亮色和暗色主题
+- **目录导航**: 自动生成文档目录
+
+## 开始使用
+
+在编辑器中输入 Markdown 语法，右侧预览区会实时更新。
+
+## 快捷键
+
+- \`Ctrl+B\`: 粗体
+- \`Ctrl+I\`: 斜体
+- \`Ctrl+K\`: 插入链接
+
+---
+
+*享受写作的乐趣！*
+`;
+  }
+
+  /**
+   * Update preview content
+   */
+  private _updatePreview(content: string): void {
+    const previewContainer = document.getElementById('markdown-content');
+    if (previewContainer) {
+      // TODO: Render markdown to HTML
+      previewContainer.textContent = content;
+    }
   }
 
   /**
@@ -122,6 +195,8 @@ class MeditApp {
         editorContainer.style.display = 'flex';
         editorContainer.style.width = '100%';
         previewContainer.style.display = 'none';
+        // Initialize editor if needed
+        void this._initEditorIfNeeded();
         break;
 
       case 'split':
@@ -130,6 +205,8 @@ class MeditApp {
         editorContainer.style.width = '50%';
         previewContainer.style.display = 'flex';
         previewContainer.style.width = '50%';
+        // Initialize editor if needed
+        void this._initEditorIfNeeded();
         break;
     }
 
@@ -248,7 +325,23 @@ class MeditApp {
   setTheme(theme: 'light' | 'dark'): void {
     this._state.theme = theme;
     document.documentElement.setAttribute('data-theme', theme);
+    this._editor?.setTheme(theme);
     this._saveState();
+  }
+
+  /**
+   * Initialize editor if not already initialized
+   */
+  private async _initEditorIfNeeded(): Promise<void> {
+    if (!this._editor) {
+      this._initEditor();
+    }
+    if (this._editor && !this._editor.isInitialized()) {
+      await this._editor.init();
+      if (this._currentContent) {
+        this._editor.setValue(this._currentContent);
+      }
+    }
   }
 
   /**
@@ -257,6 +350,8 @@ class MeditApp {
   destroy(): void {
     this._toolbar?.destroy();
     this._toolbar = null;
+    this._editor?.destroy();
+    this._editor = null;
   }
 }
 
