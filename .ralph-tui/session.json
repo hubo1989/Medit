@@ -3,10 +3,10 @@
   "sessionId": "3882d4ed-ff59-41ff-9d2c-6070bf2c1948",
   "status": "running",
   "startedAt": "2026-02-10T08:47:38.545Z",
-  "updatedAt": "2026-02-10T08:54:57.487Z",
-  "currentIteration": 0,
+  "updatedAt": "2026-02-10T08:57:20.649Z",
+  "currentIteration": 1,
   "maxIterations": 10,
-  "tasksCompleted": 0,
+  "tasksCompleted": 1,
   "isPaused": false,
   "agentPlugin": "claude",
   "trackerState": {
@@ -17,8 +17,8 @@
       {
         "id": "US-001",
         "title": "添加 Tauri 原生应用菜单",
-        "status": "open",
-        "completedInSession": false
+        "status": "completed",
+        "completedInSession": true
       },
       {
         "id": "US-002",
@@ -88,7 +88,18 @@
       }
     ]
   },
-  "iterations": [],
+  "iterations": [
+    {
+      "iteration": 1,
+      "status": "completed",
+      "taskId": "US-001",
+      "taskTitle": "添加 Tauri 原生应用菜单",
+      "taskCompleted": true,
+      "durationMs": 436152,
+      "startedAt": "2026-02-10T08:47:41.329Z",
+      "endedAt": "2026-02-10T08:54:57.481Z"
+    }
+  ],
   "skippedTaskIds": [],
   "cwd": "/Users/hubo/.superset/worktrees/Medit/featadd-vditor",
   "activeTaskIds": [],
