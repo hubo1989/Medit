@@ -3,10 +3,10 @@
   "sessionId": "801865df-7b4d-40fa-bb6e-b23ea063e44c",
   "status": "running",
   "startedAt": "2026-02-10T04:45:13.227Z",
-  "updatedAt": "2026-02-10T04:53:49.598Z",
-  "currentIteration": 3,
+  "updatedAt": "2026-02-10T04:57:05.159Z",
+  "currentIteration": 4,
   "maxIterations": 10,
-  "tasksCompleted": 3,
+  "tasksCompleted": 4,
   "isPaused": false,
   "agentPlugin": "claude",
   "trackerState": {
@@ -35,8 +35,8 @@
       {
         "id": "US-004",
         "title": "在 Tauri Toolbar 添加编辑模式切换按钮",
-        "status": "open",
-        "completedInSession": false
+        "status": "completed",
+        "completedInSession": true
       },
       {
         "id": "US-005",
@@ -118,6 +118,16 @@
       "durationMs": 70490,
       "startedAt": "2026-02-10T04:51:20.622Z",
       "endedAt": "2026-02-10T04:52:31.112Z"
+    },
+    {
+      "iteration": 4,
+      "status": "completed",
+      "taskId": "US-004",
+      "taskTitle": "在 Tauri Toolbar 添加编辑模式切换按钮",
+      "taskCompleted": true,
+      "durationMs": 77400,
+      "startedAt": "2026-02-10T04:52:32.196Z",
+      "endedAt": "2026-02-10T04:53:49.596Z"
     }
   ],
   "skippedTaskIds": [],
