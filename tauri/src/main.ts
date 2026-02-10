@@ -9,8 +9,10 @@ import { Toolbar } from './ui/index.js';
 // Application state
 interface AppState {
   scrollPosition: number;
+  editorScrollPosition: number;
   theme: 'light' | 'dark';
   tocVisible: boolean;
+  splitRatio: number; // 0.0 - 1.0, default 0.5
 }
 
 /**
@@ -23,10 +25,13 @@ class MeditApp {
   private _appContainer: HTMLElement | null = null;
   private _state: AppState = {
     scrollPosition: 0,
+    editorScrollPosition: 0,
     theme: 'light',
     tocVisible: true,
+    splitRatio: 0.5,
   };
   private _currentContent = '';
+  private _previewUpdateTimeout: ReturnType<typeof setTimeout> | null = null;
 
   constructor() {
     this._modeService = new EditorModeService({
@@ -137,12 +142,36 @@ class MeditApp {
   }
 
   /**
-   * Update preview content
+   * Update preview content with debounce (300ms)
    */
   private _updatePreview(content: string): void {
+    // Clear existing timeout
+    if (this._previewUpdateTimeout) {
+      clearTimeout(this._previewUpdateTimeout);
+    }
+
+    // Debounce preview update
+    this._previewUpdateTimeout = setTimeout(() => {
+      this._renderPreview(content);
+    }, 300);
+  }
+
+  /**
+   * Render markdown to preview container using Vditor's markdown renderer
+   */
+  private async _renderPreview(content: string): Promise<void> {
     const previewContainer = document.getElementById('markdown-content');
-    if (previewContainer) {
-      // TODO: Render markdown to HTML
+    if (!previewContainer || typeof window.Vditor === 'undefined') return;
+
+    try {
+      // Use Vditor's markdown to HTML renderer
+      const html = await window.Vditor.md2html(content, {
+        theme: this._state.theme === 'dark' ? 'dark' : 'classic',
+      });
+      previewContainer.innerHTML = html;
+    } catch (error) {
+      console.error('[Medit] Failed to render preview:', error);
+      // Fallback to plain text on error
       previewContainer.textContent = content;
     }
   }
@@ -202,11 +231,13 @@ class MeditApp {
       case 'split':
         // Split mode: show both editor and preview
         editorContainer.style.display = 'flex';
-        editorContainer.style.width = '50%';
+        editorContainer.style.width = `${this._state.splitRatio * 100}%`;
         previewContainer.style.display = 'flex';
-        previewContainer.style.width = '50%';
+        previewContainer.style.width = `${(1 - this._state.splitRatio) * 100}%`;
         // Initialize editor if needed
         void this._initEditorIfNeeded();
+        // Render preview with current content
+        void this._renderPreview(this._currentContent);
         break;
     }
 
@@ -222,7 +253,7 @@ class MeditApp {
    * Setup global event listeners
    */
   private _setupEventListeners(): void {
-    // Save scroll position on scroll
+    // Save scroll position on scroll for preview
     const previewContainer = document.getElementById('preview-container');
     if (previewContainer) {
       let scrollTimeout: ReturnType<typeof setTimeout>;
@@ -235,6 +266,22 @@ class MeditApp {
       });
     }
 
+    // Save scroll position for editor (Vditor container)
+    const editorContainer = document.getElementById('vditor-editor');
+    if (editorContainer) {
+      let editorScrollTimeout: ReturnType<typeof setTimeout>;
+      editorContainer.addEventListener('scroll', () => {
+        clearTimeout(editorScrollTimeout);
+        editorScrollTimeout = setTimeout(() => {
+          this._state.editorScrollPosition = editorContainer.scrollTop;
+          this._saveState();
+        }, 150);
+      });
+    }
+
+    // Setup split resizer
+    this._setupSplitResizer();
+
     // Handle before unload
     window.addEventListener('beforeunload', () => {
       this._saveState();
@@ -243,6 +290,55 @@ class MeditApp {
     // Handle visibility change (save state when switching tabs)
     document.addEventListener('visibilitychange', () => {
       if (document.visibilityState === 'hidden') {
+        this._saveState();
+      }
+    });
+  }
+
+  /**
+   * Setup split pane resizer for split mode
+   */
+  private _setupSplitResizer(): void {
+    const mainContainer = document.getElementById('main-container');
+    const editorContainer = document.getElementById('editor-container');
+    const previewContainer = document.getElementById('preview-container');
+
+    if (!mainContainer || !editorContainer || !previewContainer) return;
+
+    // Create resizer element
+    const resizer = document.createElement('div');
+    resizer.className = 'split-resizer';
+    resizer.id = 'split-resizer';
+
+    // Insert resizer between editor and preview
+    editorContainer.after(resizer);
+
+    let isResizing = false;
+
+    resizer.addEventListener('mousedown', (e) => {
+      isResizing = true;
+      document.body.style.cursor = 'col-resize';
+      e.preventDefault();
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (!isResizing) return;
+
+      const containerRect = mainContainer.getBoundingClientRect();
+      const newRatio = (e.clientX - containerRect.left) / containerRect.width;
+
+      // Clamp ratio between 20% and 80%
+      const clampedRatio = Math.max(0.2, Math.min(0.8, newRatio));
+
+      this._state.splitRatio = clampedRatio;
+      editorContainer.style.width = `${clampedRatio * 100}%`;
+      previewContainer.style.width = `${(1 - clampedRatio) * 100}%`;
+    });
+
+    document.addEventListener('mouseup', () => {
+      if (isResizing) {
+        isResizing = false;
+        document.body.style.cursor = '';
         this._saveState();
       }
     });
@@ -267,6 +363,14 @@ class MeditApp {
       // Use requestAnimationFrame to ensure DOM is ready
       requestAnimationFrame(() => {
         previewContainer.scrollTop = this._state.scrollPosition;
+      });
+    }
+
+    // Restore editor scroll position
+    const editorContainer = document.getElementById('vditor-editor');
+    if (editorContainer && this._state.editorScrollPosition > 0) {
+      requestAnimationFrame(() => {
+        editorContainer.scrollTop = this._state.editorScrollPosition;
       });
     }
   }
@@ -348,6 +452,12 @@ class MeditApp {
    * Destroy the application
    */
   destroy(): void {
+    // Clear pending preview update
+    if (this._previewUpdateTimeout) {
+      clearTimeout(this._previewUpdateTimeout);
+      this._previewUpdateTimeout = null;
+    }
+
     this._toolbar?.destroy();
     this._toolbar = null;
     this._editor?.destroy();

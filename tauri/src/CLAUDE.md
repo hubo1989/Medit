@@ -7,7 +7,20 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #3119 | 12:58 PM | 🟣 | Added editor theme synchronization | ~161 |
+| #3137 | 1:02 PM | 🔴 | Fixed md2html async handling in _renderPreview method | ~45 |
+| #3136 | " | ✅ | Removed task manager cleanup from destroy method | ~154 |
+| #3135 | " | ✅ | Removed void prefix from _renderPreview call in split mode | ~139 |
+| #3134 | " | 🔄 | Simplified preview rendering to use Vditor's built-in md2html | ~274 |
+| #3132 | 1:00 PM | ✅ | Enhanced destroy method to cleanup async resources | ~207 |
+| #3131 | " | 🟣 | Added editor scroll position restoration on mode switch | ~208 |
+| #3130 | " | 🟣 | Implemented draggable split resizer and independent editor scroll tracking | ~341 |
+| #3129 | " | 🟣 | Implemented dynamic split ratio for resizable split-screen layout | ~246 |
+| #3128 | " | 🟣 | Implemented real-time markdown preview with 300ms debounce | ~322 |
+| #3127 | 12:59 PM | ✅ | Added preview rendering infrastructure to MeditApp class | ~254 |
+| #3126 | " | ✅ | Extended AppState interface for split-screen functionality | ~224 |
+| #3125 | " | ✅ | Added markdown rendering imports to main.ts | ~219 |
+| #3124 | 12:58 PM | ✅ | Committed US-006 edit mode implementation | ~185 |
+| #3119 | " | 🟣 | Added editor theme synchronization | ~161 |
 | #3118 | " | 🟣 | Implemented lazy editor initialization method | ~241 |
 | #3117 | " | ✅ | Added lazy editor initialization on mode switch | ~210 |
 | #3116 | " | 🟣 | Implemented editor initialization and content loading | ~298 |

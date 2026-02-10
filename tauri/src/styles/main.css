@@ -152,11 +152,28 @@ body {
 [data-mode='split'] .editor-pane {
   display: flex;
   width: 50%;
+  min-width: 200px;
 }
 
 [data-mode='split'] .preview-pane {
   display: flex;
   width: 50%;
+  min-width: 200px;
+}
+
+/* Split resizer */
+.split-resizer {
+  width: 6px;
+  background-color: var(--medit-border-color);
+  cursor: col-resize;
+  transition: background-color 0.2s ease;
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.split-resizer:hover,
+.split-resizer:active {
+  background-color: var(--medit-accent-color);
 }
 
 /* TOC visibility */
