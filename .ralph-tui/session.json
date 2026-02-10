@@ -3,10 +3,10 @@
   "sessionId": "3882d4ed-ff59-41ff-9d2c-6070bf2c1948",
   "status": "running",
   "startedAt": "2026-02-10T08:47:38.545Z",
-  "updatedAt": "2026-02-10T10:48:37.669Z",
-  "currentIteration": 10,
+  "updatedAt": "2026-02-10T11:03:52.883Z",
+  "currentIteration": 11,
   "maxIterations": 10,
-  "tasksCompleted": 8,
+  "tasksCompleted": 9,
   "isPaused": false,
   "agentPlugin": "claude",
   "trackerState": {
@@ -77,8 +77,8 @@
       {
         "id": "US-011",
         "title": "添加偏好设置样式",
-        "status": "open",
-        "completedInSession": false
+        "status": "completed",
+        "completedInSession": true
       },
       {
         "id": "US-012",
@@ -188,6 +188,16 @@
       "durationMs": 7942,
       "startedAt": "2026-02-10T09:23:55.642Z",
       "endedAt": "2026-02-10T09:24:03.584Z"
+    },
+    {
+      "iteration": 11,
+      "status": "completed",
+      "taskId": "US-011",
+      "taskTitle": "添加偏好设置样式",
+      "taskCompleted": true,
+      "durationMs": 474154,
+      "startedAt": "2026-02-10T10:40:43.513Z",
+      "endedAt": "2026-02-10T10:48:37.667Z"
     }
   ],
   "skippedTaskIds": [],
