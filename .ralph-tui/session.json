@@ -3,10 +3,10 @@
   "sessionId": "3882d4ed-ff59-41ff-9d2c-6070bf2c1948",
   "status": "running",
   "startedAt": "2026-02-10T08:47:38.545Z",
-  "updatedAt": "2026-02-10T08:57:20.649Z",
-  "currentIteration": 1,
+  "updatedAt": "2026-02-10T08:57:21.896Z",
+  "currentIteration": 2,
   "maxIterations": 10,
-  "tasksCompleted": 1,
+  "tasksCompleted": 2,
   "isPaused": false,
   "agentPlugin": "claude",
   "trackerState": {
@@ -23,8 +23,8 @@
       {
         "id": "US-002",
         "title": "实现偏好设置数据存储服务",
-        "status": "open",
-        "completedInSession": false
+        "status": "completed",
+        "completedInSession": true
       },
       {
         "id": "US-003",
@@ -98,10 +98,22 @@
       "durationMs": 436152,
       "startedAt": "2026-02-10T08:47:41.329Z",
       "endedAt": "2026-02-10T08:54:57.481Z"
+    },
+    {
+      "iteration": 2,
+      "status": "completed",
+      "taskId": "US-002",
+      "taskTitle": "实现偏好设置数据存储服务",
+      "taskCompleted": true,
+      "durationMs": 119028,
+      "startedAt": "2026-02-10T08:55:21.619Z",
+      "endedAt": "2026-02-10T08:57:20.647Z"
     }
   ],
   "skippedTaskIds": [],
   "cwd": "/Users/hubo/.superset/worktrees/Medit/featadd-vditor",
-  "activeTaskIds": [],
+  "activeTaskIds": [
+    "US-003"
+  ],
   "subagentPanelVisible": false
 }
