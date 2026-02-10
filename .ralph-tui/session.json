@@ -3,10 +3,10 @@
   "sessionId": "801865df-7b4d-40fa-bb6e-b23ea063e44c",
   "status": "running",
   "startedAt": "2026-02-10T04:45:13.227Z",
-  "updatedAt": "2026-02-10T04:50:01.254Z",
-  "currentIteration": 0,
+  "updatedAt": "2026-02-10T04:51:19.540Z",
+  "currentIteration": 1,
   "maxIterations": 10,
-  "tasksCompleted": 0,
+  "tasksCompleted": 1,
   "isPaused": false,
   "agentPlugin": "claude",
   "trackerState": {
@@ -17,8 +17,8 @@
       {
         "id": "US-001",
         "title": "添加 Vditor 依赖和类型定义",
-        "status": "open",
-        "completedInSession": false
+        "status": "completed",
+        "completedInSession": true
       },
       {
         "id": "US-002",
@@ -88,7 +88,18 @@
       }
     ]
   },
-  "iterations": [],
+  "iterations": [
+    {
+      "iteration": 1,
+      "status": "completed",
+      "taskId": "US-001",
+      "taskTitle": "添加 Vditor 依赖和类型定义",
+      "taskCompleted": true,
+      "durationMs": 153798,
+      "startedAt": "2026-02-10T04:47:27.454Z",
+      "endedAt": "2026-02-10T04:50:01.252Z"
+    }
+  ],
   "skippedTaskIds": [],
   "cwd": "/Users/hubo/.superset/worktrees/Medit/featadd-vditor",
   "activeTaskIds": [],
