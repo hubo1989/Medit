@@ -140,6 +140,140 @@ export class VditorEditor {
   }
 
   /**
+   * Update editor font size
+   */
+  setFontSize(size: number): void {
+    if (!this._container) return;
+    this._container.style.setProperty('--vditor-font-size', `${size}px`);
+    // Apply to Vditor content area
+    const contentElement = this._container.querySelector('.vditor-content') as HTMLElement | null;
+    if (contentElement) {
+      contentElement.style.fontSize = `${size}px`;
+    }
+    // Apply to textarea
+    const textarea = this._container.querySelector('textarea') as HTMLElement | null;
+    if (textarea) {
+      textarea.style.fontSize = `${size}px`;
+    }
+    // Apply to preview
+    const previewElement = this._container.querySelector('.vditor-preview') as HTMLElement | null;
+    if (previewElement) {
+      previewElement.style.fontSize = `${size}px`;
+    }
+  }
+
+  /**
+   * Update editor font family
+   */
+  setFontFamily(family: string): void {
+    if (!this._container) return;
+    const fontMap: Record<string, string> = {
+      system: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      monospace: '"SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New", monospace',
+      serif: 'Georgia, "Times New Roman", serif',
+      'sans-serif': 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    };
+    const fontFamily = fontMap[family] || fontMap.system;
+    this._container.style.setProperty('--vditor-font-family', fontFamily);
+    // Apply to content area
+    const contentElement = this._container.querySelector('.vditor-content') as HTMLElement | null;
+    if (contentElement) {
+      contentElement.style.fontFamily = fontFamily;
+    }
+    // Apply to textarea
+    const textarea = this._container.querySelector('textarea') as HTMLElement | null;
+    if (textarea) {
+      textarea.style.fontFamily = fontFamily;
+    }
+    // Apply to preview
+    const previewElement = this._container.querySelector('.vditor-preview') as HTMLElement | null;
+    if (previewElement) {
+      previewElement.style.fontFamily = fontFamily;
+    }
+  }
+
+  /**
+   * Update editor line height
+   */
+  setLineHeight(lineHeight: number): void {
+    if (!this._container) return;
+    this._container.style.setProperty('--vditor-line-height', String(lineHeight));
+    // Apply to content area
+    const contentElement = this._container.querySelector('.vditor-content') as HTMLElement | null;
+    if (contentElement) {
+      contentElement.style.lineHeight = String(lineHeight);
+    }
+    // Apply to textarea
+    const textarea = this._container.querySelector('textarea') as HTMLElement | null;
+    if (textarea) {
+      textarea.style.lineHeight = String(lineHeight);
+    }
+    // Apply to preview
+    const previewElement = this._container.querySelector('.vditor-preview') as HTMLElement | null;
+    if (previewElement) {
+      previewElement.style.lineHeight = String(lineHeight);
+    }
+  }
+
+  /**
+   * Update tab width
+   */
+  setTabWidth(width: number): void {
+    if (!this._container) return;
+    const tabSize = width === 2 ? 2 : 4;
+    this._container.style.setProperty('--vditor-tab-width', `${tabSize}ch`);
+    // Apply to textarea
+    const textarea = this._container.querySelector('textarea') as HTMLElement | null;
+    if (textarea) {
+      textarea.style.tabSize = String(tabSize);
+    }
+  }
+
+  /**
+   * Toggle line numbers display
+   */
+  setShowLineNumbers(show: boolean): void {
+    if (!this._container) return;
+    if (show) {
+      this._container.classList.remove('vditor-hide-line-numbers');
+    } else {
+      this._container.classList.add('vditor-hide-line-numbers');
+    }
+    // Apply to gutter/line number elements
+    const gutterElements = this._container.querySelectorAll('.vditor-gutter, .vditor-linenumber') as NodeListOf<HTMLElement>;
+    for (const el of gutterElements) {
+      el.style.display = show ? 'block' : 'none';
+    }
+  }
+
+  /**
+   * Apply all editor settings at once
+   */
+  applyEditorSettings(settings: {
+    fontSize?: number;
+    fontFamily?: string;
+    lineHeight?: number;
+    tabWidth?: number;
+    showLineNumbers?: boolean;
+  }): void {
+    if (settings.fontSize !== undefined) {
+      this.setFontSize(settings.fontSize);
+    }
+    if (settings.fontFamily !== undefined) {
+      this.setFontFamily(settings.fontFamily);
+    }
+    if (settings.lineHeight !== undefined) {
+      this.setLineHeight(settings.lineHeight);
+    }
+    if (settings.tabWidth !== undefined) {
+      this.setTabWidth(settings.tabWidth);
+    }
+    if (settings.showLineNumbers !== undefined) {
+      this.setShowLineNumbers(settings.showLineNumbers);
+    }
+  }
+
+  /**
    * Insert text at cursor position
    */
   insertValue(value: string, render = true): void {

@@ -57,6 +57,7 @@ class MeditApp {
     this._preferences = new PreferencesService({
       storageKeyPrefix: 'medit:pref:',
       definitions: {
+        // General settings
         'general.autoSave': {
           defaultValue: true,
           validate: (value) => typeof value === 'boolean',
@@ -65,6 +66,36 @@ class MeditApp {
           defaultValue: 5,
           validate: (value) => typeof value === 'number' && value >= 5 && value <= 300,
           transform: (value) => Math.max(5, Math.min(300, Math.round(value as number))),
+        },
+        // Editor settings (US-007)
+        'editor.fontSize': {
+          defaultValue: 14,
+          validate: (value) => typeof value === 'number' && value >= 12 && value <= 24,
+          transform: (value) => Math.max(12, Math.min(24, Math.round(value as number))),
+        },
+        'editor.fontFamily': {
+          defaultValue: 'system',
+          validate: (value) => typeof value === 'string' && ['system', 'monospace', 'serif', 'sans-serif'].includes(value),
+        },
+        'editor.lineHeight': {
+          defaultValue: 1.6,
+          validate: (value) => typeof value === 'number' && value >= 1.2 && value <= 2.0,
+          transform: (value) => Math.max(1.2, Math.min(2.0, Math.round((value as number) * 10) / 10)),
+        },
+        'editor.tabWidth': {
+          defaultValue: 4,
+          validate: (value) => {
+            const num = typeof value === 'string' ? parseInt(value, 10) : value;
+            return typeof num === 'number' && (num === 2 || num === 4);
+          },
+          transform: (value) => {
+            const num = typeof value === 'string' ? parseInt(value, 10) : value;
+            return num === 2 ? 2 : 4;
+          },
+        },
+        'editor.showLineNumbers': {
+          defaultValue: true,
+          validate: (value) => typeof value === 'boolean',
         },
       },
     });
@@ -107,6 +138,12 @@ class MeditApp {
 
     // Setup preference change listeners for auto-save
     this._setupAutoSavePreferenceListeners();
+
+    // Setup preference change listeners for editor settings (US-007)
+    this._setupEditorPreferenceListeners();
+
+    // Apply initial editor settings
+    this._applyInitialEditorSettings();
 
     console.log('[Medit] Application initialized');
   }
@@ -722,6 +759,67 @@ class MeditApp {
       this._fileSaveService?.updateConfig({ autoSaveDelay: intervalSeconds * 1000 });
       console.log(`[Medit] Auto-save interval changed to ${intervalSeconds}s`);
     });
+  }
+
+  /**
+   * Setup listeners for editor preference changes (US-007)
+   */
+  private _setupEditorPreferenceListeners(): void {
+    // Font size changes
+    this._preferences.onChange('editor.fontSize', (_key, newValue) => {
+      const fontSize = newValue as number;
+      this._editor?.setFontSize(fontSize);
+      console.log(`[Medit] Editor font size changed to ${fontSize}px`);
+    });
+
+    // Font family changes
+    this._preferences.onChange('editor.fontFamily', (_key, newValue) => {
+      const fontFamily = newValue as string;
+      this._editor?.setFontFamily(fontFamily);
+      console.log(`[Medit] Editor font family changed to ${fontFamily}`);
+    });
+
+    // Line height changes
+    this._preferences.onChange('editor.lineHeight', (_key, newValue) => {
+      const lineHeight = newValue as number;
+      this._editor?.setLineHeight(lineHeight);
+      console.log(`[Medit] Editor line height changed to ${lineHeight}`);
+    });
+
+    // Tab width changes
+    this._preferences.onChange('editor.tabWidth', (_key, newValue) => {
+      const tabWidth = newValue as number;
+      this._editor?.setTabWidth(tabWidth);
+      console.log(`[Medit] Editor tab width changed to ${tabWidth}`);
+    });
+
+    // Show line numbers changes
+    this._preferences.onChange('editor.showLineNumbers', (_key, newValue) => {
+      const showLineNumbers = newValue as boolean;
+      this._editor?.setShowLineNumbers(showLineNumbers);
+      console.log(`[Medit] Editor line numbers ${showLineNumbers ? 'enabled' : 'disabled'}`);
+    });
+  }
+
+  /**
+   * Apply initial editor settings from preferences (US-007)
+   */
+  private _applyInitialEditorSettings(): void {
+    const fontSize = this._preferences.get<number>('editor.fontSize');
+    const fontFamily = this._preferences.get<string>('editor.fontFamily');
+    const lineHeight = this._preferences.get<number>('editor.lineHeight');
+    const tabWidth = this._preferences.get<number>('editor.tabWidth');
+    const showLineNumbers = this._preferences.get<boolean>('editor.showLineNumbers');
+
+    this._editor?.applyEditorSettings({
+      fontSize: fontSize ?? 14,
+      fontFamily: fontFamily ?? 'system',
+      lineHeight: lineHeight ?? 1.6,
+      tabWidth: tabWidth ?? 4,
+      showLineNumbers: showLineNumbers ?? true,
+    });
+
+    console.log('[Medit] Initial editor settings applied');
   }
 
   /**
