@@ -56,6 +56,17 @@ class MeditApp {
     });
     this._preferences = new PreferencesService({
       storageKeyPrefix: 'medit:pref:',
+      definitions: {
+        'general.autoSave': {
+          defaultValue: true,
+          validate: (value) => typeof value === 'boolean',
+        },
+        'general.autoSaveInterval': {
+          defaultValue: 5,
+          validate: (value) => typeof value === 'number' && value >= 5 && value <= 300,
+          transform: (value) => Math.max(5, Math.min(300, Math.round(value as number))),
+        },
+      },
     });
     this._themeService = new ThemeService({
       preferences: this._preferences,
@@ -93,6 +104,9 @@ class MeditApp {
 
     // Setup event listeners
     this._setupEventListeners();
+
+    // Setup preference change listeners for auto-save
+    this._setupAutoSavePreferenceListeners();
 
     console.log('[Medit] Application initialized');
   }
@@ -157,10 +171,13 @@ class MeditApp {
    * Initialize file save service
    */
   private _initFileSaveService(): void {
+    const autoSave = this._preferences.get<boolean>('general.autoSave');
+    const autoSaveInterval = this._preferences.get<number>('general.autoSaveInterval');
+
     this._fileSaveService = new FileSaveService({
       filePath: this._state.filePath,
-      autoSave: true,
-      autoSaveDelay: 2000,
+      autoSave: autoSave ?? true,
+      autoSaveDelay: (autoSaveInterval ?? 5) * 1000,
       onStatusChange: (status) => {
         this._updateSaveStatusIndicator(status);
       },
@@ -686,6 +703,25 @@ class MeditApp {
     } catch {
       // Ignore storage errors
     }
+  }
+
+  /**
+   * Setup listeners for auto-save preference changes
+   */
+  private _setupAutoSavePreferenceListeners(): void {
+    // Listen for auto-save enabled/disabled changes
+    this._preferences.onChange('general.autoSave', (_key, newValue) => {
+      const enabled = newValue as boolean;
+      this._fileSaveService?.updateConfig({ autoSave: enabled });
+      console.log(`[Medit] Auto-save ${enabled ? 'enabled' : 'disabled'}`);
+    });
+
+    // Listen for auto-save interval changes
+    this._preferences.onChange('general.autoSaveInterval', (_key, newValue) => {
+      const intervalSeconds = newValue as number;
+      this._fileSaveService?.updateConfig({ autoSaveDelay: intervalSeconds * 1000 });
+      console.log(`[Medit] Auto-save interval changed to ${intervalSeconds}s`);
+    });
   }
 
   /**
