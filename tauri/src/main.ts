@@ -6,6 +6,7 @@
 import { EditorModeService, type EditorMode, VditorEditor, FileSaveService, type SaveStatus } from './editor/index.js';
 import { Toolbar } from './ui/index.js';
 import { I18nService, type Language } from './i18n/index.js';
+import { MenuService } from './menu/index.js';
 
 // Application state
 interface AppState {
@@ -26,6 +27,7 @@ class MeditApp {
   private _toolbar: Toolbar | null = null;
   private _editor: VditorEditor | null = null;
   private _fileSaveService: FileSaveService | null = null;
+  private _menuService: MenuService | null = null;
   private _appContainer: HTMLElement | null = null;
   private _state: AppState = {
     scrollPosition: 0,
@@ -69,6 +71,7 @@ class MeditApp {
     this._initFileSaveService();
     this._initSaveStatusIndicator();
     this._initKeyboardShortcuts();
+    this._initMenuService();
 
     // Load initial content
     await this._loadContent();
@@ -161,6 +164,136 @@ class MeditApp {
 
     this._saveStatusElement.setAttribute('data-status', status);
     this._saveStatusElement.textContent = this._i18n.getSaveStatus(status);
+  }
+
+  /**
+   * Initialize menu service for native menu events
+   */
+  private _initMenuService(): void {
+    this._menuService = new MenuService({
+      onNewFile: () => this._handleNewFile(),
+      onOpenFile: () => this._handleOpenFile(),
+      onSave: () => this._manualSave(),
+      onSaveAs: () => this._handleSaveAs(),
+      onExit: () => this._handleExit(),
+      onFind: () => this._handleFind(),
+      onEditMode: () => this._modeService.switchMode('edit'),
+      onPreviewMode: () => this._modeService.switchMode('preview'),
+      onSplitMode: () => this._modeService.switchMode('split'),
+      onZoomIn: () => this._handleZoomIn(),
+      onZoomOut: () => this._handleZoomOut(),
+      onResetZoom: () => this._handleResetZoom(),
+      onAbout: () => this._handleAbout(),
+      onDocs: () => this._handleDocs(),
+      onShortcuts: () => this._handleShortcuts(),
+    });
+
+    void this._menuService.init();
+  }
+
+  /**
+   * Handle new file from menu
+   */
+  private _handleNewFile(): void {
+    // Clear current content
+    this._currentContent = '';
+    this._editor?.setValue('');
+    this._state.filePath = 'document.md';
+    this._saveState();
+    console.log('[Medit] New file created');
+  }
+
+  /**
+   * Handle open file from menu
+   */
+  private _handleOpenFile(): void {
+    // TODO: Implement file open dialog using Tauri API
+    console.log('[Medit] Open file dialog');
+  }
+
+  /**
+   * Handle save as from menu
+   */
+  private _handleSaveAs(): void {
+    // TODO: Implement save as dialog using Tauri API
+    console.log('[Medit] Save as dialog');
+  }
+
+  /**
+   * Handle exit from menu
+   */
+  private _handleExit(): void {
+    this._saveState();
+    void this._fileSaveService?.flush();
+    console.log('[Medit] Exit requested');
+  }
+
+  /**
+   * Handle find from menu
+   */
+  private _handleFind(): void {
+    // Focus editor and trigger find
+    this._editor?.focus();
+    console.log('[Medit] Find dialog');
+  }
+
+  /**
+   * Handle zoom in
+   */
+  private _handleZoomIn(): void {
+    const currentZoom = parseFloat(document.body.style.zoom || '1');
+    const newZoom = Math.min(currentZoom + 0.1, 2);
+    document.body.style.zoom = String(newZoom);
+    console.log('[Medit] Zoom in:', newZoom);
+  }
+
+  /**
+   * Handle zoom out
+   */
+  private _handleZoomOut(): void {
+    const currentZoom = parseFloat(document.body.style.zoom || '1');
+    const newZoom = Math.max(currentZoom - 0.1, 0.5);
+    document.body.style.zoom = String(newZoom);
+    console.log('[Medit] Zoom out:', newZoom);
+  }
+
+  /**
+   * Handle reset zoom
+   */
+  private _handleResetZoom(): void {
+    document.body.style.zoom = '1';
+    console.log('[Medit] Zoom reset');
+  }
+
+  /**
+   * Handle about from menu
+   */
+  private _handleAbout(): void {
+    alert('Medit - Markdown Editor\nVersion 1.0.0');
+  }
+
+  /**
+   * Handle docs from menu
+   */
+  private _handleDocs(): void {
+    window.open('https://github.com/medit/docs', '_blank');
+  }
+
+  /**
+   * Handle shortcuts from menu
+   */
+  private _handleShortcuts(): void {
+    alert(
+      '快捷键参考:\n\n' +
+        'Ctrl/Cmd + S - 保存\n' +
+        'Ctrl/Cmd + O - 打开\n' +
+        'Ctrl/Cmd + F - 查找\n' +
+        'Ctrl/Cmd + B - 切换目录\n' +
+        'Ctrl/Cmd + Shift + E - 编辑模式\n' +
+        'Ctrl/Cmd + Shift + P - 预览模式\n' +
+        'Ctrl/Cmd + Shift + L - 分屏模式\n' +
+        'Ctrl/Cmd + +/- - 缩放'
+    );
   }
 
   /**
@@ -602,6 +735,8 @@ class MeditApp {
     this._editor = null;
     this._fileSaveService?.dispose();
     this._fileSaveService = null;
+    this._menuService?.dispose();
+    this._menuService = null;
   }
 }
 
