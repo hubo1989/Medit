@@ -5,6 +5,7 @@
 
 import { EditorModeService, type EditorMode, VditorEditor, FileSaveService, type SaveStatus } from './editor/index.js';
 import { Toolbar } from './ui/index.js';
+import { I18nService, type Language } from './i18n/index.js';
 
 // Application state
 interface AppState {
@@ -21,6 +22,7 @@ interface AppState {
  */
 class MeditApp {
   private _modeService: EditorModeService;
+  private _i18n: I18nService;
   private _toolbar: Toolbar | null = null;
   private _editor: VditorEditor | null = null;
   private _fileSaveService: FileSaveService | null = null;
@@ -41,6 +43,10 @@ class MeditApp {
     this._modeService = new EditorModeService({
       storageKey: 'medit:editor-mode',
       defaultMode: 'preview',
+    });
+    this._i18n = new I18nService({
+      storageKey: 'medit:language',
+      defaultLanguage: 'zh',
     });
   }
 
@@ -89,6 +95,7 @@ class MeditApp {
     this._toolbar = new Toolbar({
       container: toolbarContainer,
       modeService: this._modeService,
+      i18n: this._i18n,
     });
   }
 
@@ -153,15 +160,7 @@ class MeditApp {
     if (!this._saveStatusElement) return;
 
     this._saveStatusElement.setAttribute('data-status', status);
-
-    const statusText: Record<SaveStatus, string> = {
-      idle: '',
-      saving: '保存中...',
-      saved: '已保存',
-      error: '保存失败',
-    };
-
-    this._saveStatusElement.textContent = statusText[status];
+    this._saveStatusElement.textContent = this._i18n.getSaveStatus(status);
   }
 
   /**
@@ -170,9 +169,38 @@ class MeditApp {
   private _initKeyboardShortcuts(): void {
     document.addEventListener('keydown', (e) => {
       // Ctrl+S / Cmd+S for manual save
-      if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+      if ((e.ctrlKey || e.metaKey) && e.key === 's' && !e.shiftKey) {
         e.preventDefault();
         void this._manualSave();
+        return;
+      }
+
+      // Ctrl+B / Cmd+B for TOC toggle
+      if ((e.ctrlKey || e.metaKey) && e.key === 'b' && !e.shiftKey) {
+        e.preventDefault();
+        this.toggleToc();
+        return;
+      }
+
+      // Ctrl+Shift+E for edit mode
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'E') {
+        e.preventDefault();
+        this._modeService.switchMode('edit');
+        return;
+      }
+
+      // Ctrl+Shift+P for preview mode
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'P') {
+        e.preventDefault();
+        this._modeService.switchMode('preview');
+        return;
+      }
+
+      // Ctrl+Shift+S for split mode
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'S') {
+        e.preventDefault();
+        this._modeService.switchMode('split');
+        return;
       }
     });
   }
@@ -517,6 +545,26 @@ class MeditApp {
     this._state.theme = theme;
     document.documentElement.setAttribute('data-theme', theme);
     this._editor?.setTheme(theme);
+    this._saveState();
+  }
+
+  /**
+   * Set language
+   */
+  setLanguage(lang: Language): void {
+    this._i18n.setLanguage(lang);
+    this._toolbar?.updateLabels();
+    this._updateSaveStatusIndicator(this._fileSaveService?.getStatus() ?? 'idle');
+    this._saveState();
+  }
+
+  /**
+   * Toggle language between English and Chinese
+   */
+  toggleLanguage(): void {
+    this._i18n.toggleLanguage();
+    this._toolbar?.updateLabels();
+    this._updateSaveStatusIndicator(this._fileSaveService?.getStatus() ?? 'idle');
     this._saveState();
   }
 

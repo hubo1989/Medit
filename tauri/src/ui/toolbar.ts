@@ -4,6 +4,7 @@
  */
 
 import { EditorModeService, EditorMode } from '../editor';
+import { I18nService } from '../i18n';
 
 // SVG Icons for mode buttons
 const ICONS = {
@@ -12,18 +13,13 @@ const ICONS = {
   split: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="12" x2="12" y1="3" y2="17"/><line x1="2" x2="22" y1="21" x2="21"/></svg>`,
 };
 
-// Button labels
-const LABELS: Record<EditorMode, string> = {
-  preview: '预览',
-  edit: '编辑',
-  split: '分屏',
-};
-
 export interface ToolbarConfig {
   /** Container element to render toolbar into */
   container: HTMLElement;
   /** Editor mode service instance */
   modeService: EditorModeService;
+  /** i18n service instance */
+  i18n: I18nService;
 }
 
 /**
@@ -32,13 +28,16 @@ export interface ToolbarConfig {
 export class Toolbar {
   private _container: HTMLElement;
   private _modeService: EditorModeService;
+  private _i18n: I18nService;
   private _buttonGroup: HTMLElement | null = null;
   private _buttons: Map<EditorMode, HTMLButtonElement> = new Map();
   private _unsubscribe: (() => void) | null = null;
+  private _i18nUnsubscribe: (() => void) | null = null;
 
   constructor(config: ToolbarConfig) {
     this._container = config.container;
     this._modeService = config.modeService;
+    this._i18n = config.i18n;
 
     this._render();
     this._setupEventListeners();
@@ -101,10 +100,25 @@ export class Toolbar {
     button.type = 'button';
     button.className = 'medit-mode-btn';
     button.dataset.mode = mode;
-    button.title = LABELS[mode];
-    button.innerHTML = `${ICONS[mode]}<span>${LABELS[mode]}</span>`;
+    const label = this._i18n.getModeLabel(mode);
+    button.title = label;
+    button.innerHTML = `${ICONS[mode]}<span class="mode-label">${label}</span>`;
 
     return button;
+  }
+
+  /**
+   * Update button labels when language changes
+   */
+  updateLabels(): void {
+    for (const [mode, button] of this._buttons) {
+      const label = this._i18n.getModeLabel(mode);
+      button.title = label;
+      const labelSpan = button.querySelector('.mode-label');
+      if (labelSpan) {
+        labelSpan.textContent = label;
+      }
+    }
   }
 
   /**
@@ -121,6 +135,11 @@ export class Toolbar {
     // Subscribe to mode changes
     this._unsubscribe = this._modeService.onModeChange((newMode) => {
       this._updateActiveButton(newMode);
+    });
+
+    // Subscribe to language changes
+    this._i18nUnsubscribe = this._i18n.onLanguageChange(() => {
+      this.updateLabels();
     });
   }
 
@@ -149,6 +168,11 @@ export class Toolbar {
     if (this._unsubscribe) {
       this._unsubscribe();
       this._unsubscribe = null;
+    }
+
+    if (this._i18nUnsubscribe) {
+      this._i18nUnsubscribe();
+      this._i18nUnsubscribe = null;
     }
 
     this._buttons.clear();
