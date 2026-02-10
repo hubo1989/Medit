@@ -3,10 +3,10 @@
   "sessionId": "3882d4ed-ff59-41ff-9d2c-6070bf2c1948",
   "status": "running",
   "startedAt": "2026-02-10T08:47:38.545Z",
-  "updatedAt": "2026-02-10T09:14:45.517Z",
-  "currentIteration": 5,
+  "updatedAt": "2026-02-10T09:20:00.039Z",
+  "currentIteration": 6,
   "maxIterations": 10,
-  "tasksCompleted": 5,
+  "tasksCompleted": 6,
   "isPaused": false,
   "agentPlugin": "claude",
   "trackerState": {
@@ -47,8 +47,8 @@
       {
         "id": "US-006",
         "title": "实现自动保存功能",
-        "status": "open",
-        "completedInSession": false
+        "status": "completed",
+        "completedInSession": true
       },
       {
         "id": "US-007",
@@ -138,6 +138,16 @@
       "durationMs": 292958,
       "startedAt": "2026-02-10T09:07:23.743Z",
       "endedAt": "2026-02-10T09:12:16.701Z"
+    },
+    {
+      "iteration": 6,
+      "status": "completed",
+      "taskId": "US-006",
+      "taskTitle": "实现自动保存功能",
+      "taskCompleted": true,
+      "durationMs": 147649,
+      "startedAt": "2026-02-10T09:12:17.866Z",
+      "endedAt": "2026-02-10T09:14:45.515Z"
     }
   ],
   "skippedTaskIds": [],
