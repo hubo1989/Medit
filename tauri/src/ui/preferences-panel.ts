@@ -45,19 +45,19 @@ const CATEGORY_ICONS: Record<SettingsCategory, string> = {
   shortcuts: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 8h.01"/><path d="M12 12h.01"/><path d="M14 8h.01"/><path d="M16 12h.01"/><path d="M18 8h.01"/><path d="M6 8h.01"/><path d="M7 16h10"/><path d="M8 12h.01"/><rect width="20" height="16" x="2" y="4" rx="2"/></svg>`,
 };
 
-// Default keyboard shortcuts (readonly display)
-const DEFAULT_SHORTCUTS = [
-  { key: 'Ctrl+S / Cmd+S', action: '保存文件' },
-  { key: 'Ctrl+N / Cmd+N', action: '新建文件' },
-  { key: 'Ctrl+O / Cmd+O', action: '打开文件' },
-  { key: 'Ctrl+Shift+S', action: '另存为' },
-  { key: 'Ctrl+Shift+P', action: '切换预览模式' },
-  { key: 'Ctrl+Shift+E', action: '切换编辑模式' },
-  { key: 'Ctrl+Shift+D', action: '切换分屏模式' },
-  { key: 'Ctrl+Plus', action: '放大' },
-  { key: 'Ctrl+Minus', action: '缩小' },
-  { key: 'Ctrl+0', action: '重置缩放' },
-  { key: 'Ctrl+Q / Cmd+Q', action: '退出应用' },
+// Shortcut key bindings (actions resolved via i18n)
+const SHORTCUT_KEYS = [
+  { key: 'Ctrl+S / Cmd+S', actionKey: 'preferences.shortcutList.saveFile' },
+  { key: 'Ctrl+N / Cmd+N', actionKey: 'preferences.shortcutList.newFile' },
+  { key: 'Ctrl+O / Cmd+O', actionKey: 'preferences.shortcutList.openFile' },
+  { key: 'Ctrl+Shift+S', actionKey: 'preferences.shortcutList.saveAs' },
+  { key: 'Ctrl+Shift+P', actionKey: 'preferences.shortcutList.togglePreview' },
+  { key: 'Ctrl+Shift+E', actionKey: 'preferences.shortcutList.toggleEdit' },
+  { key: 'Ctrl+Shift+D', actionKey: 'preferences.shortcutList.toggleSplit' },
+  { key: 'Ctrl+Plus', actionKey: 'preferences.shortcutList.zoomIn' },
+  { key: 'Ctrl+Minus', actionKey: 'preferences.shortcutList.zoomOut' },
+  { key: 'Ctrl+0', actionKey: 'preferences.shortcutList.resetZoom' },
+  { key: 'Ctrl+Q / Cmd+Q', actionKey: 'preferences.shortcutList.quit' },
 ];
 
 /**
@@ -66,169 +66,178 @@ const DEFAULT_SHORTCUTS = [
 export class PreferencesPanel {
   private _container: HTMLElement;
   private _preferences: PreferencesService;
+  private _i18n: I18nService;
   private _onChange?: (key: string, value: PreferenceValue) => void;
   private _panel: HTMLElement | null = null;
   private _overlay: HTMLElement | null = null;
   private _isOpen = false;
   private _currentCategory: SettingsCategory = 'general';
   private _unsubscribe: (() => void) | null = null;
+  private _unsubscribeI18n: (() => void) | null = null;
   private _inputElements: Map<string, HTMLElement> = new Map();
-
-  private _categories: CategoryConfig[] = [
-    {
-      id: 'general',
-      label: '通用',
-      icon: CATEGORY_ICONS.general,
-      fields: [
-        {
-          key: 'general.language',
-          type: 'select',
-          label: '语言',
-          description: '应用界面语言',
-          options: [
-            { value: 'zh', label: '简体中文' },
-            { value: 'en', label: 'English' },
-          ],
-        },
-        {
-          key: 'general.theme',
-          type: 'select',
-          label: '主题',
-          description: '应用外观主题',
-          options: [
-            { value: 'light', label: '浅色' },
-            { value: 'dark', label: '深色' },
-            { value: 'auto', label: '跟随系统' },
-          ],
-        },
-        {
-          key: 'general.startupBehavior',
-          type: 'select',
-          label: '启动行为',
-          description: '应用启动时的默认操作',
-          options: [
-            { value: 'new', label: '新建文档' },
-            { value: 'recent', label: '打开最近文档' },
-            { value: 'welcome', label: '显示欢迎页' },
-          ],
-        },
-        {
-          key: 'general.autoSave',
-          type: 'checkbox',
-          label: '自动保存',
-          description: '自动保存文档更改',
-        },
-        {
-          key: 'general.autoSaveInterval',
-          type: 'number',
-          label: '自动保存间隔（秒）',
-          description: '自动保存的时间间隔',
-          min: 5,
-          max: 300,
-          step: 5,
-        },
-      ],
-    },
-    {
-      id: 'editor',
-      label: '编辑器',
-      icon: CATEGORY_ICONS.editor,
-      fields: [
-        {
-          key: 'editor.fontSize',
-          type: 'number',
-          label: '字体大小（px）',
-          description: '编辑器字体大小',
-          min: 12,
-          max: 24,
-          step: 1,
-        },
-        {
-          key: 'editor.fontFamily',
-          type: 'select',
-          label: '字体',
-          description: '编辑器字体家族',
-          options: [
-            { value: 'system', label: '系统默认' },
-            { value: 'monospace', label: '等宽字体' },
-            { value: 'serif', label: '衬线字体' },
-            { value: 'sans-serif', label: '无衬线字体' },
-          ],
-        },
-        {
-          key: 'editor.lineHeight',
-          type: 'number',
-          label: '行高',
-          description: '编辑器行高倍数',
-          min: 1.2,
-          max: 2.0,
-          step: 0.1,
-        },
-        {
-          key: 'editor.tabWidth',
-          type: 'select',
-          label: 'Tab 宽度',
-          description: 'Tab 字符宽度（空格数）',
-          options: [
-            { value: '2', label: '2 空格' },
-            { value: '4', label: '4 空格' },
-          ],
-        },
-        {
-          key: 'editor.showLineNumbers',
-          type: 'checkbox',
-          label: '显示行号',
-          description: '在编辑器左侧显示行号',
-        },
-      ],
-    },
-    {
-      id: 'preview',
-      label: '预览',
-      icon: CATEGORY_ICONS.preview,
-      fields: [
-        {
-          key: 'preview.syncScroll',
-          type: 'checkbox',
-          label: '同步滚动',
-          description: '编辑器和预览同步滚动',
-        },
-        {
-          key: 'preview.wordWrap',
-          type: 'checkbox',
-          label: '自动换行',
-          description: '预览内容自动换行',
-        },
-        {
-          key: 'preview.codeTheme',
-          type: 'select',
-          label: '代码高亮主题',
-          description: '代码块的高亮样式',
-          options: [
-            { value: 'github', label: 'GitHub' },
-            { value: 'monokai', label: 'Monokai' },
-            { value: 'dracula', label: 'Dracula' },
-            { value: 'atom-one-dark', label: 'Atom One Dark' },
-            { value: 'vs2015', label: 'VS 2015' },
-          ],
-        },
-      ],
-    },
-    {
-      id: 'shortcuts',
-      label: '快捷键',
-      icon: CATEGORY_ICONS.shortcuts,
-      fields: [],
-    },
-  ];
 
   constructor(config: PreferencesPanelConfig) {
     this._container = config.container;
     this._preferences = config.preferences;
+    this._i18n = config.i18n;
     this._onChange = config.onChange;
 
     this._render();
     this._setupEventListeners();
+  }
+
+  /**
+   * Build categories config dynamically from i18n translations
+   */
+  private _getCategories(): CategoryConfig[] {
+    const t = (key: string) => this._i18n.t(key as Parameters<I18nService['t']>[0]);
+    return [
+      {
+        id: 'general',
+        label: t('preferences.general'),
+        icon: CATEGORY_ICONS.general,
+        fields: [
+          {
+            key: 'general.language',
+            type: 'select',
+            label: t('preferences.language'),
+            description: t('preferences.desc.language'),
+            options: [
+              { value: 'zh', label: t('preferences.options.zhCN') },
+              { value: 'en', label: t('preferences.options.en') },
+            ],
+          },
+          {
+            key: 'general.theme',
+            type: 'select',
+            label: t('preferences.theme'),
+            description: t('preferences.desc.theme'),
+            options: [
+              { value: 'light', label: t('preferences.options.light') },
+              { value: 'dark', label: t('preferences.options.dark') },
+              { value: 'auto', label: t('preferences.options.auto') },
+            ],
+          },
+          {
+            key: 'general.startupBehavior',
+            type: 'select',
+            label: t('preferences.startupBehavior'),
+            description: t('preferences.desc.startupBehavior'),
+            options: [
+              { value: 'new', label: t('preferences.options.newDoc') },
+              { value: 'recent', label: t('preferences.options.recent') },
+              { value: 'welcome', label: t('preferences.options.welcome') },
+            ],
+          },
+          {
+            key: 'general.autoSave',
+            type: 'checkbox',
+            label: t('preferences.autoSave'),
+            description: t('preferences.desc.autoSave'),
+          },
+          {
+            key: 'general.autoSaveInterval',
+            type: 'number',
+            label: t('preferences.autoSaveInterval'),
+            description: t('preferences.desc.autoSaveInterval'),
+            min: 5,
+            max: 300,
+            step: 5,
+          },
+        ],
+      },
+      {
+        id: 'editor',
+        label: t('preferences.editor'),
+        icon: CATEGORY_ICONS.editor,
+        fields: [
+          {
+            key: 'editor.fontSize',
+            type: 'number',
+            label: t('preferences.fontSize'),
+            description: t('preferences.desc.fontSize'),
+            min: 12,
+            max: 24,
+            step: 1,
+          },
+          {
+            key: 'editor.fontFamily',
+            type: 'select',
+            label: t('preferences.fontFamily'),
+            description: t('preferences.desc.fontFamily'),
+            options: [
+              { value: 'system', label: t('preferences.options.system') },
+              { value: 'monospace', label: t('preferences.options.monospace') },
+              { value: 'serif', label: t('preferences.options.serif') },
+              { value: 'sans-serif', label: t('preferences.options.sansSerif') },
+            ],
+          },
+          {
+            key: 'editor.lineHeight',
+            type: 'number',
+            label: t('preferences.lineHeight'),
+            description: t('preferences.desc.lineHeight'),
+            min: 1.2,
+            max: 2.0,
+            step: 0.1,
+          },
+          {
+            key: 'editor.tabWidth',
+            type: 'select',
+            label: t('preferences.tabWidth'),
+            description: t('preferences.desc.tabWidth'),
+            options: [
+              { value: '2', label: t('preferences.options.twoSpaces') },
+              { value: '4', label: t('preferences.options.fourSpaces') },
+            ],
+          },
+          {
+            key: 'editor.showLineNumbers',
+            type: 'checkbox',
+            label: t('preferences.showLineNumbers'),
+            description: t('preferences.desc.showLineNumbers'),
+          },
+        ],
+      },
+      {
+        id: 'preview',
+        label: t('preferences.preview'),
+        icon: CATEGORY_ICONS.preview,
+        fields: [
+          {
+            key: 'preview.syncScroll',
+            type: 'checkbox',
+            label: t('preferences.syncScroll'),
+            description: t('preferences.desc.syncScroll'),
+          },
+          {
+            key: 'preview.wordWrap',
+            type: 'checkbox',
+            label: t('preferences.wordWrap'),
+            description: t('preferences.desc.wordWrap'),
+          },
+          {
+            key: 'preview.codeTheme',
+            type: 'select',
+            label: t('preferences.codeTheme'),
+            description: t('preferences.desc.codeTheme'),
+            options: [
+              { value: 'github', label: 'GitHub' },
+              { value: 'monokai', label: 'Monokai' },
+              { value: 'dracula', label: 'Dracula' },
+              { value: 'atom-one-dark', label: 'Atom One Dark' },
+              { value: 'vs2015', label: 'VS 2015' },
+            ],
+          },
+        ],
+      },
+      {
+        id: 'shortcuts',
+        label: t('preferences.shortcuts'),
+        icon: CATEGORY_ICONS.shortcuts,
+        fields: [],
+      },
+    ];
   }
 
   /**
@@ -353,6 +362,11 @@ export class PreferencesPanel {
       this._unsubscribe = null;
     }
 
+    if (this._unsubscribeI18n) {
+      this._unsubscribeI18n();
+      this._unsubscribeI18n = null;
+    }
+
     this._inputElements.clear();
 
     if (this._overlay) {
@@ -401,13 +415,14 @@ export class PreferencesPanel {
 
     const title = document.createElement('div');
     title.className = 'preferences-title';
-    title.textContent = '设置';
+    title.textContent = this._i18n.t('preferences.title');
     sidebar.appendChild(title);
 
     const nav = document.createElement('nav');
     nav.className = 'preferences-nav';
 
-    for (const category of this._categories) {
+    const categories = this._getCategories();
+    for (const category of categories) {
       const tab = document.createElement('button');
       tab.type = 'button';
       tab.className = 'preferences-tab';
@@ -438,14 +453,14 @@ export class PreferencesPanel {
 
     const headerTitle = document.createElement('h2');
     headerTitle.className = 'preferences-category-title';
-    headerTitle.textContent = this._categories[0].label;
+    headerTitle.textContent = this._getCategories()[0].label;
     header.appendChild(headerTitle);
 
     const closeBtn = document.createElement('button');
     closeBtn.type = 'button';
     closeBtn.className = 'preferences-close-btn';
     closeBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>`;
-    closeBtn.title = '关闭';
+    closeBtn.title = this._i18n.t('preferences.close');
     closeBtn.addEventListener('click', () => this.close());
     header.appendChild(closeBtn);
 
@@ -481,7 +496,8 @@ export class PreferencesPanel {
     });
 
     // Update header title
-    const category = this._categories.find((c) => c.id === this._currentCategory);
+    const categories = this._getCategories();
+    const category = categories.find((c) => c.id === this._currentCategory);
     const headerTitle = this._panel?.querySelector('.preferences-category-title');
     if (category && headerTitle) {
       headerTitle.textContent = category.label;
@@ -503,7 +519,7 @@ export class PreferencesPanel {
       return;
     }
 
-    const categoryConfig = this._categories.find((c) => c.id === category);
+    const categoryConfig = this._getCategories().find((c) => c.id === category);
     if (!categoryConfig) return;
 
     const form = document.createElement('div');
@@ -678,18 +694,20 @@ export class PreferencesPanel {
    * Render shortcuts content (readonly)
    */
   private _renderShortcutsContent(container: HTMLElement): void {
+    const t = (key: string) => this._i18n.t(key as Parameters<I18nService['t']>[0]);
+
     const wrapper = document.createElement('div');
     wrapper.className = 'preferences-shortcuts';
 
     const desc = document.createElement('p');
     desc.className = 'preferences-shortcuts-desc';
-    desc.textContent = '以下是当前可用的快捷键列表（暂不支持自定义）：';
+    desc.textContent = t('preferences.shortcutList.description');
     wrapper.appendChild(desc);
 
     const list = document.createElement('div');
     list.className = 'preferences-shortcuts-list';
 
-    for (const shortcut of DEFAULT_SHORTCUTS) {
+    for (const shortcut of SHORTCUT_KEYS) {
       const item = document.createElement('div');
       item.className = 'preferences-shortcut-item';
 
@@ -699,7 +717,7 @@ export class PreferencesPanel {
 
       const action = document.createElement('span');
       action.className = 'preferences-shortcut-action';
-      action.textContent = shortcut.action;
+      action.textContent = t(shortcut.actionKey);
 
       item.appendChild(key);
       item.appendChild(action);
@@ -738,6 +756,48 @@ export class PreferencesPanel {
     this._unsubscribe = this._preferences.onAnyChange((key, newValue) => {
       this._updateInputValue(key, newValue);
     });
+
+    // Subscribe to language changes for real-time UI update
+    this._unsubscribeI18n = this._i18n.onLanguageChange(() => {
+      this._refreshUI();
+    });
+  }
+
+  /**
+   * Refresh entire panel UI when language changes
+   */
+  private _refreshUI(): void {
+    if (!this._panel) return;
+
+    // Update sidebar title
+    const titleEl = this._panel.querySelector('.preferences-title');
+    if (titleEl) {
+      titleEl.textContent = this._i18n.t('preferences.title');
+    }
+
+    // Update close button title
+    const closeBtn = this._panel.querySelector<HTMLButtonElement>('.preferences-close-btn');
+    if (closeBtn) {
+      closeBtn.title = this._i18n.t('preferences.close');
+    }
+
+    // Update sidebar tab labels
+    const categories = this._getCategories();
+    const tabs = this._panel.querySelectorAll('.preferences-tab');
+    tabs.forEach((tab) => {
+      const catId = tab.getAttribute('data-category');
+      const cat = categories.find((c) => c.id === catId);
+      if (cat) {
+        const span = tab.querySelector('span');
+        if (span) span.textContent = cat.label;
+      }
+    });
+
+    // Re-render current category content
+    if (this._isOpen) {
+      this._renderCategoryContent(this._currentCategory);
+      this._updateActiveTab();
+    }
   }
 
   /**
