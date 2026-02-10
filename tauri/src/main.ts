@@ -7,7 +7,7 @@ import { EditorModeService, type EditorMode, VditorEditor, FileSaveService, type
 import { Toolbar, PreferencesPanel } from './ui/index.js';
 import { I18nService, type Language } from './i18n/index.js';
 import { MenuService } from './menu/index.js';
-import { PreferencesService } from './services/preferences-service.js';
+import { PreferencesService, ThemeService } from './services/index.js';
 
 // Application state
 interface AppState {
@@ -26,6 +26,7 @@ class MeditApp {
   private _modeService: EditorModeService;
   private _i18n: I18nService;
   private _preferences: PreferencesService;
+  private _themeService: ThemeService;
   private _toolbar: Toolbar | null = null;
   private _editor: VditorEditor | null = null;
   private _fileSaveService: FileSaveService | null = null;
@@ -55,6 +56,10 @@ class MeditApp {
     });
     this._preferences = new PreferencesService({
       storageKeyPrefix: 'medit:pref:',
+    });
+    this._themeService = new ThemeService({
+      preferences: this._preferences,
+      onThemeChange: (theme) => this._handleThemeChange(theme),
     });
   }
 
@@ -700,13 +705,28 @@ class MeditApp {
   }
 
   /**
-   * Set theme
+   * Handle theme change from ThemeService
    */
-  setTheme(theme: 'light' | 'dark'): void {
+  private _handleThemeChange(theme: 'light' | 'dark'): void {
     this._state.theme = theme;
-    document.documentElement.setAttribute('data-theme', theme);
     this._editor?.setTheme(theme);
+    // Re-render preview with new theme
+    void this._renderPreview(this._currentContent);
     this._saveState();
+  }
+
+  /**
+   * Set theme mode (light/dark/auto)
+   */
+  setThemeMode(mode: 'light' | 'dark' | 'auto'): void {
+    this._themeService.setThemeMode(mode);
+  }
+
+  /**
+   * Get current effective theme
+   */
+  getCurrentTheme(): 'light' | 'dark' {
+    return this._themeService.getCurrentTheme();
   }
 
   /**
@@ -716,7 +736,6 @@ class MeditApp {
     this._i18n.setLanguage(lang);
     this._toolbar?.updateLabels();
     this._updateSaveStatusIndicator(this._fileSaveService?.getStatus() ?? 'idle');
-    this._saveState();
   }
 
   /**
@@ -726,7 +745,6 @@ class MeditApp {
     this._i18n.toggleLanguage();
     this._toolbar?.updateLabels();
     this._updateSaveStatusIndicator(this._fileSaveService?.getStatus() ?? 'idle');
-    this._saveState();
   }
 
   /**
@@ -767,6 +785,8 @@ class MeditApp {
     this._menuService = null;
     this._preferencesPanel?.destroy();
     this._preferencesPanel = null;
+    this._themeService?.dispose();
+    (this as unknown as { _themeService: null })._themeService = null;
   }
 }
 
