@@ -50,6 +50,17 @@ const TRANSLATIONS = {
       confirm: 'Confirm',
       cancel: 'Cancel',
     },
+    // Confirmations
+    confirm: {
+      discardChanges: 'You have unsaved changes. Continue anyway?',
+      unsavedChanges: 'You have unsaved changes. Are you sure you want to exit?',
+    },
+    // Errors
+    error: {
+      readFile: 'Failed to read file',
+      openFile: 'Failed to open file',
+      saveFile: 'Failed to save file',
+    },
     // Preferences
     preferences: {
       title: 'Preferences',
@@ -106,6 +117,17 @@ const TRANSLATIONS = {
       confirm: '确认',
       cancel: '取消',
     },
+    // Confirmations
+    confirm: {
+      discardChanges: '有未保存的更改，是否继续？',
+      unsavedChanges: '有未保存的更改，确定要退出吗？',
+    },
+    // Errors
+    error: {
+      readFile: '读取文件失败',
+      openFile: '打开文件失败',
+      saveFile: '保存文件失败',
+    },
     // Preferences
     preferences: {
       title: '设置',
@@ -129,7 +151,14 @@ const TRANSLATIONS = {
 } as const;
 
 type Translations = typeof TRANSLATIONS;
-type TranslationKey = keyof Translations['en'];
+
+type NestedKeyOf<ObjectType extends object> = {
+  [Key in keyof ObjectType & (string | number)]: ObjectType[Key] extends object
+    ? `${Key}` | `${Key}.${NestedKeyOf<ObjectType[Key]>}`
+    : `${Key}`;
+}[keyof ObjectType & (string | number)];
+
+type FullTranslationKey = NestedKeyOf<Translations['en']>;
 
 const DEFAULT_STORAGE_KEY = 'medit:language';
 
@@ -174,8 +203,18 @@ export class I18nService {
   /**
    * Get translation for a key
    */
-  t<K extends TranslationKey>(key: K): Translations[Language][K] {
-    return TRANSLATIONS[this._currentLanguage][key];
+  t(key: FullTranslationKey): string {
+    const keys = key.split('.');
+    let value: unknown = TRANSLATIONS[this._currentLanguage];
+
+    for (const k of keys) {
+      if (value === null || typeof value !== 'object') {
+        return key;
+      }
+      value = (value as Record<string, unknown>)[k];
+    }
+
+    return typeof value === 'string' ? value : key;
   }
 
   /**

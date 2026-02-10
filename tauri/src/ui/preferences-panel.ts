@@ -524,19 +524,23 @@ export class PreferencesPanel {
     const wrapper = document.createElement('div');
     wrapper.className = 'preferences-field';
 
-    // Label
+    // Info group (label + description)
+    const info = document.createElement('div');
+    info.className = 'preferences-field-info';
+
     const label = document.createElement('label');
     label.className = 'preferences-field-label';
     label.textContent = field.label;
-    wrapper.appendChild(label);
+    info.appendChild(label);
 
-    // Description
     if (field.description) {
       const desc = document.createElement('div');
       desc.className = 'preferences-field-description';
       desc.textContent = field.description;
-      wrapper.appendChild(desc);
+      info.appendChild(desc);
     }
+
+    wrapper.appendChild(info);
 
     // Input
     const inputWrapper = document.createElement('div');
@@ -550,7 +554,7 @@ export class PreferencesPanel {
         input = this._createSelect(field, currentValue as string);
         break;
       case 'number':
-        input = this._createNumber(field, currentValue as number);
+        input = this._createRangeSlider(field, currentValue as number);
         break;
       case 'checkbox':
         input = this._createCheckbox(field, currentValue as boolean);
@@ -594,24 +598,39 @@ export class PreferencesPanel {
   }
 
   /**
-   * Create number input
+   * Create range slider with value display
    */
-  private _createNumber(field: SettingField, value: number): HTMLElement {
-    const input = document.createElement('input');
-    input.type = 'number';
-    input.className = 'preferences-input';
-    input.value = String(value ?? field.min ?? 0);
+  private _createRangeSlider(field: SettingField, value: number): HTMLElement {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'preferences-range-wrapper';
 
-    if (field.min !== undefined) input.min = String(field.min);
-    if (field.max !== undefined) input.max = String(field.max);
-    if (field.step !== undefined) input.step = String(field.step);
+    const range = document.createElement('input');
+    range.type = 'range';
+    range.className = 'preferences-range';
+    range.value = String(value ?? field.min ?? 0);
 
-    input.addEventListener('change', () => {
-      const numValue = parseFloat(input.value);
+    if (field.min !== undefined) range.min = String(field.min);
+    if (field.max !== undefined) range.max = String(field.max);
+    if (field.step !== undefined) range.step = String(field.step);
+
+    const valueDisplay = document.createElement('span');
+    valueDisplay.className = 'preferences-range-value';
+    valueDisplay.textContent = String(value ?? field.min ?? 0);
+
+    range.addEventListener('input', () => {
+      valueDisplay.textContent = range.value;
+    });
+
+    range.addEventListener('change', () => {
+      const numValue = parseFloat(range.value);
+      valueDisplay.textContent = range.value;
       this._handleValueChange(field.key, numValue);
     });
 
-    return input;
+    wrapper.appendChild(range);
+    wrapper.appendChild(valueDisplay);
+
+    return wrapper;
   }
 
   /**
@@ -725,17 +744,22 @@ export class PreferencesPanel {
    * Update input value when preference changes externally
    */
   private _updateInputValue(key: string, value: PreferenceValue): void {
-    const input = this._inputElements.get(key);
-    if (!input) return;
+    const element = this._inputElements.get(key);
+    if (!element) return;
 
-    if (input instanceof HTMLSelectElement) {
-      input.value = String(value);
-    } else if (input instanceof HTMLInputElement) {
-      if (input.type === 'checkbox') {
-        input.checked = Boolean(value);
+    if (element instanceof HTMLSelectElement) {
+      element.value = String(value);
+    } else if (element instanceof HTMLInputElement) {
+      if (element.type === 'checkbox') {
+        element.checked = Boolean(value);
       } else {
-        input.value = String(value);
+        element.value = String(value);
       }
+    } else if (element.classList.contains('preferences-range-wrapper')) {
+      const range = element.querySelector<HTMLInputElement>('.preferences-range');
+      const display = element.querySelector('.preferences-range-value');
+      if (range) range.value = String(value);
+      if (display) display.textContent = String(value);
     }
   }
 }
