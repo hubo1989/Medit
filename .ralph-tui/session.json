@@ -3,10 +3,10 @@
   "sessionId": "3882d4ed-ff59-41ff-9d2c-6070bf2c1948",
   "status": "running",
   "startedAt": "2026-02-10T08:47:38.545Z",
-  "updatedAt": "2026-02-10T09:20:00.039Z",
-  "currentIteration": 6,
+  "updatedAt": "2026-02-10T09:21:39.774Z",
+  "currentIteration": 7,
   "maxIterations": 10,
-  "tasksCompleted": 6,
+  "tasksCompleted": 7,
   "isPaused": false,
   "agentPlugin": "claude",
   "trackerState": {
@@ -53,8 +53,8 @@
       {
         "id": "US-007",
         "title": "实现字体和编辑器设置",
-        "status": "open",
-        "completedInSession": false
+        "status": "completed",
+        "completedInSession": true
       },
       {
         "id": "US-008",
@@ -148,6 +148,16 @@
       "durationMs": 147649,
       "startedAt": "2026-02-10T09:12:17.866Z",
       "endedAt": "2026-02-10T09:14:45.515Z"
+    },
+    {
+      "iteration": 7,
+      "status": "completed",
+      "taskId": "US-007",
+      "taskTitle": "实现字体和编辑器设置",
+      "taskCompleted": true,
+      "durationMs": 313356,
+      "startedAt": "2026-02-10T09:14:46.680Z",
+      "endedAt": "2026-02-10T09:20:00.036Z"
     }
   ],
   "skippedTaskIds": [],
