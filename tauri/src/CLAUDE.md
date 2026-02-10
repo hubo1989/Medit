@@ -7,7 +7,8 @@
 
 | ID | Time | T | Title | Read |
 |----|------|---|-------|------|
-| #3137 | 1:02 PM | 🔴 | Fixed md2html async handling in _renderPreview method | ~45 |
+| #3138 | 1:02 PM | 🔴 | Added void prefix to _renderPreview call in split mode | ~138 |
+| #3137 | " | 🔴 | Fixed md2html async handling in _renderPreview method | ~45 |
 | #3136 | " | ✅ | Removed task manager cleanup from destroy method | ~154 |
 | #3135 | " | ✅ | Removed void prefix from _renderPreview call in split mode | ~139 |
 | #3134 | " | 🔄 | Simplified preview rendering to use Vditor's built-in md2html | ~274 |
