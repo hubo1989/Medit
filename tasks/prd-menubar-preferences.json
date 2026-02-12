@@ -1,0 +1,271 @@
+{
+  "name": "完善菜单栏与偏好设置",
+  "description": "为 Medit Tauri 应用添加原生菜单栏和偏好设置面板，提升用户体验",
+  "branchName": "feat/menubar-preferences",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "添加 Tauri 原生应用菜单",
+      "description": "作为用户，我希望使用原生菜单栏操作应用",
+      "acceptanceCriteria": [
+        "在 Rust 后端创建 menu.rs 文件定义应用菜单结构",
+        "添加文件菜单：新建、打开、保存、另存为、退出",
+        "添加编辑菜单：撤销、重做、剪切、复制、粘贴、全选、查找",
+        "添加视图菜单：编辑模式、预览模式、分屏模式、放大、缩小、重置缩放",
+        "添加帮助菜单：关于、文档、快捷键参考",
+        "菜单项绑定到对应的前端命令",
+        "pnpm typecheck 通过",
+        "pnpm lint 通过"
+      ],
+      "priority": 1,
+      "passes": true,
+      "notes": "",
+      "dependsOn": [],
+      "completionNotes": "Completed by agent"
+    },
+    {
+      "id": "US-002",
+      "title": "实现偏好设置数据存储服务",
+      "description": "作为开发者，我需要一个统一的服务来管理用户偏好设置",
+      "acceptanceCriteria": [
+        "创建 src/services/preferences-service.ts 文件",
+        "实现 PreferencesService 类，支持 get、set、reset 方法",
+        "使用 localStorage 持久化设置数据",
+        "支持类型安全的设置项定义",
+        "设置变更时触发事件通知",
+        "pnpm typecheck 通过",
+        "pnpm lint 通过"
+      ],
+      "priority": 2,
+      "passes": true,
+      "notes": "",
+      "dependsOn": [],
+      "completionNotes": "Completed by agent"
+    },
+    {
+      "id": "US-003",
+      "title": "创建偏好设置面板 UI",
+      "description": "作为用户，我希望在设置面板中配置应用行为",
+      "acceptanceCriteria": [
+        "创建 src/ui/preferences-panel.ts 文件",
+        "实现 PreferencesPanel 类，支持打开/关闭动画",
+        "创建设置分类：通用、编辑器、预览、快捷键",
+        "通用设置：语言、主题、启动行为、自动保存",
+        "编辑器设置：字体大小、字体家族、行高、Tab 宽度、显示行号",
+        "预览设置：同步滚动、自动换行、代码高亮主题",
+        "快捷键设置：显示当前快捷键绑定（只读）",
+        "pnpm typecheck 通过",
+        "pnpm lint 通过"
+      ],
+      "priority": 3,
+      "passes": true,
+      "notes": "",
+      "dependsOn": [
+        "US-002"
+      ],
+      "completionNotes": "Completed by agent"
+    },
+    {
+      "id": "US-004",
+      "title": "在工具栏添加设置按钮",
+      "description": "作为用户，我希望通过工具栏快速打开设置",
+      "acceptanceCriteria": [
+        "修改 src/ui/toolbar.ts 文件",
+        "在工具栏右侧添加设置齿轮图标按钮",
+        "点击按钮打开偏好设置面板",
+        "按钮支持快捷键（Cmd/Ctrl + ,）",
+        "设置面板打开时按钮高亮显示",
+        "pnpm typecheck 通过",
+        "pnpm lint 通过"
+      ],
+      "priority": 4,
+      "passes": true,
+      "notes": "",
+      "dependsOn": [
+        "US-003"
+      ],
+      "completionNotes": "Completed by agent"
+    },
+    {
+      "id": "US-005",
+      "title": "实现主题切换功能",
+      "description": "作为用户，我希望在设置中切换应用主题",
+      "acceptanceCriteria": [
+        "扩展 PreferencesService 添加 theme 设置项",
+        "支持 'light'、'dark'、'auto' 三种主题",
+        "'auto' 模式跟随系统主题变化",
+        "主题切换实时应用到整个应用界面",
+        "Vditor 编辑器主题同步切换",
+        "主题设置持久化到 localStorage",
+        "pnpm typecheck 通过",
+        "pnpm lint 通过"
+      ],
+      "priority": 5,
+      "passes": true,
+      "notes": "",
+      "dependsOn": [
+        "US-002"
+      ],
+      "completionNotes": "Completed by agent"
+    },
+    {
+      "id": "US-006",
+      "title": "实现自动保存功能",
+      "description": "作为用户，我希望文件自动保存避免数据丢失",
+      "acceptanceCriteria": [
+        "在 PreferencesService 中添加 autoSave 和 autoSaveInterval 设置",
+        "默认开启自动保存，间隔 5 秒",
+        "编辑器内容变化时启动防抖定时器",
+        "定时器触发时自动调用 FileSaveService.save()",
+        "自动保存时在状态栏显示保存中状态",
+        "支持在设置中关闭自动保存或调整间隔",
+        "pnpm typecheck 通过",
+        "pnpm lint 通过"
+      ],
+      "priority": 6,
+      "passes": true,
+      "notes": "",
+      "dependsOn": [
+        "US-002"
+      ],
+      "completionNotes": "Completed by agent"
+    },
+    {
+      "id": "US-007",
+      "title": "实现字体和编辑器设置",
+      "description": "作为用户，我希望自定义编辑器外观",
+      "acceptanceCriteria": [
+        "在 PreferencesService 中添加编辑器相关设置",
+        "字体大小：12px - 24px，默认 14px",
+        "字体家族：系统字体、等宽字体列表",
+        "行高：1.2 - 2.0，默认 1.6",
+        "Tab 宽度：2 或 4，默认 4",
+        "显示/隐藏行号",
+        "设置变更实时应用到 Vditor 编辑器",
+        "pnpm typecheck 通过",
+        "pnpm lint 通过"
+      ],
+      "priority": 7,
+      "passes": true,
+      "notes": "",
+      "dependsOn": [
+        "US-003"
+      ],
+      "completionNotes": "Completed by agent"
+    },
+    {
+      "id": "US-008",
+      "title": "在 Rust 后端实现文件操作命令",
+      "description": "作为应用，我需要通过原生菜单执行文件操作",
+      "acceptanceCriteria": [
+        "修改 src-tauri/src/lib.rs 添加文件操作命令",
+        "实现 new_file 命令：清空当前内容",
+        "实现 open_file_dialog 命令：打开文件选择对话框",
+        "实现 save_file_dialog 命令：打开保存文件对话框",
+        "实现 exit_app 命令：安全退出应用",
+        "命令返回结果给前端处理",
+        "pnpm typecheck 通过",
+        "pnpm lint 通过"
+      ],
+      "priority": 8,
+      "passes": true,
+      "notes": "",
+      "dependsOn": [
+        "US-001"
+      ],
+      "completionNotes": "Completed by agent"
+    },
+    {
+      "id": "US-009",
+      "title": "前端集成菜单命令处理",
+      "description": "作为用户，我希望菜单操作能够正常工作",
+      "acceptanceCriteria": [
+        "修改 src/main.ts 添加菜单事件监听",
+        "处理 menu:new-file 事件：清空编辑器内容",
+        "处理 menu:open-file 事件：调用后端对话框并加载文件",
+        "处理 menu:save-file 事件：保存当前文件",
+        "处理 menu:save-as 事件：选择新路径保存",
+        "处理 menu:exit 事件：确认未保存更改后退出",
+        "处理 menu:preferences 事件：打开设置面板",
+        "pnpm typecheck 通过",
+        "pnpm lint 通过"
+      ],
+      "priority": 9,
+      "passes": true,
+      "notes": "",
+      "dependsOn": [
+        "US-008"
+      ],
+      "completionNotes": "Completed by agent"
+    },
+    {
+      "id": "US-010",
+      "title": "实现查找替换功能",
+      "description": "作为用户，我需要在编辑器中查找和替换文本",
+      "acceptanceCriteria": [
+        "创建 src/ui/find-replace-panel.ts 文件",
+        "实现 FindReplacePanel 类，支持查找和替换",
+        "在工具栏添加查找图标按钮",
+        "支持快捷键 Cmd/Ctrl + F 打开查找",
+        "支持快捷键 Cmd/Ctrl + H 打开替换",
+        "查找支持区分大小写、全字匹配选项",
+        "替换支持单个替换和全部替换",
+        "pnpm typecheck 通过",
+        "pnpm lint 通过"
+      ],
+      "priority": 10,
+      "passes": true,
+      "notes": "",
+      "dependsOn": [
+        "US-001"
+      ],
+      "completionNotes": "Completed by agent"
+    },
+    {
+      "id": "US-011",
+      "title": "添加偏好设置样式",
+      "description": "作为用户，我希望设置面板美观易用",
+      "acceptanceCriteria": [
+        "修改 src/styles/main.css 添加设置面板样式",
+        "设置面板采用卡片式布局，带阴影和圆角",
+        "设置项使用表单控件：开关、滑块、下拉框、输入框",
+        "分类使用标签页或侧边栏导航",
+        "深色/浅色主题下样式都正确显示",
+        "响应式布局，适配不同窗口大小",
+        "pnpm typecheck 通过",
+        "pnpm lint 通过"
+      ],
+      "priority": 11,
+      "passes": true,
+      "notes": "",
+      "dependsOn": [
+        "US-003"
+      ],
+      "completionNotes": "Completed by agent"
+    },
+    {
+      "id": "US-012",
+      "title": "添加国际化支持",
+      "description": "作为用户，我希望设置面板显示为当前语言",
+      "acceptanceCriteria": [
+        "在 src/i18n/index.ts 中添加设置相关翻译",
+        "添加英文和简体中文翻译",
+        "翻译内容：设置标题、分类名称、设置项标签、描述",
+        "设置面板中的文本使用 i18n 服务",
+        "切换语言时设置面板实时更新",
+        "pnpm typecheck 通过",
+        "pnpm lint 通过"
+      ],
+      "priority": 12,
+      "passes": true,
+      "notes": "",
+      "dependsOn": [
+        "US-003"
+      ],
+      "completionNotes": "Completed by agent"
+    }
+  ],
+  "metadata": {
+    "updatedAt": "2026-02-10T11:30:53.759Z"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "id": "8dc3a0ca-169e-4d15-898d-988121940cb7",
+  "status": "running",
+  "startedAt": "2026-02-10T11:10:02.477Z",
+  "updatedAt": "2026-02-10T11:15:33.126Z",
+  "agentPlugin": "claude",
+  "trackerPlugin": "json",
+  "prdPath": "./tasks/prd-menubar-preferences.json",
+  "currentIteration": 1,
+  "maxIterations": 10,
+  "totalTasks": 0,
+  "tasksCompleted": 1,
+  "cwd": "/Users/hubo/.superset/worktrees/Medit/featadd-vditor"
+}
