@@ -176,9 +176,12 @@ fn create_help_menu<R: tauri::Runtime>(
 ) -> Result<Submenu<R>, Box<dyn std::error::Error>> {
     let submenu = Submenu::with_id(app, "help", "帮助", true)?;
 
-    // About
-    let about = MenuItem::with_id(app, "help:about", "关于 Medit", true, None::<&str>);
-    submenu.append(&about?)?;
+    // About (only on non-macOS platforms, macOS has it in App menu)
+    #[cfg(not(target_os = "macos"))]
+    {
+        let about = MenuItem::with_id(app, "help:about", "关于 Medit", true, None::<&str>);
+        submenu.append(&about?)?;
+    }
 
     // Documentation
     let docs = MenuItem::with_id(app, "help:docs", "文档", true, None::<&str>);
