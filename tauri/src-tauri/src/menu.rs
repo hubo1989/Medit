@@ -7,6 +7,13 @@ pub fn create_menu<R: tauri::Runtime>(
 ) -> Result<Menu<R>, Box<dyn std::error::Error>> {
     let menu = Menu::new(app)?;
 
+    // App Menu (macOS only)
+    #[cfg(target_os = "macos")]
+    {
+        let app_menu = create_app_menu(app)?;
+        menu.append(&app_menu)?;
+    }
+
     // File Menu
     let file_menu = create_file_menu(app)?;
     menu.append(&file_menu)?;
@@ -188,6 +195,44 @@ fn create_help_menu<R: tauri::Runtime>(
         Some("CmdOrCtrl+?"),
     );
     submenu.append(&shortcuts?)?;
+
+    Ok(submenu)
+}
+
+/// Create App submenu (macOS only)
+/// This menu appears as the first menu with the app name "Medit"
+#[cfg(target_os = "macos")]
+fn create_app_menu<R: tauri::Runtime>(
+    app: &AppHandle<R>,
+) -> Result<Submenu<R>, Box<dyn std::error::Error>> {
+    let submenu = Submenu::with_id(app, "app", "Medit", true)?;
+
+    // About Medit
+    let about = MenuItem::with_id(app, "app:about", "关于 Medit", true, None::<&str>);
+    submenu.append(&about?)?;
+
+    submenu.append(&PredefinedMenuItem::separator(app)?)?;
+
+    // Preferences...
+    let preferences = MenuItem::with_id(app, "app:preferences", "偏好设置...", true, Some("Cmd+,"));
+    submenu.append(&preferences?)?;
+
+    submenu.append(&PredefinedMenuItem::separator(app)?)?;
+
+    // Hide Medit (system provided)
+    submenu.append(&PredefinedMenuItem::hide(app, None)?)?;
+
+    // Hide Others (system provided)
+    submenu.append(&PredefinedMenuItem::hide_others(app, None)?)?;
+
+    // Show All (system provided)
+    submenu.append(&PredefinedMenuItem::show_all(app, None)?)?;
+
+    submenu.append(&PredefinedMenuItem::separator(app)?)?;
+
+    // Quit Medit
+    let quit = MenuItem::with_id(app, "app:quit", "退出 Medit", true, Some("Cmd+Q"));
+    submenu.append(&quit?)?;
 
     Ok(submenu)
 }
