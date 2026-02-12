@@ -3,10 +3,10 @@
   "sessionId": "2c830d44-3ae4-47b0-9e7f-b9ecda1ec477",
   "status": "running",
   "startedAt": "2026-02-12T09:05:34.638Z",
-  "updatedAt": "2026-02-12T09:11:11.203Z",
-  "currentIteration": 0,
+  "updatedAt": "2026-02-12T09:14:38.761Z",
+  "currentIteration": 1,
   "maxIterations": 10,
-  "tasksCompleted": 0,
+  "tasksCompleted": 1,
   "isPaused": false,
   "agentPlugin": "claude",
   "trackerState": {
@@ -17,8 +17,8 @@
       {
         "id": "US-001",
         "title": "修改 Vditor 默认编辑模式为 ir 即时渲染",
-        "status": "open",
-        "completedInSession": false
+        "status": "completed",
+        "completedInSession": true
       },
       {
         "id": "US-002",
@@ -40,7 +40,18 @@
       }
     ]
   },
-  "iterations": [],
+  "iterations": [
+    {
+      "iteration": 1,
+      "status": "completed",
+      "taskId": "US-001",
+      "taskTitle": "修改 Vditor 默认编辑模式为 ir 即时渲染",
+      "taskCompleted": true,
+      "durationMs": 334287,
+      "startedAt": "2026-02-12T09:05:36.914Z",
+      "endedAt": "2026-02-12T09:11:11.201Z"
+    }
+  ],
   "skippedTaskIds": [],
   "cwd": "/Users/hubo/.superset/worktrees/Medit/fixvditor-edit-mode",
   "activeTaskIds": [],
