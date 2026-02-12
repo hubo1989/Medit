@@ -1100,9 +1100,12 @@ class MeditApp {
     }
     if (this._editor && !this._editor.isInitialized()) {
       await this._editor.init();
-      if (this._currentContent) {
-        this._editor.setValue(this._currentContent);
-      }
+    }
+    // Always ensure content is set when entering edit mode
+    // This fixes the issue where content loaded before editor initialization
+    // would not be displayed
+    if (this._editor?.isInitialized() && this._currentContent) {
+      this._editor.setValue(this._currentContent);
     }
   }
 
