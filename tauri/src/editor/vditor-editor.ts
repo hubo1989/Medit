@@ -419,7 +419,6 @@ export class VditorEditor {
         'redo',
         '|',
         'fullscreen',
-        'edit-mode',
         'outline',
         'preview',
       ],
