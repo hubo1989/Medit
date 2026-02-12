@@ -3,10 +3,10 @@
   "sessionId": "2c830d44-3ae4-47b0-9e7f-b9ecda1ec477",
   "status": "running",
   "startedAt": "2026-02-12T09:05:34.638Z",
-  "updatedAt": "2026-02-12T09:14:38.761Z",
-  "currentIteration": 1,
+  "updatedAt": "2026-02-12T09:16:43.169Z",
+  "currentIteration": 2,
   "maxIterations": 10,
-  "tasksCompleted": 1,
+  "tasksCompleted": 2,
   "isPaused": false,
   "agentPlugin": "claude",
   "trackerState": {
@@ -23,8 +23,8 @@
       {
         "id": "US-002",
         "title": "移除 Vditor 工具栏的模式切换按钮",
-        "status": "open",
-        "completedInSession": false
+        "status": "completed",
+        "completedInSession": true
       },
       {
         "id": "US-003",
@@ -50,6 +50,16 @@
       "durationMs": 334287,
       "startedAt": "2026-02-12T09:05:36.914Z",
       "endedAt": "2026-02-12T09:11:11.201Z"
+    },
+    {
+      "iteration": 2,
+      "status": "completed",
+      "taskId": "US-002",
+      "taskTitle": "移除 Vditor 工具栏的模式切换按钮",
+      "taskCompleted": true,
+      "durationMs": 206442,
+      "startedAt": "2026-02-12T09:11:12.317Z",
+      "endedAt": "2026-02-12T09:14:38.759Z"
     }
   ],
   "skippedTaskIds": [],
