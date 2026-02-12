@@ -207,7 +207,7 @@ class MeditApp {
       theme: this._state.theme,
       initialValue: this._currentContent,
       placeholder: '开始编写 Markdown...',
-      mode: 'sv',
+      mode: 'ir',
       onChange: (value) => {
         this._currentContent = value;
         this._updatePreview(value);
