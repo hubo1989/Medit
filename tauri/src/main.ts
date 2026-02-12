@@ -9,6 +9,8 @@ import { I18nService, type Language } from './i18n/index.js';
 import { MenuService } from './menu/index.js';
 import { PreferencesService, ThemeService } from './services/index.js';
 import { invoke } from '@tauri-apps/api/core';
+import Vditor from 'vditor';
+import 'vditor/dist/index.css';
 
 // Application state
 interface AppState {
@@ -46,6 +48,7 @@ class MeditApp {
   private _currentContent = '';
   private _previewUpdateTimeout: ReturnType<typeof setTimeout> | null = null;
   private _saveStatusElement: HTMLElement | null = null;
+  private _hasOpenedFile = false; // Track if user has opened a file
 
   constructor() {
     this._modeService = new EditorModeService({
@@ -116,6 +119,9 @@ class MeditApp {
       throw new Error('MeditApp: App container not found');
     }
 
+    // Make Vditor available globally for preview rendering
+    (window as unknown as Record<string, unknown>).Vditor = Vditor;
+
     // Load saved state
     this._loadState();
 
@@ -134,7 +140,7 @@ class MeditApp {
     await this._loadContent();
 
     // Apply initial mode
-    this._applyMode(this._modeService.getCurrentMode());
+    await this._applyMode(this._modeService.getCurrentMode());
 
     // Setup event listeners
     this._setupEventListeners();
@@ -301,6 +307,7 @@ class MeditApp {
     });
 
     void this._menuService.init();
+    void this._updateMenuLabels();
   }
 
   /**
@@ -311,6 +318,8 @@ class MeditApp {
     this._currentContent = '';
     this._editor?.setValue('');
     this._state.filePath = 'document.md';
+    this._hasOpenedFile = false;
+    this._fileSaveService?.setLastSavedContent('');
     this._saveState();
     console.log('[Medit] New file created');
   }
@@ -320,8 +329,8 @@ class MeditApp {
    */
   private async _handleOpenFile(): Promise<void> {
     try {
-      // Check for unsaved changes
-      if (this._fileSaveService?.hasUnsavedChanges(this._currentContent)) {
+      // Only check for unsaved changes if user has previously opened a file
+      if (this._hasOpenedFile && this._fileSaveService?.hasUnsavedChanges(this._currentContent)) {
         const confirmed = confirm(this._i18n.t('confirm.discardChanges') ?? '有未保存的更改，是否继续？');
         if (!confirmed) return;
       }
@@ -346,11 +355,21 @@ class MeditApp {
         return;
       }
 
-      // Update editor with file content
+      // Mark that user has opened a file
+      this._hasOpenedFile = true;
+
+      // Update current content
       this._currentContent = fileResult.content;
-      this._editor?.setValue(fileResult.content);
       this._state.filePath = result.path;
       this._saveState();
+
+      // Update editor if initialized, otherwise it will load content on init
+      if (this._editor?.isInitialized()) {
+        this._editor.setValue(fileResult.content);
+      }
+
+      // Also update preview if in preview or split mode
+      void this._renderPreview(fileResult.content);
 
       // Update file save service with new path
       this._fileSaveService?.updateConfig({ filePath: result.path });
@@ -637,7 +656,24 @@ class MeditApp {
    */
   private async _renderPreview(content: string): Promise<void> {
     const previewContainer = document.getElementById('markdown-content');
-    if (!previewContainer || typeof window.Vditor === 'undefined') return;
+    if (!previewContainer) return;
+
+    // Wait for Vditor to be available
+    if (typeof window.Vditor === 'undefined') {
+      // Wait up to 5 seconds for Vditor to load
+      const maxWait = 5000;
+      const startTime = Date.now();
+
+      while (typeof window.Vditor === 'undefined' && Date.now() - startTime < maxWait) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+
+      if (typeof window.Vditor === 'undefined') {
+        console.error('[Medit] Vditor library not loaded, cannot render preview');
+        previewContainer.textContent = content;
+        return;
+      }
+    }
 
     try {
       // Use Vditor's markdown to HTML renderer
@@ -659,7 +695,7 @@ class MeditApp {
     // Subscribe to mode changes
     this._modeService.onModeChange((newMode, previousMode) => {
       console.log(`[Medit] Mode changed: ${previousMode} -> ${newMode}`);
-      this._applyMode(newMode);
+      void this._applyMode(newMode);
       this._saveState();
     });
   }
@@ -667,7 +703,7 @@ class MeditApp {
   /**
    * Apply mode to UI
    */
-  private _applyMode(mode: EditorMode): void {
+  private async _applyMode(mode: EditorMode): Promise<void> {
     // Set data-mode attribute on app container for CSS targeting
     this._appContainer?.setAttribute('data-mode', mode);
 
@@ -691,6 +727,8 @@ class MeditApp {
         editorContainer.style.display = 'none';
         previewContainer.style.display = 'flex';
         previewContainer.style.width = '100%';
+        // Render preview with current content
+        await this._renderPreview(this._currentContent);
         // Restore scroll position
         this._restoreScrollPosition();
         break;
@@ -700,8 +738,8 @@ class MeditApp {
         editorContainer.style.display = 'flex';
         editorContainer.style.width = '100%';
         previewContainer.style.display = 'none';
-        // Initialize editor if needed
-        void this._initEditorIfNeeded();
+        // Initialize editor if needed (wait for it to complete)
+        await this._initEditorIfNeeded();
         break;
 
       case 'split':
@@ -710,10 +748,10 @@ class MeditApp {
         editorContainer.style.width = `${this._state.splitRatio * 100}%`;
         previewContainer.style.display = 'flex';
         previewContainer.style.width = `${(1 - this._state.splitRatio) * 100}%`;
-        // Initialize editor if needed
-        void this._initEditorIfNeeded();
+        // Initialize editor if needed (wait for it to complete)
+        await this._initEditorIfNeeded();
         // Render preview with current content
-        void this._renderPreview(this._currentContent);
+        await this._renderPreview(this._currentContent);
         break;
     }
 
@@ -1011,6 +1049,7 @@ class MeditApp {
     this._i18n.setLanguage(lang);
     this._toolbar?.updateLabels();
     this._updateSaveStatusIndicator(this._fileSaveService?.getStatus() ?? 'idle');
+    void this._updateMenuLabels();
   }
 
   /**
@@ -1020,6 +1059,36 @@ class MeditApp {
     this._i18n.toggleLanguage();
     this._toolbar?.updateLabels();
     this._updateSaveStatusIndicator(this._fileSaveService?.getStatus() ?? 'idle');
+    void this._updateMenuLabels();
+  }
+
+  private async _updateMenuLabels(): Promise<void> {
+    try {
+      const labels: Record<string, string> = {
+        file: this._i18n.t('menu.file'),
+        edit: this._i18n.t('menu.edit'),
+        view: this._i18n.t('menu.view'),
+        help: this._i18n.t('menu.help'),
+        'file:new': this._i18n.t('menu.newFile'),
+        'file:open': this._i18n.t('menu.openFile'),
+        'file:save': this._i18n.t('menu.save'),
+        'file:save-as': this._i18n.t('menu.saveAs'),
+        'file:exit': this._i18n.t('menu.exit'),
+        'edit:find': this._i18n.t('menu.find'),
+        'view:edit-mode': this._i18n.t('menu.editMode'),
+        'view:preview-mode': this._i18n.t('menu.previewMode'),
+        'view:split-mode': this._i18n.t('menu.splitMode'),
+        'view:zoom-in': this._i18n.t('menu.zoomIn'),
+        'view:zoom-out': this._i18n.t('menu.zoomOut'),
+        'view:reset-zoom': this._i18n.t('menu.resetZoom'),
+        'help:about': this._i18n.t('menu.about'),
+        'help:docs': this._i18n.t('menu.docs'),
+        'help:shortcuts': this._i18n.t('menu.shortcuts'),
+      };
+      await invoke('update_menu_labels', { labels });
+    } catch (error) {
+      console.error('Failed to update menu labels:', error);
+    }
   }
 
   /**

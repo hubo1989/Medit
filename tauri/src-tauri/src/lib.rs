@@ -16,6 +16,7 @@ pub fn run() {
             commands::exit_app,
             commands::read_file,
             commands::write_file,
+            commands::update_menu_labels,
         ])
         .setup(|app| {
             // Create and set application menu

@@ -1,7 +1,9 @@
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use std::fs;
-use std::path::Path;
+use tauri::menu::MenuItemKind;
 use tauri::{AppHandle, Manager};
+use tauri_plugin_dialog::DialogExt;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct FileContent {
@@ -74,24 +76,25 @@ pub fn new_file() -> NewFileResult {
 /// Open file dialog to select a file for reading
 #[tauri::command]
 pub async fn open_file_dialog(app: AppHandle) -> Result<DialogResult, String> {
-    use tauri_plugin_dialog::FileDialogExt;
+    let (tx, rx) = std::sync::mpsc::channel();
 
-    let file_path = app
-        .dialog()
+    app.dialog()
         .file()
         .add_filter("Markdown", &["md", "markdown", "mdown", "mkd"])
         .add_filter("Text", &["txt"])
         .add_filter("All Files", &["*"])
-        .blocking_pick_file();
+        .pick_file(move |file_path| {
+            let _ = tx.send(file_path);
+        });
+
+    // Wait for the callback to complete
+    let file_path = rx.recv().map_err(|e| e.to_string())?;
 
     match file_path {
-        Some(path) => {
-            let path_str = path.to_string();
-            Ok(DialogResult {
-                path: Some(path_str),
-                canceled: false,
-            })
-        }
+        Some(path) => Ok(DialogResult {
+            path: Some(path.to_string()),
+            canceled: false,
+        }),
         None => Ok(DialogResult {
             path: None,
             canceled: true,
@@ -101,8 +104,11 @@ pub async fn open_file_dialog(app: AppHandle) -> Result<DialogResult, String> {
 
 /// Save file dialog to select a location for saving
 #[tauri::command]
-pub async fn save_file_dialog(app: AppHandle, default_name: Option<String>) -> Result<DialogResult, String> {
-    use tauri_plugin_dialog::FileDialogExt;
+pub async fn save_file_dialog(
+    app: AppHandle,
+    default_name: Option<String>,
+) -> Result<DialogResult, String> {
+    let (tx, rx) = std::sync::mpsc::channel();
 
     let mut dialog = app
         .dialog()
@@ -116,16 +122,18 @@ pub async fn save_file_dialog(app: AppHandle, default_name: Option<String>) -> R
         dialog = dialog.set_file_name(&name);
     }
 
-    let file_path = dialog.blocking_save_file();
+    dialog.save_file(move |file_path| {
+        let _ = tx.send(file_path);
+    });
+
+    // Wait for the callback to complete
+    let file_path = rx.recv().map_err(|e| e.to_string())?;
 
     match file_path {
-        Some(path) => {
-            let path_str = path.to_string();
-            Ok(DialogResult {
-                path: Some(path_str),
-                canceled: false,
-            })
-        }
+        Some(path) => Ok(DialogResult {
+            path: Some(path.to_string()),
+            canceled: false,
+        }),
         None => Ok(DialogResult {
             path: None,
             canceled: true,
@@ -137,5 +145,42 @@ pub async fn save_file_dialog(app: AppHandle, default_name: Option<String>) -> R
 #[tauri::command]
 pub fn exit_app(app: AppHandle) -> Result<(), String> {
     app.exit(0);
+    Ok(())
+}
+
+#[tauri::command]
+pub fn update_menu_labels(app: AppHandle, labels: HashMap<String, String>) -> Result<(), String> {
+    let Some(menu) = app.menu() else {
+        return Err("No menu found".to_string());
+    };
+
+    let items = menu.items().map_err(|e| e.to_string())?;
+    for item in &items {
+        if let MenuItemKind::Submenu(submenu) = item {
+            let sub_id = submenu.id().as_ref().to_string();
+            if let Some(label) = labels.get(&sub_id) {
+                submenu.set_text(label).map_err(|e| e.to_string())?;
+            }
+            let children = submenu.items().map_err(|e| e.to_string())?;
+            for child in &children {
+                let child_id = match child {
+                    MenuItemKind::MenuItem(mi) => mi.id().as_ref().to_string(),
+                    MenuItemKind::Check(ci) => ci.id().as_ref().to_string(),
+                    _ => continue,
+                };
+                if let Some(label) = labels.get(&child_id) {
+                    match child {
+                        MenuItemKind::MenuItem(mi) => {
+                            mi.set_text(label).map_err(|e| e.to_string())?;
+                        }
+                        MenuItemKind::Check(ci) => {
+                            ci.set_text(label).map_err(|e| e.to_string())?;
+                        }
+                        _ => {}
+                    }
+                }
+            }
+        }
+    }
     Ok(())
 }
