@@ -369,7 +369,7 @@ export class VditorEditor {
    * Build Vditor options from config
    */
   private _buildOptions(): VditorOptions {
-    const { theme = 'light', initialValue = '', placeholder, mode = 'sv', customOptions = {}, onChange, onFocus, onBlur } = this._config;
+    const { theme = 'light', initialValue = '', placeholder, mode = 'ir', customOptions = {}, onChange, onFocus, onBlur } = this._config;
 
     const vditorTheme = theme === 'dark' ? 'dark' : 'classic';
 
@@ -419,7 +419,6 @@ export class VditorEditor {
         'redo',
         '|',
         'fullscreen',
-        'edit-mode',
         'outline',
         'preview',
       ],

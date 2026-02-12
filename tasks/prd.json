@@ -1,18 +1,19 @@
 {
-  "name": "集成 Vditor 作为 Markdown 编辑引擎",
-  "description": "为 Medit Tauri 桌面应用增加 Vditor 编辑器支持，实现所见即所得的编辑模式，与现有预览模式无缝切换",
-  "branchName": "feat/add-vditor-editor",
+  "name": "修复 Vditor 编辑模式",
+  "description": "让编辑模式使用 vditor 正常加载文档并允许编辑，关闭 vditor 自带的模式切换",
+  "branchName": "ralph/fix-vditor-edit-mode",
   "userStories": [
     {
       "id": "US-001",
-      "title": "添加 Vditor 依赖和类型定义",
-      "description": "作为开发者，我需要安装 Vditor 编辑器依赖，以便在项目中使用其编辑功能",
+      "title": "修改 Vditor 默认编辑模式为 ir 即时渲染",
+      "description": "作为用户，我希望在编辑模式下使用 Vditor 的即时渲染模式 (ir)，而不是分屏模式 (sv)，以便获得更好的编辑体验",
       "acceptanceCriteria": [
-        "运行 pnpm add vditor 安装 Vditor 依赖",
-        "在 tauri/package.json 中添加 vditor 到 dependencies",
-        "创建 tauri/src/types/vditor.d.ts 类型声明文件（如需要）",
-        "pnpm typecheck 通过，无类型错误",
-        "pnpm lint 通过，无代码风格问题"
+        "修改 tauri/src/editor/vditor-editor.ts 中 _buildOptions 方法的默认 mode 参数从 'sv' 改为 'ir'",
+        "修改 tauri/src/main.ts 中 _initEditor 方法的 mode 参数从 'sv' 改为 'ir'",
+        "编辑器应支持基本的 Markdown 编辑功能（粗体、斜体、标题、列表等）",
+        "ir 模式下输入内容即时渲染为格式化文本",
+        "pnpm typecheck 通过",
+        "pnpm lint 通过"
       ],
       "priority": 1,
       "passes": true,
@@ -22,14 +23,12 @@
     },
     {
       "id": "US-002",
-      "title": "创建 VditorEditor 核心封装类",
-      "description": "作为开发者，我需要一个封装好的 Vditor 编辑器类，提供统一的初始化和内容管理接口",
+      "title": "移除 Vditor 工具栏的模式切换按钮",
+      "description": "作为用户，我不希望在 Vditor 工具栏中看到模式切换按钮，因为应用已经有自己的模式切换机制（编辑/预览/分屏）",
       "acceptanceCriteria": [
-        "创建 tauri/src/editor/vditor-editor.ts 文件",
-        "实现 VditorEditor 类，包含 init、destroy、getValue、setValue、focus 方法",
-        "支持传入主题参数（light/dark）并自动适配",
-        "支持传入自定义配置覆盖默认配置",
-        "编辑器容器支持自定义 DOM 元素或选择器",
+        "从 tauri/src/editor/vditor-editor.ts 的 toolbar 配置中移除 'edit-mode' 按钮",
+        "工具栏保留其他功能按钮（粗体、斜体、标题、列表、代码、链接、表格等）",
+        "确保用户无法通过 Vditor 自带的 UI 切换编辑模式",
         "pnpm typecheck 通过",
         "pnpm lint 通过"
       ],
@@ -43,14 +42,13 @@
     },
     {
       "id": "US-003",
-      "title": "创建编辑模式状态管理服务",
-      "description": "作为用户，我需要在编辑模式和预览模式之间切换，并希望状态能够被保存和恢复",
+      "title": "修复编辑器内容加载问题",
+      "description": "作为用户，我希望进入编辑模式时能看到文档内容，而不是空白编辑器",
       "acceptanceCriteria": [
-        "创建 tauri/src/editor/editor-mode-service.ts 文件",
-        "实现 EditorModeService 类，管理 'preview' | 'edit' | 'split' 三种模式",
-        "使用 localStorage 保存当前编辑模式",
-        "提供切换模式的 API：switchMode(mode)、getCurrentMode()",
-        "监听模式切换事件并触发回调",
+        "修改 tauri/src/main.ts 中 _initEditorIfNeeded 方法，确保切换到编辑/分屏模式时内容正确加载",
+        "问题根因：_initEditor() 在 _loadContent() 之前调用，导致 initialValue 为空",
+        "解决方案：在 _initEditorIfNeeded 中，无论编辑器是否已初始化，都要确保内容被正确设置",
+        "打开文件后切换到编辑模式，内容正确显示",
         "pnpm typecheck 通过",
         "pnpm lint 通过"
       ],
@@ -64,15 +62,14 @@
     },
     {
       "id": "US-004",
-      "title": "在 Tauri Toolbar 添加编辑模式切换按钮",
-      "description": "作为用户，我希望在工具栏上有按钮可以切换编辑/预览/分屏模式",
+      "title": "验证编辑模式功能完整性",
+      "description": "作为用户，我希望在编辑模式下能够正常打开、编辑和保存文档",
       "acceptanceCriteria": [
-        "修改 tauri/src/ui/toolbar.ts 文件",
-        "在 toolbar-center 区域添加模式切换按钮组",
-        "添加三个模式按钮：预览、编辑、分屏，使用 SVG 图标",
-        "当前激活模式按钮高亮显示",
-        "点击按钮调用 editorModeService.switchMode()",
-        "支持从 localStorage 恢复上次使用的模式",
+        "打开文件时内容正确加载到 Vditor 编辑器",
+        "编辑内容时 onChange 回调正常触发",
+        "Ctrl+S / Cmd+S 保存功能正常工作",
+        "主题切换时编辑器主题同步更新",
+        "在 Tauri 桌面应用中验证所有功能正常",
         "pnpm typecheck 通过",
         "pnpm lint 通过"
       ],
@@ -83,181 +80,9 @@
         "US-003"
       ],
       "completionNotes": "Completed by agent"
-    },
-    {
-      "id": "US-005",
-      "title": "实现预览模式（现有功能保留）",
-      "description": "作为用户，我希望现有的纯预览模式继续正常工作",
-      "acceptanceCriteria": [
-        "预览模式下只显示 markdown-content 渲染区域",
-        "编辑器区域完全隐藏（display: none）",
-        "现有的 TOC、工具栏功能正常工作",
-        "滚动位置、主题设置正确保存和恢复",
-        "pnpm typecheck 通过",
-        "pnpm lint 通过"
-      ],
-      "priority": 5,
-      "passes": true,
-      "notes": "",
-      "dependsOn": [
-        "US-004"
-      ],
-      "completionNotes": "Completed by agent"
-    },
-    {
-      "id": "US-006",
-      "title": "实现编辑模式（纯编辑）",
-      "description": "作为用户，我希望在编辑模式下看到 Vditor 编辑器并可以编辑内容",
-      "acceptanceCriteria": [
-        "编辑模式下隐藏 markdown-content 预览区域",
-        "显示 Vditor 编辑器并占满可用空间",
-        "编辑器加载当前文件内容",
-        "编辑器使用与预览一致的主题（light/dark）",
-        "支持基本的 Markdown 编辑功能",
-        "pnpm typecheck 通过",
-        "pnpm lint 通过"
-      ],
-      "priority": 6,
-      "passes": true,
-      "notes": "",
-      "dependsOn": [
-        "US-005"
-      ],
-      "completionNotes": "Completed by agent"
-    },
-    {
-      "id": "US-007",
-      "title": "实现分屏模式（编辑+预览同步）",
-      "description": "作为用户，我希望在分屏模式下左侧编辑、右侧预览，并能实时同步",
-      "acceptanceCriteria": [
-        "分屏模式下左侧显示 Vditor 编辑器，右侧显示预览",
-        "左右分屏比例为 50%/50%，支持拖拽调整宽度",
-        "编辑内容变化时右侧预览实时更新（防抖 300ms）",
-        "预览使用现有的 renderMarkdown 渲染",
-        "滚动位置保持独立（编辑区和预览区分别记录）",
-        "pnpm typecheck 通过",
-        "pnpm lint 通过"
-      ],
-      "priority": 7,
-      "passes": true,
-      "notes": "",
-      "dependsOn": [
-        "US-006"
-      ],
-      "completionNotes": "Completed by agent"
-    },
-    {
-      "id": "US-008",
-      "title": "实现内容保存和文件写入",
-      "description": "作为用户，我希望编辑后的内容能够保存到原文件",
-      "acceptanceCriteria": [
-        "创建 tauri/src/editor/file-save-service.ts 文件",
-        "实现 FileSaveService 类，支持 save(content) 方法",
-        "通过 Tauri 的 fs API 写入文件内容",
-        "监听编辑器内容变化，自动触发保存（可配置）",
-        "添加保存状态指示器（保存中/已保存/保存失败）",
-        "支持 Ctrl+S / Cmd+S 快捷键手动保存",
-        "pnpm typecheck 通过",
-        "pnpm lint 通过"
-      ],
-      "priority": 8,
-      "passes": true,
-      "notes": "",
-      "dependsOn": [
-        "US-006"
-      ],
-      "completionNotes": "Completed by agent"
-    },
-    {
-      "id": "US-009",
-      "title": "在 Tauri 主进程中添加文件保存命令",
-      "description": "作为 Tauri 应用，我需要在 Rust 后端添加文件写入命令供前端调用",
-      "acceptanceCriteria": [
-        "修改 tauri/src-tauri/src/commands.rs 文件",
-        "添加 save_file 命令，接收文件路径和内容参数",
-        "处理文件写入错误并返回结果",
-        "更新 Tauri 权限配置允许文件写入",
-        "pnpm typecheck 通过",
-        "pnpm lint 通过"
-      ],
-      "priority": 9,
-      "passes": true,
-      "notes": "",
-      "dependsOn": [
-        "US-008"
-      ],
-      "completionNotes": "Completed by agent"
-    },
-    {
-      "id": "US-010",
-      "title": "更新 Tauri 前端集成编辑器",
-      "description": "作为 Tauri 桌面应用用户，我可以在应用中切换编辑/预览/分屏模式编辑 Markdown 文件",
-      "acceptanceCriteria": [
-        "修改 tauri/src/main.ts",
-        "集成 EditorModeService 和 VditorEditor",
-        "根据当前模式渲染不同的 UI 布局",
-        "文件内容变化时同步更新编辑器和预览",
-        "主题切换时同步更新编辑器主题",
-        "打开文件时加载内容到编辑器",
-        "pnpm typecheck 通过",
-        "pnpm lint 通过",
-        "在 Tauri 桌面应用中验证功能正常"
-      ],
-      "priority": 10,
-      "passes": true,
-      "notes": "",
-      "dependsOn": [
-        "US-007",
-        "US-009"
-      ],
-      "completionNotes": "Completed by agent"
-    },
-    {
-      "id": "US-011",
-      "title": "添加编辑模式样式和主题适配",
-      "description": "作为用户，我希望编辑器的外观与整体 UI 风格一致",
-      "acceptanceCriteria": [
-        "修改 tauri/src/ui/style.css 文件",
-        "定义编辑器容器、分屏布局的 CSS 样式",
-        "Vditor 主题与项目主题系统同步",
-        "分屏模式下支持拖拽调整左右面板宽度",
-        "工具栏按钮样式与现有按钮一致",
-        "pnpm typecheck 通过",
-        "pnpm lint 通过",
-        "在 Tauri 应用中验证视觉效果"
-      ],
-      "priority": 11,
-      "passes": true,
-      "notes": "",
-      "dependsOn": [
-        "US-010"
-      ],
-      "completionNotes": "Completed by agent"
-    },
-    {
-      "id": "US-012",
-      "title": "添加本地化和快捷键支持",
-      "description": "作为用户，我希望编辑器界面支持中英文切换，并能使用快捷键操作",
-      "acceptanceCriteria": [
-        "在 tauri/src/i18n 中添加编辑器相关翻译字符串",
-        "支持 Ctrl+S / Cmd+S 保存",
-        "支持 Ctrl+B / Cmd+B 切换 TOC",
-        "支持 Ctrl+Shift+E 切换到编辑模式",
-        "支持 Ctrl+Shift+P 切换到预览模式",
-        "支持 Ctrl+Shift+S 切换到分屏模式",
-        "pnpm typecheck 通过",
-        "pnpm lint 通过"
-      ],
-      "priority": 12,
-      "passes": true,
-      "notes": "",
-      "dependsOn": [
-        "US-010"
-      ],
-      "completionNotes": "Completed by agent"
     }
   ],
   "metadata": {
-    "updatedAt": "2026-02-10T07:36:46.124Z"
+    "updatedAt": "2026-02-12T09:18:57.917Z"
   }
 }
