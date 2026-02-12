@@ -1,14 +1,14 @@
 {
-  "id": "2c830d44-3ae4-47b0-9e7f-b9ecda1ec477",
+  "id": "cd864d91-f2b5-4101-bb63-6cfae859d5db",
   "status": "running",
-  "startedAt": "2026-02-12T09:05:34.444Z",
-  "updatedAt": "2026-02-12T09:16:43.243Z",
+  "startedAt": "2026-02-12T12:41:54.841Z",
+  "updatedAt": "2026-02-12T12:41:54.841Z",
   "agentPlugin": "claude",
   "trackerPlugin": "json",
   "prdPath": "./tasks/prd.json",
-  "currentIteration": 3,
+  "currentIteration": 0,
   "maxIterations": 10,
   "totalTasks": 0,
-  "tasksCompleted": 3,
-  "cwd": "/Users/hubo/.superset/worktrees/Medit/fixvditor-edit-mode"
+  "tasksCompleted": 0,
+  "cwd": "/Users/hubo/.superset/worktrees/Medit/fixmenu-for-macos"
 }
