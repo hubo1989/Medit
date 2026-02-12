@@ -103,13 +103,14 @@
         "应用正常启动和退出，无崩溃"
       ],
       "priority": 5,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "dependsOn": [
         "US-002",
         "US-003",
         "US-004"
-      ]
+      ],
+      "completionNotes": "Completed by agent"
     },
     {
       "id": "US-006",
@@ -131,6 +132,6 @@
     }
   ],
   "metadata": {
-    "updatedAt": "2026-02-12T12:58:26.449Z"
+    "updatedAt": "2026-02-12T19:55:59.310Z"
   }
 }

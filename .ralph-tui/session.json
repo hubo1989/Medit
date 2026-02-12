@@ -3,10 +3,10 @@
   "sessionId": "cd864d91-f2b5-4101-bb63-6cfae859d5db",
   "status": "running",
   "startedAt": "2026-02-12T12:41:55.033Z",
-  "updatedAt": "2026-02-12T12:58:26.451Z",
-  "currentIteration": 3,
+  "updatedAt": "2026-02-12T19:55:59.312Z",
+  "currentIteration": 4,
   "maxIterations": 10,
-  "tasksCompleted": 3,
+  "tasksCompleted": 4,
   "isPaused": false,
   "agentPlugin": "claude",
   "trackerState": {
@@ -35,8 +35,8 @@
       {
         "id": "US-004",
         "title": "更新前端 MenuService 处理新事件",
-        "status": "open",
-        "completedInSession": false
+        "status": "completed",
+        "completedInSession": true
       },
       {
         "id": "US-005",
@@ -82,6 +82,16 @@
       "durationMs": 272137,
       "startedAt": "2026-02-12T12:52:21.353Z",
       "endedAt": "2026-02-12T12:56:53.490Z"
+    },
+    {
+      "iteration": 4,
+      "status": "completed",
+      "taskId": "US-004",
+      "taskTitle": "更新前端 MenuService 处理新事件",
+      "taskCompleted": true,
+      "durationMs": 91727,
+      "startedAt": "2026-02-12T12:56:54.721Z",
+      "endedAt": "2026-02-12T12:58:26.448Z"
     }
   ],
   "skippedTaskIds": [],
