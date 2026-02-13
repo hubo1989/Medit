@@ -129,10 +129,10 @@
       "dependsOn": [
         "US-002"
       ],
-      "completionNotes": "通过代码审查验证条件编译正确：1) #[cfg(target_os=macos)] 用于 App Menu；2) #[cfg(not(target_os=macos))] 用于 Exit 和 About 项"
+      "completionNotes": "Completed by agent"
     }
   ],
   "metadata": {
-    "updatedAt": "2026-02-13T06:20:25.429Z"
+    "updatedAt": "2026-02-13T06:35:56.774Z"
   }
 }

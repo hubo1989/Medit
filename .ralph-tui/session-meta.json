@@ -1,14 +1,14 @@
 {
-  "id": "cd864d91-f2b5-4101-bb63-6cfae859d5db",
+  "id": "25a1ff76-96d5-42c4-989d-dd131bc445ea",
   "status": "running",
-  "startedAt": "2026-02-12T12:41:54.841Z",
-  "updatedAt": "2026-02-12T12:58:26.572Z",
+  "startedAt": "2026-02-13T06:20:21.823Z",
+  "updatedAt": "2026-02-13T06:20:21.823Z",
   "agentPlugin": "claude",
   "trackerPlugin": "json",
   "prdPath": "./tasks/prd.json",
-  "currentIteration": 4,
+  "currentIteration": 0,
   "maxIterations": 10,
   "totalTasks": 0,
-  "tasksCompleted": 4,
+  "tasksCompleted": 0,
   "cwd": "/Users/hubo/.superset/worktrees/Medit/fixmenu-for-macos"
 }
