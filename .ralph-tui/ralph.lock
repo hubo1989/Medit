@@ -2,6 +2,6 @@
   "pid": 72285,
   "sessionId": "52152b57-4bb0-47f5-aae5-93dc017b107b",
   "acquiredAt": "2026-02-13T06:20:21.823Z",
-  "cwd": "/Users/hubo/.superset/worktrees/Medit/fixmenu-for-macos",
+  "cwd": ".",
   "hostname": "HubertdeMacBook-Pro.local"
 }

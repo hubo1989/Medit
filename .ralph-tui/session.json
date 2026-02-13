@@ -54,7 +54,7 @@
   },
   "iterations": [],
   "skippedTaskIds": [],
-  "cwd": "/Users/hubo/.superset/worktrees/Medit/fixmenu-for-macos",
+  "cwd": ".",
   "activeTaskIds": [],
   "subagentPanelVisible": false
 }
