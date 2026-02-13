@@ -77,3 +77,6 @@ src/fonts/*.ttf
 # Rust / Tauri build artifacts
 target/
 **/target/
+
+# Ralph TUI session files (developer-specific)
+.ralph-tui/
