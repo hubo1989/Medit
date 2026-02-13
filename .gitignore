@@ -73,3 +73,7 @@ app.*.map.json
 src/fonts/*.woff2
 src/fonts/*.ttf
 !src/fonts/.gitkeep
+
+# Rust / Tauri build artifacts
+target/
+**/target/
