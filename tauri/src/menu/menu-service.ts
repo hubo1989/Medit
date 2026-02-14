@@ -19,6 +19,7 @@ export interface MenuServiceConfig {
   onZoomOut?: () => void;
   onResetZoom?: () => void;
   onAbout?: () => void;
+  onAppAbout?: () => void;
   onDocs?: () => void;
   onShortcuts?: () => void;
 }
@@ -97,6 +98,11 @@ export class MenuService {
     );
     this._unlisteners.push(
       await listen('menu:help:shortcuts', () => this._config.onShortcuts?.())
+    );
+
+    // App menu events (macOS)
+    this._unlisteners.push(
+      await listen('menu:app:about', () => this._config.onAppAbout?.())
     );
 
     this._isInitialized = true;

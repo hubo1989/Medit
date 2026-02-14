@@ -84,6 +84,17 @@ fn handle_menu_event(app: &tauri::AppHandle, event: tauri::menu::MenuEvent) {
             let _ = window.emit("menu:view:reset-zoom", ());
         }
 
+        // App menu (macOS)
+        "app:about" => {
+            let _ = window.emit("menu:app:about", ());
+        }
+        "app:preferences" => {
+            let _ = window.emit("menu:preferences", ());
+        }
+        "app:quit" => {
+            app.exit(0);
+        }
+
         // Help menu
         "help:about" => {
             let _ = window.emit("menu:help:about", ());
