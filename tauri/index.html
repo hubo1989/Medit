@@ -9,25 +9,31 @@
   </head>
   <body>
     <div id="app">
-      <!-- Toolbar container -->
-      <header id="toolbar-container"></header>
-
       <!-- Main content area -->
       <main id="main-container">
-        <!-- Editor container (hidden in preview mode) -->
-        <div id="editor-container" class="editor-pane">
-          <div id="vditor-editor"></div>
-        </div>
-
-        <!-- Preview container (always visible, full width in preview mode) -->
-        <div id="preview-container" class="preview-pane">
-          <div id="markdown-content"></div>
-        </div>
-
-        <!-- TOC sidebar -->
+        <!-- TOC sidebar - now on the left, independent of editor/preview -->
         <aside id="toc-container" class="toc-pane">
           <nav id="toc-nav"></nav>
         </aside>
+
+        <!-- Editor and Preview wrapper -->
+        <div id="content-wrapper">
+          <!-- Preview mode toolbar (only shows in preview mode) -->
+          <header id="preview-toolbar-container"></header>
+
+          <!-- Editor and Preview horizontal container -->
+          <div id="editor-preview-container">
+            <!-- Editor container (hidden in preview mode) -->
+            <div id="editor-container" class="editor-pane">
+              <div id="vditor-editor"></div>
+            </div>
+
+            <!-- Preview container (always visible, full width in preview mode) -->
+            <div id="preview-container" class="preview-pane">
+              <div id="markdown-content"></div>
+            </div>
+          </div>
+        </div>
       </main>
     </div>
 
