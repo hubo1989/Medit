@@ -4,9 +4,9 @@
  * In split mode: also shows export (公众号/知乎) + device preview buttons
  */
 
-import { EditorModeService } from '../editor/index.js';
+import type { EditorModeService } from '../editor/index.js';
 import type { EditorMode } from '../editor/index.js';
-import { I18nService } from '../i18n/index.js';
+import type { I18nService } from '../i18n/index.js';
 import { MODE_ICONS, ACTION_ICONS, DEVICE_ICONS } from './icons.js';
 
 export type DevicePreviewMode = 'desktop' | 'tablet' | 'mobile';
@@ -120,6 +120,7 @@ export class EditToolbar {
     button.className = 'medit-edit-btn medit-mode-btn';
     button.dataset.mode = mode;
     button.title = tooltip;
+    button.setAttribute('aria-label', tooltip);
     button.innerHTML = icon;
     this._buttons.set(mode, button);
     return button;
@@ -130,6 +131,7 @@ export class EditToolbar {
     button.type = 'button';
     button.className = 'medit-edit-btn';
     button.title = tooltip;
+    button.setAttribute('aria-label', tooltip);
     button.innerHTML = icon;
     this._buttons.set(name, button);
     return button;
@@ -141,6 +143,7 @@ export class EditToolbar {
     button.className = 'medit-edit-btn medit-device-btn';
     button.dataset.device = device;
     button.title = tooltip;
+    button.setAttribute('aria-label', tooltip);
     button.innerHTML = icon;
     this._buttons.set(`device-${device}`, button);
     return button;
@@ -206,6 +209,13 @@ export class EditToolbar {
     }
   }
 
+  setDevice(device: DevicePreviewMode): void {
+    if (this._currentDevice !== device) {
+      this._currentDevice = device;
+      this._updateActiveDeviceButton(device);
+    }
+  }
+
   updateLabels(): void { this._updateLabels(); }
 
   private _updateLabels(): void {
@@ -230,6 +240,13 @@ export class EditToolbar {
     if (tabletBtn) tabletBtn.title = this._i18n.t('toolbar.tablet');
     if (mobileBtn) mobileBtn.title = this._i18n.t('toolbar.mobile');
     if (refreshBtn) refreshBtn.title = this._i18n.t('toolbar.refresh');
+
+    // Update aria-labels
+    this._buttons.forEach(btn => {
+      if (btn.title) {
+        btn.setAttribute('aria-label', btn.title);
+      }
+    });
   }
 
   destroy(): void {

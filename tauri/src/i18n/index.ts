@@ -171,6 +171,16 @@ const TRANSLATIONS = {
       close: 'Close',
       toggleReplace: 'Toggle Replace',
     },
+    // Export
+    export: {
+      noContent: 'No content to export',
+      exporting: 'Exporting to {target}...',
+      toBeAvailable: 'Export to "{target}" feature coming soon',
+      targets: {
+        wechatMP: 'WeChat',
+        zhihu: 'Zhihu',
+      },
+    },
   },
   zh: {
     // Mode labels
@@ -328,6 +338,16 @@ const TRANSLATIONS = {
       noResults: '无结果',
       close: '关闭',
       toggleReplace: '切换替换',
+    },
+    // 导出
+    export: {
+      noContent: '没有可导出的内容',
+      exporting: '正在导出到「{target}」...',
+      toBeAvailable: '导出到「{target}」功能即将推出',
+      targets: {
+        wechatMP: '公众号',
+        zhihu: '知乎',
+      },
     },
   },
 } as const;

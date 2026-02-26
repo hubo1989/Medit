@@ -467,6 +467,61 @@
   padding: 16px;
 }
 
+/* TOC outline list */
+.toc-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.toc-item {
+  position: relative;
+  border-radius: 6px;
+  transition: background-color 0.15s ease;
+}
+
+.toc-link {
+  display: block;
+  padding: 6px 12px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--medit-text-secondary);
+  text-decoration: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  border-left: 2px solid transparent;
+  transition: color 0.15s ease, border-left-color 0.15s ease, background-color 0.15s ease;
+}
+
+/* Indentation by heading level */
+.toc-level-0 .toc-link { padding-left: 12px; font-weight: 600; }
+.toc-level-1 .toc-link { padding-left: 24px; }
+.toc-level-2 .toc-link { padding-left: 36px; }
+.toc-level-3 .toc-link { padding-left: 48px; }
+.toc-level-4 .toc-link { padding-left: 60px; }
+.toc-level-5 .toc-link { padding-left: 72px; }
+
+.toc-item:hover .toc-link {
+  color: var(--medit-text-primary);
+  background-color: var(--medit-accent-light);
+}
+
+.toc-item.active .toc-link {
+  color: var(--medit-accent-color);
+  border-left-color: var(--medit-accent-color);
+  background-color: var(--medit-accent-light);
+  font-weight: 500;
+}
+
+/* Empty state */
+.toc-empty {
+  padding: 24px 16px;
+  font-size: 13px;
+  color: var(--medit-text-tertiary);
+  text-align: center;
+}
+
 /* TOC visibility states */
 [data-toc='hidden'] .toc-pane {
   display: none;

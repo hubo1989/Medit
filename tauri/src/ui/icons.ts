@@ -40,6 +40,7 @@ export const DEVICE_ICONS = {
 export const ICONS = {
   ...MODE_ICONS,
   ...ACTION_ICONS,
+  ...DEVICE_ICONS,
 };
 
 // Vditor toolbar item names
