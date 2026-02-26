@@ -387,7 +387,7 @@ export class VditorEditor {
         type: 'markdown',
       },
       preview: {
-        mode: 'both',
+        mode: 'editor', // Only show editor; preview is handled by our custom #preview-container
         markdown: {
           toc: true,
           mark: true,
@@ -397,7 +397,6 @@ export class VditorEditor {
         },
       },
       toolbar: [
-        'emoji',
         'headings',
         'bold',
         'italic',
@@ -411,17 +410,16 @@ export class VditorEditor {
         '|',
         'code',
         'inline-code',
-        'upload',
         'link',
         'table',
         '|',
         'undo',
         'redo',
-        '|',
-        'fullscreen',
-        'outline',
-        'preview',
       ],
+      toolbarConfig: {
+        hide: false,
+        pin: false,
+      },
       input: onChange,
       focus: onFocus,
       blur: onBlur,

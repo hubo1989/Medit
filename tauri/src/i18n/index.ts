@@ -27,6 +27,12 @@ const TRANSLATIONS = {
       tocToggle: 'Toggle TOC',
       save: 'Save',
       theme: 'Theme',
+      wechatMP: 'Export for WeChat',
+      zhihu: 'Export for Zhihu',
+      desktop: 'Desktop Preview',
+      tablet: 'Tablet Preview',
+      mobile: 'Mobile Preview',
+      refresh: 'Refresh Preview',
     },
     // Save status
     save: {
@@ -179,6 +185,12 @@ const TRANSLATIONS = {
       tocToggle: '切换目录',
       save: '保存',
       theme: '主题',
+      wechatMP: '导出公众号格式',
+      zhihu: '导出知乎格式',
+      desktop: '桌面预览',
+      tablet: '平板预览',
+      mobile: '手机机型预览',
+      refresh: '刷新预览',
     },
     // Save status
     save: {

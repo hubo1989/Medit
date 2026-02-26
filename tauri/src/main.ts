@@ -4,7 +4,7 @@
  */
 
 import { EditorModeService, type EditorMode, VditorEditor, FileSaveService, type SaveStatus } from './editor/index.js';
-import { Toolbar, PreferencesPanel, FindReplacePanel } from './ui/index.js';
+import { PreferencesPanel, FindReplacePanel, PreviewToolbar, EditToolbar } from './ui/index.js';
 import { I18nService, type Language } from './i18n/index.js';
 import { MenuService } from './menu/index.js';
 import { PreferencesService, ThemeService } from './services/index.js';
@@ -30,7 +30,8 @@ class MeditApp {
   private _i18n: I18nService;
   private _preferences: PreferencesService;
   private _themeService: ThemeService;
-  private _toolbar: Toolbar | null = null;
+  private _editToolbar: EditToolbar | null = null;
+  private _previewToolbar: PreviewToolbar | null = null;
   private _editor: VditorEditor | null = null;
   private _fileSaveService: FileSaveService | null = null;
   private _menuService: MenuService | null = null;
@@ -127,7 +128,7 @@ class MeditApp {
 
     // Initialize UI
     this._initPreferencesPanel();
-    this._initToolbar();
+    this._initToolbars();
     this._initEditor();
     this._initModeHandling();
     this._initFileSaveService();
@@ -174,28 +175,142 @@ class MeditApp {
   }
 
   /**
-   * Initialize toolbar component
+   * Initialize toolbars for all modes
    */
-  private _initToolbar(): void {
-    const toolbarContainer = document.getElementById('toolbar-container');
-    if (!toolbarContainer) {
-      console.warn('[Medit] Toolbar container not found');
+  private _initToolbars(): void {
+    const previewToolbarContainer = document.getElementById('preview-toolbar-container');
+    if (!previewToolbarContainer) {
+      console.warn('[Medit] Preview toolbar container not found');
       return;
     }
 
-    this._toolbar = new Toolbar({
-      container: toolbarContainer,
+    // Preview toolbar (for preview mode)
+    this._previewToolbar = new PreviewToolbar({
+      container: previewToolbarContainer,
       modeService: this._modeService,
       i18n: this._i18n,
-      onSettingsClick: () => {
-        this._preferencesPanel?.toggle();
-        this._toolbar?.refreshSettingsButtonState();
-      },
-      isSettingsOpen: () => this._preferencesPanel?.isOpen() ?? false,
       onFindClick: () => {
         this._findReplacePanel?.toggle();
       },
+      onExportClick: (target) => {
+        void this._handleExportTo(target);
+      },
+      onDevicePreviewChange: (device) => {
+        this._applyDevicePreview(device);
+      },
+      onRefreshPreview: () => {
+        this._refreshPreview();
+      },
     });
+
+    // Edit toolbar will be initialized after Vditor is ready (in _initEditorIfNeeded)
+  }
+
+  /**
+   * Initialize edit toolbar inside Vditor toolbar
+   */
+  private _initEditToolbar(): void {
+    // Skip if already initialized
+    if (this._editToolbar) {
+      console.log('[Medit] Edit toolbar already initialized');
+      return;
+    }
+
+    // Find Vditor toolbar element - try multiple selectors
+    let vditorToolbar = document.querySelector('#vditor-editor .vditor-panel .vditor-toolbar') as HTMLElement;
+    if (!vditorToolbar) {
+      vditorToolbar = document.querySelector('#vditor-editor .vditor-toolbar') as HTMLElement;
+    }
+    if (!vditorToolbar) {
+      vditorToolbar = document.querySelector('.vditor-toolbar') as HTMLElement;
+    }
+
+    if (!vditorToolbar) {
+      console.warn('[Medit] Vditor toolbar not found, cannot insert edit toolbar');
+      // Retry after a short delay
+      setTimeout(() => {
+        console.log('[Medit] Retrying to initialize edit toolbar...');
+        this._initEditToolbar();
+      }, 500);
+      return;
+    }
+
+    console.log('[Medit] Found Vditor toolbar, inserting edit buttons at the beginning');
+
+    // Create a container for our custom buttons at the BEGINNING of Vditor toolbar
+    const editToolbarContainer = document.createElement('div');
+    editToolbarContainer.className = 'medit-edit-toolbar-container';
+
+    // Insert at the beginning of the toolbar
+    vditorToolbar.insertBefore(editToolbarContainer, vditorToolbar.firstChild);
+
+    this._editToolbar = new EditToolbar({
+      container: editToolbarContainer,
+      modeService: this._modeService,
+      i18n: this._i18n,
+      onFindClick: () => {
+        this._findReplacePanel?.toggle();
+      },
+      onExportClick: (target) => {
+        void this._handleExportTo(target);
+      },
+      onDevicePreviewChange: (device) => {
+        this._applyDevicePreview(device);
+      },
+      onRefreshPreview: () => {
+        this._refreshPreview();
+      },
+    });
+
+    console.log('[Medit] Edit toolbar initialized successfully');
+  }
+
+  /**
+   * Apply device preview mode to preview container
+   * In preview mode: adjusts #markdown-content max-width
+   * In split mode: adjusts the preview-pane container width
+   */
+  private _applyDevicePreview(device: 'desktop' | 'tablet' | 'mobile'): void {
+    // Apply to #markdown-content (for preview mode)
+    const markdownContent = document.getElementById('markdown-content');
+    if (markdownContent) {
+      markdownContent.classList.remove('device-desktop', 'device-tablet', 'device-mobile');
+      markdownContent.classList.add(`device-${device}`);
+    }
+
+    // Apply to .preview-pane container (for split mode)
+    const previewPane = document.querySelector('.preview-pane') as HTMLElement;
+    if (previewPane) {
+      previewPane.classList.remove('device-desktop', 'device-tablet', 'device-mobile');
+      previewPane.classList.add(`device-${device}`);
+    }
+
+    console.log(`[Medit] Device preview mode: ${device}`);
+  }
+
+  /**
+   * Refresh preview content
+   */
+  private _refreshPreview(): void {
+    void this._renderPreview(this._currentContent);
+    console.log('[Medit] Preview refreshed');
+  }
+
+  /**
+   * Handle export to specific target (公众号 or 知乎)
+   */
+  private async _handleExportTo(target: 'wechatMP' | 'zhihu'): Promise<void> {
+    const content = this._currentContent;
+    if (!content?.trim()) {
+      alert('没有可导出的内容');
+      return;
+    }
+
+    const targetName = target === 'wechatMP' ? '公众号' : '知乎';
+    console.log(`[Medit] Exporting to ${targetName}...`);
+
+    // TODO: Implement actual export functionality for 公众号 and 知乎
+    alert(`导出到「${targetName}」功能即将推出`);
   }
 
   /**
@@ -466,7 +581,6 @@ class MeditApp {
    */
   private _handlePreferences(): void {
     this._preferencesPanel?.toggle();
-    this._toolbar?.refreshSettingsButtonState();
     console.log('[Medit] Preferences panel toggled');
   }
 
@@ -715,6 +829,8 @@ class MeditApp {
     // Handle editor visibility
     const editorContainer = document.getElementById('editor-container');
     const previewContainer = document.getElementById('preview-container');
+    const previewToolbarContainer = document.getElementById('preview-toolbar-container');
+    const vditorEditor = document.getElementById('vditor-editor');
 
     if (!editorContainer || !previewContainer) {
       console.warn('[Medit] Editor or preview container not found');
@@ -727,6 +843,16 @@ class MeditApp {
         editorContainer.style.display = 'none';
         previewContainer.style.display = 'flex';
         previewContainer.style.width = '100%';
+
+        // Show preview toolbar
+        if (previewToolbarContainer) previewToolbarContainer.classList.remove('hidden');
+
+        // Hide Vditor toolbar (it's inside vditor-editor)
+        if (vditorEditor) {
+          const vditorToolbar = vditorEditor.querySelector('.vditor-toolbar') as HTMLElement;
+          if (vditorToolbar) vditorToolbar.style.display = 'none';
+        }
+
         // Render preview with current content
         await this._renderPreview(this._currentContent);
         // Restore scroll position
@@ -738,18 +864,40 @@ class MeditApp {
         editorContainer.style.display = 'flex';
         editorContainer.style.width = '100%';
         previewContainer.style.display = 'none';
-        // Initialize editor if needed (wait for it to complete)
+
+        // Hide preview toolbar
+        if (previewToolbarContainer) previewToolbarContainer.classList.add('hidden');
+
+        // Show Vditor toolbar
+        if (vditorEditor) {
+          const vditorToolbar = vditorEditor.querySelector('.vditor-toolbar') as HTMLElement;
+          if (vditorToolbar) vditorToolbar.style.display = '';
+        }
+
+        // Initialize editor if needed
         await this._initEditorIfNeeded();
+
         break;
 
       case 'split':
-        // Split mode: show both editor and preview
+        // Split mode: editor full width, preview absolutely positioned on right
         editorContainer.style.display = 'flex';
-        editorContainer.style.width = `${this._state.splitRatio * 100}%`;
+        editorContainer.style.width = ''; // CSS sets 100%
         previewContainer.style.display = 'flex';
-        previewContainer.style.width = `${(1 - this._state.splitRatio) * 100}%`;
-        // Initialize editor if needed (wait for it to complete)
+        previewContainer.style.width = ''; // CSS uses absolute positioning
+
+        // Hide preview toolbar
+        if (previewToolbarContainer) previewToolbarContainer.classList.add('hidden');
+
+        // Show Vditor toolbar
+        if (vditorEditor) {
+          const vditorToolbar = vditorEditor.querySelector('.vditor-toolbar') as HTMLElement;
+          if (vditorToolbar) vditorToolbar.style.display = '';
+        }
+
+        // Initialize editor if needed
         await this._initEditorIfNeeded();
+
         // Render preview with current content
         await this._renderPreview(this._currentContent);
         break;
@@ -1047,7 +1195,8 @@ class MeditApp {
    */
   setLanguage(lang: Language): void {
     this._i18n.setLanguage(lang);
-    this._toolbar?.updateLabels();
+    this._editToolbar?.updateLabels();
+    this._previewToolbar?.updateLabels();
     this._updateSaveStatusIndicator(this._fileSaveService?.getStatus() ?? 'idle');
     void this._updateMenuLabels();
   }
@@ -1057,7 +1206,8 @@ class MeditApp {
    */
   toggleLanguage(): void {
     this._i18n.toggleLanguage();
-    this._toolbar?.updateLabels();
+    this._editToolbar?.updateLabels();
+    this._previewToolbar?.updateLabels();
     this._updateSaveStatusIndicator(this._fileSaveService?.getStatus() ?? 'idle');
     void this._updateMenuLabels();
   }
@@ -1100,6 +1250,8 @@ class MeditApp {
     }
     if (this._editor && !this._editor.isInitialized()) {
       await this._editor.init();
+      // Initialize edit toolbar after Vditor is ready
+      this._initEditToolbar();
     }
     // Always ensure content is set when entering edit mode
     // This fixes the issue where content loaded before editor initialization
@@ -1122,8 +1274,10 @@ class MeditApp {
     // Flush pending saves
     void this._fileSaveService?.flush();
 
-    this._toolbar?.destroy();
-    this._toolbar = null;
+    this._editToolbar?.destroy();
+    this._editToolbar = null;
+    this._previewToolbar?.destroy();
+    this._previewToolbar = null;
     this._editor?.destroy();
     this._editor = null;
     this._fileSaveService?.dispose();

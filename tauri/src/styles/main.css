@@ -21,7 +21,7 @@
   --medit-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
   --medit-shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.12);
   --medit-shadow-panel: 0 20px 60px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
-  --medit-toolbar-height: 48px;
+  --medit-toolbar-height: 38px;
   --medit-toc-width: 280px;
   --medit-transition-duration: 0.3s;
 }
@@ -85,12 +85,34 @@ body {
   z-index: 100;
 }
 
+/* Hide old toolbar when hidden class is applied */
+#toolbar-container.hidden {
+  display: none;
+}
+
 /* Main container */
 #main-container {
   display: flex;
   flex: 1;
   overflow: hidden;
   position: relative;
+}
+
+/* Content wrapper for editor and preview */
+#content-wrapper {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+  min-width: 0; /* Allow shrinking */
+}
+
+/* Editor and Preview horizontal container */
+#editor-preview-container {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  min-height: 0; /* Allow shrinking below content size */
 }
 
 /* Editor pane */
@@ -120,23 +142,71 @@ body {
   transition: width var(--medit-transition-duration) ease;
 }
 
+/* Custom toolbar styles */
+.vditor-toolbar {
+  border-bottom: 1px solid var(--medit-border-color) !important;
+  background-color: var(--medit-bg-toolbar) !important;
+  padding: 0 12px !important;
+}
+
+/* Move word count to the far right */
+.vditor-toolbar .vditor-counter {
+  margin-left: auto !important;
+}
+
+/* Hide Vditor's built-in device preview tabs (Desktop/Tablet/Mobile) globally -
+   we provide our own device preview buttons in the custom toolbar */
+.vditor-preview__action {
+  display: none !important;
+}
+
+/* Hide Vditor's internal preview panel - preview is handled by our custom #preview-container */
+#vditor-editor .vditor-preview {
+  display: none !important;
+}
+
 #markdown-content {
   flex: 1;
-  padding: 24px 32px;
+  padding: 24px 35px;
   max-width: 1360px;
   margin: 0 auto;
   width: 100%;
+  box-sizing: border-box;
+  transition: max-width 0.3s ease;
 }
 
-/* TOC pane */
+/* Device preview modes - control preview content width */
+#markdown-content.device-desktop {
+  max-width: 1360px;
+}
+
+#markdown-content.device-tablet {
+  max-width: 768px;
+}
+
+#markdown-content.device-mobile {
+  max-width: 375px;
+}
+
+/* Device preview modes for split mode preview pane */
+.preview-pane.device-tablet #markdown-content {
+  max-width: 768px;
+}
+
+.preview-pane.device-mobile #markdown-content {
+  max-width: 375px;
+}
+
+/* TOC pane - now on the left side */
 .toc-pane {
   width: var(--medit-toc-width);
   min-width: var(--medit-toc-width);
   background-color: var(--medit-bg-secondary);
-  border-left: 1px solid var(--medit-border-color);
+  border-right: 1px solid var(--medit-border-color); /* Changed from border-left */
   overflow-y: auto;
   transition: transform var(--medit-transition-duration) ease,
     width var(--medit-transition-duration) ease;
+  flex-shrink: 0; /* Don't shrink */
 }
 
 #toc-nav {
@@ -148,35 +218,56 @@ body {
    ============================================ */
 
 /* Preview mode: only show preview, hide editor */
-[data-mode='preview'] .editor-pane {
+[data-mode='preview'] #editor-preview-container .editor-pane {
   display: none !important;
 }
 
-[data-mode='preview'] .preview-pane {
+[data-mode='preview'] #editor-preview-container .preview-pane {
   width: 100%;
 }
 
 /* Edit mode: only show editor, hide preview */
-[data-mode='edit'] .preview-pane {
+[data-mode='edit'] #editor-preview-container .preview-pane {
   display: none !important;
 }
 
-[data-mode='edit'] .editor-pane {
+[data-mode='edit'] #editor-preview-container .editor-pane {
   width: 100%;
   border-right: none;
 }
 
-/* Split mode: show both editor and preview */
-[data-mode='split'] .editor-pane {
-  display: flex;
-  width: 50%;
-  min-width: 200px;
+/* Split mode: editor pane full width (toolbar spans entire container).
+   Preview pane is absolutely positioned on the right, below toolbar. */
+[data-mode='split'] #editor-preview-container {
+  position: relative;
 }
 
-[data-mode='split'] .preview-pane {
+[data-mode='split'] #editor-preview-container .editor-pane {
   display: flex;
+  width: 100%;
+  border-right: none;
+}
+
+/* Vditor content area: leave right 50% for preview overlay */
+[data-mode='split'] #vditor-editor .vditor-content {
+  margin-right: 50%;
+}
+
+/* Preview pane: absolutely positioned on the right half, below toolbar */
+[data-mode='split'] #editor-preview-container .preview-pane {
+  position: absolute;
+  top: var(--medit-toolbar-height);
+  right: 0;
+  bottom: 0;
   width: 50%;
-  min-width: 200px;
+  border-left: 1px solid var(--medit-border-color);
+  overflow: auto;
+}
+
+/* In split mode, remove max-width constraint on preview content */
+[data-mode='split'] #markdown-content {
+  max-width: none;
+  padding: 24px 35px;
 }
 
 /* Split resizer */
@@ -199,116 +290,133 @@ body {
   width: 0;
   min-width: 0;
   overflow: hidden;
-  border-left: none;
+  border-right: none; /* Changed from border-left */
 }
 
-[data-toc='hidden'][data-mode='preview'] .preview-pane,
-[data-toc='hidden'][data-mode='edit'] .editor-pane {
+[data-toc='hidden'][data-mode='preview'] #editor-preview-container .preview-pane,
+[data-toc='hidden'][data-mode='edit'] #editor-preview-container .editor-pane {
   width: 100%;
 }
 
-[data-toc='hidden'][data-mode='split'] .editor-pane,
-[data-toc='hidden'][data-mode='split'] .preview-pane {
-  width: 50%;
+[data-toc='hidden'][data-mode='split'] #editor-preview-container .editor-pane {
+  width: 100%;
 }
 
 /* ============================================
-   TOOLBAR STYLES
+   TOOLBAR CONTAINERS
    ============================================ */
 
-.medit-toolbar {
+/* Preview mode toolbar container - match Vditor toolbar styling exactly */
+#preview-toolbar-container {
+  height: var(--medit-toolbar-height);
+  min-height: var(--medit-toolbar-height);
+  background-color: var(--medit-bg-toolbar);
+  border-bottom: 1px solid var(--medit-border-color);
+  padding: 0 12px !important; /* Match our Vditor toolbar override */
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  width: 100%;
+  box-sizing: border-box;
+  flex-shrink: 0; /* Don't shrink */
+}
+
+#preview-toolbar-container.hidden {
+  display: none;
+}
+
+/* ============================================
+   SHARED TOOLBAR BUTTONS (edit & preview modes)
+   ============================================ */
+
+/* Container for our custom buttons inside Vditor toolbar */
+.medit-edit-toolbar-container {
+  display: flex;
+  align-items: center;
+}
+
+.medit-edit-toolbar,
+.medit-preview-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0;
   height: 100%;
 }
 
-.medit-toolbar-left,
-.medit-toolbar-center,
-.medit-toolbar-right {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.medit-toolbar-center {
-  flex: 1;
-  justify-content: center;
-}
-
-/* Mode switcher button group */
-.medit-mode-switcher {
-  display: flex;
-  align-items: center;
-  background-color: var(--medit-bg-secondary);
-  border: 1px solid var(--medit-border-color);
-  border-radius: 6px;
-  padding: 2px;
-  gap: 2px;
-}
-
-.medit-mode-btn {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  border: none;
-  background: transparent;
-  color: var(--medit-text-secondary);
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  border-radius: 4px;
-  transition: all 0.2s ease;
-}
-
-.medit-mode-btn:hover {
-  background-color: var(--medit-bg-primary);
-  color: var(--medit-text-primary);
-}
-
-.medit-mode-btn.active {
-  background-color: var(--medit-bg-primary);
-  color: var(--medit-accent-color);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-}
-
-.medit-mode-btn svg {
-  width: 16px;
-  height: 16px;
-}
-
-/* Settings button */
-.medit-settings-btn {
-  display: flex;
+/* Unified button styles - match Vditor button exactly */
+.medit-edit-btn,
+.medit-preview-btn {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
-  padding: 0;
+  padding: 10px 5px; /* Match Vditor's .vditor-tooltipped */
   border: none;
   background: transparent;
-  color: var(--medit-text-secondary);
   cursor: pointer;
-  border-radius: 6px;
-  transition: all 0.2s ease;
+  border-radius: 3px;
+  transition: background-color 0.15s ease;
+  flex-shrink: 0;
+  color: #6f6f6f; /* SVG stroke="currentColor" inherits from this */
+  font-size: 0; /* Match Vditor */
+  line-height: 1;
+  box-sizing: border-box;
 }
 
-.medit-settings-btn:hover {
-  background-color: var(--medit-bg-secondary);
-  color: var(--medit-text-primary);
+.medit-edit-btn:hover,
+.medit-preview-btn:hover {
+  background-color: rgba(0, 0, 0, 0.08);
+  color: #1f1f1f;
 }
 
-.medit-settings-btn.active {
-  background-color: var(--medit-accent-color);
-  color: white;
+.medit-edit-btn.active,
+.medit-preview-btn.active {
+  background-color: rgba(66, 133, 244, 0.12);
+  color: #4285f4;
 }
 
-.medit-settings-btn svg {
-  width: 16px;
-  height: 16px;
+/* SVG icons - match Vditor icon size exactly (15x15) */
+.medit-edit-btn > svg,
+.medit-preview-btn > svg {
+  width: 15px;
+  height: 15px;
+  display: inline-block;
+  /* Our icons use stroke, not fill like Vditor */
+  stroke-width: 1.5;
+  fill: none;
 }
+
+/* Preview toolbar fills container */
+.medit-preview-toolbar {
+  width: 100%;
+}
+
+/* ============================================
+   SHARED TOOLBAR ELEMENTS
+   ============================================ */
+
+.medit-toolbar-separator {
+  width: 1px;
+  height: 15px; /* Match icon height */
+  background-color: #d0d0d0;
+  margin: 0 5px; /* Match button horizontal padding */
+  flex-shrink: 0;
+}
+
+/* ============================================
+   VDITOR TOOLBAR CUSTOMIZATION
+   ============================================ */
+
+/* Make Vditor toolbar match our styling - use !important to override Vditor defaults */
+#vditor-editor .vditor-toolbar {
+  border-bottom: 1px solid var(--medit-border-color) !important;
+  padding: 0 12px !important; /* Match preview toolbar */
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  height: var(--medit-toolbar-height);
+  box-sizing: border-box;
+  background-color: var(--medit-bg-toolbar);
+}
+
+/* Don't override Vditor's button styles - they use their own SVG system */
 
 /* ============================================
    RESPONSIVE STYLES
@@ -317,19 +425,19 @@ body {
 @media (max-width: 1024px) {
   .toc-pane {
     position: absolute;
-    right: 0;
+    left: 0; /* Changed from right */
     top: 0;
     bottom: 0;
     z-index: 50;
-    box-shadow: -2px 0 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1); /* Changed shadow direction */
   }
 
   [data-toc='hidden'] .toc-pane {
-    transform: translateX(100%);
+    transform: translateX(-100%); /* Changed from 100% */
   }
 
   /* On small screens, split mode becomes stacked */
-  [data-mode='split'] {
+  [data-mode='split'] #editor-preview-container {
     flex-direction: column;
   }
 
@@ -338,6 +446,7 @@ body {
     width: 100%;
     height: 50%;
   }
+
 
   [data-mode='split'] .editor-pane {
     border-right: none;
