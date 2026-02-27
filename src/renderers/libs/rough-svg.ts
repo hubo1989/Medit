@@ -302,7 +302,7 @@ export function applyRoughEffect(svgString: string, options: RoughSvgOptions = {
       hachureGap: opts.hachureGap,
     });
 
-    insertRoughNode(node, path.parentNode!, path);
+    insertRoughNode(node, path.parentNode! as Element, path);
     path.remove();
   });
 

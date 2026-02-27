@@ -220,8 +220,8 @@ class VSCodeI18nService extends BaseI18nService {
   }
 
   getUILanguage(): string {
-    // Get from VS Code's locale setting
-    return navigator.language || 'en';
+    // Prefer lang attribute set by extension host (reflects vscode.env.language)
+    return document.documentElement.lang || navigator.language || 'en';
   }
 }
 

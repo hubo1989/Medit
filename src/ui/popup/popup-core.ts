@@ -15,7 +15,7 @@ import { createSettingsTabManager, type SettingsTabManager } from './settings-ta
 /**
  * Tab name type
  */
-type TabName = 'history' | 'theme' | 'settings' | 'about';
+type TabName = 'history' | 'theme' | 'settings' | 'about' | 'cache';
 
 /**
  * Main popup manager class

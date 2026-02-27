@@ -31,19 +31,28 @@
       padding: 0;
       margin: 0;
       -webkit-overflow-scrolling: touch;
+      /* Use same background as content area (desktop uses gray body for contrast) */
+      background-color: var(--color-bg-surface);
     }
 
     /* Override desktop styles - mobile has no toolbar/TOC */
     #markdown-wrapper {
       margin-left: 0;
       margin-top: 0;
-      min-height: 100vh;
+      min-height: auto;
+    }
+
+    #markdown-page {
+      max-width: 100%;
+      min-height: auto;
+      overflow: hidden; /* Contain transform: scale() child */
     }
 
     #markdown-content {
       box-shadow: none;
-      min-height: 100vh;
+      min-height: auto;
       padding: 16px;  /* Smaller padding for mobile */
+      margin: 0;  /* No centering needed at 100% width */
     }
 
     /* Offscreen render root (kept out of visible flow) */

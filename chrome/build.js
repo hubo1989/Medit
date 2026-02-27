@@ -61,6 +61,13 @@ try {
   const config = createBuildConfig();
   await build(config);
   
+  // Copy LICENSE
+  const licenseSrc = path.join(projectRoot, 'LICENSE');
+  if (fs.existsSync(licenseSrc)) {
+    fs.copyFileSync(licenseSrc, path.join(outdir, 'LICENSE'));
+    console.log('  • LICENSE');
+  }
+  
   // Create ZIP file for Chrome Web Store submission
   const zipPath = path.join(projectRoot, 'dist', `chrome-v${version}.zip`);
   console.log('\n📦 Creating ZIP package...');

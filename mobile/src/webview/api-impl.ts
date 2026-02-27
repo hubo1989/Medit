@@ -130,12 +130,16 @@ class MobileDocumentService extends BaseDocumentService {
   }
 
   async fetchRemote(url: string): Promise<Uint8Array> {
-    // Mobile has no CSP restrictions, direct fetch
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    // Proxy through Flutter native layer to avoid CORS restrictions
+    // on Android real devices (WebView loaded from local asset origin)
+    const result = await hostServiceChannel.send('FETCH_REMOTE', { url });
+    const base64 = (result as { content: string }).content;
+    const binary = atob(base64);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i++) {
+      bytes[i] = binary.charCodeAt(i);
     }
-    return new Uint8Array(await response.arrayBuffer());
+    return bytes;
   }
 
   override resolvePath(relativePath: string): string {

@@ -26,6 +26,7 @@ import {
   type BlockMeta,
 } from '../markdown-document';
 
+import GithubSlugger from 'github-slugger';
 import type { PluginRenderer, TranslateFunction } from '../../types/index';
 import type { Processor } from 'unified';
 
@@ -182,15 +183,18 @@ export async function renderMarkdownDocument(options: RenderMarkdownOptions): Pr
   // Update document and get DOM commands
   const updateResult = doc.update(markdown);
   
-  // Create processor for rendering
-  const processor = createMarkdownProcessor(renderer, taskManager, translate, { tableMergeEmpty });
+  // Create shared slugger for unique heading IDs across blocks
+  const slugger = new GithubSlugger();
+  const processor = createMarkdownProcessor(renderer, taskManager, translate, { tableMergeEmpty, slugger });
   
   if (isFirstRender) {
-    // First render: render all blocks with streaming
+    // First render: render all blocks with streaming (slugger accumulates state)
     await renderAllBlocksStreaming(doc, processor, container, taskManager, frontmatterDisplay, onHeadings, tableLayout);
   } else {
     // Incremental update: apply DOM commands
     await applyIncrementalUpdate(doc, processor, container, updateResult.commands, taskManager, frontmatterDisplay, tableLayout);
+    // Normalize heading IDs after incremental DOM changes to ensure uniqueness
+    normalizeHeadingIds(container);
   }
 
   // Notify streaming complete
@@ -374,6 +378,20 @@ async function applyIncrementalUpdate(
   
   // Execute DOM commands
   executeDOMCommands(container, commands, document);
+}
+
+/**
+ * Normalize heading IDs in the container to ensure uniqueness.
+ * Uses a fresh GithubSlugger to reassign IDs to all headings in DOM order.
+ * Called after incremental updates where only some blocks are re-rendered.
+ */
+function normalizeHeadingIds(container: HTMLElement): void {
+  const slugger = new GithubSlugger();
+  const headings = container.querySelectorAll('h1, h2, h3, h4, h5, h6');
+  headings.forEach((heading) => {
+    const text = heading.textContent || '';
+    heading.id = slugger.slug(text);
+  });
 }
 
 /**

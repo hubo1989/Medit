@@ -7,6 +7,22 @@ import { fetchJSON } from './fetch-utils';
 import type { PlatformAPI } from '../types/index';
 
 /**
+ * Locale info entry from _locales/registry.json
+ */
+export interface LocaleInfo {
+  code: string;
+  name: string;
+}
+
+/**
+ * Locale registry structure from _locales/registry.json
+ */
+export interface LocaleRegistry {
+  version: string;
+  locales: LocaleInfo[];
+}
+
+/**
  * Locale message entry structure
  */
 interface LocaleMessageEntry {
@@ -47,6 +63,7 @@ class LocalizationManager {
   private ready: boolean = false;
   private loadingPromise: Promise<void> | null = null;
   private fallbackMessages: LocaleMessages | null = null;
+  private localeRegistry: LocaleRegistry | null = null;
 
   constructor() {
     this.messages = null;
@@ -54,6 +71,7 @@ class LocalizationManager {
     this.ready = false;
     this.loadingPromise = null;
     this.fallbackMessages = null;
+    this.localeRegistry = null;
   }
 
   async init(): Promise<void> {
@@ -64,10 +82,17 @@ class LocalizationManager {
     this.loadingPromise = (async () => {
       try {
         await this.ensureFallbackMessages();
+        await this.ensureLocaleRegistry();
         const storageKeys = await this.getStorageSettings();
         const preferredLocale = storageKeys?.preferredLocale || DEFAULT_SETTING_LOCALE;
         if (preferredLocale !== DEFAULT_SETTING_LOCALE) {
           await this.loadLocale(preferredLocale);
+        } else {
+          // Auto mode: detect system language and load corresponding locale
+          const detectedLocale = this.detectSystemLocale();
+          if (detectedLocale && detectedLocale !== FALLBACK_LOCALE) {
+            await this.loadLocale(detectedLocale);
+          }
         }
         this.locale = preferredLocale;
       } catch (error) {
@@ -79,6 +104,79 @@ class LocalizationManager {
     })();
 
     return this.loadingPromise;
+  }
+
+  /**
+   * Detect system locale from platform API and map to a supported locale code.
+   * Returns the matched locale code or null if no match found.
+   */
+  private detectSystemLocale(): string | null {
+    const platform = getPlatform();
+    if (!platform?.i18n?.getUILanguage) {
+      return null;
+    }
+
+    try {
+      // e.g. "zh-CN", "zh", "en-US", "ja"
+      const uiLang = platform.i18n.getUILanguage().replace('-', '_');
+      return this.resolveLocaleCode(uiLang);
+    } catch {
+      return null;
+    }
+  }
+
+  /**
+   * Resolve a raw locale string (e.g. "zh_CN", "zh", "pt_BR") to a supported locale code
+   * by checking exact match first, then language prefix match.
+   */
+  private resolveLocaleCode(rawLocale: string): string | null {
+    const codes = this.getSupportedLocaleCodes();
+    if (codes.length === 0) {
+      return null;
+    }
+
+    // Exact match
+    if (codes.includes(rawLocale)) {
+      return rawLocale;
+    }
+
+    // Language prefix match (e.g. "zh" → "zh_CN", "pt" → "pt_BR")
+    const lang = rawLocale.split('_')[0];
+    return codes.find(code => code === lang || code.startsWith(lang + '_')) || null;
+  }
+
+  /**
+   * Load locale registry from _locales/registry.json if not already loaded.
+   */
+  private async ensureLocaleRegistry(): Promise<void> {
+    if (this.localeRegistry) {
+      return;
+    }
+
+    try {
+      const platform = getPlatform();
+      if (!platform) {
+        return;
+      }
+      const url = platform.resource.getURL('_locales/registry.json');
+      this.localeRegistry = await fetchJSON(url) as LocaleRegistry;
+    } catch (error) {
+      console.warn('[Localization] Failed to load locale registry:', error);
+    }
+  }
+
+  /**
+   * Get the cached locale registry. Available after init().
+   */
+  getLocaleRegistry(): LocaleRegistry | null {
+    return this.localeRegistry;
+  }
+
+  /**
+   * Get the list of supported locale codes from the registry.
+   */
+  private getSupportedLocaleCodes(): string[] {
+    return this.localeRegistry?.locales.map(l => l.code) || [];
   }
 
   async getStorageSettings(): Promise<StorageSettings | null> {
@@ -98,8 +196,14 @@ class LocalizationManager {
   async setPreferredLocale(locale: string): Promise<void> {
     const normalized = locale || DEFAULT_SETTING_LOCALE;
     if (normalized === DEFAULT_SETTING_LOCALE) {
-      this.messages = null;
-      this.ready = Boolean(this.fallbackMessages);
+      // Auto mode: detect system language and load corresponding locale
+      const detectedLocale = this.detectSystemLocale();
+      if (detectedLocale && detectedLocale !== FALLBACK_LOCALE) {
+        await this.loadLocale(detectedLocale);
+      } else {
+        this.messages = null;
+      }
+      this.ready = Boolean(this.messages || this.fallbackMessages);
       this.locale = DEFAULT_SETTING_LOCALE;
     } else {
       await this.loadLocale(normalized);

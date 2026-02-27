@@ -591,16 +591,11 @@ async function loadThemesForSettings(): Promise<void> {
 async function loadLocalesForSettings(): Promise<void> {
   if (!settingsPanel) return;
 
-  try {
-    const url = platform.resource.getURL('_locales/registry.json');
-    const response = await fetch(url);
-    const registry = await response.json() as {
-      locales: Array<{ code: string; name: string }>;
-    };
-
+  const registry = Localization.getLocaleRegistry();
+  if (registry) {
     settingsPanel.setLocales(registry.locales);
-  } catch (error) {
-    console.warn('[VSCode Webview] Failed to load locales:', error);
+  } else {
+    console.warn('[VSCode Webview] Locale registry not available');
   }
 }
 

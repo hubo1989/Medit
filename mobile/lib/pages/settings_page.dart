@@ -1,3 +1,4 @@
+import 'dart:io' show Platform;
 import 'package:flutter/material.dart';
 import 'package:getwidget/getwidget.dart';
 import 'package:webview_flutter/webview_flutter.dart';
@@ -202,9 +203,19 @@ class _SettingsPageState extends State<SettingsPage> {
     if (controller == null) return;
 
     try {
-      await controller.runJavaScript(
-        "if(window.setFontSize){window.setFontSize($size);}",
-      );
+      if (Platform.isIOS || Platform.isMacOS) {
+        // Use viewport meta tag initial-scale for browser-level zoom on iOS
+        final scale = size / 16.0;
+        await controller.runJavaScript(
+          "var m=document.querySelector('meta[name=viewport]');"
+          "if(m){var w=Math.round(screen.width/$scale);"
+          "m.setAttribute('content','width='+w+',initial-scale=$scale,maximum-scale=$scale,user-scalable=no');}",
+        );
+      } else {
+        await controller.runJavaScript(
+          "if(window.setFontSize){window.setFontSize($size);}",
+        );
+      }
     } catch (e) {
       debugPrint('[Settings] Failed to apply font size: $e');
     }
