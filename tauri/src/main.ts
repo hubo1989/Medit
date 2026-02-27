@@ -12,6 +12,12 @@ import { invoke } from '@tauri-apps/api/core';
 import Vditor from 'vditor';
 import 'vditor/dist/index.css';
 
+// Main project rendering system
+import { createTauriPlatform } from './services/tauri-platform.js';
+import { renderMarkdownFlow, createPluginRenderer, setCurrentFileKey } from '@shared/core/viewer/viewer-host.js';
+import { AsyncTaskManager } from '@shared/core/markdown-processor.js';
+import type { PlatformAPI, PluginRenderer } from '@shared/types/index.js';
+
 // Application state
 interface AppState {
   scrollPosition: number;
@@ -54,6 +60,10 @@ class MeditApp {
   private _editToolbarRetryCount = 0;
   private _editToolbarRetryTimeout: ReturnType<typeof setTimeout> | null = null;
   private _currentDevice: 'desktop' | 'tablet' | 'mobile' = 'desktop';
+  
+  // Main project rendering system
+  private _platform: PlatformAPI;
+  private _pluginRenderer: PluginRenderer;
 
   constructor() {
     this._modeService = new EditorModeService({
@@ -113,6 +123,10 @@ class MeditApp {
       preferences: this._preferences,
       onThemeChange: (theme) => this._handleThemeChange(theme),
     });
+    
+    // Initialize main project rendering system
+    this._platform = createTauriPlatform();
+    this._pluginRenderer = createPluginRenderer(this._platform);
   }
 
   /**
@@ -144,6 +158,18 @@ class MeditApp {
 
     // Load initial content
     await this._loadContent();
+
+    // Initialize renderer theme config based on current theme
+    if (this._platform?.renderer) {
+      const isDark = this._state.theme === 'dark';
+      this._platform.renderer.setThemeConfig({
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+        background: isDark ? '#1e1e1e' : '#ffffff',
+        foreground: isDark ? '#e0e0e0' : '#333333',
+        diagramStyle: 'normal'
+      });
+      console.log('[Medit] Initial renderer theme config set for', this._state.theme, 'mode');
+    }
 
     // Apply initial mode
     await this._applyMode(this._modeService.getCurrentMode());
@@ -984,52 +1010,78 @@ class MeditApp {
   }
 
   /**
-   * Render markdown to preview container using Vditor's markdown renderer
+   * Render markdown to preview container using main project's rendering system
    */
   private async _renderPreview(content: string): Promise<void> {
     const previewContainer = document.getElementById('markdown-content');
     if (!previewContainer) return;
 
-    // Wait for Vditor to be available
-    if (typeof window.Vditor === 'undefined') {
-      // Wait up to 5 seconds for Vditor to load
-      const maxWait = 5000;
-      const startTime = Date.now();
-
-      while (typeof window.Vditor === 'undefined' && Date.now() - startTime < maxWait) {
-        await new Promise(resolve => setTimeout(resolve, 100));
-      }
-
-      if (typeof window.Vditor === 'undefined') {
-        console.error('[Medit] Vditor library not loaded, cannot render preview');
-        previewContainer.textContent = content;
-        return;
-      }
-    }
-
     try {
-      // Use Vditor's markdown to HTML renderer
-      const html = await window.Vditor.md2html(content, {
-        theme: this._state.theme === 'dark' ? 'dark' : 'classic',
+      // Create task manager for async rendering
+      const taskManager = new AsyncTaskManager((key: string) => 
+        this._i18n.t(key as any)
+      );
+
+      // Create translate function for main project
+      const translate = (key: string) => 
+        this._i18n.t(key as any);
+
+      // Set file key for scroll persistence
+      setCurrentFileKey(this._state.filePath);
+
+      // Use main project's render flow
+      await renderMarkdownFlow({
+        markdown: content,
+        container: previewContainer,
+        fileChanged: true,
+        forceRender: false,
+        zoomLevel: 1,
+        scrollController: null,
+        renderer: this._pluginRenderer,
+        translate,
+        platform: this._platform,
+        currentTaskManagerRef: { current: taskManager },
+        onHeadings: () => {
+          // Update TOC with extracted headings
+          if (this._tocService) {
+            this._tocService.forceUpdate(content);
+          }
+        },
       });
-      previewContainer.innerHTML = html;
 
-      // Render diagrams (mermaid, flowchart, graphviz, etc.)
-      // Vditor.md2html generates placeholders that need explicit rendering
-      const cdn = 'https://unpkg.com/vditor@3.10.4';
-      window.Vditor.mermaidRender(previewContainer, cdn);
-      window.Vditor.flowchartRender(previewContainer, cdn);
-      window.Vditor.graphvizRender(previewContainer, cdn);
-      window.Vditor.chartRender(previewContainer, cdn);
-      window.Vditor.mathRender(previewContainer, cdn);
-      window.Vditor.highlightRender({ enable: true, lineNumber: false }, previewContainer, cdn);
-
-      // Update TOC after preview render
-      this._tocService?.forceUpdate(content);
+      // Add visual marker for debugging (can be removed in production)
+      previewContainer.setAttribute('data-renderer', 'main-project');
+      console.log('[Medit] ✓ Preview rendered using MAIN PROJECT rendering system (data-renderer="main-project")');
     } catch (error) {
-      console.error('[Medit] Failed to render preview:', error);
-      // Fallback to plain text on error
-      previewContainer.textContent = content;
+      console.error('[Medit] ✗ Failed to render preview with main project renderer:', error);
+      
+      // Fallback to Vditor rendering on error
+      if (typeof window.Vditor !== 'undefined') {
+        try {
+          const html = await window.Vditor.md2html(content, {
+            theme: this._state.theme === 'dark' ? 'dark' : 'classic',
+          });
+          previewContainer.innerHTML = html;
+
+          // Render diagrams using Vditor
+          const cdn = 'https://unpkg.com/vditor@3.10.4';
+          window.Vditor.mermaidRender(previewContainer, cdn);
+          window.Vditor.flowchartRender(previewContainer, cdn);
+          window.Vditor.graphvizRender(previewContainer, cdn);
+          window.Vditor.chartRender(previewContainer, cdn);
+          window.Vditor.mathRender(previewContainer, cdn);
+          window.Vditor.highlightRender({ enable: true, lineNumber: false }, previewContainer, cdn);
+
+          previewContainer.setAttribute('data-renderer', 'vditor-fallback');
+          this._tocService?.forceUpdate(content);
+          console.log('[Medit] ⚠ Fallback to Vditor rendering (data-renderer="vditor-fallback")');
+        } catch (fallbackError) {
+          console.error('[Medit] Vditor rendering also failed:', fallbackError);
+          previewContainer.textContent = content;
+        }
+      } else {
+        previewContainer.textContent = content;
+      }
     }
   }
 
@@ -1408,6 +1460,19 @@ class MeditApp {
   private _handleThemeChange(theme: 'light' | 'dark'): void {
     this._state.theme = theme;
     this._editor?.setTheme(theme);
+    
+    // Update renderer theme config for diagram rendering
+    if (this._platform?.renderer) {
+      const isDark = theme === 'dark';
+      this._platform.renderer.setThemeConfig({
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+        background: isDark ? '#1e1e1e' : '#ffffff',
+        foreground: isDark ? '#e0e0e0' : '#333333',
+        diagramStyle: 'normal'
+      });
+      console.log('[Medit] Renderer theme config updated for', theme, 'mode');
+    }
+    
     // Re-render preview with new theme
     void this._renderPreview(this._currentContent);
     this._saveState();
