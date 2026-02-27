@@ -437,6 +437,11 @@ export class VditorEditor {
       preview: {
         ...defaultOptions.preview,
         ...customOptions.preview,
+        // Deep merge theme to preserve 'current' when external theme fields are provided
+        theme: {
+          ...defaultOptions.preview?.theme,
+          ...customOptions.preview?.theme,
+        },
       },
       counter: {
         ...defaultOptions.counter,

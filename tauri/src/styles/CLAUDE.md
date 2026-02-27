@@ -12,4 +12,5 @@
 | #8288 | 2:09 PM | 🔄 | Removed toolbar alignment padding from preview pane in edit/split modes | ~222 |
 | #8259 | 2:01 PM | 🔄 | Preview toolbar container styles updated to prevent shrinking | ~206 |
 | #8224 | 1:43 PM | 🔄 | Preview mode CSS selectors updated for new layout structure | ~265 |
+
 </claude-mem-context>

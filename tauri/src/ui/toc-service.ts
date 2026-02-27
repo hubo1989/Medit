@@ -4,6 +4,8 @@
  * handles click-to-scroll and scroll-to-highlight.
  */
 
+import type { I18nService } from '../i18n/index.js';
+
 export interface TocItem {
   level: number;  // 1-6
   text: string;   // heading text
@@ -17,12 +19,15 @@ export interface TocServiceOptions {
   scrollTarget: () => HTMLElement | null;
   /** Callback when a heading is clicked, receives the TocItem */
   onHeadingClick?: (item: TocItem) => void;
+  /** i18n service for localized strings */
+  i18n?: I18nService;
 }
 
 export class TocService {
   private _container: HTMLElement;
   private _scrollTarget: () => HTMLElement | null;
   private _onHeadingClick?: (item: TocItem) => void;
+  private _i18n?: I18nService;
   private _items: TocItem[] = [];
   private _activeId: string | null = null;
   private _scrollHandler: (() => void) | null = null;
@@ -33,6 +38,7 @@ export class TocService {
     this._container = options.container;
     this._scrollTarget = options.scrollTarget;
     this._onHeadingClick = options.onHeadingClick;
+    this._i18n = options.i18n;
   }
 
   /**
@@ -128,7 +134,8 @@ export class TocService {
    */
   private _render(): void {
     if (this._items.length === 0) {
-      this._container.innerHTML = '<div class="toc-empty">暂无标题</div>';
+      const emptyText = this._i18n?.t('toc.empty') ?? 'No headings';
+      this._container.innerHTML = `<div class="toc-empty">${this._escapeHtml(emptyText)}</div>`;
       return;
     }
 
@@ -183,35 +190,56 @@ export class TocService {
       return;
     }
 
-    // Find heading element by text content matching (most reliable)
+    // Find heading element: ID-first strategy, then text matching
     let heading: HTMLElement | null = null;
-    const headings = target.querySelectorAll('h1, h2, h3, h4, h5, h6');
 
-    const normalize = (s: string) => s.replace(/\s+/g, ' ').trim();
-    const targetText = normalize(item.text);
+    // 1. Try to find by ID first (most reliable for duplicate headings)
+    heading = target.querySelector(`#${CSS.escape(id)}`) as HTMLElement | null;
 
-    // Exact text match first
-    for (const h of headings) {
-      if (normalize(h.textContent || '') === targetText) {
-        heading = h as HTMLElement;
-        break;
-      }
-    }
-
-    // Includes match fallback
+    // 2. Fallback to text matching if ID not found
     if (!heading) {
+      const headings = target.querySelectorAll('h1, h2, h3, h4, h5, h6');
+      const normalize = (s: string) => s.replace(/\s+/g, ' ').trim();
+      const targetText = normalize(item.text);
+
+      // Track occurrence count for duplicate handling
+      let targetOccurrence = 0;
+
+      // Count how many times this text appears before current item
+      for (const existingItem of this._items) {
+        if (existingItem.id === id) break;
+        if (normalize(existingItem.text) === targetText) {
+          targetOccurrence++;
+        }
+      }
+
+      // Find the Nth occurrence of this text
+      let currentOccurrence = 0;
       for (const h of headings) {
         const ht = normalize(h.textContent || '');
-        if (ht.includes(targetText) || targetText.includes(ht)) {
-          heading = h as HTMLElement;
-          break;
+        if (ht === targetText) {
+          if (currentOccurrence === targetOccurrence) {
+            heading = h as HTMLElement;
+            break;
+          }
+          currentOccurrence++;
+        }
+      }
+
+      // Includes match fallback
+      if (!heading) {
+        for (const h of headings) {
+          const ht = normalize(h.textContent || '');
+          if (ht.includes(targetText) || targetText.includes(ht)) {
+            heading = h as HTMLElement;
+            break;
+          }
         }
       }
     }
 
     if (!heading) {
-      console.warn('[Medit] TOC scroll: heading element not found for:', item.text,
-        'Available:', Array.from(headings).map(h => h.textContent?.trim()));
+      console.warn('[Medit] TOC scroll: heading element not found for:', item.text);
       return;
     }
 
@@ -222,13 +250,6 @@ export class TocService {
     const headingRect = heading.getBoundingClientRect();
     const scrollableRect = scrollable.getBoundingClientRect();
     const scrollOffset = headingRect.top - scrollableRect.top + scrollable.scrollTop;
-
-    console.log('[Medit] TOC scroll:', {
-      heading: item.text,
-      scrollable: scrollable.id || scrollable.className,
-      scrollOffset,
-      currentScrollTop: scrollable.scrollTop,
-    });
 
     scrollable.scrollTo({ top: scrollOffset, behavior: 'smooth' });
   }

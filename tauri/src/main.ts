@@ -10,7 +10,6 @@ import { MenuService } from './menu/index.js';
 import { PreferencesService, ThemeService } from './services/index.js';
 import { invoke } from '@tauri-apps/api/core';
 import Vditor from 'vditor';
-// @ts-expect-error - TS cannot find CSS module types
 import 'vditor/dist/index.css';
 
 // Application state
@@ -253,6 +252,13 @@ class MeditApp {
 
     console.log('[Medit] Found Vditor toolbar, inserting edit buttons at the beginning');
 
+    // Reset retry counter on successful initialization
+    this._editToolbarRetryCount = 0;
+    if (this._editToolbarRetryTimeout) {
+      clearTimeout(this._editToolbarRetryTimeout);
+      this._editToolbarRetryTimeout = null;
+    }
+
     // Create a container for our custom buttons at the BEGINNING of Vditor toolbar
     const editToolbarContainer = document.createElement('div');
     editToolbarContainer.className = 'medit-edit-toolbar-container';
@@ -328,19 +334,18 @@ class MeditApp {
   private async _handleExportTo(target: 'wechatMP' | 'zhihu'): Promise<void> {
     const content = this._currentContent;
     if (!content?.trim()) {
-      alert(this._i18n.t('export.noContent') as string);
+      alert(this._i18n.t('export.noContent'));
       return;
     }
 
     const targetKey = target === 'wechatMP' ? 'export.targets.wechatMP' : 'export.targets.zhihu';
-    type I18nKey = Parameters<typeof this._i18n.t>[0];
-    const targetName = this._i18n.t(targetKey as I18nKey) as string;
-    
-    const exportingMsg = (this._i18n.t('export.exporting') as string).replace('{target}', targetName);
+    const targetName = this._i18n.t(targetKey);
+
+    const exportingMsg = this._i18n.t('export.exporting').replace('{target}', targetName);
     console.log(`[Medit] ${exportingMsg}`);
 
     // TODO: Implement actual export functionality for 公众号 and 知乎
-    const toBeAvailableMsg = (this._i18n.t('export.toBeAvailable') as string).replace('{target}', targetName);
+    const toBeAvailableMsg = this._i18n.t('export.toBeAvailable').replace('{target}', targetName);
     alert(toBeAvailableMsg);
   }
 
@@ -449,6 +454,7 @@ class MeditApp {
       onHeadingClick: (item) => {
         this._jumpEditorToHeading(item.text, item.level);
       },
+      i18n: this._i18n,
     });
 
     console.log('[Medit] TOC service initialized');
@@ -1491,6 +1497,12 @@ class MeditApp {
     if (this._previewUpdateTimeout) {
       clearTimeout(this._previewUpdateTimeout);
       this._previewUpdateTimeout = null;
+    }
+
+    // Clear pending edit toolbar retry timeout
+    if (this._editToolbarRetryTimeout) {
+      clearTimeout(this._editToolbarRetryTimeout);
+      this._editToolbarRetryTimeout = null;
     }
 
     // Flush pending saves

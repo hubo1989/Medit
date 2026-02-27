@@ -34,6 +34,10 @@ const TRANSLATIONS = {
       mobile: 'Mobile Preview',
       refresh: 'Refresh Preview',
     },
+    // TOC
+    toc: {
+      empty: 'No headings',
+    },
     // Save status
     save: {
       idle: '',
@@ -201,6 +205,10 @@ const TRANSLATIONS = {
       tablet: '平板预览',
       mobile: '手机机型预览',
       refresh: '刷新预览',
+    },
+    // TOC
+    toc: {
+      empty: '暂无标题',
     },
     // Save status
     save: {

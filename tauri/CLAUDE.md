@@ -14,4 +14,5 @@
 | #8246 | 1:56 PM | 🔄 | Moved preview toolbar into content-wrapper to prevent overlap | ~209 |
 | #8242 | 1:54 PM | 🟣 | HTML structure reorganized to support left-side TOC sidebar | ~297 |
 | #8211 | 1:41 PM | 🔄 | HTML layout restructured to move TOC sidebar to left side | ~241 |
+
 </claude-mem-context>
