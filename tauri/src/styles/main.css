@@ -24,6 +24,7 @@
   --medit-toolbar-height: 38px;
   --medit-toc-width: 280px;
   --medit-transition-duration: 0.3s;
+  --medit-btn-hover-text: #1f1f1f;
 }
 
 /* Dark theme */
@@ -44,6 +45,7 @@
   --medit-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.25);
   --medit-shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.35);
   --medit-shadow-panel: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  --medit-btn-hover-text: #ffffff;
 }
 
 /* Reset and base styles */
@@ -410,7 +412,13 @@ body {
 .medit-edit-btn:hover,
 .medit-preview-btn:hover {
   background-color: rgba(0, 0, 0, 0.08);
-  color: var(--medit-btn-hover-text, #1f1f1f);
+  color: var(--medit-btn-hover-text);
+}
+
+/* Dark theme hover styles */
+[data-theme='dark'] .medit-edit-btn:hover,
+[data-theme='dark'] .medit-preview-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 .medit-edit-btn.active,
@@ -486,16 +494,17 @@ body {
   /* On small screens, split mode becomes stacked */
   [data-mode='split'] #editor-preview-container {
     flex-direction: column;
+    position: relative;
   }
 
-  [data-mode='split'] .editor-pane,
-  [data-mode='split'] .preview-pane {
-    position: relative;
-    top: auto;
-    right: auto;
-    bottom: auto;
-    left: auto;
-    transform: none;
+  [data-mode='split'] #editor-preview-container .editor-pane,
+  [data-mode='split'] #editor-preview-container .preview-pane {
+    position: relative !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    left: auto !important;
+    transform: none !important;
     width: 100%;
     height: 50%;
   }
