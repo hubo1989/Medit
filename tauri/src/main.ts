@@ -1014,6 +1014,16 @@ class MeditApp {
       });
       previewContainer.innerHTML = html;
 
+      // Render diagrams (mermaid, flowchart, graphviz, etc.)
+      // Vditor.md2html generates placeholders that need explicit rendering
+      const cdn = 'https://unpkg.com/vditor@3.10.4';
+      window.Vditor.mermaidRender(previewContainer, cdn);
+      window.Vditor.flowchartRender(previewContainer, cdn);
+      window.Vditor.graphvizRender(previewContainer, cdn);
+      window.Vditor.chartRender(previewContainer, cdn);
+      window.Vditor.mathRender(previewContainer, cdn);
+      window.Vditor.highlightRender({ enable: true, lineNumber: false }, previewContainer, cdn);
+
       // Update TOC after preview render
       this._tocService?.forceUpdate(content);
     } catch (error) {
