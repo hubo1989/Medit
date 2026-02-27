@@ -136,7 +136,8 @@ export class VditorEditor {
       throw new Error('VditorEditor: Editor not initialized');
     }
     const vditorTheme = theme === 'dark' ? 'dark' : 'classic';
-    this._instance.setTheme(vditorTheme);
+    const contentTheme = theme === 'dark' ? 'dark' : 'light';
+    this._instance.setTheme(vditorTheme, contentTheme);
   }
 
   /**
@@ -388,6 +389,9 @@ export class VditorEditor {
       },
       preview: {
         mode: 'editor', // Only show editor; preview is handled by our custom #preview-container
+        theme: {
+          current: theme === 'dark' ? 'dark' : 'light',
+        },
         markdown: {
           toc: true,
           mark: true,
@@ -433,6 +437,11 @@ export class VditorEditor {
       preview: {
         ...defaultOptions.preview,
         ...customOptions.preview,
+        // Deep merge theme to preserve 'current' when external theme fields are provided
+        theme: {
+          ...defaultOptions.preview?.theme,
+          ...customOptions.preview?.theme,
+        },
       },
       counter: {
         ...defaultOptions.counter,

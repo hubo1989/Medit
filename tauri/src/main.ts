@@ -4,7 +4,7 @@
  */
 
 import { EditorModeService, type EditorMode, VditorEditor, FileSaveService, type SaveStatus } from './editor/index.js';
-import { PreferencesPanel, FindReplacePanel, PreviewToolbar, EditToolbar } from './ui/index.js';
+import { PreferencesPanel, FindReplacePanel, PreviewToolbar, EditToolbar, TocService } from './ui/index.js';
 import { I18nService, type Language } from './i18n/index.js';
 import { MenuService } from './menu/index.js';
 import { PreferencesService, ThemeService } from './services/index.js';
@@ -37,6 +37,7 @@ class MeditApp {
   private _menuService: MenuService | null = null;
   private _preferencesPanel: PreferencesPanel | null = null;
   private _findReplacePanel: FindReplacePanel | null = null;
+  private _tocService: TocService | null = null;
   private _appContainer: HTMLElement | null = null;
   private _state: AppState = {
     scrollPosition: 0,
@@ -50,6 +51,9 @@ class MeditApp {
   private _previewUpdateTimeout: ReturnType<typeof setTimeout> | null = null;
   private _saveStatusElement: HTMLElement | null = null;
   private _hasOpenedFile = false; // Track if user has opened a file
+  private _editToolbarRetryCount = 0;
+  private _editToolbarRetryTimeout: ReturnType<typeof setTimeout> | null = null;
+  private _currentDevice: 'desktop' | 'tablet' | 'mobile' = 'desktop';
 
   constructor() {
     this._modeService = new EditorModeService({
@@ -136,6 +140,7 @@ class MeditApp {
     this._initKeyboardShortcuts();
     this._initMenuService();
     this._initFindReplacePanel();
+    this._initTocService();
 
     // Load initial content
     await this._loadContent();
@@ -226,16 +231,33 @@ class MeditApp {
     }
 
     if (!vditorToolbar) {
-      console.warn('[Medit] Vditor toolbar not found, cannot insert edit toolbar');
-      // Retry after a short delay
-      setTimeout(() => {
-        console.log('[Medit] Retrying to initialize edit toolbar...');
+      if (this._editToolbarRetryTimeout) {
+        clearTimeout(this._editToolbarRetryTimeout);
+      }
+      
+      const MAX_RETRIES = 10;
+      if (this._editToolbarRetryCount >= MAX_RETRIES) {
+        console.warn(`[Medit] Vditor toolbar not found after ${MAX_RETRIES} retries, giving up.`);
+        return;
+      }
+      
+      this._editToolbarRetryCount++;
+      console.warn(`[Medit] Vditor toolbar not found, retrying (${this._editToolbarRetryCount}/${MAX_RETRIES})...`);
+      
+      this._editToolbarRetryTimeout = setTimeout(() => {
         this._initEditToolbar();
       }, 500);
       return;
     }
 
     console.log('[Medit] Found Vditor toolbar, inserting edit buttons at the beginning');
+
+    // Reset retry counter on successful initialization
+    this._editToolbarRetryCount = 0;
+    if (this._editToolbarRetryTimeout) {
+      clearTimeout(this._editToolbarRetryTimeout);
+      this._editToolbarRetryTimeout = null;
+    }
 
     // Create a container for our custom buttons at the BEGINNING of Vditor toolbar
     const editToolbarContainer = document.createElement('div');
@@ -271,6 +293,16 @@ class MeditApp {
    * In split mode: adjusts the preview-pane container width
    */
   private _applyDevicePreview(device: 'desktop' | 'tablet' | 'mobile'): void {
+    this._currentDevice = device;
+    
+    // Update both toolbars directly
+    if (this._previewToolbar) {
+      this._previewToolbar.setDevice(device);
+    }
+    if (this._editToolbar) {
+      this._editToolbar.setDevice(device);
+    }
+
     // Apply to #markdown-content (for preview mode)
     const markdownContent = document.getElementById('markdown-content');
     if (markdownContent) {
@@ -302,15 +334,19 @@ class MeditApp {
   private async _handleExportTo(target: 'wechatMP' | 'zhihu'): Promise<void> {
     const content = this._currentContent;
     if (!content?.trim()) {
-      alert('没有可导出的内容');
+      alert(this._i18n.t('export.noContent'));
       return;
     }
 
-    const targetName = target === 'wechatMP' ? '公众号' : '知乎';
-    console.log(`[Medit] Exporting to ${targetName}...`);
+    const targetKey = target === 'wechatMP' ? 'export.targets.wechatMP' : 'export.targets.zhihu';
+    const targetName = this._i18n.t(targetKey);
+
+    const exportingMsg = this._i18n.t('export.exporting').replace('{target}', targetName);
+    console.log(`[Medit] ${exportingMsg}`);
 
     // TODO: Implement actual export functionality for 公众号 and 知乎
-    alert(`导出到「${targetName}」功能即将推出`);
+    const toBeAvailableMsg = this._i18n.t('export.toBeAvailable').replace('{target}', targetName);
+    alert(toBeAvailableMsg);
   }
 
   /**
@@ -358,7 +394,7 @@ class MeditApp {
    * Initialize save status indicator
    */
   private _initSaveStatusIndicator(): void {
-    const toolbarContainer = document.getElementById('toolbar-container');
+    const toolbarContainer = document.getElementById('save-state-container');
     if (!toolbarContainer) return;
 
     const statusElement = document.createElement('div');
@@ -396,6 +432,188 @@ class MeditApp {
         this._editor?.setValue(value);
       },
     });
+  }
+
+  /**
+   * Initialize TOC (Table of Contents) service
+   */
+  private _initTocService(): void {
+    const tocNav = document.getElementById('toc-nav');
+    if (!tocNav) {
+      console.warn('[Medit] TOC nav container not found');
+      return;
+    }
+
+    this._tocService = new TocService({
+      container: tocNav,
+      scrollTarget: () => {
+        // In preview mode, the scrollable element is the preview-container
+        // In split mode, it's also the preview-container
+        return document.getElementById('preview-container');
+      },
+      onHeadingClick: (item) => {
+        this._jumpEditorToHeading(item.id, item.text, item.level);
+      },
+      i18n: this._i18n,
+    });
+
+    console.log('[Medit] TOC service initialized');
+  }
+
+  /**
+   * Jump editor cursor to the heading matching the given id (preferred) or text/level.
+   * Finds the heading in the editor DOM (IR mode) and places the cursor there.
+   */
+  private _jumpEditorToHeading(headingId: string, headingText: string, _headingLevel: number): void {
+    const mode = this._modeService.getCurrentMode();
+
+    // Only jump cursor in edit or split mode (where the editor is visible)
+    if (mode === 'preview') return;
+
+    const editorContainer = document.getElementById('vditor-editor');
+    if (!editorContainer) return;
+
+    // In Vditor IR mode, headings are rendered as actual DOM elements
+    // Find the heading node in the editor content area
+    const contentArea = editorContainer.querySelector('.vditor-ir') ||
+                        editorContainer.querySelector('.vditor-sv') ||
+                        editorContainer.querySelector('.vditor-wysiwyg');
+    if (!contentArea) {
+      console.warn('[Medit] TOC: No editor content area found');
+      return;
+    }
+
+    // Search for heading elements in the editor
+    const headings = contentArea.querySelectorAll('h1, h2, h3, h4, h5, h6');
+    let targetHeading: HTMLElement | null = null;
+
+    // In Vditor IR mode, heading textContent includes "# " prefix markers
+    // We need flexible matching: strip all leading #/space combinations
+    const normalizeText = (text: string): string => {
+      return text
+        .replace(/^#{1,6}\s*/, '')  // strip leading # markers
+        .replace(/\s+/g, ' ')       // normalize whitespace
+        .trim();
+    };
+
+    // 1. Try ID-first lookup (most reliable for duplicate headings)
+    targetHeading = contentArea.querySelector(`#${CSS.escape(headingId)}`) as HTMLElement | null;
+
+    // 2. Fallback to text matching if ID not found
+    if (!targetHeading) {
+      const targetNormalized = normalizeText(headingText);
+
+      for (const h of headings) {
+        const hNormalized = normalizeText(h.textContent || '');
+        if (hNormalized === targetNormalized) {
+          targetHeading = h as HTMLElement;
+          break;
+        }
+      }
+
+      // Fallback: partial/includes match
+      if (!targetHeading) {
+        for (const h of headings) {
+          const hNormalized = normalizeText(h.textContent || '');
+          if (hNormalized.includes(targetNormalized) || targetNormalized.includes(hNormalized)) {
+            targetHeading = h as HTMLElement;
+            break;
+          }
+        }
+      }
+    }
+
+    if (!targetHeading) {
+      console.warn('[Medit] TOC: Heading not found in editor:', headingText,
+        'Available headings in editor:', Array.from(headings).map(h => normalizeText(h.textContent || '')));
+      return;
+    }
+
+    // Find the actual scrollable container
+    // We walk up from the heading to find the first element that is scrollable
+    let scrollable = this._findScrollableAncestor(targetHeading);
+    
+    // Fallback if no scrollable parent found (unlikely in Vditor but for safety)
+    if (!scrollable) {
+      scrollable = editorContainer.querySelector('.vditor-content') as HTMLElement || editorContainer;
+    }
+
+    // Calculate scroll offset using getBoundingClientRect for accuracy
+    const headingRect = targetHeading.getBoundingClientRect();
+    const containerRect = scrollable.getBoundingClientRect();
+    const scrollOffset = headingRect.top - containerRect.top + scrollable.scrollTop;
+
+    console.log('[Medit] TOC: Scrolling to heading', {
+      text: headingText,
+      container: scrollable.className,
+      offset: scrollOffset
+    });
+
+    // Scroll to place heading at the very top
+    scrollable.scrollTo({ top: scrollOffset, behavior: 'smooth' });
+
+    // Place cursor at the heading — find a suitable text node
+    const textNode = this._findFirstTextNode(targetHeading);
+    if (textNode) {
+      // Use setTimeout to ensure scroll completes before cursor placement
+      setTimeout(() => {
+        try {
+          const range = document.createRange();
+          range.setStart(textNode, 0);
+          range.collapse(true);
+
+          const selection = window.getSelection();
+          if (selection) {
+            selection.removeAllRanges();
+            selection.addRange(range);
+          }
+
+          // Focus the editor to make cursor visible
+          this._editor?.focus();
+        } catch (e) {
+          console.error('[Medit] TOC: Failed to set selection', e);
+        }
+      }, 100);
+    } else {
+      this._editor?.focus();
+    }
+  }
+
+  /**
+   * Find the nearest scrollable ancestor
+   */
+  private _findScrollableAncestor(element: HTMLElement): HTMLElement | null {
+    let el: HTMLElement | null = element.parentElement;
+    while (el && el.id !== 'app') {
+      const style = window.getComputedStyle(el);
+      const overflowY = style.overflowY;
+      if ((overflowY === 'auto' || overflowY === 'scroll') && el.scrollHeight > el.clientHeight) {
+        return el;
+      }
+      el = el.parentElement;
+    }
+    return null;
+  }
+
+  /**
+   * Find the first text node within an element (skipping Vditor marker spans).
+   */
+  private _findFirstTextNode(element: HTMLElement): Text | null {
+    const walker = document.createTreeWalker(
+      element,
+      NodeFilter.SHOW_TEXT,
+      {
+        acceptNode: (node) => {
+          const text = node.textContent || '';
+          if (!text.trim()) return NodeFilter.FILTER_SKIP;
+          const parent = node.parentElement;
+          if (parent?.classList.contains('vditor-ir__marker')) return NodeFilter.FILTER_SKIP;
+          if (parent?.classList.contains('vditor-ir__marker--heading')) return NodeFilter.FILTER_SKIP;
+          return NodeFilter.FILTER_ACCEPT;
+        },
+      }
+    );
+    return walker.nextNode() as Text | null;
   }
 
   /**
@@ -795,6 +1013,9 @@ class MeditApp {
         theme: this._state.theme === 'dark' ? 'dark' : 'classic',
       });
       previewContainer.innerHTML = html;
+
+      // Update TOC after preview render
+      this._tocService?.forceUpdate(content);
     } catch (error) {
       console.error('[Medit] Failed to render preview:', error);
       // Fallback to plain text on error
@@ -993,8 +1214,14 @@ class MeditApp {
       const clampedRatio = Math.max(0.2, Math.min(0.8, newRatio));
 
       this._state.splitRatio = clampedRatio;
-      editorContainer.style.width = `${clampedRatio * 100}%`;
-      previewContainer.style.width = `${(1 - clampedRatio) * 100}%`;
+      
+      // Update css variable for split percentage
+      const splitPercent = (1 - clampedRatio) * 100;
+      document.documentElement.style.setProperty('--vditor-split-percent', `${splitPercent}%`);
+      
+      // Clear specific width overrides to let CSS structure work with variables
+      editorContainer.style.width = '';
+      previewContainer.style.width = '';
     });
 
     document.addEventListener('mouseup', () => {
@@ -1191,6 +1418,13 @@ class MeditApp {
   }
 
   /**
+   * Get current device preview mode
+   */
+  getCurrentDevice(): 'desktop' | 'tablet' | 'mobile' {
+    return this._currentDevice;
+  }
+
+  /**
    * Set language
    */
   setLanguage(lang: Language): void {
@@ -1271,6 +1505,12 @@ class MeditApp {
       this._previewUpdateTimeout = null;
     }
 
+    // Clear pending edit toolbar retry timeout
+    if (this._editToolbarRetryTimeout) {
+      clearTimeout(this._editToolbarRetryTimeout);
+      this._editToolbarRetryTimeout = null;
+    }
+
     // Flush pending saves
     void this._fileSaveService?.flush();
 
@@ -1288,6 +1528,8 @@ class MeditApp {
     this._preferencesPanel = null;
     this._findReplacePanel?.destroy();
     this._findReplacePanel = null;
+    this._tocService?.destroy();
+    this._tocService = null;
     this._themeService?.dispose();
     (this as unknown as { _themeService: null })._themeService = null;
   }

@@ -24,6 +24,7 @@
   --medit-toolbar-height: 38px;
   --medit-toc-width: 280px;
   --medit-transition-duration: 0.3s;
+  --medit-btn-hover-text: #1f1f1f;
 }
 
 /* Dark theme */
@@ -44,6 +45,7 @@
   --medit-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.25);
   --medit-shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.35);
   --medit-shadow-panel: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  --medit-btn-hover-text: #ffffff;
 }
 
 /* Reset and base styles */
@@ -165,6 +167,43 @@ body {
   display: none !important;
 }
 
+/* Vditor Dark Theme Overrides for Edit Mode to improve readability */
+[data-theme='dark'] .vditor--dark {
+  --panel-background-color: var(--medit-bg-primary);
+  --textarea-background-color: var(--medit-bg-primary);
+  --toolbar-background-color: var(--medit-bg-toolbar);
+  --textarea-text-color: var(--medit-text-primary);
+  --border-color: var(--medit-border-color);
+  --toolbar-icon-color: var(--medit-text-secondary);
+  --toolbar-icon-hover-color: var(--medit-text-primary);
+  --ir-heading-color: var(--medit-text-primary);
+  --ir-title-color: var(--medit-text-secondary);
+  --ir-bi-color: var(--medit-accent-color);
+  --ir-link-color: var(--medit-accent-color);
+}
+
+[data-theme='dark'] .vditor-reset,
+[data-theme='dark'] .vditor-ir {
+  color: var(--medit-text-primary) !important;
+}
+
+[data-theme='dark'] .vditor-ir__marker {
+  color: var(--medit-text-tertiary) !important;
+}
+
+[data-theme='dark'] .vditor-ir__node {
+  color: var(--medit-text-primary) !important;
+}
+
+[data-theme='dark'] .vditor-ir__node--expand {
+  color: var(--medit-text-primary) !important;
+}
+
+[data-theme='dark'] .vditor-ir a,
+[data-theme='dark'] .vditor-reset a {
+  color: var(--medit-accent-color) !important;
+}
+
 #markdown-content {
   flex: 1;
   padding: 24px 35px;
@@ -248,9 +287,9 @@ body {
   border-right: none;
 }
 
-/* Vditor content area: leave right 50% for preview overlay */
+/* Vditor content area: leave space for preview overlay */
 [data-mode='split'] #vditor-editor .vditor-content {
-  margin-right: 50%;
+  margin-right: var(--vditor-split-percent, 50%);
 }
 
 /* Preview pane: absolutely positioned on the right half, below toolbar */
@@ -259,7 +298,7 @@ body {
   top: var(--medit-toolbar-height);
   right: 0;
   bottom: 0;
-  width: 50%;
+  width: var(--vditor-split-percent, 50%);
   border-left: 1px solid var(--medit-border-color);
   overflow: auto;
 }
@@ -268,6 +307,16 @@ body {
 [data-mode='split'] #markdown-content {
   max-width: none;
   padding: 24px 35px;
+}
+
+/* Split resizer inside split mode */
+[data-mode='split'] .split-resizer {
+  position: absolute;
+  top: var(--medit-toolbar-height);
+  bottom: 0;
+  right: var(--vditor-split-percent, 50%);
+  margin-right: -3px; /* align with border perfectly */
+  z-index: 100;
 }
 
 /* Split resizer */
@@ -363,7 +412,13 @@ body {
 .medit-edit-btn:hover,
 .medit-preview-btn:hover {
   background-color: rgba(0, 0, 0, 0.08);
-  color: #1f1f1f;
+  color: var(--medit-btn-hover-text);
+}
+
+/* Dark theme hover styles */
+[data-theme='dark'] .medit-edit-btn:hover,
+[data-theme='dark'] .medit-preview-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 .medit-edit-btn.active,
@@ -439,18 +494,32 @@ body {
   /* On small screens, split mode becomes stacked */
   [data-mode='split'] #editor-preview-container {
     flex-direction: column;
+    position: relative;
   }
 
-  [data-mode='split'] .editor-pane,
-  [data-mode='split'] .preview-pane {
+  [data-mode='split'] #editor-preview-container .editor-pane,
+  [data-mode='split'] #editor-preview-container .preview-pane {
+    position: relative !important;
+    top: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    left: auto !important;
+    transform: none !important;
     width: 100%;
     height: 50%;
   }
 
-
   [data-mode='split'] .editor-pane {
     border-right: none;
     border-bottom: 1px solid var(--medit-border-color);
+  }
+
+  [data-mode='split'] #vditor-editor .vditor-content {
+    margin-right: 0;
+  }
+
+  [data-mode='split'] .split-resizer {
+    display: none;
   }
 }
 
