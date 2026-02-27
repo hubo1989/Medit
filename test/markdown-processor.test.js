@@ -33,8 +33,6 @@ import {
   isSafeSrcset,
   sanitizeRenderedHtml,
   extractHeadings,
-  renderHtmlIncrementally,
-  clearHtmlResultCache,
 } from '../src/core/markdown-processor.ts';
 import { hashCode, generateContentHash } from '../src/utils/hash.ts';
 import { replacePlaceholderWithImage, convertPluginResultToHTML } from '../src/plugins/plugin-html-utils.ts';
@@ -1181,56 +1179,6 @@ Paragraph 3`;
       const headings = extractHeadings(container);
       
       assert.strictEqual(headings[0].text, 'Text with emphasis inside');
-    });
-  });
-
-  // ==========================================================================
-  // renderHtmlIncrementally Tests
-  // ==========================================================================
-
-  describe('renderHtmlIncrementally', () => {
-    it('should render small content at once', async () => {
-      container.innerHTML = '';
-      const html = '<p>One</p><p>Two</p><p>Three</p>';
-      
-      await renderHtmlIncrementally(container, html, { batchSize: 100 });
-      
-      assert.strictEqual(container.children.length, 3);
-      assert.strictEqual(container.children[0].textContent, 'One');
-    });
-
-    it('should render large content in batches', async () => {
-      container.innerHTML = '';
-      // Create HTML with many elements
-      const items = [];
-      for (let i = 0; i < 10; i++) {
-        items.push(`<p>Item ${i}</p>`);
-      }
-      const html = items.join('');
-      
-      await renderHtmlIncrementally(container, html, { batchSize: 3, yieldDelay: 0 });
-      
-      assert.strictEqual(container.children.length, 10);
-      assert.strictEqual(container.children[0].textContent, 'Item 0');
-      assert.strictEqual(container.children[9].textContent, 'Item 9');
-    });
-
-    it('should handle empty HTML', async () => {
-      container.innerHTML = '';
-      await renderHtmlIncrementally(container, '');
-      assert.strictEqual(container.children.length, 0);
-    });
-  });
-
-  // ==========================================================================
-  // clearHtmlResultCache Tests
-  // ==========================================================================
-
-  describe('clearHtmlResultCache', () => {
-    it('should clear cache without error', () => {
-      // Just ensure it doesn't throw
-      clearHtmlResultCache();
-      assert.ok(true, 'Cache cleared successfully');
     });
   });
 });

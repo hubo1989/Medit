@@ -59,6 +59,12 @@ export async function downloadBlob(
 ): Promise<void> {
   const platform = globalThis.platform as PlatformAPI | undefined;
   
+  // Local files in browser extensions: use <a download> directly (no downloads permission needed)
+  if (typeof window !== 'undefined' && window.location?.protocol === 'file:') {
+    fallbackDownload(blob, filename);
+    return;
+  }
+
   if (platform?.file?.download) {
     await platform.file.download(blob, filename, {
       mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',

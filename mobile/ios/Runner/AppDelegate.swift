@@ -17,6 +17,10 @@ import UIKit
       pendingFileURL = url
     }
     
+    // Disable iOS scrollsToTop on all UIScrollViews to prevent
+    // status-bar-tap-to-scroll-to-top triggered by phantom (0,0) touch events on iPad
+    UIScrollView.disableScrollsToTopGlobally()
+    
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
   
@@ -34,7 +38,7 @@ import UIKit
   
   private func setupMethodChannel(with messenger: FlutterBinaryMessenger) {
     fileChannel = FlutterMethodChannel(
-      name: "com.example.markdown_viewer_mobile/file",
+      name: "com.xicilion.markdownviewer/file",
       binaryMessenger: messenger
     )
     
@@ -57,11 +61,23 @@ import UIKit
     open url: URL,
     options: [UIApplication.OpenURLOptionsKey: Any] = [:]
   ) -> Bool {
-    // Handle file opened from Files app or other apps
     if url.isFileURL {
+      // Handle file opened from Files app or other apps
       handleFileURL(url)
       return true
     }
+    
+    if url.scheme == "markdown-viewer" {
+      // Custom URL scheme: markdown-viewer:///path/to/file.md
+      // Used for testing via simctl openurl
+      let filePath = url.path
+      if !filePath.isEmpty {
+        let fileURL = URL(fileURLWithPath: filePath)
+        handleFileURL(fileURL)
+        return true
+      }
+    }
+    
     return super.application(app, open: url, options: options)
   }
   
@@ -107,5 +123,53 @@ import UIKit
       print("Failed to read file: \(error)")
       result(nil)
     }
+  }
+}
+
+// MARK: - Disable scrollsToTop globally
+//
+// WKWebView's internal UIScrollView has scrollsToTop=true by default.
+// On iPad, phantom (0,0) touch events (generated when tapping AppBar buttons)
+// fall in the status bar area, causing iOS to trigger scroll-to-top on the
+// WKWebView. Flutter's own scroll views don't rely on native scrollsToTop,
+// so disabling it globally is safe.
+extension UIScrollView {
+  private static var _swizzled = false
+
+  @objc static func disableScrollsToTopGlobally() {
+    guard !_swizzled else { return }
+    _swizzled = true
+
+    let originalSelector = #selector(willMove(toSuperview:))
+    let swizzledSelector = #selector(md_willMove(toSuperview:))
+
+    guard let originalMethod = class_getInstanceMethod(UIScrollView.self, originalSelector),
+          let swizzledMethod = class_getInstanceMethod(UIScrollView.self, swizzledSelector)
+    else { return }
+
+    // willMove(toSuperview:) is inherited from UIView.
+    // Use class_addMethod to give UIScrollView its own copy so the
+    // exchange only affects UIScrollView, not UIView.
+    let didAdd = class_addMethod(
+      UIScrollView.self,
+      originalSelector,
+      method_getImplementation(swizzledMethod),
+      method_getTypeEncoding(swizzledMethod)
+    )
+    if didAdd {
+      class_replaceMethod(
+        UIScrollView.self,
+        swizzledSelector,
+        method_getImplementation(originalMethod),
+        method_getTypeEncoding(originalMethod)
+      )
+    } else {
+      method_exchangeImplementations(originalMethod, swizzledMethod)
+    }
+  }
+
+  @objc private func md_willMove(toSuperview newSuperview: UIView?) {
+    md_willMove(toSuperview: newSuperview) // calls original (swizzled)
+    scrollsToTop = false
   }
 }

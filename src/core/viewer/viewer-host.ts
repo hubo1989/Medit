@@ -222,10 +222,58 @@ export function applyZoom(options: ApplyZoomOptions): number {
 
   const container = document.getElementById(containerId);
   if (container) {
-    (container as HTMLElement).style.zoom = String(zoomLevel);
+    applyZoomToElement(container as HTMLElement, zoomLevel);
   }
 
   return zoomLevel;
+}
+
+/**
+ * Apply zoom to an element using CSS zoom or transform: scale() fallback.
+ * iOS WKWebView does not support CSS zoom, so we use transform: scale()
+ * with width compensation to avoid horizontal overflow.
+ */
+function applyZoomToElement(el: HTMLElement, zoomLevel: number): void {
+  if (supportsCSSZoom()) {
+    el.style.zoom = String(zoomLevel);
+  } else {
+    // Use transform: scale() for iOS WKWebView
+    // transform doesn't affect layout size, so we must compensate height
+    // on the parent to avoid blank space (zoom < 1) or clipping (zoom > 1).
+    const parent = el.parentElement;
+    if (zoomLevel === 1) {
+      el.style.transform = '';
+      el.style.transformOrigin = '';
+      el.style.width = '';
+      if (parent) parent.style.height = '';
+    } else {
+      el.style.transform = `scale(${zoomLevel})`;
+      el.style.transformOrigin = 'top left';
+      // Compensate width so scaled content doesn't overflow
+      el.style.width = `${100 / zoomLevel}%`;
+      // Compensate parent height: layout height stays original,
+      // but visual height = scrollHeight * zoomLevel
+      if (parent) {
+        const updateHeight = () => {
+          parent.style.height = `${el.scrollHeight * zoomLevel}px`;
+        };
+        updateHeight();
+        // Re-measure after content may have reflowed
+        requestAnimationFrame(updateHeight);
+      }
+    }
+  }
+}
+
+/** Detect CSS zoom support (iOS WKWebView claims support but doesn't scale text correctly) */
+function supportsCSSZoom(): boolean {
+  const ua = navigator.userAgent;
+  // iOS WKWebView reports CSS.supports('zoom') = true but zoom only affects
+  // replaced elements (images), not text. Detect iOS specifically.
+  if (/iPad|iPhone|iPod/.test(ua) || (ua.includes('Macintosh') && 'ontouchend' in document)) {
+    return false;
+  }
+  return true;
 }
 
 // ============================================================================
@@ -423,7 +471,7 @@ export async function renderMarkdownFlow(options: RenderMarkdownFlowOptions): Pr
 
     // Apply zoom level before rendering
     if (zoomLevel !== 1) {
-      container.style.zoom = String(zoomLevel);
+      applyZoomToElement(container, zoomLevel);
     }
 
     // Get frontmatter display setting
@@ -476,6 +524,17 @@ export async function renderMarkdownFlow(options: RenderMarkdownFlowOptions): Pr
       });
     } finally {
       afterProcessAll?.();
+    }
+
+    // After async tasks (diagrams etc.) may have changed content height,
+    // re-compensate parent height for transform: scale() on iOS
+    if (!supportsCSSZoom() && zoomLevel !== 1) {
+      const parent = container.parentElement;
+      if (parent) {
+        requestAnimationFrame(() => {
+          parent.style.height = `${container.scrollHeight * zoomLevel}px`;
+        });
+      }
     }
 
     // Clear task manager reference
@@ -673,6 +732,8 @@ export async function exportDocxFlow(options: DocxExportFlowOptions): Promise<vo
     onSuccess?.(docxFilename);
   } catch (error) {
     const errMsg = error instanceof Error ? error.message : String(error);
+    // Silently ignore user cancellation
+    if (errMsg === 'Download cancelled by user') return;
     // eslint-disable-next-line no-console
     console.error('[ViewerHost] DOCX export failed:', errMsg);
     onError?.(errMsg);

@@ -11,7 +11,8 @@ import remarkGemoji from 'remark-gemoji';
 import remarkSuperSub from '../plugins/remark-super-sub';
 import remarkTocFilter from '../plugins/remark-toc-filter';
 import remarkRehype from 'remark-rehype';
-import rehypeSlug from 'rehype-slug';
+import GithubSlugger from 'github-slugger';
+import rehypeSlugShared from './rehype-slug-shared';
 import rehypeKatex from 'rehype-katex';
 import rehypeHighlight from 'rehype-highlight';
 import rehypeStringify from 'rehype-stringify';
@@ -566,9 +567,9 @@ export function createMarkdownProcessor(
   renderer: PluginRenderer,
   taskManager: AsyncTaskManager,
   translate: TranslateFunction = (key) => key,
-  options?: { tableMergeEmpty?: boolean }
+  options?: { tableMergeEmpty?: boolean; slugger?: GithubSlugger }
 ): Processor {
-  const { tableMergeEmpty = false } = options || {};
+  const { tableMergeEmpty = false, slugger } = options || {};
   
   const asyncTask: AsyncTaskQueueManager['asyncTask'] = (callback, data, plugin, _translate, initialStatus) => {
     return taskManager.createTask(
@@ -596,7 +597,7 @@ export function createMarkdownProcessor(
   // Continue with rehype processing
   processor
     .use(remarkRehype, { allowDangerousHtml: true })
-    .use(rehypeSlug)
+    .use(rehypeSlugShared, { slugger })
     .use(rehypeImageUri)  // Rewrite relative image paths for VS Code webview
     .use(rehypeTableMerge, { enabled: tableMergeEmpty })  // Auto-merge empty table cells
     .use(rehypeHighlight)
@@ -610,222 +611,6 @@ export function createMarkdownProcessor(
  * Frontmatter display mode
  */
 export type FrontmatterDisplay = 'hide' | 'table' | 'raw';
-
-/**
- * Options for processing markdown to HTML
- */
-interface ProcessMarkdownOptions {
-  renderer: PluginRenderer;
-  taskManager: AsyncTaskManager;
-  translate?: TranslateFunction;
-  frontmatterDisplay?: FrontmatterDisplay;
-}
-
-/**
- * Simple LRU cache for processed HTML results.
- * Key: markdown block hash, Value: processed HTML
- */
-class HtmlResultCache {
-  private cache = new Map<string, string>();
-  private maxSize: number;
-
-  constructor(maxSize = 500) {  // Increased for block-level caching
-    this.maxSize = maxSize;
-  }
-
-  get(key: string): string | undefined {
-    const value = this.cache.get(key);
-    if (value !== undefined) {
-      // Move to end (most recently used)
-      this.cache.delete(key);
-      this.cache.set(key, value);
-    }
-    return value;
-  }
-
-  set(key: string, value: string): void {
-    // Delete if exists (to update position)
-    if (this.cache.has(key)) {
-      this.cache.delete(key);
-    }
-    // Evict oldest if at capacity
-    if (this.cache.size >= this.maxSize) {
-      const firstKey = this.cache.keys().next().value;
-      if (firstKey !== undefined) {
-        this.cache.delete(firstKey);
-      }
-    }
-    this.cache.set(key, value);
-  }
-
-  clear(): void {
-    this.cache.clear();
-  }
-  
-  get size(): number {
-    return this.cache.size;
-  }
-}
-
-// Global block-level HTML cache (large capacity for big documents)
-const blockHtmlCache = new HtmlResultCache(5000);
-
-/**
- * Clear the HTML result cache (call when settings change)
- */
-export function clearHtmlResultCache(): void {
-  blockHtmlCache.clear();
-}
-
-/**
- * Process a single markdown block to HTML
- */
-async function processBlockToHtml(
-  block: string,
-  processor: Processor
-): Promise<string> {
-  const cacheKey = hashCode(block);
-  const cached = blockHtmlCache.get(cacheKey);
-  if (cached !== undefined) {
-    return cached;
-  }
-
-  const file = await processor.process(block);
-  let html = String(file);
-  html = processTablesForWordCompatibility(html);
-  html = sanitizeRenderedHtml(html);
-  
-  blockHtmlCache.set(cacheKey, html);
-  return html;
-}
-
-/**
- * Add block hash and source line attributes to top-level elements in HTML.
- * Elements get 'data-line' attribute and 'code-line' class for scroll sync.
- * @param html - HTML content
- * @param blockHash - Hash for DOM diffing
- * @param startLine - Source line number (0-based)
- * @param lineCount - Number of lines in this block (for fine-grained sync)
- * @returns HTML with attributes added
- */
-function addBlockAttributesToHtml(html: string, blockHash: string, startLine: number, lineCount: number = 0): string {
-  // Parse HTML and add attributes to each top-level element
-  const template = document.createElement('template');
-  template.innerHTML = html;
-  
-  const children = template.content.children;
-  for (let i = 0; i < children.length; i++) {
-    const el = children[i] as HTMLElement;
-    el.setAttribute('data-block-hash', blockHash);
-    el.setAttribute('data-line', String(startLine));
-    if (lineCount > 0) {
-      el.setAttribute('data-line-count', String(lineCount));
-    }
-    el.classList.add('code-line');
-  }
-  
-  return template.innerHTML;
-}
-
-/**
- * Add block hash attribute to top-level elements in HTML (legacy, no line info)
- */
-function addBlockHashToHtml(html: string, blockHash: string): string {
-  return addBlockAttributesToHtml(html, blockHash, -1, 0);
-}
-
-/**
- * Process markdown to HTML with block-level caching
- * Each block's top-level elements are tagged with hash for efficient DOM diffing.
- * @param markdown - Raw markdown content
- * @param options - Processing options
- * @returns Processed HTML
- */
-export async function processMarkdownToHtml(
-  markdown: string,
-  options: ProcessMarkdownOptions
-): Promise<string> {
-  const { renderer, taskManager, translate = (key) => key, frontmatterDisplay = 'hide' } = options;
-
-  // Pre-process markdown
-  const normalizedMarkdown = normalizeMathBlocks(markdown);
-  
-  // Split into blocks with line info
-  const blocks = splitMarkdownIntoBlocksWithLines(normalizedMarkdown);
-  
-  // Create processor (reused for all blocks)
-  const processor = createMarkdownProcessor(renderer, taskManager, translate);
-  
-  // Process each block with caching
-  const t0 = performance.now();
-  let cacheHits = 0;
-  const htmlParts: string[] = [];
-  
-  for (let i = 0; i < blocks.length; i++) {
-    const block = blocks[i];
-    const blockHash = hashCode(block.content);
-    
-    // Handle frontmatter block specially
-    if (isFrontmatterBlock(block.content, block.startLine)) {
-      let blockHtml = '';
-      if (frontmatterDisplay === 'table') {
-        const data = parseFrontmatter(block.content);
-        blockHtml = renderFrontmatterAsTable(data);
-      } else if (frontmatterDisplay === 'raw') {
-        blockHtml = renderFrontmatterAsRaw(block.content);
-      }
-      // For 'hide' mode, blockHtml remains empty
-      
-      if (blockHtml) {
-        const blockLineCount = block.content.split('\n').length;
-        const nextBlockStartLine = i + 1 < blocks.length ? blocks[i + 1].startLine : block.startLine + blockLineCount;
-        const actualLineCount = nextBlockStartLine - block.startLine;
-        htmlParts.push(addBlockAttributesToHtml(blockHtml, blockHash, block.startLine, actualLineCount));
-      }
-      continue;
-    }
-    
-    const cached = blockHtmlCache.get(blockHash);
-    
-    let blockHtml: string;
-    // Don't use cache for blocks containing placeholders - they need fresh tasks
-    // Placeholders contain 'async-placeholder' class which indicates async rendering is needed
-    const cacheContainsPlaceholder = cached !== undefined && cached.includes('async-placeholder');
-    
-    if (cached !== undefined && !cacheContainsPlaceholder) {
-      blockHtml = cached;
-      cacheHits++;
-    } else {
-      const file = await processor.process(block.content);
-      let html = String(file);
-      html = processTablesForWordCompatibility(html);
-      html = sanitizeRenderedHtml(html);
-      // Only cache blocks without placeholders
-      // Blocks with placeholders need to be processed each time to create tasks
-      if (!html.includes('async-placeholder')) {
-        blockHtmlCache.set(blockHash, html);
-      }
-      blockHtml = html;
-    }
-    
-    // Calculate line count for this block (for fine-grained scroll sync)
-    const blockLineCount = block.content.split('\n').length;
-    // Find next block's start line to get end line of current block
-    const nextBlockStartLine = i + 1 < blocks.length ? blocks[i + 1].startLine : block.startLine + blockLineCount;
-    const actualLineCount = nextBlockStartLine - block.startLine;
-    
-    // Add hash and line number to top-level elements for DOM diffing and scroll sync
-    htmlParts.push(addBlockAttributesToHtml(blockHtml, blockHash, block.startLine, actualLineCount));
-  }
-  
-  const t1 = performance.now();
-  // Only log if processing took significant time (> 50ms)
-  if ((t1 - t0) > 50) {
-    console.log(`[Perf] processMarkdownToHtml: ${(t1 - t0).toFixed(1)}ms, blocks: ${blocks.length}, cache hits: ${cacheHits}/${blocks.length}`);
-  }
-
-  return htmlParts.join('\n');
-}
 
 /**
  * Extract title from markdown content
@@ -870,56 +655,4 @@ export function extractHeadings(container: Element): HeadingInfo[] {
   return result;
 }
 
-/**
- * Options for incremental HTML rendering
- */
-interface RenderHtmlOptions {
-  batchSize?: number;
-  yieldDelay?: number;
-}
 
-/**
- * Render HTML content incrementally to avoid blocking the main thread.
- * Parses HTML, then appends top-level nodes in batches with yields between them.
- * @param container - Target container element
- * @param html - Full HTML content to render
- * @param options - Rendering options
- */
-export async function renderHtmlIncrementally(
-  container: HTMLElement,
-  html: string,
-  options: RenderHtmlOptions = {}
-): Promise<void> {
-  const { batchSize = 200, yieldDelay = 0 } = options;
-
-  // Parse HTML to DOM using template element
-  const template = document.createElement('template');
-  template.innerHTML = html;
-  const fragment = template.content;
-
-  // Get all top-level children as array (need copy since we'll move nodes)
-  const children = Array.from(fragment.childNodes);
-
-  // Small content: render all at once
-  if (children.length <= batchSize) {
-    container.appendChild(fragment);
-    return;
-  }
-
-  // Large content: render in batches with yields
-  for (let i = 0; i < children.length; i += batchSize) {
-    const batchFragment = document.createDocumentFragment();
-    const end = Math.min(i + batchSize, children.length);
-
-    for (let j = i; j < end; j++) {
-      batchFragment.appendChild(children[j]);
-    }
-
-    container.appendChild(batchFragment);
-
-    // Yield to main thread between batches to keep UI responsive
-    if (end < children.length) {
-      await new Promise(resolve => setTimeout(resolve, yieldDelay));
-    }
-  }
-}

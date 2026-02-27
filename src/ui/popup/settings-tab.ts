@@ -4,6 +4,7 @@
  */
 
 import Localization, { DEFAULT_SETTING_LOCALE } from '../../utils/localization';
+import type { LocaleInfo, LocaleRegistry } from '../../utils/localization';
 import { translate, applyI18nText, getUiLocale } from './i18n-helpers';
 import { storageGet, storageSet } from './storage-helper';
 import type { EmojiStyle } from '../../types/docx.js';
@@ -114,22 +115,6 @@ interface ThemeRegistry {
 }
 
 /**
- * Locale info from registry
- */
-interface LocaleInfo {
-  code: string;
-  name: string;
-}
-
-/**
- * Locale registry structure
- */
-interface LocaleRegistry {
-  version: string;
-  locales: LocaleInfo[];
-}
-
-/**
  * Supported file extensions
  */
 interface SupportedExtensions {
@@ -220,6 +205,16 @@ export function createSettingsTabManager({
   let themes: ThemeDefinition[] = [];
   let registry: ThemeRegistry | null = null;
   let localeRegistry: LocaleRegistry | null = null;
+
+  /**
+   * Ensure locale registry is available (from Localization cache).
+   */
+  function ensureLocaleRegistry(): LocaleRegistry | null {
+    if (!localeRegistry) {
+      localeRegistry = Localization.getLocaleRegistry();
+    }
+    return localeRegistry;
+  }
 
   /**
    * Load settings from storage
@@ -403,10 +398,11 @@ export function createSettingsTabManager({
 
   async function loadLocalesIntoSelect(localeSelect: HTMLSelectElement): Promise<void> {
     try {
-      if (!localeRegistry) {
-        const url = chrome.runtime.getURL('_locales/registry.json');
-        const response = await fetch(url);
-        localeRegistry = (await response.json()) as LocaleRegistry;
+      const reg = ensureLocaleRegistry();
+      if (!reg) {
+        console.error('Locale registry not available');
+        localeSelect.value = settings.preferredLocale || DEFAULT_SETTING_LOCALE;
+        return;
       }
 
       // Rebuild options each time to ensure registry order is reflected.
@@ -417,7 +413,7 @@ export function createSettingsTabManager({
       autoOption.setAttribute('data-i18n', 'settings_language_auto');
       localeSelect.appendChild(autoOption);
 
-      (localeRegistry.locales || []).forEach((locale) => {
+      (reg.locales || []).forEach((locale) => {
         const option = document.createElement('option');
         option.value = locale.code;
         option.textContent = locale.name;
@@ -466,15 +462,9 @@ export function createSettingsTabManager({
     }
 
     // Load locale registry if not already loaded
-    if (!localeRegistry) {
-      try {
-        const url = chrome.runtime.getURL('_locales/registry.json');
-        const response = await fetch(url);
-        localeRegistry = (await response.json()) as LocaleRegistry;
-      } catch (error) {
-        console.error('Failed to load locale registry:', error);
-        return;
-      }
+    const reg = ensureLocaleRegistry();
+    if (!reg) {
+      return;
     }
 
     // Update button text with current locale code
@@ -495,7 +485,7 @@ export function createSettingsTabManager({
     dropdownContent.appendChild(autoOption);
 
     // Add language options
-    (localeRegistry.locales || []).forEach((locale) => {
+    (reg.locales || []).forEach((locale) => {
       const option = document.createElement('div');
       option.className = 'language-option' + (currentLocale === locale.code ? ' active' : '');
       option.dataset.locale = locale.code;
@@ -563,7 +553,7 @@ export function createSettingsTabManager({
         langBtn.textContent = getLocaleDisplayCode(newLocale);
 
         // Update active state in dropdown
-        dropdownContent.querySelectorAll('.language-option').forEach(opt => {
+        dropdownContent.querySelectorAll<HTMLElement>('.language-option').forEach(opt => {
           opt.classList.toggle('active', opt.dataset.locale === newLocale);
         });
 

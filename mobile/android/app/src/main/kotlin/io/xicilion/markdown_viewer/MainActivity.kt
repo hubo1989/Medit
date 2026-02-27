@@ -10,7 +10,7 @@ import java.io.BufferedReader
 import java.io.InputStreamReader
 
 class MainActivity : FlutterActivity() {
-    private val CHANNEL = "com.example.markdown_viewer_mobile/file"
+    private val CHANNEL = "com.xicilion.markdownviewer/file"
     private var pendingFileContent: String? = null
     private var pendingFileName: String? = null
     private var methodChannel: MethodChannel? = null
@@ -59,16 +59,19 @@ class MainActivity : FlutterActivity() {
                 val filename = getFilenameFromUri(uri)
                 
                 if (content != null) {
-                    // If Flutter is ready, send directly via channel
                     if (methodChannel != null) {
+                        // Send via channel and clear pending to avoid duplicate delivery
                         methodChannel?.invokeMethod("onFileReceived", mapOf(
                             "content" to content,
                             "filename" to filename
                         ))
+                        pendingFileContent = null
+                        pendingFileName = null
+                    } else {
+                        // Store as pending for when Flutter is ready
+                        pendingFileContent = content
+                        pendingFileName = filename
                     }
-                    // Also store as pending in case Flutter isn't ready yet
-                    pendingFileContent = content
-                    pendingFileName = filename
                 }
             } catch (e: Exception) {
                 e.printStackTrace()

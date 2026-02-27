@@ -1,14 +1,15 @@
 {
   "name": "markdown-viewer-extension",
   "displayName": "Markdown Viewer Extension",
-  "version": "1.5.1",
-  "description": "Markdown to perfect Word in one click — Mermaid, Graphviz, Vega, Infographic, LaTeX (editable), code highlighting, local processing",
+  "version": "2.0.3",
+  "description": "Markdown to perfect Word in one click — Mermaid, Vega, drawio, canvas, Infographic, Graphviz, LaTeX (editable), code highlighting, local processing.",
   "type": "module",
   "scripts": {
     "build:chrome": "node chrome/build.js",
     "build:firefox": "node firefox/build.js",
     "build:mobile": "node mobile/build.js",
     "build:vscode": "node vscode/build.js",
+    "build:obsidian": "node obsidian/build.js",
     "build:app": "node mobile/build-app.js all",
     "build:ios": "node mobile/build-app.js ios",
     "build:ios:sim": "node mobile/build-app.js ios:sim",
@@ -43,7 +44,7 @@
     "name": "Markdown Viewer Team",
     "url": "https://github.com/markdown-viewer"
   },
-  "license": "ISC",
+  "license": "GPL-3.0-only",
   "homepage": "https://github.com/markdown-viewer/markdown-viewer-extension",
   "repository": {
     "type": "git",
@@ -53,8 +54,8 @@
     "url": "https://github.com/markdown-viewer/markdown-viewer-extension/issues"
   },
   "dependencies": {
-    "@antv/infographic": "^0.2.7",
-    "@markdown-viewer/drawio2svg": "^1.2.0",
+    "@antv/infographic": "^0.2.13",
+    "@markdown-viewer/drawio2svg": "^1.3.0",
     "@trbn/jsoncanvas": "^1.0.6",
     "@viz-js/viz": "^3.24.0",
     "buffer": "^6.0.3",

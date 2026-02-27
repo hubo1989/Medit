@@ -1,21 +1,15 @@
-# Markdown Viewer
+# ![Markdown Viewer](icons/icon48.png) Markdown Viewer
 
-**Markdown to perfect Word in one click — Mermaid, Graphviz, Vega, Infographic, LaTeX (editable), code highlighting, local processing**
+**Markdown to perfect Word in one click — Mermaid, Vega, drawio, Canvas, Infographic, Graphviz, LaTeX (editable), code highlighting, local processing**
 
 *Completely Free · 29 Professional Themes · 28 Languages Support*
 
----
+![Install](icons/icon16.png) 🚀 **Install Now (Choose Your Platform):**
 
-## 📱 Also Available as Browser Extension
-
-**VS Code for writing, Browser for reading and sharing.**
-
-Use VS Code to create your documents, then share them via browser extensions for a seamless reading experience:
-
-- **Chrome:** https://chromewebstore.google.com/detail/markdown-viewer/jekhhoflgcfoikceikgeenibinpojaoi
+- **Chrome / Chromium:** https://chromewebstore.google.com/detail/markdown-viewer/jekhhoflgcfoikceikgeenibinpojaoi
 - **Firefox:** https://addons.mozilla.org/firefox/addon/markdown-viewer-extension/
-
-> 💡 **Alternative:** Install from [Open VSX](https://open-vsx.org/extension/xicilion/markdown-viewer-extension) if you prefer or use offline installations.
+- **VS Code:** https://marketplace.visualstudio.com/items?itemName=xicilion.markdown-viewer-extension · [Open VSX](https://open-vsx.org/extension/xicilion/markdown-viewer-extension)
+- **Mobile (iOS/Android):** See [Mobile App](docs/platforms/mobile.md)
 
 ---
 
@@ -34,6 +28,10 @@ But eventually, you always need a Word document.
 
 Click to download and get a perfect Word document:
 - ✅ Mermaid diagrams → High-resolution images
+- ✅ Vega/Vega-Lite data charts → High-resolution images
+- ✅ drawio diagrams → High-resolution images
+- ✅ Canvas diagrams → High-resolution images
+- ✅ Infographic charts → High-resolution images
 - ✅ Graphviz DOT graphs → High-resolution images
 - ✅ LaTeX formulas → Word editable equations
 - ✅ Auto syntax highlighting (100+ languages)
@@ -43,6 +41,19 @@ Click to download and get a perfect Word document:
 **Spend time on writing, not on formatting.**
 
 ---
+
+## 🌍 Available Platforms
+
+Markdown Viewer is not just a Chrome extension anymore — it's a unified rendering + export engine shipped across multiple platforms.
+
+| Platform | Best for | Docs |
+|---|---|---|
+| **Chrome Extension** | Reading local/online Markdown in browser + export | [docs/platforms/chrome.md](docs/platforms/chrome.md) |
+| **Firefox Extension** | Firefox users, same core features | [docs/platforms/firefox.md](docs/platforms/firefox.md) |
+| **VS Code Extension** | Writing + live preview + export inside editor | [docs/platforms/vscode.md](docs/platforms/vscode.md) |
+| **Mobile App** | Reading/export on the go (iOS/Android) | [docs/platforms/mobile.md](docs/platforms/mobile.md) |
+
+See the full feature matrix: [docs/platforms/platform-comparison.md](docs/platforms/platform-comparison.md)
 
 ## 💫 See It in Action
 
@@ -103,12 +114,14 @@ Let data speak, generate professional reports with one click.
 
 ### 1. Automatic Diagram Conversion
 
-**Mermaid Diagrams** · **Graphviz DOT** · **Vega/Vega-Lite Data Charts** · **Infographic** · SVG images · Complex HTML tables
+**Mermaid** · **Vega/Vega-Lite** · **drawio** · **Canvas** · **Infographic** · **Graphviz DOT** · SVG images · Complex HTML tables
 
 **Mermaid:** Flowcharts, sequence diagrams, class diagrams, state diagrams → Technical docs, architecture design  
-**Graphviz DOT:** Directed/undirected graphs, network topology, state machines → System architecture, dependency analysis  
 **Vega/Vega-Lite:** Bar charts, line charts, scatter plots, heatmaps → Business reports, data analytics  
-**Infographic:** Statistical charts, infographics, data visualization → Data presentation, visual storytelling
+**drawio:** Architecture diagrams, network topologies, UML diagrams → System design, technical documentation  
+**Canvas:** Mind maps, knowledge graphs, concept maps → Brainstorming, planning boards  
+**Infographic:** Statistical charts, infographics, data visualization → Data presentation, visual storytelling  
+**Graphviz DOT:** Directed/undirected graphs, network topology, state machines → Dependency analysis, complex graphs
 
 **Time comparison:** Complex sequence diagram (10 objects)
 - Traditional tools: Draw 30min + Modify 20min + Adjust 10min + Export 5min = **65 minutes**
@@ -161,59 +174,51 @@ Document with 50 Mermaid diagrams:
 
 **10x faster than Word, 100x smaller files.**
 
-### Live Editing Experience
+### Reading Enhancement
 
-- **Real-time preview:** Instant sync as you type, no manual refresh needed
-- **Bi-directional scroll sync:** Editor scrolls → Preview follows; Preview scrolls → Editor follows
-- **Native file support:** Direct preview for `.mermaid`, `.vega`, `.gv`, `.dot`, `.infographic` files
-- **Deep VS Code integration:** Works with Remote Workspaces, WSL, GitHub Codespaces
-
-### Markdown Tools (VS Code Exclusive)
-
-Click the **Tools** button in editor title bar to access:
-
-**Heading Numbering:**
-- Auto-number headings (supports Chinese 第一章, Arabic 1.1, Roman I/II/III)
-- Remove all heading numbers with one click
-
-**Auto-Fix Formatting:**
-- Fix All Issues — one-click fix everything
-- Fix by category: Whitespace · Headings · Lists · Code · Links · Emphasis · Tables · Blockquotes · Proper Names
-
-**Diagnostics:**
-- Show all Markdown issues in Problems panel
-- Navigate to issues directly from diagnostics
+- **Three layouts:** Normal (1000px) / Full screen / Narrow (530px, preview Word effect)
+- **Flexible zoom:** 50%-400%, shortcuts `Ctrl/Cmd +` `-` `0`
+- **Smart TOC:** Auto-extract headings, sidebar navigation, `Ctrl/Cmd + B` to toggle
+- **Position memory:** Auto-save scroll position, continue reading next time
+- **History:** Track recently opened documents
 
 ---
 
 ## 🚀 Quick Start - 3 Steps
 
-### Step 1: Install Extension (30 seconds)
+### Step 1: Install (30 seconds)
 
-1. Open VS Code
-2. Go to Extensions (Ctrl+Shift+X / Cmd+Shift+X)
-3. Search "Markdown Viewer"
-4. Click "Install"
-5. ✅ Installation complete
+Pick one platform and install:
 
-### Step 2: Preview Markdown (Instant)
+- **Chrome / Chromium:** Chrome Web Store link above
+- **Firefox:** Firefox Add-ons link above
+- **VS Code:** Extensions panel → search "Markdown Viewer" (or `code --install-extension markdown-viewer`)
+- **Mobile:** Open App Store / Google Play and search "Markdown Viewer"
 
-**Preview documents:**
-1. Open a .md file in VS Code
-2. Click the preview button in top-right corner (or Ctrl+Shift+V / Cmd+Shift+V)
-3. ✅ Side-by-side preview with full formatting
+### Step 2: Open a Markdown file (1 minute)
+
+**Browser (Chrome / Firefox) — local files:**
+
+1. Enable local file access in your browser extension settings
+2. ✅ Now you can double-click to open local `.md` files
+
+**VS Code:** Open any `.md` file → run the preview command (see [VS Code Extension](docs/platforms/vscode.md))
+
+**Mobile:** Use file picker or open from cloud drive (details in [Mobile App](docs/platforms/mobile.md))
+
+**Not needed if:**
+- Only viewing online docs (GitHub, blogs, etc.)
+- Using browser's "Open File" function
 
 ### Quick Start
 
-**Open documents:** File → Open or drag .md file to workspace
+**Open documents:** Local `.md` files / supported diagram files (`.mermaid` `.vega` `.vl` `.drawio` `.canvas` `.infographic` `.dot` `.gv`) depending on platform
 
-**Preview:** Ctrl+Shift+V (Cmd+Shift+V on Mac) → View live preview
+**Export to Word:** Click download button or `Ctrl/Cmd + S` → See progress → Auto-save
 
-**Export to Word:** Click export icon in preview → Auto-save to project folder
+**Switch themes:** Click toolbar → Choose theme → Apply instantly
 
-**Switch themes:** Command palette → Select theme → Apply instantly
-
-**Adjust view:** Ctrl/Cmd + +/- zoom · Preview pane layout options
+**Adjust view:** `+`/`-` zoom · Layout switch · `Ctrl/Cmd + B` TOC
 
 ---
 
@@ -221,7 +226,7 @@ Click the **Tools** button in editor title bar to access:
 
 ### Full Markdown Syntax Support
 
-Headings · Paragraphs · Bold · Italic · Strikethrough · Lists · Task lists · Blockquotes · Code blocks (100+ languages highlighted) · Tables · Links · Images · Mermaid diagrams · Vega / Vega-Lite charts · Infographic charts · LaTeX formulas · HTML · GFM extensions
+Headings · Paragraphs · Bold · Italic · Strikethrough · Lists · Task lists · Blockquotes · Code blocks (100+ languages highlighted) · Tables · Links · Images · Mermaid diagrams · Vega / Vega-Lite charts · drawio diagrams · Canvas diagrams · Infographic charts · Graphviz DOT graphs · LaTeX formulas · HTML · GFM extensions
 
 ### 29 Themes
 
@@ -249,6 +254,7 @@ English · 简体中文 · 繁體中文 · Русский · 日本語 · हि
 | **Privacy** | ✅ Local | ✅ Local | ❌ Cloud upload | ✅ Local | ✅ Local |
 | **Themes** | - | - | 3-5 | 5-10 | ✅ 29 |
 | **Offline** | ✅ | ✅ | ❌ | ✅ | ✅ |
+| **GitHub Direct View** | ❌ | ❌ | ❌ | ❌ | ✅ |
 | **Price** | Free | Free | Paid plans | Paid plans | ✅ Free |
 
 **Core advantage: Faster, cheaper, safer, more powerful.**
@@ -261,7 +267,7 @@ English · 简体中文 · 繁體中文 · Русский · 日本語 · हि
 A: Yes. Standard .docx format, math formulas are editable, not images.
 
 **Q: Which diagrams are supported?**  
-A: All Mermaid diagrams (flowchart, sequence, gantt, class, state, pie, ER, etc.), Vega / Vega-Lite data visualization charts, Infographic statistical charts + SVG auto-conversion.
+A: All Mermaid diagrams (flowchart, sequence, gantt, class, state, pie, ER, etc.), Vega / Vega-Lite data visualization charts, drawio architecture diagrams, Canvas mind maps, Infographic statistical charts, Graphviz DOT graphs + SVG auto-conversion.
 
 **Q: Is there a file size limit?**  
 A: No limit. Smart cache, documents with 100+ diagrams open instantly.
@@ -284,8 +290,8 @@ A: No. Progressive loading + smart cache, text displays instantly, diagrams rend
 **Q: Does cache take up much space?**  
 A: Default max 1000 items, approximately 500 MB, adjustable or clearable in settings.
 
-**Q: Which VS Code versions are supported?**  
-A: VS Code 1.60 and above.
+**Q: Which browsers are supported?**  
+A: Chrome/Chromium-based browsers (Edge, Brave, Opera, etc.) and Firefox.
 
 **Q: Which Word versions can open the exported file?**  
 A: Word 2016+ fully supported, Word 2013 also works. Fully compatible with WPS Office.
@@ -309,6 +315,7 @@ A: Use ````vega-lite` code block in Markdown with JSON format chart specificatio
 - ✅ All processing done locally, never uploaded
 - ✅ No tracking, no personal data collection
 - ✅ Open source code, auditable and transparent
+- ✅ Browser extensions use modern platform standards (Manifest V3)
 
 **Your privacy is 100% protected.**
 
@@ -324,15 +331,20 @@ A: Use ````vega-lite` code block in Markdown with JSON format chart specificatio
 
 **Install in 30 seconds, start using immediately:**
 
-1. Open VS Code → Extensions (Ctrl+Shift+X)
-2. Search "Markdown Viewer" and install
-3. Open any .md file in your workspace
-4. Press Ctrl+Shift+V to open preview
-5. ✅ Start using immediately
+1. Install on Chrome / Firefox / VS Code / Mobile (links above)
+2. Open a Markdown file
+3. Preview and click export (or use `Ctrl/Cmd + S` where supported)
+4. ✅ Get a clean, ready-to-share Word document
 
-**You'll get:** Markdown → Word one-click conversion · Mermaid auto-convert · LaTeX editable formulas · 100+ languages syntax highlighting · 29 themes · Smart cache · Completely free
+**You'll get:** Markdown → Word one-click conversion · Mermaid/Vega/drawio/Canvas/Infographic/Graphviz auto-convert · LaTeX editable formulas · 100+ languages syntax highlighting · 29 themes · Smart cache · Completely free
 
 **Perfect for:** Technical writers · Students/researchers · Product managers · Developers · Anyone using Markdown
+
+---
+
+## 🌱 Community Projects
+
+- 🖥️ [md2x](https://github.com/LarchLiu/md2x) - Node.js CLI tool for batch conversion and automation
 
 ---
 
@@ -348,3 +360,6 @@ This project is open source under ISC license. Welcome to Star, report issues, s
 
 **Focus on writing, let Markdown Viewer handle everything else**
 
+🚀 **Install Now:** https://chromewebstore.google.com/detail/markdown-viewer/jekhhoflgcfoikceikgeenibinpojaoi
+
+*Completely Free · Local Processing · Privacy Protected*

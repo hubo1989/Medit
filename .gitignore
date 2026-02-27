@@ -25,8 +25,7 @@ package-lock.json
 pubspec.lock
 
 # Build output
-dist/
-dist.*
+dist
 /mobile/build/
 
 # Logs
@@ -44,6 +43,16 @@ dist.*
 .pub/
 /coverage/
 **/doc/api/
+
+# Certificates and private keys
+*.cer
+*.p12
+*.key
+*.csr
+*.mobileprovision
+*.provisionprofile
+*.jks
+*.keystore
 
 # iOS
 /mobile/ios/Flutter/ephemeral/

@@ -13,11 +13,13 @@ import {
   BorderStyle,
   convertInchesToTwip,
   TableOfContents,
+} from 'docx';
+import type {
   ParagraphChild,
-  type IStylesOptions,
-  type IBaseParagraphStyleOptions,
-  type IDocumentDefaultsOptions,
-  type IParagraphStylePropertiesOptions,
+  IStylesOptions,
+  IBaseParagraphStyleOptions,
+  IDocumentDefaultsOptions,
+  IParagraphStylePropertiesOptions,
 } from 'docx';
 import { mathJaxReady, convertLatex2Math } from './docx-math-converter';
 import { unified } from 'unified';
@@ -222,7 +224,7 @@ class DocxExporter {
             settings.get('tableLayout'),
           ]);
           this.docxHrDisplay = hrDisplay;
-          this.docxEmojiStyle = emojiStyle === 'native' ? 'system' : 'system'; // Map to internal naming
+          this.docxEmojiStyle = emojiStyle;
           this.frontmatterDisplay = frontmatterDisplay;
           this.tableMergeEmpty = tableMergeEmpty;
           this.tableLayout = tableLayout || 'center';

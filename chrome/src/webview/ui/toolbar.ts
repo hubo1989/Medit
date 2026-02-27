@@ -267,6 +267,15 @@ export function createToolbarManager(options: ToolbarManagerOptions): ToolbarMan
           return;
         }
 
+        // Request downloads permission only for remote files (local files use <a download> fallback)
+        if (!window.location.protocol.startsWith('file')) {
+          try {
+            await chrome.runtime.sendMessage({ type: 'REQUEST_DOWNLOADS_PERMISSION' });
+          } catch {
+            // Ignore - background will fall back if permission denied
+          }
+        }
+
         try {
           // Disable button and show progress indicator
           downloadBtn.disabled = true;

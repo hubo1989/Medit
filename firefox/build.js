@@ -81,6 +81,13 @@ try {
     }
   }
   
+  // Copy LICENSE
+  const licenseSrc = path.join(projectRoot, 'LICENSE');
+  if (fs.existsSync(licenseSrc)) {
+    fs.copyFileSync(licenseSrc, path.join(outdir, 'LICENSE'));
+    console.log('  • LICENSE');
+  }
+  
   // Create ZIP file for Firefox Add-ons submission
   const zipPath = path.join(projectRoot, 'dist', `firefox-v${version}.zip`);
   console.log('\n📦 Creating ZIP package...');

@@ -372,25 +372,40 @@ function handleDocxDownloadFinalizeEnvelope(
     const mimeType = (metadata.mimeType as string) || 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
 
     const dataUrl = `data:${mimeType};base64,${data}`;
-    chrome.downloads.download(
-      {
-        url: dataUrl,
-        filename,
-        saveAs: true,
-      },
-      (downloadId) => {
-        if (chrome.runtime.lastError) {
-          sendResponseEnvelope(message.id, sendResponse, {
-            ok: false,
-            errorMessage: chrome.runtime.lastError.message ?? 'Download failed',
-          });
-          return;
-        }
-        sendResponseEnvelope(message.id, sendResponse, { ok: true, data: { downloadId } });
-      }
-    );
 
-    uploadSessions.delete(token);
+    // Check if downloads permission is available (it's optional)
+    chrome.permissions.contains({ permissions: ['downloads'] }, (hasPermission) => {
+      if (!hasPermission) {
+        // No downloads permission - send data back to content script for fallback download
+        uploadSessions.delete(token);
+        sendResponseEnvelope(message.id, sendResponse, {
+          ok: true,
+          data: { fallback: true, dataUrl, filename, mimeType },
+        });
+        return;
+      }
+
+      chrome.downloads.download(
+        {
+          url: dataUrl,
+          filename,
+          saveAs: true,
+        },
+        (downloadId) => {
+          if (chrome.runtime.lastError) {
+            sendResponseEnvelope(message.id, sendResponse, {
+              ok: false,
+              errorMessage: chrome.runtime.lastError.message ?? 'Download failed',
+            });
+            return;
+          }
+          sendResponseEnvelope(message.id, sendResponse, { ok: true, data: { downloadId } });
+        }
+      );
+
+      uploadSessions.delete(token);
+    });
+
     return true;
   } catch (error) {
     sendResponseEnvelope(message.id, sendResponse, { ok: false, errorMessage: (error as Error).message });
@@ -729,6 +744,14 @@ chrome.runtime.onMessage.addListener((message: BackgroundMessage, sender, sendRe
 
   if (isRequestEnvelope(message) && message.type === 'STORAGE_REMOVE') {
     handleStorageRemoveEnvelope(message, sendResponse);
+    return true;
+  }
+
+  // Handle downloads permission request (from content script user gesture)
+  if (message && (message as Record<string, unknown>).type === 'REQUEST_DOWNLOADS_PERMISSION') {
+    chrome.permissions.request({ permissions: ['downloads'] }, (granted) => {
+      sendResponse({ granted: !!granted });
+    });
     return true;
   }
 

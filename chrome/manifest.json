@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "__MSG_extensionName__",
-  "version": "1.5.1",
+  "version": "2.0.3",
   "default_locale": "en",
   "description": "__MSG_extensionDescription__",
   "permissions": [
@@ -9,10 +9,11 @@
     "unlimitedStorage",
     "offscreen",
     "scripting",
-    "downloads",
     "contextMenus",
-    "alarms",
-    "clipboardRead"
+    "alarms"
+  ],
+  "optional_permissions": [
+    "downloads"
   ],
   "content_security_policy": {
     "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
@@ -65,6 +66,7 @@
         "*.woff",
         "*.ttf",
         "_locales/*/messages.json",
+        "_locales/registry.json",
         "themes/font-config.json",
         "themes/registry.json",
         "themes/presets/*.json",
