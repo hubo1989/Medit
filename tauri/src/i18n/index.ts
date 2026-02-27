@@ -428,6 +428,14 @@ export class I18nService {
   }
 
   /**
+   * Get translation for any string key (safe wrapper for external code)
+   * This method accepts any string and returns the translation or the key itself if not found
+   */
+  translate(key: string): string {
+    return this.t(key as FullTranslationKey);
+  }
+
+  /**
    * Get mode label
    */
   getModeLabel(mode: 'preview' | 'edit' | 'split'): string {
