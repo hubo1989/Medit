@@ -21,8 +21,24 @@ import type {
   SettingKey,
   FileState,
   RendererThemeConfig,
-  RenderResult
-} from '@shared/types/index.js';
+  RenderResult,
+  PluginRenderer,
+  PluginRenderResult
+} from '../types/shared.d.ts';
+import { createLogger } from '../utils/logger.js';
+import { CACHE_CONFIG, RENDER_CONFIG } from '../utils/config.js';
+
+const logger = createLogger('TauriPlatform');
+
+/**
+ * Error thrown when a feature is not yet implemented
+ */
+export class NotImplementedError extends Error {
+  constructor(feature: string) {
+    super(`Feature not implemented: ${feature}`);
+    this.name = 'NotImplementedError';
+  }
+}
 
 // Simple translations for platform service
 const translations: Record<string, Record<string, string>> = {
@@ -94,24 +110,43 @@ class TauriSettingsService implements ISettingsService {
 // ============================================================================
 
 class TauriCacheService implements CacheService {
-  private dbName = 'medit-cache';
-  private storeName = 'diagrams';
+  private dbName = CACHE_CONFIG.dbName;
+  private storeName = CACHE_CONFIG.storeName;
   private db: IDBDatabase | null = null;
+  private initPromise: Promise<IDBDatabase> | null = null;
 
   private async getDB(): Promise<IDBDatabase> {
     if (this.db) return this.db;
     
-    return new Promise((resolve, reject) => {
+    // Prevent concurrent initialization
+    if (this.initPromise) return this.initPromise;
+    
+    this.initPromise = new Promise((resolve, reject) => {
       const request = indexedDB.open(this.dbName, 1);
-      request.onerror = () => reject(request.error);
+      
+      request.onerror = () => {
+        const error = request.error;
+        logger.error('Failed to open IndexedDB:', error?.message || 'Unknown error');
+        this.initPromise = null;
+        reject(new Error(`Failed to open cache database: ${error?.message || 'Unknown error'}`));
+      };
+      
       request.onsuccess = () => {
         this.db = request.result;
+        logger.debug('IndexedDB connection established');
         resolve(this.db);
       };
-      request.onupgradeneeded = () => {
-        request.result.createObjectStore(this.storeName);
+      
+      request.onupgradeneeded = (event) => {
+        const db = (event.target as IDBOpenDBRequest).result;
+        if (!db.objectStoreNames.contains(this.storeName)) {
+          db.createObjectStore(this.storeName);
+          logger.debug('Created object store:', this.storeName);
+        }
       };
     });
+    
+    return this.initPromise;
   }
 
   async init(): Promise<void> {
@@ -141,61 +176,98 @@ class TauriCacheService implements CacheService {
   }
 
   async get(key: string): Promise<unknown> {
-    const db = await this.getDB();
-    return new Promise((resolve) => {
-      const tx = db.transaction(this.storeName, 'readonly');
-      const store = tx.objectStore(this.storeName);
-      const request = store.get(key);
-      request.onsuccess = () => resolve(request.result ?? null);
-      request.onerror = () => resolve(null);
-    });
+    try {
+      const db = await this.getDB();
+      return new Promise((resolve) => {
+        const tx = db.transaction(this.storeName, 'readonly');
+        const store = tx.objectStore(this.storeName);
+        const request = store.get(key);
+        request.onsuccess = () => resolve(request.result ?? null);
+        request.onerror = () => {
+          logger.warn('Failed to get cache item:', key);
+          resolve(null);
+        };
+      });
+    } catch (error) {
+      logger.error('Cache get error:', error);
+      return null;
+    }
   }
 
   async set(key: string, value: unknown, _type?: string): Promise<boolean> {
-    const db = await this.getDB();
-    return new Promise((resolve) => {
-      const tx = db.transaction(this.storeName, 'readwrite');
-      const store = tx.objectStore(this.storeName);
-      const request = store.put(value, key);
-      request.onsuccess = () => resolve(true);
-      request.onerror = () => resolve(false);
-    });
+    try {
+      const db = await this.getDB();
+      return new Promise((resolve) => {
+        const tx = db.transaction(this.storeName, 'readwrite');
+        const store = tx.objectStore(this.storeName);
+        const request = store.put(value, key);
+        request.onsuccess = () => resolve(true);
+        request.onerror = () => {
+          logger.warn('Failed to set cache item:', key);
+          resolve(false);
+        };
+      });
+    } catch (error) {
+      logger.error('Cache set error:', error);
+      return false;
+    }
   }
 
   async clear(): Promise<boolean> {
-    const db = await this.getDB();
-    return new Promise((resolve) => {
-      const tx = db.transaction(this.storeName, 'readwrite');
-      const store = tx.objectStore(this.storeName);
-      const request = store.clear();
-      request.onsuccess = () => resolve(true);
-      request.onerror = () => resolve(false);
-    });
+    try {
+      const db = await this.getDB();
+      return new Promise((resolve) => {
+        const tx = db.transaction(this.storeName, 'readwrite');
+        const store = tx.objectStore(this.storeName);
+        const request = store.clear();
+        request.onsuccess = () => {
+          logger.info('Cache cleared');
+          resolve(true);
+        };
+        request.onerror = () => {
+          logger.warn('Failed to clear cache');
+          resolve(false);
+        };
+      });
+    } catch (error) {
+      logger.error('Cache clear error:', error);
+      return false;
+    }
   }
 
   async getStats(): Promise<SimpleCacheStats | null> {
-    const db = await this.getDB();
-    return new Promise((resolve) => {
-      const tx = db.transaction(this.storeName, 'readonly');
-      const store = tx.objectStore(this.storeName);
-      const countRequest = store.count();
-      countRequest.onsuccess = () => {
-        resolve({ 
-          itemCount: countRequest.result, 
-          maxItems: 1000,
-          totalSize: 0,
-          totalSizeMB: '0',
-          items: []
-        });
-      };
-      countRequest.onerror = () => resolve(null);
-    });
+    try {
+      const db = await this.getDB();
+      return new Promise((resolve) => {
+        const tx = db.transaction(this.storeName, 'readonly');
+        const store = tx.objectStore(this.storeName);
+        const countRequest = store.count();
+        countRequest.onsuccess = () => {
+          resolve({ 
+            itemCount: countRequest.result, 
+            maxItems: CACHE_CONFIG.maxItems,
+            totalSize: 0,
+            totalSizeMB: '0',
+            items: []
+          });
+        };
+        countRequest.onerror = () => {
+          logger.warn('Failed to get cache stats');
+          resolve(null);
+        };
+      });
+    } catch (error) {
+      logger.error('Cache getStats error:', error);
+      return null;
+    }
   }
 }
 
 // ============================================================================
 // Tauri Renderer Service (simplified direct rendering)
 // ============================================================================
+
+const rendererLogger = createLogger('TauriRenderer');
 
 class TauriRendererService implements RendererService {
   private themeConfig: RendererThemeConfig | null = null;
@@ -225,7 +297,7 @@ class TauriRendererService implements RendererService {
   private applyMermaidTheme(mermaid: typeof import('mermaid').default): void {
     const isDark = this.isDarkMode();
     const isHandDrawn = this.themeConfig?.diagramStyle === 'handDrawn';
-    const fontFamily = this.themeConfig?.fontFamily || "'SimSun', serif";
+    const fontFamily = this.themeConfig?.fontFamily || '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
     
     mermaid.initialize({
       startOnLoad: false,
@@ -241,7 +313,7 @@ class TauriRendererService implements RendererService {
         curve: 'basis'
       }
     });
-    console.log('[TauriRenderer] Mermaid theme applied:', isDark ? 'dark' : 'default');
+    rendererLogger.debug('Mermaid theme applied:', isDark ? 'dark' : 'default');
   }
 
   /**
@@ -253,13 +325,13 @@ class TauriRendererService implements RendererService {
       // Fallback to CSS media query
       return window.matchMedia('(prefers-color-scheme: dark)').matches;
     }
-    // Simple heuristic: dark if background is darker than #808080
+    // Simple heuristic: dark if background is darker than threshold
     const hex = bg.replace('#', '');
     const r = parseInt(hex.substr(0, 2), 16);
     const g = parseInt(hex.substr(2, 2), 16);
     const b = parseInt(hex.substr(4, 2), 16);
     const brightness = (r * 299 + g * 587 + b * 114) / 1000;
-    return brightness < 128;
+    return brightness < RENDER_CONFIG.darkModeBrightnessThreshold;
   }
 
   setThemeConfig(config: RendererThemeConfig): void {
@@ -267,7 +339,7 @@ class TauriRendererService implements RendererService {
     this.themeConfig = config;
     const isDark = this.isDarkMode();
     
-    console.log('[TauriRenderer] setThemeConfig:', {
+    rendererLogger.debug('setThemeConfig:', {
       fontFamily: config.fontFamily,
       background: config.background,
       foreground: config.foreground,
@@ -277,7 +349,7 @@ class TauriRendererService implements RendererService {
     // Clear cache when theme changes (light <-> dark) to force re-render
     if (wasDark !== null && wasDark !== isDark) {
       this.cache.clear().catch(() => {});
-      console.log('[TauriRenderer] Cache cleared due to theme change');
+      rendererLogger.info('Cache cleared due to theme change');
     }
   }
 
@@ -295,6 +367,7 @@ class TauriRendererService implements RendererService {
     
     const cached = await this.cache.get(cacheKey);
     if (cached) {
+      rendererLogger.debug('Cache hit for:', type);
       return cached as RenderResult;
     }
 
@@ -313,17 +386,21 @@ class TauriRendererService implements RendererService {
         result = await this.renderDot(typeof content === 'string' ? content : JSON.stringify(content));
         break;
       default:
-        // Return placeholder for unsupported types
+        // Return error for unsupported types
         result = {
           base64: '',
-          width: 400,
+          width: RENDER_CONFIG.defaultWidth,
           height: 100,
-          format: 'png'
+          format: 'png',
+          success: false,
+          error: `Unsupported render type: ${type}`
         };
     }
 
-    // Cache result
-    await this.cache.set(cacheKey, result, `${type.toUpperCase()}_PNG`);
+    // Cache result only if successful
+    if (result.success !== false) {
+      await this.cache.set(cacheKey, result, `${type.toUpperCase()}_PNG`);
+    }
     
     return result;
   }
@@ -345,16 +422,17 @@ class TauriRendererService implements RendererService {
       throw new Error('Invalid SVG generated');
     }
     
-    let width = 800, height = 600;
+    let width: number = RENDER_CONFIG.mermaidDefaultWidth;
+    let height: number = RENDER_CONFIG.mermaidDefaultHeight;
     const viewBox = svgElement.getAttribute('viewBox');
     if (viewBox) {
       const parts = viewBox.split(/\s+/);
-      width = Math.ceil(parseFloat(parts[2]) || 800);
-      height = Math.ceil(parseFloat(parts[3]) || 600);
+      width = Math.ceil(parseFloat(parts[2]) || RENDER_CONFIG.mermaidDefaultWidth);
+      height = Math.ceil(parseFloat(parts[3]) || RENDER_CONFIG.mermaidDefaultHeight);
     }
     
-    // Scale factor (same as main project: fontSize/12 * 4)
-    const scale = 4;
+    // Scale factor (same as main project)
+    const scale = RENDER_CONFIG.scaleFactor;
     const canvasWidth = width * scale;
     const canvasHeight = height * scale;
     
@@ -365,7 +443,7 @@ class TauriRendererService implements RendererService {
     const pngDataUrl = canvas.toDataURL('image/png', 1.0);
     const base64Data = pngDataUrl.replace(/^data:image\/png;base64,/, '');
     
-    console.log('[TauriRenderer] Mermaid rendered to PNG:', { id, width: canvasWidth, height: canvasHeight });
+    rendererLogger.debug('Mermaid rendered to PNG:', { id, width: canvasWidth, height: canvasHeight });
     
     return {
       base64: base64Data,
@@ -408,22 +486,28 @@ class TauriRendererService implements RendererService {
   }
 
   private async renderVega(_spec: object): Promise<RenderResult> {
-    // Simplified Vega rendering - return placeholder
+    // Vega rendering not yet implemented - return error result
+    rendererLogger.warn('Vega rendering not yet implemented in Tauri');
     return {
       base64: '',
-      width: 400,
-      height: 300,
-      format: 'png'
+      width: RENDER_CONFIG.defaultWidth,
+      height: RENDER_CONFIG.defaultHeight,
+      format: 'png',
+      success: false,
+      error: 'Vega rendering not yet implemented in Tauri platform'
     };
   }
 
   private async renderDot(_code: string): Promise<RenderResult> {
-    // Simplified Graphviz rendering - return placeholder
+    // Graphviz rendering not yet implemented - return error result
+    rendererLogger.warn('Graphviz rendering not yet implemented in Tauri');
     return {
       base64: '',
-      width: 400,
-      height: 300,
-      format: 'png'
+      width: RENDER_CONFIG.defaultWidth,
+      height: RENDER_CONFIG.defaultHeight,
+      format: 'png',
+      success: false,
+      error: 'Graphviz rendering not yet implemented in Tauri platform'
     };
   }
 }
@@ -599,5 +683,32 @@ export function createTauriPlatform(): PlatformAPI {
     i18n: new TauriI18nService(),
     message: new TauriMessageService(),
     settings: new TauriSettingsService(),
+  };
+}
+
+/**
+ * Create a PluginRenderer from a PlatformAPI
+ * This wraps the platform's renderer service to provide the PluginRenderer interface
+ */
+export function createPluginRenderer(platform: PlatformAPI): PluginRenderer {
+  return {
+    async render(type: string, content: string | object): Promise<PluginRenderResult | null> {
+      const result = await platform.renderer.render(type, content);
+      if (result.success === false) {
+        return {
+          base64: '',
+          width: result.width,
+          height: result.height,
+          format: result.format,
+          error: result.error,
+        };
+      }
+      return {
+        base64: result.base64,
+        width: result.width,
+        height: result.height,
+        format: result.format,
+      };
+    },
   };
 }

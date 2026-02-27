@@ -13,10 +13,16 @@ import Vditor from 'vditor';
 import 'vditor/dist/index.css';
 
 // Main project rendering system
-import { createTauriPlatform } from './services/tauri-platform.js';
-import { renderMarkdownFlow, createPluginRenderer, setCurrentFileKey } from '@shared/core/viewer/viewer-host.js';
+import { createTauriPlatform, createPluginRenderer } from './services/tauri-platform.js';
+import { renderMarkdownFlow, setCurrentFileKey } from '@shared/core/viewer/viewer-host.js';
 import { AsyncTaskManager } from '@shared/core/markdown-processor.js';
-import type { PlatformAPI, PluginRenderer } from '@shared/types/index.js';
+import type { PlatformAPI, PluginRenderer } from './types/shared.d.ts';
+
+// Utilities
+import { createLogger } from './utils/logger.js';
+import { FONT_CONFIG, THEME_COLORS, STORAGE_KEYS, TIMING_CONFIG, VDITOR_CONFIG } from './utils/config.js';
+
+const logger = createLogger('Medit');
 
 // Application state
 interface AppState {
@@ -67,11 +73,11 @@ class MeditApp {
 
   constructor() {
     this._modeService = new EditorModeService({
-      storageKey: 'medit:editor-mode',
+      storageKey: STORAGE_KEYS.appState + ':editor-mode',
       defaultMode: 'preview',
     });
     this._i18n = new I18nService({
-      storageKey: 'medit:language',
+      storageKey: STORAGE_KEYS.appState + ':language',
       defaultLanguage: 'zh',
     });
     this._preferences = new PreferencesService({
@@ -163,12 +169,12 @@ class MeditApp {
     if (this._platform?.renderer) {
       const isDark = this._state.theme === 'dark';
       this._platform.renderer.setThemeConfig({
-        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-        background: isDark ? '#1e1e1e' : '#ffffff',
-        foreground: isDark ? '#e0e0e0' : '#333333',
+        fontFamily: FONT_CONFIG.defaultFamily,
+        background: isDark ? THEME_COLORS.dark.background : THEME_COLORS.light.background,
+        foreground: isDark ? THEME_COLORS.dark.foreground : THEME_COLORS.light.foreground,
         diagramStyle: 'normal'
       });
-      console.log('[Medit] Initial renderer theme config set for', this._state.theme, 'mode');
+      logger.debug('Initial renderer theme config set for', this._state.theme, 'mode');
     }
 
     // Apply initial mode
@@ -186,7 +192,7 @@ class MeditApp {
     // Apply initial editor settings
     this._applyInitialEditorSettings();
 
-    console.log('[Medit] Application initialized');
+    logger.info('Application initialized');
   }
 
   /**
@@ -200,7 +206,7 @@ class MeditApp {
       preferences: this._preferences,
       i18n: this._i18n,
       onChange: (key, value) => {
-        console.log(`[Medit] Preference changed: ${key} = ${String(value)}`);
+        logger.debug(`Preference changed: ${key} = ${String(value)}`);
       },
     });
   }
@@ -211,7 +217,7 @@ class MeditApp {
   private _initToolbars(): void {
     const previewToolbarContainer = document.getElementById('preview-toolbar-container');
     if (!previewToolbarContainer) {
-      console.warn('[Medit] Preview toolbar container not found');
+      logger.warn('Preview toolbar container not found');
       return;
     }
 
@@ -243,7 +249,7 @@ class MeditApp {
   private _initEditToolbar(): void {
     // Skip if already initialized
     if (this._editToolbar) {
-      console.log('[Medit] Edit toolbar already initialized');
+      logger.debug('Edit toolbar already initialized');
       return;
     }
 
@@ -261,22 +267,21 @@ class MeditApp {
         clearTimeout(this._editToolbarRetryTimeout);
       }
       
-      const MAX_RETRIES = 10;
-      if (this._editToolbarRetryCount >= MAX_RETRIES) {
-        console.warn(`[Medit] Vditor toolbar not found after ${MAX_RETRIES} retries, giving up.`);
+      if (this._editToolbarRetryCount >= TIMING_CONFIG.editToolbarMaxRetries) {
+        logger.warn(`Vditor toolbar not found after ${TIMING_CONFIG.editToolbarMaxRetries} retries, giving up.`);
         return;
       }
       
       this._editToolbarRetryCount++;
-      console.warn(`[Medit] Vditor toolbar not found, retrying (${this._editToolbarRetryCount}/${MAX_RETRIES})...`);
+      logger.warn(`Vditor toolbar not found, retrying (${this._editToolbarRetryCount}/${TIMING_CONFIG.editToolbarMaxRetries})...`);
       
       this._editToolbarRetryTimeout = setTimeout(() => {
         this._initEditToolbar();
-      }, 500);
+      }, TIMING_CONFIG.editToolbarRetryIntervalMs);
       return;
     }
 
-    console.log('[Medit] Found Vditor toolbar, inserting edit buttons at the beginning');
+    logger.debug('Found Vditor toolbar, inserting edit buttons at the beginning');
 
     // Reset retry counter on successful initialization
     this._editToolbarRetryCount = 0;
@@ -310,7 +315,7 @@ class MeditApp {
       },
     });
 
-    console.log('[Medit] Edit toolbar initialized successfully');
+    logger.info('Edit toolbar initialized successfully');
   }
 
   /**
@@ -343,7 +348,7 @@ class MeditApp {
       previewPane.classList.add(`device-${device}`);
     }
 
-    console.log(`[Medit] Device preview mode: ${device}`);
+    logger.debug(`Device preview mode: ${device}`);
   }
 
   /**
@@ -351,7 +356,7 @@ class MeditApp {
    */
   private _refreshPreview(): void {
     void this._renderPreview(this._currentContent);
-    console.log('[Medit] Preview refreshed');
+    logger.debug('Preview refreshed');
   }
 
   /**
@@ -408,7 +413,7 @@ class MeditApp {
         this._updateSaveStatusIndicator(status);
       },
       onSave: () => {
-        console.log('[Medit] File saved successfully');
+        logger.debug('File saved successfully');
       },
     });
 
@@ -466,7 +471,7 @@ class MeditApp {
   private _initTocService(): void {
     const tocNav = document.getElementById('toc-nav');
     if (!tocNav) {
-      console.warn('[Medit] TOC nav container not found');
+      logger.warn('TOC nav container not found');
       return;
     }
 
@@ -483,7 +488,7 @@ class MeditApp {
       i18n: this._i18n,
     });
 
-    console.log('[Medit] TOC service initialized');
+    logger.debug('TOC service initialized');
   }
 
   /**
@@ -505,7 +510,7 @@ class MeditApp {
                         editorContainer.querySelector('.vditor-sv') ||
                         editorContainer.querySelector('.vditor-wysiwyg');
     if (!contentArea) {
-      console.warn('[Medit] TOC: No editor content area found');
+      logger.warn('TOC: No editor content area found');
       return;
     }
 
@@ -550,7 +555,7 @@ class MeditApp {
     }
 
     if (!targetHeading) {
-      console.warn('[Medit] TOC: Heading not found in editor:', headingText,
+      logger.warn('TOC: Heading not found in editor:', headingText,
         'Available headings in editor:', Array.from(headings).map(h => normalizeText(h.textContent || '')));
       return;
     }
@@ -569,7 +574,7 @@ class MeditApp {
     const containerRect = scrollable.getBoundingClientRect();
     const scrollOffset = headingRect.top - containerRect.top + scrollable.scrollTop;
 
-    console.log('[Medit] TOC: Scrolling to heading', {
+    logger.debug('TOC: Scrolling to heading', {
       text: headingText,
       container: scrollable.className,
       offset: scrollOffset
@@ -597,7 +602,7 @@ class MeditApp {
           // Focus the editor to make cursor visible
           this._editor?.focus();
         } catch (e) {
-          console.error('[Medit] TOC: Failed to set selection', e);
+          logger.error('TOC: Failed to set selection', e);
         }
       }, 100);
     } else {
@@ -680,7 +685,7 @@ class MeditApp {
     this._hasOpenedFile = false;
     this._fileSaveService?.setLastSavedContent('');
     this._saveState();
-    console.log('[Medit] New file created');
+    logger.debug('New file created');
   }
 
   /**
@@ -698,7 +703,7 @@ class MeditApp {
       const result = await invoke<{ path: string | null; canceled: boolean }>('open_file_dialog');
 
       if (result.canceled || !result.path) {
-        console.log('[Medit] Open file dialog canceled');
+        logger.debug('Open file dialog canceled');
         return;
       }
 
@@ -709,7 +714,7 @@ class MeditApp {
       );
 
       if (!fileResult.success || fileResult.content === null) {
-        console.error('[Medit] Failed to read file:', fileResult.error);
+        logger.error('Failed to read file:', fileResult.error);
         alert(this._i18n.t('error.readFile') ?? '读取文件失败');
         return;
       }
@@ -734,9 +739,9 @@ class MeditApp {
       this._fileSaveService?.updateConfig({ filePath: result.path });
       this._fileSaveService?.setLastSavedContent(fileResult.content);
 
-      console.log('[Medit] File opened:', result.path);
+      logger.info('File opened:', result.path);
     } catch (error) {
-      console.error('[Medit] Error opening file:', error);
+      logger.error('Error opening file:', error);
       alert(this._i18n.t('error.openFile') ?? '打开文件失败');
     }
   }
@@ -756,7 +761,7 @@ class MeditApp {
       );
 
       if (result.canceled || !result.path) {
-        console.log('[Medit] Save as dialog canceled');
+        logger.debug('Save as dialog canceled');
         return;
       }
 
@@ -767,7 +772,7 @@ class MeditApp {
       );
 
       if (!writeResult.success) {
-        console.error('[Medit] Failed to save file:', writeResult.error);
+        logger.error('Failed to save file:', writeResult.error);
         alert(this._i18n.t('error.saveFile') ?? '保存文件失败');
         return;
       }
@@ -780,9 +785,9 @@ class MeditApp {
       this._fileSaveService?.updateConfig({ filePath: result.path });
       this._fileSaveService?.setLastSavedContent(this._currentContent);
 
-      console.log('[Medit] File saved as:', result.path);
+      logger.info('File saved as:', result.path);
     } catch (error) {
-      console.error('[Medit] Error saving file:', error);
+      logger.error('Error saving file:', error);
       alert(this._i18n.t('error.saveFile') ?? '保存文件失败');
     }
   }
@@ -803,13 +808,13 @@ class MeditApp {
     // Save state
     this._saveState();
 
-    console.log('[Medit] Exit requested');
+    logger.debug('Exit requested');
 
     // Call backend to exit application
     try {
       await invoke('exit_app');
     } catch (error) {
-      console.error('[Medit] Error exiting app:', error);
+      logger.error('Error exiting app:', error);
     }
   }
 
@@ -825,7 +830,7 @@ class MeditApp {
    */
   private _handlePreferences(): void {
     this._preferencesPanel?.toggle();
-    console.log('[Medit] Preferences panel toggled');
+    logger.debug('Preferences panel toggled');
   }
 
   /**
@@ -835,7 +840,7 @@ class MeditApp {
     const currentZoom = parseFloat(document.body.style.zoom || '1');
     const newZoom = Math.min(currentZoom + 0.1, 2);
     document.body.style.zoom = String(newZoom);
-    console.log('[Medit] Zoom in:', newZoom);
+    logger.debug('Zoom in:', newZoom);
   }
 
   /**
@@ -845,7 +850,7 @@ class MeditApp {
     const currentZoom = parseFloat(document.body.style.zoom || '1');
     const newZoom = Math.max(currentZoom - 0.1, 0.5);
     document.body.style.zoom = String(newZoom);
-    console.log('[Medit] Zoom out:', newZoom);
+    logger.debug('Zoom out:', newZoom);
   }
 
   /**
@@ -853,7 +858,7 @@ class MeditApp {
    */
   private _handleResetZoom(): void {
     document.body.style.zoom = '1';
-    console.log('[Medit] Zoom reset');
+    logger.debug('Zoom reset');
   }
 
   /**
@@ -951,7 +956,7 @@ class MeditApp {
 
     const success = await this._fileSaveService.save(this._currentContent, { force: true });
     if (!success) {
-      console.error('[Medit] Manual save failed');
+      logger.error('Manual save failed');
     }
   }
 
@@ -960,7 +965,7 @@ class MeditApp {
    */
   private async _loadContent(): Promise<void> {
     // Try to load from localStorage first
-    const savedContent = localStorage.getItem('medit:content');
+    const savedContent = localStorage.getItem(STORAGE_KEYS.content);
     if (savedContent) {
       this._currentContent = savedContent;
       return;
@@ -995,7 +1000,7 @@ class MeditApp {
   }
 
   /**
-   * Update preview content with debounce (300ms)
+   * Update preview content with debounce
    */
   private _updatePreview(content: string): void {
     // Clear existing timeout
@@ -1006,7 +1011,7 @@ class MeditApp {
     // Debounce preview update
     this._previewUpdateTimeout = setTimeout(() => {
       this._renderPreview(content);
-    }, 300);
+    }, TIMING_CONFIG.previewDebounceMs);
   }
 
   /**
@@ -1051,9 +1056,9 @@ class MeditApp {
 
       // Add visual marker for debugging (can be removed in production)
       previewContainer.setAttribute('data-renderer', 'main-project');
-      console.log('[Medit] ✓ Preview rendered using MAIN PROJECT rendering system (data-renderer="main-project")');
+      logger.success('Preview rendered using MAIN PROJECT rendering system (data-renderer="main-project")');
     } catch (error) {
-      console.error('[Medit] ✗ Failed to render preview with main project renderer:', error);
+      logger.failure('Failed to render preview with main project renderer:', error);
       
       // Fallback to Vditor rendering on error
       if (typeof window.Vditor !== 'undefined') {
@@ -1064,7 +1069,7 @@ class MeditApp {
           previewContainer.innerHTML = html;
 
           // Render diagrams using Vditor
-          const cdn = 'https://unpkg.com/vditor@3.10.4';
+          const cdn = VDITOR_CONFIG.cdnUrl;
           window.Vditor.mermaidRender(previewContainer, cdn);
           window.Vditor.flowchartRender(previewContainer, cdn);
           window.Vditor.graphvizRender(previewContainer, cdn);
@@ -1074,9 +1079,9 @@ class MeditApp {
 
           previewContainer.setAttribute('data-renderer', 'vditor-fallback');
           this._tocService?.forceUpdate(content);
-          console.log('[Medit] ⚠ Fallback to Vditor rendering (data-renderer="vditor-fallback")');
+          logger.fallback('Fallback to Vditor rendering (data-renderer="vditor-fallback")');
         } catch (fallbackError) {
-          console.error('[Medit] Vditor rendering also failed:', fallbackError);
+          logger.error('Vditor rendering also failed:', fallbackError);
           previewContainer.textContent = content;
         }
       } else {
@@ -1091,7 +1096,7 @@ class MeditApp {
   private _initModeHandling(): void {
     // Subscribe to mode changes
     this._modeService.onModeChange((newMode, previousMode) => {
-      console.log(`[Medit] Mode changed: ${previousMode} -> ${newMode}`);
+      logger.debug(`Mode changed: ${previousMode} -> ${newMode}`);
       void this._applyMode(newMode);
       this._saveState();
     });
@@ -1116,7 +1121,7 @@ class MeditApp {
     const vditorEditor = document.getElementById('vditor-editor');
 
     if (!editorContainer || !previewContainer) {
-      console.warn('[Medit] Editor or preview container not found');
+      logger.warn('Editor or preview container not found');
       return;
     }
 
@@ -1331,7 +1336,7 @@ class MeditApp {
    */
   private _loadState(): void {
     try {
-      const saved = localStorage.getItem('medit:app-state');
+      const saved = localStorage.getItem(STORAGE_KEYS.appState);
       if (saved) {
         const parsed = JSON.parse(saved) as Partial<AppState>;
         this._state = {
@@ -1352,7 +1357,7 @@ class MeditApp {
    */
   private _saveState(): void {
     try {
-      localStorage.setItem('medit:app-state', JSON.stringify(this._state));
+      localStorage.setItem(STORAGE_KEYS.appState, JSON.stringify(this._state));
     } catch {
       // Ignore storage errors
     }
@@ -1366,14 +1371,14 @@ class MeditApp {
     this._preferences.onChange('general.autoSave', (_key, newValue) => {
       const enabled = newValue as boolean;
       this._fileSaveService?.updateConfig({ autoSave: enabled });
-      console.log(`[Medit] Auto-save ${enabled ? 'enabled' : 'disabled'}`);
+      logger.debug(`Auto-save ${enabled ? 'enabled' : 'disabled'}`);
     });
 
     // Listen for auto-save interval changes
     this._preferences.onChange('general.autoSaveInterval', (_key, newValue) => {
       const intervalSeconds = newValue as number;
       this._fileSaveService?.updateConfig({ autoSaveDelay: intervalSeconds * 1000 });
-      console.log(`[Medit] Auto-save interval changed to ${intervalSeconds}s`);
+      logger.debug(`Auto-save interval changed to ${intervalSeconds}s`);
     });
   }
 
@@ -1385,35 +1390,35 @@ class MeditApp {
     this._preferences.onChange('editor.fontSize', (_key, newValue) => {
       const fontSize = newValue as number;
       this._editor?.setFontSize(fontSize);
-      console.log(`[Medit] Editor font size changed to ${fontSize}px`);
+      logger.debug(`Editor font size changed to ${fontSize}px`);
     });
 
     // Font family changes
     this._preferences.onChange('editor.fontFamily', (_key, newValue) => {
       const fontFamily = newValue as string;
       this._editor?.setFontFamily(fontFamily);
-      console.log(`[Medit] Editor font family changed to ${fontFamily}`);
+      logger.debug(`Editor font family changed to ${fontFamily}`);
     });
 
     // Line height changes
     this._preferences.onChange('editor.lineHeight', (_key, newValue) => {
       const lineHeight = newValue as number;
       this._editor?.setLineHeight(lineHeight);
-      console.log(`[Medit] Editor line height changed to ${lineHeight}`);
+      logger.debug(`Editor line height changed to ${lineHeight}`);
     });
 
     // Tab width changes
     this._preferences.onChange('editor.tabWidth', (_key, newValue) => {
       const tabWidth = newValue as number;
       this._editor?.setTabWidth(tabWidth);
-      console.log(`[Medit] Editor tab width changed to ${tabWidth}`);
+      logger.debug(`Editor tab width changed to ${tabWidth}`);
     });
 
     // Show line numbers changes
     this._preferences.onChange('editor.showLineNumbers', (_key, newValue) => {
       const showLineNumbers = newValue as boolean;
       this._editor?.setShowLineNumbers(showLineNumbers);
-      console.log(`[Medit] Editor line numbers ${showLineNumbers ? 'enabled' : 'disabled'}`);
+      logger.debug(`Editor line numbers ${showLineNumbers ? 'enabled' : 'disabled'}`);
     });
   }
 
@@ -1428,14 +1433,14 @@ class MeditApp {
     const showLineNumbers = this._preferences.get<boolean>('editor.showLineNumbers');
 
     this._editor?.applyEditorSettings({
-      fontSize: fontSize ?? 14,
-      fontFamily: fontFamily ?? 'system',
-      lineHeight: lineHeight ?? 1.6,
-      tabWidth: tabWidth ?? 4,
+      fontSize: fontSize ?? FONT_CONFIG.defaultSize,
+      fontFamily: fontFamily ?? FONT_CONFIG.defaultFamily,
+      lineHeight: lineHeight ?? FONT_CONFIG.defaultLineHeight,
+      tabWidth: tabWidth ?? FONT_CONFIG.defaultTabWidth,
       showLineNumbers: showLineNumbers ?? true,
     });
 
-    console.log('[Medit] Initial editor settings applied');
+    logger.debug('Initial editor settings applied');
   }
 
   /**
@@ -1465,12 +1470,12 @@ class MeditApp {
     if (this._platform?.renderer) {
       const isDark = theme === 'dark';
       this._platform.renderer.setThemeConfig({
-        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-        background: isDark ? '#1e1e1e' : '#ffffff',
-        foreground: isDark ? '#e0e0e0' : '#333333',
+        fontFamily: FONT_CONFIG.defaultFamily,
+        background: isDark ? THEME_COLORS.dark.background : THEME_COLORS.light.background,
+        foreground: isDark ? THEME_COLORS.dark.foreground : THEME_COLORS.light.foreground,
         diagramStyle: 'normal'
       });
-      console.log('[Medit] Renderer theme config updated for', theme, 'mode');
+      logger.debug('Renderer theme config updated for', theme, 'mode');
     }
     
     // Re-render preview with new theme
@@ -1546,7 +1551,7 @@ class MeditApp {
       };
       await invoke('update_menu_labels', { labels });
     } catch (error) {
-      console.error('Failed to update menu labels:', error);
+      logger.error('Failed to update menu labels:', error);
     }
   }
 
@@ -1589,6 +1594,10 @@ class MeditApp {
     // Flush pending saves
     void this._fileSaveService?.flush();
 
+    // Clean up platform resources
+    this._pluginRenderer = null as unknown as PluginRenderer;
+    this._platform = null as unknown as PlatformAPI;
+
     this._editToolbar?.destroy();
     this._editToolbar = null;
     this._previewToolbar?.destroy();
@@ -1607,6 +1616,8 @@ class MeditApp {
     this._tocService = null;
     this._themeService?.dispose();
     (this as unknown as { _themeService: null })._themeService = null;
+    
+    logger.debug('Application destroyed');
   }
 }
 
@@ -1621,7 +1632,7 @@ function initApp(): void {
       (window as unknown as Record<string, unknown>).meditApp = app;
     })
     .catch((error) => {
-      console.error('[Medit] Failed to initialize app:', error);
+      logger.error('Failed to initialize app:', error);
     });
 }
 
