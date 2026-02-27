@@ -25,8 +25,6 @@ export default defineConfig(async () => ({
     },
   },
   optimizeDeps: {
-    // 排除主项目代码，避免预构建问题
-    exclude: [],
     // 包含需要预构建的依赖
     include: [
       "unified",

@@ -373,28 +373,40 @@ class TauriRendererService implements RendererService {
 
     let result: RenderResult;
 
-    switch (type) {
-      case 'mermaid':
-        result = await this.renderMermaid(typeof content === 'string' ? content : JSON.stringify(content));
-        break;
-      case 'vega':
-      case 'vega-lite':
-        result = await this.renderVega(content as object);
-        break;
-      case 'dot':
-      case 'graphviz':
-        result = await this.renderDot(typeof content === 'string' ? content : JSON.stringify(content));
-        break;
-      default:
-        // Return error for unsupported types
-        result = {
-          base64: '',
-          width: RENDER_CONFIG.defaultWidth,
-          height: 100,
-          format: 'png',
-          success: false,
-          error: `Unsupported render type: ${type}`
-        };
+    try {
+      switch (type) {
+        case 'mermaid':
+          result = await this.renderMermaid(typeof content === 'string' ? content : JSON.stringify(content));
+          break;
+        case 'vega':
+        case 'vega-lite':
+          result = await this.renderVega(content as object);
+          break;
+        case 'dot':
+        case 'graphviz':
+          result = await this.renderDot(typeof content === 'string' ? content : JSON.stringify(content));
+          break;
+        default:
+          // Return error for unsupported types
+          result = {
+            base64: '',
+            width: RENDER_CONFIG.defaultWidth,
+            height: 100,
+            format: 'png',
+            success: false,
+            error: `Unsupported render type: ${type}`
+          };
+      }
+    } catch (err) {
+      rendererLogger.error('Render error:', err);
+      result = {
+        base64: '',
+        width: RENDER_CONFIG.defaultWidth,
+        height: 100,
+        format: 'png',
+        success: false,
+        error: String(err)
+      };
     }
 
     // Cache result only if successful
@@ -411,7 +423,7 @@ class TauriRendererService implements RendererService {
     // Apply theme configuration before each render (same as main project's MermaidRenderer)
     this.applyMermaidTheme(mermaid);
     
-    const id = 'mermaid-' + Date.now();
+    const id = 'mermaid-' + Date.now() + '-' + Math.random().toString(36).slice(2, 9);
     const { svg } = await mermaid.render(id, code);
     
     // Parse SVG dimensions from viewBox
@@ -605,6 +617,10 @@ class TauriFileStateService implements FileStateService {
 class TauriResourceService implements ResourceService {
   async fetch(path: string): Promise<string> {
     const response = await fetch(path);
+    if (!response.ok) {
+      const body = await response.text();
+      throw new Error(`HTTP ${response.status}: ${body}`);
+    }
     return response.text();
   }
 
@@ -673,7 +689,7 @@ export function createTauriPlatform(): PlatformAPI {
   const renderer = new TauriRendererService(cache);
 
   return {
-    platform: 'mobile' as PlatformAPI['platform'],
+    platform: 'tauri' as PlatformAPI['platform'],
     cache,
     renderer,
     storage: new TauriStorageService(),

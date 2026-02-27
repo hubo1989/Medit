@@ -149,7 +149,7 @@ export interface MessageService {
 // Platform API
 // =============================================================================
 
-export type PlatformType = 'chrome' | 'firefox' | 'mobile' | 'vscode' | 'obsidian';
+export type PlatformType = 'chrome' | 'firefox' | 'mobile' | 'vscode' | 'obsidian' | 'tauri';
 
 export interface PlatformAPI {
   platform: PlatformType;

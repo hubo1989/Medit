@@ -11,6 +11,7 @@ import { PreferencesService, ThemeService } from './services/index.js';
 import { invoke } from '@tauri-apps/api/core';
 import Vditor from 'vditor';
 import 'vditor/dist/index.css';
+import DOMPurify from 'dompurify';
 
 // Main project rendering system
 import { createTauriPlatform, createPluginRenderer } from './services/tauri-platform.js';
@@ -68,8 +69,8 @@ class MeditApp {
   private _currentDevice: 'desktop' | 'tablet' | 'mobile' = 'desktop';
   
   // Main project rendering system
-  private _platform: PlatformAPI;
-  private _pluginRenderer: PluginRenderer;
+  private _platform: PlatformAPI | null = null;
+  private _pluginRenderer: PluginRenderer | null = null;
 
   constructor() {
     this._modeService = new EditorModeService({
@@ -1021,15 +1022,22 @@ class MeditApp {
     const previewContainer = document.getElementById('markdown-content');
     if (!previewContainer) return;
 
+    // Ensure platform and renderer are available
+    if (!this._platform || !this._pluginRenderer) {
+      logger.warn('Platform or renderer not initialized');
+      previewContainer.textContent = content;
+      return;
+    }
+
     try {
       // Create task manager for async rendering
       const taskManager = new AsyncTaskManager((key: string) => 
-        this._i18n.t(key as any)
+        this._i18n.translate(key)
       );
 
       // Create translate function for main project
       const translate = (key: string) => 
-        this._i18n.t(key as any);
+        this._i18n.translate(key);
 
       // Set file key for scroll persistence
       setCurrentFileKey(this._state.filePath);
@@ -1042,9 +1050,9 @@ class MeditApp {
         forceRender: false,
         zoomLevel: 1,
         scrollController: null,
-        renderer: this._pluginRenderer,
+        renderer: this._pluginRenderer!,
         translate,
-        platform: this._platform,
+        platform: this._platform!,
         currentTaskManagerRef: { current: taskManager },
         onHeadings: () => {
           // Update TOC with extracted headings
@@ -1066,7 +1074,9 @@ class MeditApp {
           const html = await window.Vditor.md2html(content, {
             theme: this._state.theme === 'dark' ? 'dark' : 'classic',
           });
-          previewContainer.innerHTML = html;
+          // Sanitize HTML with DOMPurify before assignment to prevent XSS
+          const sanitizedHtml = DOMPurify.sanitize(html);
+          previewContainer.innerHTML = sanitizedHtml;
 
           // Render diagrams using Vditor
           const cdn = VDITOR_CONFIG.cdnUrl;
@@ -1595,8 +1605,8 @@ class MeditApp {
     void this._fileSaveService?.flush();
 
     // Clean up platform resources
-    this._pluginRenderer = null as unknown as PluginRenderer;
-    this._platform = null as unknown as PlatformAPI;
+    this._pluginRenderer = null;
+    this._platform = null;
 
     this._editToolbar?.destroy();
     this._editToolbar = null;
