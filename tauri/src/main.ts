@@ -452,7 +452,7 @@ class MeditApp {
         return document.getElementById('preview-container');
       },
       onHeadingClick: (item) => {
-        this._jumpEditorToHeading(item.text, item.level);
+        this._jumpEditorToHeading(item.id, item.text, item.level);
       },
       i18n: this._i18n,
     });
@@ -461,10 +461,10 @@ class MeditApp {
   }
 
   /**
-   * Jump editor cursor to the heading matching the given text and level.
+   * Jump editor cursor to the heading matching the given id (preferred) or text/level.
    * Finds the heading in the editor DOM (IR mode) and places the cursor there.
    */
-  private _jumpEditorToHeading(headingText: string, _headingLevel: number): void {
+  private _jumpEditorToHeading(headingId: string, headingText: string, _headingLevel: number): void {
     const mode = this._modeService.getCurrentMode();
 
     // Only jump cursor in edit or split mode (where the editor is visible)
@@ -496,29 +496,35 @@ class MeditApp {
         .trim();
     };
 
-    const targetNormalized = normalizeText(headingText);
+    // 1. Try ID-first lookup (most reliable for duplicate headings)
+    targetHeading = contentArea.querySelector(`#${CSS.escape(headingId)}`) as HTMLElement | null;
 
-    for (const h of headings) {
-      const hNormalized = normalizeText(h.textContent || '');
-      if (hNormalized === targetNormalized) {
-        targetHeading = h as HTMLElement;
-        break;
-      }
-    }
-
-    // Fallback: partial/includes match
+    // 2. Fallback to text matching if ID not found
     if (!targetHeading) {
+      const targetNormalized = normalizeText(headingText);
+
       for (const h of headings) {
         const hNormalized = normalizeText(h.textContent || '');
-        if (hNormalized.includes(targetNormalized) || targetNormalized.includes(hNormalized)) {
+        if (hNormalized === targetNormalized) {
           targetHeading = h as HTMLElement;
           break;
+        }
+      }
+
+      // Fallback: partial/includes match
+      if (!targetHeading) {
+        for (const h of headings) {
+          const hNormalized = normalizeText(h.textContent || '');
+          if (hNormalized.includes(targetNormalized) || targetNormalized.includes(hNormalized)) {
+            targetHeading = h as HTMLElement;
+            break;
+          }
         }
       }
     }
 
     if (!targetHeading) {
-      console.warn('[Medit] TOC: Heading not found in editor:', headingText, 
+      console.warn('[Medit] TOC: Heading not found in editor:', headingText,
         'Available headings in editor:', Array.from(headings).map(h => normalizeText(h.textContent || '')));
       return;
     }

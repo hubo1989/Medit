@@ -361,9 +361,16 @@ export class TocService {
     }
 
     if (currentHeading) {
-      const text = (currentHeading.textContent || '').trim();
-      // Find matching TOC item by text
-      const matchingItem = this._items.find(item => item.text === text);
+      // 1. Try ID-first lookup (most reliable for duplicate headings)
+      const headingId = currentHeading.id;
+      let matchingItem = headingId ? this._items.find(item => item.id === headingId) : null;
+
+      // 2. Fallback to text matching if ID not found
+      if (!matchingItem) {
+        const text = (currentHeading.textContent || '').trim();
+        matchingItem = this._items.find(item => item.text === text);
+      }
+
       if (matchingItem) {
         this._setActive(matchingItem.id);
       }
