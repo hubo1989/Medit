@@ -61,6 +61,14 @@ export class VditorEditor {
 
     const options = this._buildOptions();
     this._instance = new window.Vditor(this._container, options);
+
+    // Apply theme after initialization
+    // Vditor may not correctly apply theme from options, so we call setTheme explicitly
+    const { theme = 'light' } = this._config;
+    const vditorTheme = theme === 'dark' ? 'dark' : 'classic';
+    const contentTheme = theme === 'dark' ? 'dark' : 'light';
+    const codeTheme = theme === 'dark' ? 'native' : 'github';
+    this._instance.setTheme(vditorTheme, contentTheme, codeTheme);
   }
 
   /**
