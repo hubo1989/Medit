@@ -281,29 +281,84 @@ class MeditApp {
       onRefreshPreview: () => {
         this._refreshPreview();
       },
+      onEditAction: (action) => {
+        this._handleEditAction(action);
+      },
+      onInsertDiagram: (template) => {
+        this._handleInsertDiagram(template);
+      },
     });
 
     logger.info('Edit toolbar initialized successfully');
   }
 
   /**
-   * Move Vditor toolbar to our combined toolbar container after editor initialization
+   * Handle edit action from toolbar
    */
-  private _moveVditorToolbar(): void {
-    const vditorEditor = document.getElementById('vditor-editor');
-    if (!vditorEditor) return;
+  private _handleEditAction(action: string): void {
+    if (!this._editor) return;
 
-    // Find Vditor toolbar
-    const vditorToolbar = vditorEditor.querySelector('.vditor-toolbar') as HTMLElement;
-    if (!vditorToolbar) return;
+    switch (action) {
+      case 'bold':
+        this._editor.wrapSelection('**', '**');
+        break;
+      case 'italic':
+        this._editor.wrapSelection('*', '*');
+        break;
+      case 'strikethrough':
+        this._editor.wrapSelection('~~', '~~');
+        break;
+      case 'inlineCode':
+        this._editor.insertInlineCode();
+        break;
+      case 'heading1':
+        this._editor.insertHeading(1);
+        break;
+      case 'heading2':
+        this._editor.insertHeading(2);
+        break;
+      case 'heading3':
+        this._editor.insertHeading(3);
+        break;
+      case 'codeBlock':
+        this._editor.insertCodeBlock();
+        break;
+      case 'quote':
+        this._editor.insertQuote();
+        break;
+      case 'horizontalRule':
+        this._editor.insertHorizontalRule();
+        break;
+      case 'link':
+        this._editor.insertLink();
+        break;
+      case 'image':
+        this._editor.insertImage();
+        break;
+      case 'unorderedList':
+        this._editor.insertList(false);
+        break;
+      case 'orderedList':
+        this._editor.insertList(true);
+        break;
+      case 'taskList':
+        this._editor.insertTaskList();
+        break;
+      case 'undo':
+        this._editor.undo();
+        break;
+      case 'redo':
+        this._editor.redo();
+        break;
+    }
+  }
 
-    // Find our combined toolbar container
-    const editToolbarContainer = document.getElementById('edit-toolbar-container');
-    if (!editToolbarContainer) return;
-
-    // Move Vditor toolbar to our container (after Medit buttons)
-    editToolbarContainer.appendChild(vditorToolbar);
-    logger.debug('Vditor toolbar moved to combined toolbar container');
+  /**
+   * Handle diagram template insertion
+   */
+  private _handleInsertDiagram(template: string): void {
+    if (!this._editor) return;
+    this._editor.insertTemplate(template);
   }
 
   /**
@@ -1588,8 +1643,6 @@ class MeditApp {
       await this._editor.init();
       // Initialize edit toolbar after Vditor is ready
       this._initEditToolbar();
-      // Move Vditor toolbar to our combined toolbar container
-      this._moveVditorToolbar();
     }
     // Always ensure content is set when entering edit mode
     // This fixes the issue where content loaded before editor initialization

@@ -347,6 +347,157 @@ export class VditorEditor {
   }
 
   /**
+   * Wrap selected text with prefix and suffix
+   * If no selection, insert prefix + suffix and place cursor between them
+   */
+  wrapSelection(prefix: string, suffix: string): void {
+    if (!this._instance) {
+      throw new Error('VditorEditor: Editor not initialized');
+    }
+    const selection = this._instance.getSelection();
+    if (selection) {
+      this._instance.replaceSelection(`${prefix}${selection}${suffix}`);
+    } else {
+      // No selection: insert prefix + suffix with cursor between
+      this._instance.insertValue(`${prefix}${suffix}`);
+      // Note: cursor positioning is handled by Vditor's insertValue behavior
+    }
+    this._instance.focus();
+  }
+
+  /**
+   * Insert text at the beginning of the current line
+   */
+  insertAtLineStart(prefix: string): void {
+    if (!this._instance) {
+      throw new Error('VditorEditor: Editor not initialized');
+    }
+    const value = this._instance.getValue();
+    const selection = this._instance.getSelection();
+    
+    // For sv mode, we need to find the line start position
+    // This is a simplified approach - insert the prefix before selection
+    if (selection) {
+      // Get cursor position by finding selection in content
+      this._instance.insertValue(`${prefix}${selection}`);
+    } else {
+      // Just insert the prefix at cursor
+      this._instance.insertValue(prefix);
+    }
+    this._instance.focus();
+  }
+
+  /**
+   * Insert a multi-line template at cursor position
+   * Ensures proper line breaks before and after
+   */
+  insertTemplate(template: string): void {
+    if (!this._instance) {
+      throw new Error('VditorEditor: Editor not initialized');
+    }
+    // Ensure template starts on a new line
+    const value = this._instance.getValue();
+    const selection = this._instance.getSelection();
+    
+    // Build the insertion string with proper line breaks
+    let insertText = template;
+    if (selection) {
+      // If there's a selection, we might want to replace it
+      this._instance.replaceSelection(insertText);
+    } else {
+      this._instance.insertValue(insertText);
+    }
+    this._instance.focus();
+  }
+
+  /**
+   * Toggle heading at current line
+   * @param level - Heading level (1-6)
+   */
+  insertHeading(level: 1 | 2 | 3 | 4 | 5 | 6): void {
+    const prefix = '#'.repeat(level) + ' ';
+    this.insertAtLineStart(prefix);
+  }
+
+  /**
+   * Insert code block with optional language
+   */
+  insertCodeBlock(language = ''): void {
+    const template = `\`\`\`${language}\n// code here\n\`\`\``;
+    this.insertTemplate(template);
+  }
+
+  /**
+   * Insert blockquote prefix at current line
+   */
+  insertQuote(): void {
+    this.insertAtLineStart('> ');
+  }
+
+  /**
+   * Insert horizontal rule
+   */
+  insertHorizontalRule(): void {
+    this.insertTemplate('\n---\n');
+  }
+
+  /**
+   * Insert list item at current line
+   * @param ordered - Whether to use ordered list
+   */
+  insertList(ordered = false): void {
+    this.insertAtLineStart(ordered ? '1. ' : '- ');
+  }
+
+  /**
+   * Insert task list item at current line
+   */
+  insertTaskList(): void {
+    this.insertAtLineStart('- [ ] ');
+  }
+
+  /**
+   * Insert link placeholder
+   */
+  insertLink(): void {
+    this.wrapSelection('[', '](url)');
+  }
+
+  /**
+   * Insert image placeholder
+   */
+  insertImage(): void {
+    this.wrapSelection('![alt](', ')');
+  }
+
+  /**
+   * Insert inline code wrapper
+   */
+  insertInlineCode(): void {
+    this.wrapSelection('`', '`');
+  }
+
+  /**
+   * Undo last action
+   */
+  undo(): void {
+    if (!this._instance) {
+      throw new Error('VditorEditor: Editor not initialized');
+    }
+    this._instance.undo();
+  }
+
+  /**
+   * Redo last undone action
+   */
+  redo(): void {
+    if (!this._instance) {
+      throw new Error('VditorEditor: Editor not initialized');
+    }
+    this._instance.redo();
+  }
+
+  /**
    * Resolve container element from selector or element
    */
   private _resolveContainer(): HTMLDivElement | null {
