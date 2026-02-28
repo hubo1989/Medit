@@ -432,6 +432,12 @@ body {
   box-sizing: border-box;
 }
 
+/* Dark mode button color */
+[data-theme='dark'] .medit-edit-btn,
+[data-theme='dark'] .medit-preview-btn {
+  color: #afafaf;
+}
+
 .medit-edit-btn:hover,
 .medit-preview-btn:hover {
   background-color: rgba(0, 0, 0, 0.08);

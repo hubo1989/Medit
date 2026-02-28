@@ -61,14 +61,6 @@ export class VditorEditor {
 
     const options = this._buildOptions();
     this._instance = new window.Vditor(this._container, options);
-
-    // Apply theme after initialization
-    // Vditor may not correctly apply theme from options, so we call setTheme explicitly
-    const { theme = 'light' } = this._config;
-    const vditorTheme = theme === 'dark' ? 'dark' : 'classic';
-    const contentTheme = theme === 'dark' ? 'dark' : 'light';
-    const codeTheme = theme === 'dark' ? 'native' : 'github';
-    this._instance.setTheme(vditorTheme, contentTheme, codeTheme);
   }
 
   /**
@@ -145,7 +137,8 @@ export class VditorEditor {
     }
     const vditorTheme = theme === 'dark' ? 'dark' : 'classic';
     const contentTheme = theme === 'dark' ? 'dark' : 'light';
-    this._instance.setTheme(vditorTheme, contentTheme);
+    const codeTheme = theme === 'dark' ? 'native' : 'github';
+    this._instance.setTheme(vditorTheme, contentTheme, codeTheme);
   }
 
   /**
@@ -554,6 +547,8 @@ export class VditorEditor {
     const { theme = 'light', initialValue = '', placeholder, mode = 'ir', customOptions = {}, onChange, onFocus, onBlur } = this._config;
 
     const vditorTheme = theme === 'dark' ? 'dark' : 'classic';
+    const contentTheme = theme === 'dark' ? 'dark' : 'light';
+    const codeTheme = theme === 'dark' ? 'native' : 'github';
 
     const defaultOptions: VditorOptions = {
       mode,
@@ -571,7 +566,7 @@ export class VditorEditor {
       preview: {
         mode: 'editor', // Only show editor; preview is handled by our custom #preview-container
         theme: {
-          current: theme === 'dark' ? 'dark' : 'light',
+          current: contentTheme,
         },
         markdown: {
           toc: true,
@@ -611,7 +606,7 @@ export class VditorEditor {
     };
 
     // Merge custom options (custom options take precedence)
-    return {
+    const options: VditorOptions = {
       ...defaultOptions,
       ...customOptions,
       // Deep merge for nested objects
@@ -633,6 +628,18 @@ export class VditorEditor {
         ...customOptions.cache,
       },
     };
+
+    // Preserve our after callback while also calling custom after
+    const originalAfter = options.after;
+    options.after = () => {
+      // Explicitly set theme after Vditor is fully initialized
+      if (this._instance) {
+        this._instance.setTheme(vditorTheme, contentTheme, codeTheme);
+      }
+      originalAfter?.();
+    };
+
+    return options;
   }
 }
 
