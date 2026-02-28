@@ -56,11 +56,32 @@ export class VditorEditor {
       this._container.id = `vditor-${Date.now()}`;
     }
 
+    // Store container in local variable for closure
+    const container = this._container;
+
     // Wait for Vditor to be available
     await this._waitForVditor();
 
-    const options = this._buildOptions();
-    this._instance = new window.Vditor(this._container, options);
+    // Create a promise that resolves when Vditor is fully initialized
+    return new Promise((resolve, reject) => {
+      try {
+        const options = this._buildOptions();
+        const originalAfter = options.after;
+        options.after = () => {
+          // Explicitly set theme after Vditor is fully initialized
+          const { theme = 'light' } = this._config;
+          const vditorTheme = theme === 'dark' ? 'dark' : 'classic';
+          const contentTheme = theme === 'dark' ? 'dark' : 'light';
+          const codeTheme = theme === 'dark' ? 'native' : 'github';
+          this._instance?.setTheme(vditorTheme, contentTheme, codeTheme);
+          originalAfter?.();
+          resolve();
+        };
+        this._instance = new window.Vditor(container, options);
+      } catch (error) {
+        reject(error);
+      }
+    });
   }
 
   /**
@@ -122,23 +143,24 @@ export class VditorEditor {
   }
 
   /**
-   * Check if editor is initialized
+   * Check if editor is fully initialized
    */
   isInitialized(): boolean {
-    return this._instance !== null;
+    // Check if instance exists and has the changeMode method (available after full init)
+    return this._instance !== null && typeof this._instance.changeMode === 'function';
   }
 
   /**
    * Update editor theme
    */
   setTheme(theme: EditorTheme): void {
-    if (!this._instance) {
-      throw new Error('VditorEditor: Editor not initialized');
+    if (!this.isInitialized()) {
+      throw new Error('VditorEditor: Editor not fully initialized');
     }
     const vditorTheme = theme === 'dark' ? 'dark' : 'classic';
     const contentTheme = theme === 'dark' ? 'dark' : 'light';
     const codeTheme = theme === 'dark' ? 'native' : 'github';
-    this._instance.setTheme(vditorTheme, contentTheme, codeTheme);
+    this._instance!.setTheme(vditorTheme, contentTheme, codeTheme);
   }
 
   /**
@@ -309,20 +331,20 @@ export class VditorEditor {
    * Get current editor mode
    */
   getMode(): 'sv' | 'ir' | 'wysiwyg' {
-    if (!this._instance) {
-      throw new Error('VditorEditor: Editor not initialized');
+    if (!this.isInitialized()) {
+      throw new Error('VditorEditor: Editor not fully initialized');
     }
-    return this._instance.getCurrentMode();
+    return this._instance!.getCurrentMode();
   }
 
   /**
    * Switch editor mode
    */
   setMode(mode: 'sv' | 'ir' | 'wysiwyg'): void {
-    if (!this._instance) {
-      throw new Error('VditorEditor: Editor not initialized');
+    if (!this.isInitialized()) {
+      throw new Error('VditorEditor: Editor not fully initialized');
     }
-    this._instance.changeMode(mode);
+    this._instance!.changeMode(mode);
   }
 
   /**
@@ -627,16 +649,6 @@ export class VditorEditor {
         ...defaultOptions.cache,
         ...customOptions.cache,
       },
-    };
-
-    // Preserve our after callback while also calling custom after
-    const originalAfter = options.after;
-    options.after = () => {
-      // Explicitly set theme after Vditor is fully initialized
-      if (this._instance) {
-        this._instance.setTheme(vditorTheme, contentTheme, codeTheme);
-      }
-      originalAfter?.();
     };
 
     return options;
