@@ -4,6 +4,7 @@
  */
 
 import type { VditorOptions, VditorInstance } from '../types/vditor.js';
+import { VDITOR_CONFIG } from '../utils/config.js';
 
 export type EditorTheme = 'light' | 'dark';
 
@@ -598,6 +599,7 @@ export class VditorEditor {
       icon: 'ant',
       placeholder,
       value: initialValue,
+      cdn: VDITOR_CONFIG.cdnUrl,
       cache: {
         enable: false,
       },
