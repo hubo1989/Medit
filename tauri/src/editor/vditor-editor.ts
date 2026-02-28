@@ -75,7 +75,8 @@ export class VditorEditor {
           const codeTheme = theme === 'dark' ? 'native' : 'github';
           this._instance?.setTheme(vditorTheme, contentTheme, codeTheme);
           originalAfter?.();
-          resolve();
+          // Use setTimeout to ensure changeMode is available before resolving
+          setTimeout(resolve, 0);
         };
         this._instance = new window.Vditor(container, options);
       } catch (error) {
@@ -344,7 +345,9 @@ export class VditorEditor {
     if (!this.isInitialized()) {
       throw new Error('VditorEditor: Editor not fully initialized');
     }
+    console.log(`[VditorEditor] setMode('${mode}'), current mode:`, this._instance!.getCurrentMode());
     this._instance!.changeMode(mode);
+    console.log(`[VditorEditor] after changeMode, mode is now:`, this._instance!.getCurrentMode());
   }
 
   /**
