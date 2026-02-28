@@ -75,8 +75,17 @@ export class VditorEditor {
           const codeTheme = theme === 'dark' ? 'native' : 'github';
           this._instance?.setTheme(vditorTheme, contentTheme, codeTheme);
           originalAfter?.();
-          // Use setTimeout to ensure changeMode is available before resolving
-          setTimeout(resolve, 0);
+          // Wait for changeMode to be available (Vditor async loading)
+          const checkReady = () => {
+            if (typeof this._instance?.changeMode === 'function') {
+              console.log('[VditorEditor] Editor fully ready, changeMode available');
+              resolve();
+            } else {
+              console.log('[VditorEditor] Waiting for changeMode...');
+              setTimeout(checkReady, 50);
+            }
+          };
+          checkReady();
         };
         this._instance = new window.Vditor(container, options);
       } catch (error) {
