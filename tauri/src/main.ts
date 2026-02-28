@@ -152,6 +152,9 @@ class MeditApp {
     // Load saved state
     this._loadState();
 
+    // Sync theme with ThemeService (it may have detected system dark mode)
+    this._state.theme = this._themeService.getCurrentTheme();
+
     // Initialize UI
     this._initPreferencesPanel();
     this._initToolbars();
