@@ -1259,8 +1259,11 @@ class MeditApp {
         await this._initEditorIfNeeded();
 
         // Switch to sv mode (source code)
+        console.log(`[Medit] split mode: isInitialized=${this._editor?.isInitialized()}`);
         if (this._editor?.isInitialized()) {
           this._editor.setMode('sv');
+        } else {
+          console.warn('[Medit] Editor not initialized, cannot set sv mode');
         }
 
         // Render preview with current content
@@ -1642,8 +1645,10 @@ class MeditApp {
     if (!this._editor) {
       this._initEditor();
     }
+    console.log(`[Medit] _initEditorIfNeeded: before init, isInitialized=${this._editor?.isInitialized()}`);
     if (this._editor && !this._editor.isInitialized()) {
       await this._editor.init();
+      console.log(`[Medit] _initEditorIfNeeded: after init, isInitialized=${this._editor?.isInitialized()}`);
       // Initialize edit toolbar after Vditor is ready
       this._initEditToolbar();
     }
