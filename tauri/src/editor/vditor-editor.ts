@@ -75,17 +75,11 @@ export class VditorEditor {
           const codeTheme = theme === 'dark' ? 'native' : 'github';
           this._instance?.setTheme(vditorTheme, contentTheme, codeTheme);
           originalAfter?.();
-          // Wait for changeMode to be available (Vditor async loading)
-          const checkReady = () => {
-            if (typeof this._instance?.changeMode === 'function') {
-              console.log('[VditorEditor] Editor fully ready, changeMode available');
-              resolve();
-            } else {
-              console.log('[VditorEditor] Waiting for changeMode...');
-              setTimeout(checkReady, 50);
-            }
-          };
-          checkReady();
+          // Debug: log what methods are available
+          console.log('[VditorEditor] Instance methods:', Object.keys(this._instance || {}).filter(k => typeof (this._instance as Record<string, unknown>)?.[k] === 'function'));
+          console.log('[VditorEditor] changeMode type:', typeof this._instance?.changeMode);
+          console.log('[VditorEditor] currentMode:', (this._instance as Record<string, unknown>)?.currentMode);
+          resolve();
         };
         this._instance = new window.Vditor(container, options);
       } catch (error) {
@@ -156,8 +150,8 @@ export class VditorEditor {
    * Check if editor is fully initialized
    */
   isInitialized(): boolean {
-    // Check if instance exists and has the changeMode method (available after full init)
-    return this._instance !== null && typeof this._instance.changeMode === 'function';
+    // Check if instance exists and has the getCurrentMode method (available after full init)
+    return this._instance !== null && typeof this._instance.getCurrentMode === 'function';
   }
 
   /**
