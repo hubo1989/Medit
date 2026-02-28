@@ -23,8 +23,8 @@ export const FONT_CONFIG = {
  * Vditor CDN configuration
  */
 export const VDITOR_CONFIG = {
-  /** CDN base URL for Vditor assets (version should match package.json dependency) */
-  cdnUrl: 'https://unpkg.com/vditor@3.11.2',
+  /** Local path for Vditor assets (offline support) */
+  cdnUrl: '/vditor',
 } as const;
 
 /**

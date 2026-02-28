@@ -87,5 +87,8 @@ src/fonts/*.ttf
 target/
 **/target/
 
+# Tauri Vditor assets (copied from node_modules during build)
+tauri/public/vditor/
+
 # Ralph TUI session files (developer-specific)
 .ralph-tui/

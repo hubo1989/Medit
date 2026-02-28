@@ -4,6 +4,7 @@
  */
 
 import type { VditorOptions, VditorInstance } from '../types/vditor.js';
+import { VDITOR_CONFIG } from '../utils/config.js';
 
 export type EditorTheme = 'light' | 'dark';
 
@@ -56,11 +57,32 @@ export class VditorEditor {
       this._container.id = `vditor-${Date.now()}`;
     }
 
+    // Store container in local variable for closure
+    const container = this._container;
+
     // Wait for Vditor to be available
     await this._waitForVditor();
 
-    const options = this._buildOptions();
-    this._instance = new window.Vditor(this._container, options);
+    // Create a promise that resolves when Vditor is fully initialized
+    return new Promise((resolve, reject) => {
+      try {
+        const options = this._buildOptions();
+        const originalAfter = options.after;
+        options.after = () => {
+          // Explicitly set theme after Vditor is fully initialized
+          const { theme = 'light' } = this._config;
+          const vditorTheme = theme === 'dark' ? 'dark' : 'classic';
+          const contentTheme = theme === 'dark' ? 'dark' : 'light';
+          const codeTheme = theme === 'dark' ? 'native' : 'github';
+          this._instance?.setTheme(vditorTheme, contentTheme, codeTheme);
+          originalAfter?.();
+          resolve();
+        };
+        this._instance = new window.Vditor(container, options);
+      } catch (error) {
+        reject(error);
+      }
+    });
   }
 
   /**
@@ -122,22 +144,24 @@ export class VditorEditor {
   }
 
   /**
-   * Check if editor is initialized
+   * Check if editor is fully initialized
    */
   isInitialized(): boolean {
-    return this._instance !== null;
+    // Check if instance exists and has the getCurrentMode method (available after full init)
+    return this._instance !== null && typeof this._instance.getCurrentMode === 'function';
   }
 
   /**
    * Update editor theme
    */
   setTheme(theme: EditorTheme): void {
-    if (!this._instance) {
-      throw new Error('VditorEditor: Editor not initialized');
+    if (!this.isInitialized()) {
+      throw new Error('VditorEditor: Editor not fully initialized');
     }
     const vditorTheme = theme === 'dark' ? 'dark' : 'classic';
     const contentTheme = theme === 'dark' ? 'dark' : 'light';
-    this._instance.setTheme(vditorTheme, contentTheme);
+    const codeTheme = theme === 'dark' ? 'native' : 'github';
+    this._instance!.setTheme(vditorTheme, contentTheme, codeTheme);
   }
 
   /**
@@ -308,20 +332,233 @@ export class VditorEditor {
    * Get current editor mode
    */
   getMode(): 'sv' | 'ir' | 'wysiwyg' {
-    if (!this._instance) {
-      throw new Error('VditorEditor: Editor not initialized');
+    if (!this.isInitialized()) {
+      return this._config.mode || 'ir';
     }
-    return this._instance.getCurrentMode();
+    return this._instance!.getCurrentMode();
   }
 
   /**
-   * Switch editor mode
+   * Switch editor mode (requires re-creation since Vditor 3.x doesn't have changeMode)
    */
-  setMode(mode: 'sv' | 'ir' | 'wysiwyg'): void {
+  async setMode(mode: 'sv' | 'ir' | 'wysiwyg'): Promise<void> {
+    // If not initialized yet, just update config
+    if (!this._instance) {
+      this._config.mode = mode;
+      return;
+    }
+
+    const currentMode = this._instance.getCurrentMode();
+    if (currentMode === mode) {
+      return; // Already in target mode
+    }
+
+    // Save current content
+    const content = this._instance.getValue();
+
+    // Destroy current instance
+    this._instance.destroy();
+    this._instance = null;
+
+    // Update config with new mode
+    this._config.mode = mode;
+    this._config.initialValue = content;
+
+    // Re-create editor
+    await this.init();
+  }
+
+  /**
+   * Show Vditor toolbar
+   */
+  showToolbar(): void {
+    if (!this._container) return;
+    const toolbar = this._container.querySelector('.vditor-toolbar') as HTMLElement | null;
+    if (toolbar) {
+      toolbar.style.display = '';
+    }
+  }
+
+  /**
+   * Hide Vditor toolbar
+   */
+  hideToolbar(): void {
+    if (!this._container) return;
+    const toolbar = this._container.querySelector('.vditor-toolbar') as HTMLElement | null;
+    if (toolbar) {
+      toolbar.style.display = 'none';
+    }
+  }
+
+  /**
+   * Wrap selected text with prefix and suffix
+   * If no selection, insert prefix + suffix and place cursor between them
+   */
+  wrapSelection(prefix: string, suffix: string): void {
     if (!this._instance) {
       throw new Error('VditorEditor: Editor not initialized');
     }
-    this._instance.changeMode(mode);
+    const selection = this._instance.getSelection();
+    if (selection) {
+      this._instance.replaceSelection(`${prefix}${selection}${suffix}`);
+    } else {
+      // No selection: insert prefix + suffix with cursor between
+      this._instance.insertValue(`${prefix}${suffix}`);
+      // Note: cursor positioning is handled by Vditor's insertValue behavior
+    }
+    this._instance.focus();
+  }
+
+  /**
+   * Insert text at the beginning of the current line
+   */
+  insertAtLineStart(prefix: string): void {
+    if (!this._instance) {
+      throw new Error('VditorEditor: Editor not initialized');
+    }
+
+    // Try to access the textarea directly for sv mode
+    const textarea = this._container.querySelector('.vditor-sv textarea') as HTMLTextAreaElement | null;
+
+    if (textarea) {
+      // sv mode: use textarea selection
+      const value = textarea.value;
+      const cursorPos = textarea.selectionStart;
+
+      // Find line start position
+      let lineStart = 0;
+      for (let i = cursorPos - 1; i >= 0; i--) {
+        if (value[i] === '\n') {
+          lineStart = i + 1;
+          break;
+        }
+      }
+
+      // Insert prefix at line start
+      const newValue = value.slice(0, lineStart) + prefix + value.slice(lineStart);
+      textarea.value = newValue;
+
+      // Adjust cursor position
+      const newCursorPos = cursorPos + prefix.length;
+      textarea.selectionStart = textarea.selectionEnd = newCursorPos;
+
+      // Trigger input event to sync Vditor state
+      textarea.dispatchEvent(new Event('input', { bubbles: true }));
+    } else {
+      // ir/wysiwyg mode: use Vditor's insertValue (less precise but works)
+      // For these modes, inserting at cursor is acceptable
+      this._instance.insertValue(prefix);
+    }
+
+    this._instance.focus();
+  }
+
+  /**
+   * Insert a multi-line template at cursor position
+   * If there's a selection, replaces it with the template
+   */
+  insertTemplate(template: string): void {
+    if (!this._instance) {
+      throw new Error('VditorEditor: Editor not initialized');
+    }
+
+    const selection = this._instance.getSelection();
+
+    if (selection) {
+      // Replace selection with template
+      this._instance.replaceSelection(template);
+    } else {
+      // Insert template at cursor
+      this._instance.insertValue(template);
+    }
+    this._instance.focus();
+  }
+
+  /**
+   * Toggle heading at current line
+   * @param level - Heading level (1-6)
+   */
+  insertHeading(level: 1 | 2 | 3 | 4 | 5 | 6): void {
+    const prefix = '#'.repeat(level) + ' ';
+    this.insertAtLineStart(prefix);
+  }
+
+  /**
+   * Insert code block with optional language
+   */
+  insertCodeBlock(language = ''): void {
+    const template = `\`\`\`${language}\n// code here\n\`\`\``;
+    this.insertTemplate(template);
+  }
+
+  /**
+   * Insert blockquote prefix at current line
+   */
+  insertQuote(): void {
+    this.insertAtLineStart('> ');
+  }
+
+  /**
+   * Insert horizontal rule
+   */
+  insertHorizontalRule(): void {
+    this.insertTemplate('\n---\n');
+  }
+
+  /**
+   * Insert list item at current line
+   * @param ordered - Whether to use ordered list
+   */
+  insertList(ordered = false): void {
+    this.insertAtLineStart(ordered ? '1. ' : '- ');
+  }
+
+  /**
+   * Insert task list item at current line
+   */
+  insertTaskList(): void {
+    this.insertAtLineStart('- [ ] ');
+  }
+
+  /**
+   * Insert link placeholder
+   */
+  insertLink(): void {
+    this.wrapSelection('[', '](url)');
+  }
+
+  /**
+   * Insert image placeholder
+   */
+  insertImage(): void {
+    this.wrapSelection('![alt](', ')');
+  }
+
+  /**
+   * Insert inline code wrapper
+   */
+  insertInlineCode(): void {
+    this.wrapSelection('`', '`');
+  }
+
+  /**
+   * Undo last action
+   */
+  undo(): void {
+    if (!this._instance) {
+      throw new Error('VditorEditor: Editor not initialized');
+    }
+    this._instance.undo();
+  }
+
+  /**
+   * Redo last undone action
+   */
+  redo(): void {
+    if (!this._instance) {
+      throw new Error('VditorEditor: Editor not initialized');
+    }
+    this._instance.redo();
   }
 
   /**
@@ -373,6 +610,8 @@ export class VditorEditor {
     const { theme = 'light', initialValue = '', placeholder, mode = 'ir', customOptions = {}, onChange, onFocus, onBlur } = this._config;
 
     const vditorTheme = theme === 'dark' ? 'dark' : 'classic';
+    const contentTheme = theme === 'dark' ? 'dark' : 'light';
+    const codeTheme = theme === 'dark' ? 'native' : 'github';
 
     const defaultOptions: VditorOptions = {
       mode,
@@ -380,6 +619,7 @@ export class VditorEditor {
       icon: 'ant',
       placeholder,
       value: initialValue,
+      cdn: VDITOR_CONFIG.cdnUrl,
       cache: {
         enable: false,
       },
@@ -390,7 +630,7 @@ export class VditorEditor {
       preview: {
         mode: 'editor', // Only show editor; preview is handled by our custom #preview-container
         theme: {
-          current: theme === 'dark' ? 'dark' : 'light',
+          current: contentTheme,
         },
         markdown: {
           toc: true,
@@ -430,7 +670,7 @@ export class VditorEditor {
     };
 
     // Merge custom options (custom options take precedence)
-    return {
+    const options: VditorOptions = {
       ...defaultOptions,
       ...customOptions,
       // Deep merge for nested objects
@@ -452,6 +692,8 @@ export class VditorEditor {
         ...customOptions.cache,
       },
     };
+
+    return options;
   }
 }
 

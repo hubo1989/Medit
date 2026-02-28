@@ -1,16 +1,23 @@
 /**
  * EditToolbar - Toolbar buttons for edit/split mode
- * In edit mode: only shows mode switcher + find
- * In split mode: also shows export (公众号/知乎) + device preview buttons
+ * Includes mode switcher, edit actions, diagram insertion, and export functions
  */
 
 import type { EditorModeService } from '../editor/index.js';
 import type { EditorMode } from '../editor/index.js';
 import type { I18nService } from '../i18n/index.js';
-import { MODE_ICONS, ACTION_ICONS, DEVICE_ICONS } from './icons.js';
+import { MODE_ICONS, ACTION_ICONS, DEVICE_ICONS, EDIT_ICONS } from './icons.js';
+import { DiagramMenu } from './diagram-menu.js';
 
 export type DevicePreviewMode = 'desktop' | 'tablet' | 'mobile';
 export type ExportTarget = 'wechatMP' | 'zhihu';
+export type EditAction =
+  | 'bold' | 'italic' | 'strikethrough' | 'inlineCode'
+  | 'heading1' | 'heading2' | 'heading3'
+  | 'codeBlock' | 'quote' | 'horizontalRule'
+  | 'link' | 'image'
+  | 'unorderedList' | 'orderedList' | 'taskList'
+  | 'undo' | 'redo';
 
 export interface EditToolbarConfig {
   container: HTMLElement;
@@ -20,6 +27,8 @@ export interface EditToolbarConfig {
   onExportClick?: (target: ExportTarget) => void;
   onDevicePreviewChange?: (device: DevicePreviewMode) => void;
   onRefreshPreview?: () => void;
+  onEditAction?: (action: EditAction) => void;
+  onInsertDiagram?: (template: string) => void;
 }
 
 export class EditToolbar {
@@ -30,12 +39,16 @@ export class EditToolbar {
   private _onExportClick?: (target: ExportTarget) => void;
   private _onDevicePreviewChange?: (device: DevicePreviewMode) => void;
   private _onRefreshPreview?: () => void;
+  private _onEditAction?: (action: EditAction) => void;
+  private _onInsertDiagram?: (template: string) => void;
   private _buttons: Map<string, HTMLButtonElement> = new Map();
   private _unsubscribe: (() => void) | null = null;
   private _i18nUnsubscribe: (() => void) | null = null;
   private _currentDevice: DevicePreviewMode = 'desktop';
   /** Group of buttons only visible in split/preview mode */
   private _previewOnlyGroup: HTMLElement | null = null;
+  /** Diagram menu instance */
+  private _diagramMenu: DiagramMenu | null = null;
 
   constructor(config: EditToolbarConfig) {
     this._container = config.container;
@@ -45,6 +58,8 @@ export class EditToolbar {
     this._onExportClick = config.onExportClick;
     this._onDevicePreviewChange = config.onDevicePreviewChange;
     this._onRefreshPreview = config.onRefreshPreview;
+    this._onEditAction = config.onEditAction;
+    this._onInsertDiagram = config.onInsertDiagram;
 
     this._render();
     this._setupEventListeners();
@@ -59,30 +74,33 @@ export class EditToolbar {
   private _render(): void {
     this._container.className = 'medit-edit-toolbar';
 
-    // --- Always-visible buttons ---
+    // --- Mode buttons (always visible) ---
     const editBtn = this._createModeButton('edit', MODE_ICONS.edit, '编辑模式');
     const splitBtn = this._createModeButton('split', MODE_ICONS.split, '分屏模式');
     const previewBtn = this._createModeButton('preview', MODE_ICONS.preview, '预览模式');
 
-    const separator1 = document.createElement('div');
-    separator1.className = 'medit-toolbar-separator';
+    const separator1 = this._createSeparator();
 
+    // --- Edit action buttons ---
+    const editActionGroup = this._createEditActionGroup();
+
+    const separator2 = this._createSeparator();
+
+    // --- Find button ---
     const findBtn = this._createActionButton('find', ACTION_ICONS.find, '查找替换');
+
+    const separator3 = this._createSeparator();
 
     // --- Preview-only group (hidden in edit mode) ---
     this._previewOnlyGroup = document.createElement('div');
     this._previewOnlyGroup.className = 'medit-preview-only-group';
-    this._previewOnlyGroup.style.display = 'contents'; // flows inline
-
-    const separator2 = document.createElement('div');
-    separator2.className = 'medit-toolbar-separator';
+    this._previewOnlyGroup.style.display = 'contents';
 
     // Export buttons: 公众号 + 知乎
     const wechatBtn = this._createActionButton('wechatMP', ACTION_ICONS.wechatMP, '导出公众号格式');
     const zhihuBtn = this._createActionButton('zhihu', ACTION_ICONS.zhihu, '导出知乎格式');
 
-    const separator3 = document.createElement('div');
-    separator3.className = 'medit-toolbar-separator';
+    const separator4 = this._createSeparator();
 
     // Device preview buttons
     const desktopBtn = this._createDeviceButton('desktop', DEVICE_ICONS.desktop, 'Desktop');
@@ -91,27 +109,116 @@ export class EditToolbar {
     const refreshBtn = this._createActionButton('refresh', DEVICE_ICONS.refresh, '刷新预览');
 
     // Assemble preview-only group
-    this._previewOnlyGroup.appendChild(separator2);
     this._previewOnlyGroup.appendChild(wechatBtn);
     this._previewOnlyGroup.appendChild(zhihuBtn);
-    this._previewOnlyGroup.appendChild(separator3);
+    this._previewOnlyGroup.appendChild(separator4);
     this._previewOnlyGroup.appendChild(desktopBtn);
     this._previewOnlyGroup.appendChild(tabletBtn);
     this._previewOnlyGroup.appendChild(mobileBtn);
     this._previewOnlyGroup.appendChild(refreshBtn);
-
-    // End separator
-    const endSeparator = document.createElement('div');
-    endSeparator.className = 'medit-toolbar-separator';
 
     // Assemble container
     this._container.appendChild(editBtn);
     this._container.appendChild(splitBtn);
     this._container.appendChild(previewBtn);
     this._container.appendChild(separator1);
+    this._container.appendChild(editActionGroup);
+    this._container.appendChild(separator2);
     this._container.appendChild(findBtn);
+    this._container.appendChild(separator3);
     this._container.appendChild(this._previewOnlyGroup);
-    this._container.appendChild(endSeparator);
+  }
+
+  /**
+   * Create edit action button group
+   */
+  private _createEditActionGroup(): HTMLElement {
+    const group = document.createElement('div');
+    group.className = 'medit-edit-action-group';
+
+    // Heading buttons
+    const heading1Btn = this._createEditActionButton('heading1', EDIT_ICONS.heading, '标题1 (Ctrl+1)');
+    const heading2Btn = this._createEditActionButton('heading2', EDIT_ICONS.heading, '标题2 (Ctrl+2)');
+    const heading3Btn = this._createEditActionButton('heading3', EDIT_ICONS.heading, '标题3 (Ctrl+3)');
+
+    // Text formatting
+    const boldBtn = this._createEditActionButton('bold', EDIT_ICONS.bold, '加粗 (Ctrl+B)');
+    const italicBtn = this._createEditActionButton('italic', EDIT_ICONS.italic, '斜体 (Ctrl+I)');
+    const strikethroughBtn = this._createEditActionButton('strikethrough', EDIT_ICONS.strikethrough, '删除线');
+
+    // Code
+    const codeBtn = this._createEditActionButton('codeBlock', EDIT_ICONS.code, '代码块');
+    const inlineCodeBtn = this._createEditActionButton('inlineCode', EDIT_ICONS.inlineCode, '行内代码');
+
+    // Links and media
+    const linkBtn = this._createEditActionButton('link', EDIT_ICONS.link, '链接 (Ctrl+K)');
+    const imageBtn = this._createEditActionButton('image', EDIT_ICONS.image, '图片');
+
+    // Block elements
+    const quoteBtn = this._createEditActionButton('quote', EDIT_ICONS.quote, '引用');
+    const horizontalRuleBtn = this._createEditActionButton('horizontalRule', EDIT_ICONS.horizontalRule, '分隔线');
+
+    // Lists
+    const unorderedListBtn = this._createEditActionButton('unorderedList', EDIT_ICONS.list, '无序列表');
+    const orderedListBtn = this._createEditActionButton('orderedList', EDIT_ICONS.orderedList, '有序列表');
+    const taskListBtn = this._createEditActionButton('taskList', EDIT_ICONS.taskList, '任务列表');
+
+    // Undo/Redo
+    const undoBtn = this._createEditActionButton('undo', EDIT_ICONS.undo, '撤销 (Ctrl+Z)');
+    const redoBtn = this._createEditActionButton('redo', EDIT_ICONS.redo, '重做 (Ctrl+Y)');
+
+    // Diagram menu
+    this._diagramMenu = new DiagramMenu({
+      onSelect: (template) => this._onInsertDiagram?.(template),
+      i18n: this._i18n,
+    });
+    const diagramBtn = this._diagramMenu.createButton();
+
+    // Append buttons in logical groups
+    group.appendChild(heading1Btn);
+    group.appendChild(heading2Btn);
+    group.appendChild(heading3Btn);
+    group.appendChild(boldBtn);
+    group.appendChild(italicBtn);
+    group.appendChild(strikethroughBtn);
+    group.appendChild(inlineCodeBtn);
+    group.appendChild(codeBtn);
+    group.appendChild(linkBtn);
+    group.appendChild(imageBtn);
+    group.appendChild(quoteBtn);
+    group.appendChild(horizontalRuleBtn);
+    group.appendChild(unorderedListBtn);
+    group.appendChild(orderedListBtn);
+    group.appendChild(taskListBtn);
+    group.appendChild(diagramBtn);
+    group.appendChild(undoBtn);
+    group.appendChild(redoBtn);
+
+    return group;
+  }
+
+  /**
+   * Create an edit action button
+   */
+  private _createEditActionButton(action: EditAction, icon: string, tooltip: string): HTMLButtonElement {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'medit-edit-btn';
+    button.title = tooltip;
+    button.setAttribute('aria-label', tooltip);
+    button.innerHTML = icon;
+    button.dataset.action = action;
+    this._buttons.set(action, button);
+    return button;
+  }
+
+  /**
+   * Create a toolbar separator
+   */
+  private _createSeparator(): HTMLElement {
+    const separator = document.createElement('div');
+    separator.className = 'medit-toolbar-separator';
+    return separator;
   }
 
   private _createModeButton(mode: EditorMode, icon: string, tooltip: string): HTMLButtonElement {
@@ -153,6 +260,19 @@ export class EditToolbar {
     // Mode switch
     for (const mode of ['edit', 'split', 'preview'] as EditorMode[]) {
       this._buttons.get(mode)?.addEventListener('click', () => this._modeService.switchMode(mode));
+    }
+
+    // Edit actions
+    const editActions: EditAction[] = [
+      'bold', 'italic', 'strikethrough', 'inlineCode',
+      'heading1', 'heading2', 'heading3',
+      'codeBlock', 'quote', 'horizontalRule',
+      'link', 'image',
+      'unorderedList', 'orderedList', 'taskList',
+      'undo', 'redo',
+    ];
+    for (const action of editActions) {
+      this._buttons.get(action)?.addEventListener('click', () => this._onEditAction?.(action));
     }
 
     // Find
@@ -219,6 +339,7 @@ export class EditToolbar {
   updateLabels(): void { this._updateLabels(); }
 
   private _updateLabels(): void {
+    // Mode buttons
     const editBtn = this._buttons.get('edit');
     const splitBtn = this._buttons.get('split');
     const previewBtn = this._buttons.get('preview');
@@ -241,17 +362,53 @@ export class EditToolbar {
     if (mobileBtn) mobileBtn.title = this._i18n.t('toolbar.mobile');
     if (refreshBtn) refreshBtn.title = this._i18n.t('toolbar.refresh');
 
+    // Edit action buttons
+    const editActionLabels: Record<string, () => string> = {
+      heading1: () => this._i18n.t('toolbar.heading1') + ' (Ctrl+1)',
+      heading2: () => this._i18n.t('toolbar.heading2') + ' (Ctrl+2)',
+      heading3: () => this._i18n.t('toolbar.heading3') + ' (Ctrl+3)',
+      bold: () => this._i18n.t('toolbar.bold') + ' (Ctrl+B)',
+      italic: () => this._i18n.t('toolbar.italic') + ' (Ctrl+I)',
+      strikethrough: () => this._i18n.t('toolbar.strikethrough'),
+      codeBlock: () => this._i18n.t('toolbar.codeBlock'),
+      inlineCode: () => this._i18n.t('toolbar.inlineCode'),
+      link: () => this._i18n.t('toolbar.link') + ' (Ctrl+K)',
+      image: () => this._i18n.t('toolbar.image'),
+      quote: () => this._i18n.t('toolbar.quote'),
+      horizontalRule: () => this._i18n.t('toolbar.horizontalRule'),
+      unorderedList: () => this._i18n.t('toolbar.unorderedList'),
+      orderedList: () => this._i18n.t('toolbar.orderedList'),
+      taskList: () => this._i18n.t('toolbar.taskList'),
+      undo: () => this._i18n.t('toolbar.undo') + ' (Ctrl+Z)',
+      redo: () => this._i18n.t('toolbar.redo') + ' (Ctrl+Y)',
+    };
+
+    for (const [action, getLabel] of Object.entries(editActionLabels)) {
+      const btn = this._buttons.get(action);
+      if (btn) {
+        try {
+          btn.title = getLabel();
+        } catch {
+          // i18n key might not exist, keep current label
+        }
+      }
+    }
+
     // Update aria-labels
     this._buttons.forEach(btn => {
       if (btn.title) {
         btn.setAttribute('aria-label', btn.title);
       }
     });
+
+    // Update diagram menu labels
+    this._diagramMenu?.updateLabels();
   }
 
   destroy(): void {
     this._unsubscribe?.();
     this._i18nUnsubscribe?.();
+    this._diagramMenu?.destroy();
     this._buttons.clear();
     this._container.innerHTML = '';
   }

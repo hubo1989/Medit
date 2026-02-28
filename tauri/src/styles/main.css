@@ -355,6 +355,29 @@ body {
    TOOLBAR CONTAINERS
    ============================================ */
 
+/* Edit mode toolbar container - custom edit toolbar */
+#edit-toolbar-container {
+  height: var(--medit-toolbar-height);
+  min-height: var(--medit-toolbar-height);
+  background-color: var(--medit-bg-toolbar);
+  border-bottom: 1px solid var(--medit-border-color);
+  padding: 0 12px !important;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+#edit-toolbar-container.hidden {
+  display: none;
+}
+
+/* Edit action button group */
+.medit-edit-action-group {
+  display: flex;
+  align-items: center;
+}
+
 /* Preview mode toolbar container - match Vditor toolbar styling exactly */
 #preview-toolbar-container {
   height: var(--medit-toolbar-height);
@@ -409,6 +432,12 @@ body {
   box-sizing: border-box;
 }
 
+/* Dark mode button color */
+[data-theme='dark'] .medit-edit-btn,
+[data-theme='dark'] .medit-preview-btn {
+  color: #afafaf;
+}
+
 .medit-edit-btn:hover,
 .medit-preview-btn:hover {
   background-color: rgba(0, 0, 0, 0.08);
@@ -456,19 +485,79 @@ body {
 }
 
 /* ============================================
+   DIAGRAM DROPDOWN MENU
+   ============================================ */
+
+.medit-diagram-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.medit-diagram-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.medit-diagram-btn svg:last-child {
+  width: 12px;
+  height: 12px;
+  opacity: 0.6;
+}
+
+.medit-diagram-dropdown {
+  background-color: var(--medit-bg-toolbar);
+  border: 1px solid var(--medit-border-color);
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  min-width: 160px;
+  max-height: 400px;
+  overflow-y: auto;
+  z-index: 1000;
+  padding: 4px 0;
+}
+
+.medit-diagram-category {
+  padding: 0;
+}
+
+.medit-diagram-category-header {
+  padding: 8px 12px 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.medit-diagram-item {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  font-size: 13px;
+  color: inherit;
+  transition: background-color 0.15s ease;
+}
+
+.medit-diagram-item:hover {
+  background-color: rgba(0, 0, 0, 0.08);
+}
+
+[data-theme='dark'] .medit-diagram-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* ============================================
    VDITOR TOOLBAR CUSTOMIZATION
    ============================================ */
 
-/* Make Vditor toolbar match our styling - use !important to override Vditor defaults */
+/* Hide Vditor toolbar - we use our custom toolbar instead */
 #vditor-editor .vditor-toolbar {
-  border-bottom: 1px solid var(--medit-border-color) !important;
-  padding: 0 12px !important; /* Match preview toolbar */
-  display: flex;
-  flex-wrap: nowrap;
-  align-items: center;
-  height: var(--medit-toolbar-height);
-  box-sizing: border-box;
-  background-color: var(--medit-bg-toolbar);
+  display: none !important;
 }
 
 /* Don't override Vditor's button styles - they use their own SVG system */
