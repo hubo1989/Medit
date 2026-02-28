@@ -325,6 +325,28 @@ export class VditorEditor {
   }
 
   /**
+   * Show Vditor toolbar
+   */
+  showToolbar(): void {
+    if (!this._container) return;
+    const toolbar = this._container.querySelector('.vditor-toolbar') as HTMLElement | null;
+    if (toolbar) {
+      toolbar.style.display = '';
+    }
+  }
+
+  /**
+   * Hide Vditor toolbar
+   */
+  hideToolbar(): void {
+    if (!this._container) return;
+    const toolbar = this._container.querySelector('.vditor-toolbar') as HTMLElement | null;
+    if (toolbar) {
+      toolbar.style.display = 'none';
+    }
+  }
+
+  /**
    * Resolve container element from selector or element
    */
   private _resolveContainer(): HTMLDivElement | null {

@@ -12,3 +12,8 @@ export {
   type ThemeMode,
   type ThemeServiceConfig,
 } from './theme-service.js';
+
+export {
+  SyncScrollService,
+  type SyncScrollServiceConfig,
+} from './sync-scroll-service.js';

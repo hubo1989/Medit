@@ -355,6 +355,19 @@ body {
    TOOLBAR CONTAINERS
    ============================================ */
 
+/* Edit mode toolbar container - independent from Vditor toolbar */
+#edit-toolbar-container {
+  height: var(--medit-toolbar-height);
+  min-height: var(--medit-toolbar-height);
+  background-color: var(--medit-bg-toolbar);
+  border-bottom: 1px solid var(--medit-border-color);
+  padding: 0 12px !important;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
 /* Preview mode toolbar container - match Vditor toolbar styling exactly */
 #preview-toolbar-container {
   height: var(--medit-toolbar-height);
