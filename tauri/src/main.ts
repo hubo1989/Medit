@@ -247,7 +247,7 @@ class MeditApp {
   }
 
   /**
-   * Initialize edit toolbar in the medit toolbar buttons container
+   * Initialize edit toolbar in the combined toolbar container
    */
   private _initEditToolbar(): void {
     // Skip if already initialized
@@ -256,17 +256,17 @@ class MeditApp {
       return;
     }
 
-    // Find the Medit toolbar buttons container
-    const meditToolbarButtons = document.getElementById('medit-toolbar-buttons');
-    if (!meditToolbarButtons) {
-      logger.warn('Medit toolbar buttons container (#medit-toolbar-buttons) not found');
+    // Find the combined toolbar container
+    const editToolbarContainer = document.getElementById('edit-toolbar-container');
+    if (!editToolbarContainer) {
+      logger.warn('Edit toolbar container (#edit-toolbar-container) not found');
       return;
     }
 
-    logger.debug('Found medit toolbar buttons container, initializing EditToolbar');
+    logger.debug('Found edit toolbar container, initializing EditToolbar');
 
     this._editToolbar = new EditToolbar({
-      container: meditToolbarButtons,
+      container: editToolbarContainer,
       modeService: this._modeService,
       i18n: this._i18n,
       onFindClick: () => {
@@ -287,7 +287,7 @@ class MeditApp {
   }
 
   /**
-   * Move Vditor toolbar to our container after editor initialization
+   * Move Vditor toolbar to our combined toolbar container after editor initialization
    */
   private _moveVditorToolbar(): void {
     const vditorEditor = document.getElementById('vditor-editor');
@@ -297,12 +297,12 @@ class MeditApp {
     const vditorToolbar = vditorEditor.querySelector('.vditor-toolbar') as HTMLElement;
     if (!vditorToolbar) return;
 
-    // Find our Vditor toolbar container
-    const vditorToolbarButtons = document.getElementById('vditor-toolbar-buttons');
-    if (!vditorToolbarButtons) return;
+    // Find our combined toolbar container
+    const editToolbarContainer = document.getElementById('edit-toolbar-container');
+    if (!editToolbarContainer) return;
 
-    // Move Vditor toolbar to our container
-    vditorToolbarButtons.appendChild(vditorToolbar);
+    // Move Vditor toolbar to our container (after Medit buttons)
+    editToolbarContainer.appendChild(vditorToolbar);
     logger.debug('Vditor toolbar moved to combined toolbar container');
   }
 
