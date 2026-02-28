@@ -18,6 +18,11 @@ if (!fs.existsSync(sourceDir)) {
   process.exit(1);
 }
 
+// Ensure public directory exists
+if (!fs.existsSync(publicDir)) {
+  fs.mkdirSync(publicDir, { recursive: true });
+}
+
 // Remove existing target directory
 if (fs.existsSync(targetDir)) {
   fs.rmSync(targetDir, { recursive: true, force: true });

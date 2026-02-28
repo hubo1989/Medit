@@ -1644,9 +1644,7 @@ class MeditApp {
     } else if (this._editor && !this._editor.isInitialized()) {
       // Set target mode before first initialization
       if (targetMode) {
-        // Note: Not awaited because when editor is not initialized, setMode
-        // just sets config.mode synchronously - no async destroy/recreate needed
-        this._editor.setMode(targetMode);
+        await this._editor.setMode(targetMode);
       }
       await this._editor.init();
       // Initialize edit toolbar after Vditor is ready
