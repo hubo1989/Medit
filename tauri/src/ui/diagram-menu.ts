@@ -2,22 +2,27 @@
  * Diagram Menu - Dropdown menu for inserting diagram templates
  */
 
+import type { I18nService } from '../i18n/index.js';
 import { DIAGRAM_CATEGORIES, type DiagramTemplate } from './diagram-templates.js';
 import { EDIT_ICONS } from './icons.js';
 
 export interface DiagramMenuConfig {
   /** Callback when a template is selected */
   onSelect: (template: string) => void;
+  /** i18n service for translating labels */
+  i18n: I18nService;
 }
 
 export class DiagramMenu {
   private _onSelect: (template: string) => void;
+  private _i18n: I18nService;
   private _button: HTMLButtonElement | null = null;
   private _dropdown: HTMLDivElement | null = null;
   private _isOpen = false;
 
   constructor(config: DiagramMenuConfig) {
     this._onSelect = config.onSelect;
+    this._i18n = config.i18n;
   }
 
   /**
@@ -27,9 +32,9 @@ export class DiagramMenu {
     this._button = document.createElement('button');
     this._button.type = 'button';
     this._button.className = 'medit-edit-btn medit-diagram-btn';
-    this._button.title = '插入图表';
+    this._button.title = this._i18n.t('toolbar.insertDiagram');
     this._button.innerHTML = `${EDIT_ICONS.diagram}${EDIT_ICONS.chevronDown}`;
-    this._button.setAttribute('aria-label', '插入图表');
+    this._button.setAttribute('aria-label', this._i18n.t('toolbar.insertDiagram'));
     this._button.setAttribute('aria-haspopup', 'true');
     this._button.setAttribute('aria-expanded', 'false');
 
@@ -39,6 +44,21 @@ export class DiagramMenu {
     });
 
     return this._button;
+  }
+
+  /**
+   * Update labels when language changes
+   */
+  updateLabels(): void {
+    if (this._button) {
+      const label = this._i18n.t('toolbar.insertDiagram');
+      this._button.title = label;
+      this._button.setAttribute('aria-label', label);
+    }
+    // Dropdown will be recreated on next open with new labels
+    if (this._isOpen && this._dropdown) {
+      this.close();
+    }
   }
 
   /**
@@ -55,14 +75,14 @@ export class DiagramMenu {
 
       const categoryHeader = document.createElement('div');
       categoryHeader.className = 'medit-diagram-category-header';
-      categoryHeader.textContent = category.label;
+      categoryHeader.textContent = this._i18n.t(category.labelKey);
       categoryEl.appendChild(categoryHeader);
 
       for (const template of category.templates) {
         const item = document.createElement('button');
         item.type = 'button';
         item.className = 'medit-diagram-item';
-        item.textContent = template.label;
+        item.textContent = this._i18n.t(template.labelKey);
         item.setAttribute('role', 'menuitem');
         item.addEventListener('click', (e) => {
           e.stopPropagation();
@@ -102,9 +122,8 @@ export class DiagramMenu {
   open(): void {
     if (this._isOpen || !this._button) return;
 
-    if (!this._dropdown) {
-      this._createDropdown();
-    }
+    // Always recreate dropdown to ensure fresh translations
+    this._createDropdown();
 
     if (!this._dropdown) return;
 

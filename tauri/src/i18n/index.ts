@@ -33,6 +33,45 @@ const TRANSLATIONS = {
       tablet: 'Tablet Preview',
       mobile: 'Mobile Preview',
       refresh: 'Refresh Preview',
+      heading1: 'Heading 1',
+      heading2: 'Heading 2',
+      heading3: 'Heading 3',
+      bold: 'Bold',
+      italic: 'Italic',
+      strikethrough: 'Strikethrough',
+      codeBlock: 'Code Block',
+      inlineCode: 'Inline Code',
+      link: 'Link',
+      image: 'Image',
+      quote: 'Quote',
+      horizontalRule: 'Horizontal Rule',
+      unorderedList: 'Bullet List',
+      orderedList: 'Numbered List',
+      taskList: 'Task List',
+      undo: 'Undo',
+      redo: 'Redo',
+      insertDiagram: 'Insert Diagram',
+    },
+    // Diagram templates
+    diagram: {
+      // Categories
+      mermaid: 'Mermaid',
+      vegaLite: 'Vega-Lite',
+      dot: 'Graphviz DOT',
+      // Mermaid templates
+      mermaidFlowchart: 'Flowchart',
+      mermaidSequence: 'Sequence Diagram',
+      mermaidClass: 'Class Diagram',
+      mermaidState: 'State Diagram',
+      mermaidEr: 'ER Diagram',
+      mermaidGantt: 'Gantt Chart',
+      mermaidPie: 'Pie Chart',
+      mermaidMindmap: 'Mind Map',
+      // Vega-Lite templates
+      vegaLiteBar: 'Bar Chart',
+      vegaLiteLine: 'Line Chart',
+      // DOT templates
+      dotBasic: 'Basic Graph',
     },
     // TOC
     toc: {
@@ -205,6 +244,45 @@ const TRANSLATIONS = {
       tablet: '平板预览',
       mobile: '手机机型预览',
       refresh: '刷新预览',
+      heading1: '标题1',
+      heading2: '标题2',
+      heading3: '标题3',
+      bold: '加粗',
+      italic: '斜体',
+      strikethrough: '删除线',
+      codeBlock: '代码块',
+      inlineCode: '行内代码',
+      link: '链接',
+      image: '图片',
+      quote: '引用',
+      horizontalRule: '分隔线',
+      unorderedList: '无序列表',
+      orderedList: '有序列表',
+      taskList: '任务列表',
+      undo: '撤销',
+      redo: '重做',
+      insertDiagram: '插入图表',
+    },
+    // Diagram templates
+    diagram: {
+      // Categories
+      mermaid: 'Mermaid',
+      vegaLite: 'Vega-Lite',
+      dot: 'Graphviz DOT',
+      // Mermaid templates
+      mermaidFlowchart: '流程图',
+      mermaidSequence: '时序图',
+      mermaidClass: '类图',
+      mermaidState: '状态图',
+      mermaidEr: 'ER图',
+      mermaidGantt: '甘特图',
+      mermaidPie: '饼图',
+      mermaidMindmap: '思维导图',
+      // Vega-Lite templates
+      vegaLiteBar: '柱状图',
+      vegaLiteLine: '折线图',
+      // DOT templates
+      dotBasic: '基础图',
     },
     // TOC
     toc: {

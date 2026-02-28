@@ -170,6 +170,7 @@ export class EditToolbar {
     // Diagram menu
     this._diagramMenu = new DiagramMenu({
       onSelect: (template) => this._onInsertDiagram?.(template),
+      i18n: this._i18n,
     });
     const diagramBtn = this._diagramMenu.createButton();
 
@@ -399,6 +400,9 @@ export class EditToolbar {
         btn.setAttribute('aria-label', btn.title);
       }
     });
+
+    // Update diagram menu labels
+    this._diagramMenu?.updateLabels();
   }
 
   destroy(): void {

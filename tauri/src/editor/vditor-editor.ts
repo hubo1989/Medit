@@ -455,23 +455,21 @@ export class VditorEditor {
 
   /**
    * Insert a multi-line template at cursor position
-   * Ensures proper line breaks before and after
+   * If there's a selection, replaces it with the template
    */
   insertTemplate(template: string): void {
     if (!this._instance) {
       throw new Error('VditorEditor: Editor not initialized');
     }
-    // Ensure template starts on a new line
-    const value = this._instance.getValue();
+
     const selection = this._instance.getSelection();
-    
-    // Build the insertion string with proper line breaks
-    let insertText = template;
+
     if (selection) {
-      // If there's a selection, we might want to replace it
-      this._instance.replaceSelection(insertText);
+      // Replace selection with template
+      this._instance.replaceSelection(template);
     } else {
-      this._instance.insertValue(insertText);
+      // Insert template at cursor
+      this._instance.insertValue(template);
     }
     this._instance.focus();
   }

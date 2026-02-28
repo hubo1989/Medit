@@ -5,24 +5,26 @@
 
 export interface DiagramTemplate {
   id: string;
-  label: string;
+  /** i18n key for the label (e.g., 'diagram.mermaidFlowchart') */
+  labelKey: string;
   template: string;
 }
 
 export interface DiagramCategory {
   id: string;
-  label: string;
+  /** i18n key for the category label (e.g., 'diagram.mermaid') */
+  labelKey: string;
   templates: DiagramTemplate[];
 }
 
 export const DIAGRAM_CATEGORIES: DiagramCategory[] = [
   {
     id: 'mermaid',
-    label: 'Mermaid',
+    labelKey: 'diagram.mermaid',
     templates: [
       {
         id: 'mermaid-flowchart',
-        label: '流程图',
+        labelKey: 'diagram.mermaidFlowchart',
         template: `\`\`\`mermaid
 graph TD
     A[开始] --> B{判断条件}
@@ -34,13 +36,13 @@ graph TD
       },
       {
         id: 'mermaid-sequence',
-        label: '时序图',
+        labelKey: 'diagram.mermaidSequence',
         template: `\`\`\`mermaid
 sequenceDiagram
     participant A as 用户
     participant B as 服务器
     participant C as 数据库
-    
+
     A->>B: 发送请求
     B->>C: 查询数据
     C-->>B: 返回结果
@@ -49,7 +51,7 @@ sequenceDiagram
       },
       {
         id: 'mermaid-class',
-        label: '类图',
+        labelKey: 'diagram.mermaidClass',
         template: `\`\`\`mermaid
 classDiagram
     class Animal {
@@ -66,7 +68,7 @@ classDiagram
       },
       {
         id: 'mermaid-state',
-        label: '状态图',
+        labelKey: 'diagram.mermaidState',
         template: `\`\`\`mermaid
 stateDiagram-v2
     [*] --> 待处理
@@ -79,7 +81,7 @@ stateDiagram-v2
       },
       {
         id: 'mermaid-er',
-        label: 'ER图',
+        labelKey: 'diagram.mermaidEr',
         template: `\`\`\`mermaid
 erDiagram
     CUSTOMER ||--o{ ORDER : places
@@ -100,21 +102,21 @@ erDiagram
       },
       {
         id: 'mermaid-gantt',
-        label: '甘特图',
+        labelKey: 'diagram.mermaidGantt',
         template: `\`\`\`mermaid
 gantt
     title 项目开发计划
     dateFormat  YYYY-MM-DD
-    
+
     section 需求阶段
     需求分析     :a1, 2024-01-01, 7d
     需求评审     :a2, after a1, 3d
-    
+
     section 开发阶段
     架构设计     :b1, after a2, 5d
     编码实现     :b2, after b1, 14d
     单元测试     :b3, after b2, 7d
-    
+
     section 发布阶段
     集成测试     :c1, after b3, 5d
     部署上线     :c2, after c1, 3d
@@ -122,7 +124,7 @@ gantt
       },
       {
         id: 'mermaid-pie',
-        label: '饼图',
+        labelKey: 'diagram.mermaidPie',
         template: `\`\`\`mermaid
 pie showData
     title 数据分布
@@ -134,7 +136,7 @@ pie showData
       },
       {
         id: 'mermaid-mindmap',
-        label: '思维导图',
+        labelKey: 'diagram.mermaidMindmap',
         template: `\`\`\`mermaid
 mindmap
   root((中心主题))
@@ -152,11 +154,11 @@ mindmap
   },
   {
     id: 'vega-lite',
-    label: 'Vega-Lite',
+    labelKey: 'diagram.vegaLite',
     templates: [
       {
         id: 'vega-lite-bar',
-        label: '柱状图',
+        labelKey: 'diagram.vegaLiteBar',
         template: `\`\`\`vega-lite
 {
   "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
@@ -178,7 +180,7 @@ mindmap
       },
       {
         id: 'vega-lite-line',
-        label: '折线图',
+        labelKey: 'diagram.vegaLiteLine',
         template: `\`\`\`vega-lite
 {
   "$schema": "https://vega.github.io/schema/vega-lite/v5.json",
@@ -202,18 +204,18 @@ mindmap
   },
   {
     id: 'dot',
-    label: 'Graphviz DOT',
+    labelKey: 'diagram.dot',
     templates: [
       {
         id: 'dot-basic',
-        label: '基础图',
+        labelKey: 'diagram.dotBasic',
         template: `\`\`\`dot
 digraph G {
     rankdir=LR;
     A [label="节点A"];
     B [label="节点B"];
     C [label="节点C"];
-    
+
     A -> B [label="连接"];
     B -> C;
     C -> A;
