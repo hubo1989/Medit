@@ -247,7 +247,7 @@ class MeditApp {
   }
 
   /**
-   * Initialize edit toolbar in its independent container
+   * Initialize edit toolbar in the medit toolbar buttons container
    */
   private _initEditToolbar(): void {
     // Skip if already initialized
@@ -256,17 +256,17 @@ class MeditApp {
       return;
     }
 
-    // Find the independent toolbar container
-    const editToolbarContainer = document.getElementById('edit-toolbar-container');
-    if (!editToolbarContainer) {
-      logger.warn('Edit toolbar container (#edit-toolbar-container) not found');
+    // Find the Medit toolbar buttons container
+    const meditToolbarButtons = document.getElementById('medit-toolbar-buttons');
+    if (!meditToolbarButtons) {
+      logger.warn('Medit toolbar buttons container (#medit-toolbar-buttons) not found');
       return;
     }
 
-    logger.debug('Found edit toolbar container, initializing EditToolbar');
+    logger.debug('Found medit toolbar buttons container, initializing EditToolbar');
 
     this._editToolbar = new EditToolbar({
-      container: editToolbarContainer,
+      container: meditToolbarButtons,
       modeService: this._modeService,
       i18n: this._i18n,
       onFindClick: () => {
@@ -283,7 +283,27 @@ class MeditApp {
       },
     });
 
-    logger.info('Edit toolbar initialized successfully in independent container');
+    logger.info('Edit toolbar initialized successfully');
+  }
+
+  /**
+   * Move Vditor toolbar to our container after editor initialization
+   */
+  private _moveVditorToolbar(): void {
+    const vditorEditor = document.getElementById('vditor-editor');
+    if (!vditorEditor) return;
+
+    // Find Vditor toolbar
+    const vditorToolbar = vditorEditor.querySelector('.vditor-toolbar') as HTMLElement;
+    if (!vditorToolbar) return;
+
+    // Find our Vditor toolbar container
+    const vditorToolbarButtons = document.getElementById('vditor-toolbar-buttons');
+    if (!vditorToolbarButtons) return;
+
+    // Move Vditor toolbar to our container
+    vditorToolbarButtons.appendChild(vditorToolbar);
+    logger.debug('Vditor toolbar moved to combined toolbar container');
   }
 
   /**
@@ -1116,7 +1136,7 @@ class MeditApp {
     const editorContainer = document.getElementById('editor-container');
     const previewContainer = document.getElementById('preview-container');
     const previewToolbarContainer = document.getElementById('preview-toolbar-container');
-    const vditorEditor = document.getElementById('vditor-editor');
+    const editToolbarContainer = document.getElementById('edit-toolbar-container');
 
     if (!editorContainer || !previewContainer) {
       logger.warn('Editor or preview container not found');
@@ -1130,14 +1150,12 @@ class MeditApp {
         previewContainer.style.display = 'flex';
         previewContainer.style.width = '100%';
 
-        // Show preview toolbar
+        // Show preview toolbar, hide edit toolbar
         if (previewToolbarContainer) previewToolbarContainer.classList.remove('hidden');
+        if (editToolbarContainer) editToolbarContainer.classList.add('hidden');
 
         // Disable sync scroll
         this._syncScrollService?.disable();
-
-        // Hide Vditor toolbar (it's inside vditor-editor)
-        this._editor?.hideToolbar();
 
         // Render preview with current content
         await this._renderPreview(this._currentContent);
@@ -1151,17 +1169,17 @@ class MeditApp {
         editorContainer.style.width = '100%';
         previewContainer.style.display = 'none';
 
-        // Hide preview toolbar
+        // Hide preview toolbar, show edit toolbar
         if (previewToolbarContainer) previewToolbarContainer.classList.add('hidden');
+        if (editToolbarContainer) editToolbarContainer.classList.remove('hidden');
 
         // Disable sync scroll
         this._syncScrollService?.disable();
 
-        // Switch to ir mode and show Vditor toolbar
+        // Switch to ir mode
         if (this._editor?.isInitialized()) {
           this._editor.setMode('ir');
         }
-        this._editor?.showToolbar();
 
         // Initialize editor if needed
         await this._initEditorIfNeeded();
@@ -1175,17 +1193,17 @@ class MeditApp {
         previewContainer.style.display = 'flex';
         previewContainer.style.width = ''; // CSS uses absolute positioning
 
-        // Hide preview toolbar
+        // Hide preview toolbar, show edit toolbar
         if (previewToolbarContainer) previewToolbarContainer.classList.add('hidden');
+        if (editToolbarContainer) editToolbarContainer.classList.remove('hidden');
 
         // Initialize editor if needed
         await this._initEditorIfNeeded();
 
-        // Switch to sv mode (source code) and hide Vditor toolbar
+        // Switch to sv mode (source code)
         if (this._editor?.isInitialized()) {
           this._editor.setMode('sv');
         }
-        this._editor?.hideToolbar();
 
         // Render preview with current content
         await this._renderPreview(this._currentContent);
@@ -1570,6 +1588,8 @@ class MeditApp {
       await this._editor.init();
       // Initialize edit toolbar after Vditor is ready
       this._initEditToolbar();
+      // Move Vditor toolbar to our combined toolbar container
+      this._moveVditorToolbar();
     }
     // Always ensure content is set when entering edit mode
     // This fixes the issue where content loaded before editor initialization
