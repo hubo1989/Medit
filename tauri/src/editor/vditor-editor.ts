@@ -75,10 +75,6 @@ export class VditorEditor {
           const codeTheme = theme === 'dark' ? 'native' : 'github';
           this._instance?.setTheme(vditorTheme, contentTheme, codeTheme);
           originalAfter?.();
-          // Debug: log what methods are available
-          console.log('[VditorEditor] Instance methods:', Object.keys(this._instance || {}).filter(k => typeof (this._instance as Record<string, unknown>)?.[k] === 'function'));
-          console.log('[VditorEditor] changeMode type:', typeof this._instance?.changeMode);
-          console.log('[VditorEditor] currentMode:', (this._instance as Record<string, unknown>)?.currentMode);
           resolve();
         };
         this._instance = new window.Vditor(container, options);
@@ -336,21 +332,39 @@ export class VditorEditor {
    */
   getMode(): 'sv' | 'ir' | 'wysiwyg' {
     if (!this.isInitialized()) {
-      throw new Error('VditorEditor: Editor not fully initialized');
+      return this._config.mode || 'ir';
     }
     return this._instance!.getCurrentMode();
   }
 
   /**
-   * Switch editor mode
+   * Switch editor mode (requires re-creation since Vditor 3.x doesn't have changeMode)
    */
-  setMode(mode: 'sv' | 'ir' | 'wysiwyg'): void {
-    if (!this.isInitialized()) {
-      throw new Error('VditorEditor: Editor not fully initialized');
+  async setMode(mode: 'sv' | 'ir' | 'wysiwyg'): Promise<void> {
+    // If not initialized yet, just update config
+    if (!this._instance) {
+      this._config.mode = mode;
+      return;
     }
-    console.log(`[VditorEditor] setMode('${mode}'), current mode:`, this._instance!.getCurrentMode());
-    this._instance!.changeMode(mode);
-    console.log(`[VditorEditor] after changeMode, mode is now:`, this._instance!.getCurrentMode());
+
+    const currentMode = this._instance.getCurrentMode();
+    if (currentMode === mode) {
+      return; // Already in target mode
+    }
+
+    // Save current content
+    const content = this._instance.getValue();
+
+    // Destroy current instance
+    this._instance.destroy();
+    this._instance = null;
+
+    // Update config with new mode
+    this._config.mode = mode;
+    this._config.initialValue = content;
+
+    // Re-create editor
+    await this.init();
   }
 
   /**

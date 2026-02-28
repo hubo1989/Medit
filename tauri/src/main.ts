@@ -1234,13 +1234,8 @@ class MeditApp {
         // Disable sync scroll
         this._syncScrollService?.disable();
 
-        // Switch to ir mode
-        if (this._editor?.isInitialized()) {
-          this._editor.setMode('ir');
-        }
-
-        // Initialize editor if needed
-        await this._initEditorIfNeeded();
+        // Initialize editor in ir mode
+        await this._initEditorIfNeeded('ir');
 
         break;
 
@@ -1255,16 +1250,8 @@ class MeditApp {
         if (previewToolbarContainer) previewToolbarContainer.classList.add('hidden');
         if (editToolbarContainer) editToolbarContainer.classList.remove('hidden');
 
-        // Initialize editor if needed
-        await this._initEditorIfNeeded();
-
-        // Switch to sv mode (source code)
-        console.log(`[Medit] split mode: isInitialized=${this._editor?.isInitialized()}`);
-        if (this._editor?.isInitialized()) {
-          this._editor.setMode('sv');
-        } else {
-          console.warn('[Medit] Editor not initialized, cannot set sv mode');
-        }
+        // Initialize editor in sv mode (source code)
+        await this._initEditorIfNeeded('sv');
 
         // Render preview with current content
         await this._renderPreview(this._currentContent);
@@ -1640,18 +1627,30 @@ class MeditApp {
 
   /**
    * Initialize editor if not already initialized
+   * @param targetMode - Target mode to ensure ('sv', 'ir', or 'wysiwyg'). If different from current, editor will be recreated.
    */
-  private async _initEditorIfNeeded(): Promise<void> {
+  private async _initEditorIfNeeded(targetMode?: 'sv' | 'ir' | 'wysiwyg'): Promise<void> {
     if (!this._editor) {
       this._initEditor();
     }
-    console.log(`[Medit] _initEditorIfNeeded: before init, isInitialized=${this._editor?.isInitialized()}`);
-    if (this._editor && !this._editor.isInitialized()) {
+
+    // If editor is already initialized and we need a specific mode, check if mode switch is needed
+    if (this._editor?.isInitialized() && targetMode) {
+      const currentMode = this._editor.getMode();
+      if (currentMode !== targetMode) {
+        // Mode switch needed - setMode will destroy and recreate
+        await this._editor.setMode(targetMode);
+      }
+    } else if (this._editor && !this._editor.isInitialized()) {
+      // Set target mode before first initialization
+      if (targetMode) {
+        this._editor.setMode(targetMode); // This sets config.mode since editor not initialized
+      }
       await this._editor.init();
-      console.log(`[Medit] _initEditorIfNeeded: after init, isInitialized=${this._editor?.isInitialized()}`);
       // Initialize edit toolbar after Vditor is ready
       this._initEditToolbar();
     }
+
     // Always ensure content is set when entering edit mode
     // This fixes the issue where content loaded before editor initialization
     // would not be displayed
