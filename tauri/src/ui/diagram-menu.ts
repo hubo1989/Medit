@@ -29,6 +29,7 @@ export class DiagramMenu {
     this._button.className = 'medit-edit-btn medit-diagram-btn';
     this._button.title = '插入图表';
     this._button.innerHTML = `${EDIT_ICONS.diagram}${EDIT_ICONS.chevronDown}`;
+    this._button.setAttribute('aria-label', '插入图表');
     this._button.setAttribute('aria-haspopup', 'true');
     this._button.setAttribute('aria-expanded', 'false');
 
@@ -107,11 +108,11 @@ export class DiagramMenu {
 
     if (!this._dropdown) return;
 
-    // Position dropdown below button
+    // Position dropdown below button (account for page scroll)
     const buttonRect = this._button.getBoundingClientRect();
     this._dropdown.style.position = 'absolute';
-    this._dropdown.style.top = `${buttonRect.bottom + 4}px`;
-    this._dropdown.style.left = `${buttonRect.left}px`;
+    this._dropdown.style.top = `${buttonRect.bottom + window.scrollY + 4}px`;
+    this._dropdown.style.left = `${buttonRect.left + window.scrollX}px`;
 
     document.body.appendChild(this._dropdown);
     this._isOpen = true;

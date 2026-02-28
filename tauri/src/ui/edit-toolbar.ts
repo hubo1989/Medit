@@ -136,16 +136,34 @@ export class EditToolbar {
     const group = document.createElement('div');
     group.className = 'medit-edit-action-group';
 
-    // Heading (H1)
-    const headingBtn = this._createEditActionButton('heading1', EDIT_ICONS.heading, '标题 (Ctrl+1)');
+    // Heading buttons
+    const heading1Btn = this._createEditActionButton('heading1', EDIT_ICONS.heading, '标题1 (Ctrl+1)');
+    const heading2Btn = this._createEditActionButton('heading2', EDIT_ICONS.heading, '标题2 (Ctrl+2)');
+    const heading3Btn = this._createEditActionButton('heading3', EDIT_ICONS.heading, '标题3 (Ctrl+3)');
+
+    // Text formatting
     const boldBtn = this._createEditActionButton('bold', EDIT_ICONS.bold, '加粗 (Ctrl+B)');
     const italicBtn = this._createEditActionButton('italic', EDIT_ICONS.italic, '斜体 (Ctrl+I)');
     const strikethroughBtn = this._createEditActionButton('strikethrough', EDIT_ICONS.strikethrough, '删除线');
+
+    // Code
     const codeBtn = this._createEditActionButton('codeBlock', EDIT_ICONS.code, '代码块');
     const inlineCodeBtn = this._createEditActionButton('inlineCode', EDIT_ICONS.inlineCode, '行内代码');
+
+    // Links and media
     const linkBtn = this._createEditActionButton('link', EDIT_ICONS.link, '链接 (Ctrl+K)');
+    const imageBtn = this._createEditActionButton('image', EDIT_ICONS.image, '图片');
+
+    // Block elements
     const quoteBtn = this._createEditActionButton('quote', EDIT_ICONS.quote, '引用');
-    const listBtn = this._createEditActionButton('unorderedList', EDIT_ICONS.list, '无序列表');
+    const horizontalRuleBtn = this._createEditActionButton('horizontalRule', EDIT_ICONS.horizontalRule, '分隔线');
+
+    // Lists
+    const unorderedListBtn = this._createEditActionButton('unorderedList', EDIT_ICONS.list, '无序列表');
+    const orderedListBtn = this._createEditActionButton('orderedList', EDIT_ICONS.orderedList, '有序列表');
+    const taskListBtn = this._createEditActionButton('taskList', EDIT_ICONS.taskList, '任务列表');
+
+    // Undo/Redo
     const undoBtn = this._createEditActionButton('undo', EDIT_ICONS.undo, '撤销 (Ctrl+Z)');
     const redoBtn = this._createEditActionButton('redo', EDIT_ICONS.redo, '重做 (Ctrl+Y)');
 
@@ -155,15 +173,22 @@ export class EditToolbar {
     });
     const diagramBtn = this._diagramMenu.createButton();
 
-    group.appendChild(headingBtn);
+    // Append buttons in logical groups
+    group.appendChild(heading1Btn);
+    group.appendChild(heading2Btn);
+    group.appendChild(heading3Btn);
     group.appendChild(boldBtn);
     group.appendChild(italicBtn);
     group.appendChild(strikethroughBtn);
     group.appendChild(inlineCodeBtn);
-    group.appendChild(linkBtn);
-    group.appendChild(quoteBtn);
-    group.appendChild(listBtn);
     group.appendChild(codeBtn);
+    group.appendChild(linkBtn);
+    group.appendChild(imageBtn);
+    group.appendChild(quoteBtn);
+    group.appendChild(horizontalRuleBtn);
+    group.appendChild(unorderedListBtn);
+    group.appendChild(orderedListBtn);
+    group.appendChild(taskListBtn);
     group.appendChild(diagramBtn);
     group.appendChild(undoBtn);
     group.appendChild(redoBtn);
@@ -313,6 +338,7 @@ export class EditToolbar {
   updateLabels(): void { this._updateLabels(); }
 
   private _updateLabels(): void {
+    // Mode buttons
     const editBtn = this._buttons.get('edit');
     const splitBtn = this._buttons.get('split');
     const previewBtn = this._buttons.get('preview');
@@ -334,6 +360,38 @@ export class EditToolbar {
     if (tabletBtn) tabletBtn.title = this._i18n.t('toolbar.tablet');
     if (mobileBtn) mobileBtn.title = this._i18n.t('toolbar.mobile');
     if (refreshBtn) refreshBtn.title = this._i18n.t('toolbar.refresh');
+
+    // Edit action buttons
+    const editActionLabels: Record<string, () => string> = {
+      heading1: () => this._i18n.t('toolbar.heading1') + ' (Ctrl+1)',
+      heading2: () => this._i18n.t('toolbar.heading2') + ' (Ctrl+2)',
+      heading3: () => this._i18n.t('toolbar.heading3') + ' (Ctrl+3)',
+      bold: () => this._i18n.t('toolbar.bold') + ' (Ctrl+B)',
+      italic: () => this._i18n.t('toolbar.italic') + ' (Ctrl+I)',
+      strikethrough: () => this._i18n.t('toolbar.strikethrough'),
+      codeBlock: () => this._i18n.t('toolbar.codeBlock'),
+      inlineCode: () => this._i18n.t('toolbar.inlineCode'),
+      link: () => this._i18n.t('toolbar.link') + ' (Ctrl+K)',
+      image: () => this._i18n.t('toolbar.image'),
+      quote: () => this._i18n.t('toolbar.quote'),
+      horizontalRule: () => this._i18n.t('toolbar.horizontalRule'),
+      unorderedList: () => this._i18n.t('toolbar.unorderedList'),
+      orderedList: () => this._i18n.t('toolbar.orderedList'),
+      taskList: () => this._i18n.t('toolbar.taskList'),
+      undo: () => this._i18n.t('toolbar.undo') + ' (Ctrl+Z)',
+      redo: () => this._i18n.t('toolbar.redo') + ' (Ctrl+Y)',
+    };
+
+    for (const [action, getLabel] of Object.entries(editActionLabels)) {
+      const btn = this._buttons.get(action);
+      if (btn) {
+        try {
+          btn.title = getLabel();
+        } catch {
+          // i18n key might not exist, keep current label
+        }
+      }
+    }
 
     // Update aria-labels
     this._buttons.forEach(btn => {

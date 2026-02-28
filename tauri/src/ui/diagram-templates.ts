@@ -228,9 +228,13 @@ digraph G {
  * Get template by ID
  */
 export function getTemplateById(id: string): DiagramTemplate | undefined {
-  for (const category of DIAGRAM_CATEGORIES) {
-    const template = category.templates.find(t => t.id === id);
-    if (template) return template;
+  return DIAGRAM_TEMPLATE_MAP.get(id);
+}
+
+// Build O(1) lookup map at module load time
+const DIAGRAM_TEMPLATE_MAP = new Map<string, DiagramTemplate>();
+for (const category of DIAGRAM_CATEGORIES) {
+  for (const template of category.templates) {
+    DIAGRAM_TEMPLATE_MAP.set(template.id, template);
   }
-  return undefined;
 }

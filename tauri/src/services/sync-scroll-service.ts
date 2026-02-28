@@ -38,8 +38,8 @@ export class SyncScrollService {
    */
   enable(): void {
     if (this._enabled) return;
-    this._enabled = true;
     this._attachListeners();
+    this._enabled = true;
     logger.debug('Sync scroll enabled');
   }
 
@@ -67,6 +67,8 @@ export class SyncScrollService {
     this._detachListeners();
     this._editorScrollHandler = null;
     this._previewScrollHandler = null;
+    this._enabled = false;
+    this._isSyncing = false;
     logger.debug('Sync scroll service destroyed');
   }
 

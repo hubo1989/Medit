@@ -1682,6 +1682,8 @@ class MeditApp {
     this._previewToolbar = null;
     this._editor?.destroy();
     this._editor = null;
+    this._syncScrollService?.destroy();
+    this._syncScrollService = null;
     this._fileSaveService?.dispose();
     this._fileSaveService = null;
     this._menuService?.dispose();

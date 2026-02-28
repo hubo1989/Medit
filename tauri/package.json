@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "prebuild": "rm -rf public/vditor && cp -r node_modules/vditor/dist public/vditor",
+    "prebuild": "node scripts/copy-vditor-assets.cjs",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "tauri": "tauri",

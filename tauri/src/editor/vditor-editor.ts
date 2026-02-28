@@ -416,18 +416,40 @@ export class VditorEditor {
     if (!this._instance) {
       throw new Error('VditorEditor: Editor not initialized');
     }
-    const value = this._instance.getValue();
-    const selection = this._instance.getSelection();
-    
-    // For sv mode, we need to find the line start position
-    // This is a simplified approach - insert the prefix before selection
-    if (selection) {
-      // Get cursor position by finding selection in content
-      this._instance.insertValue(`${prefix}${selection}`);
+
+    // Try to access the textarea directly for sv mode
+    const textarea = this._container.querySelector('.vditor-sv textarea') as HTMLTextAreaElement | null;
+
+    if (textarea) {
+      // sv mode: use textarea selection
+      const value = textarea.value;
+      const cursorPos = textarea.selectionStart;
+
+      // Find line start position
+      let lineStart = 0;
+      for (let i = cursorPos - 1; i >= 0; i--) {
+        if (value[i] === '\n') {
+          lineStart = i + 1;
+          break;
+        }
+      }
+
+      // Insert prefix at line start
+      const newValue = value.slice(0, lineStart) + prefix + value.slice(lineStart);
+      textarea.value = newValue;
+
+      // Adjust cursor position
+      const newCursorPos = cursorPos + prefix.length;
+      textarea.selectionStart = textarea.selectionEnd = newCursorPos;
+
+      // Trigger input event to sync Vditor state
+      textarea.dispatchEvent(new Event('input', { bubbles: true }));
     } else {
-      // Just insert the prefix at cursor
+      // ir/wysiwyg mode: use Vditor's insertValue (less precise but works)
+      // For these modes, inserting at cursor is acceptable
       this._instance.insertValue(prefix);
     }
+
     this._instance.focus();
   }
 
