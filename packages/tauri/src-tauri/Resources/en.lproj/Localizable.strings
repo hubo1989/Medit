@@ -1,0 +1,12 @@
+/*
+  English Localizable.strings
+  Medit
+*/
+
+/* Mark: Edit Menu */
+"Undo" = "Undo";
+"Redo" = "Redo";
+"Cut" = "Cut";
+"Copy" = "Copy";
+"Paste" = "Paste";
+"Select All" = "Select All";

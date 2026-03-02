@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Medit - Markdown Editor</title>
+    <link rel="stylesheet" href="/src/styles/main.css" />
+    <link rel="stylesheet" href="/src/styles/tabs.css" />
+    <link rel="stylesheet" href="/src/ui/style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <!-- Main content area -->
+      <main id="main-container">
+        <!-- TOC sidebar - now on the left, independent of editor/preview -->
+        <aside id="toc-container" class="toc-pane">
+          <nav id="toc-nav"></nav>
+        </aside>
+
+        <!-- Editor and Preview wrapper -->
+        <div id="content-wrapper">
+          <!-- Save status UI mount point -->
+          <div id="save-state-container"></div>
+          
+          <!-- Tab bar for multi-document editing -->
+          <div id="tab-bar-container"></div>
+
+          <!-- Preview mode toolbar (only shows in preview mode) -->
+          <header id="preview-toolbar-container"></header>
+
+          <!-- Editor and Preview horizontal container -->
+          <div id="editor-preview-container">
+            <!-- Editor container (hidden in preview mode) -->
+            <div id="editor-container" class="editor-pane">
+              <!-- Combined toolbar: Medit buttons + Vditor buttons in same row -->
+              <div id="edit-toolbar-container"></div>
+              <!-- Vditor editor (toolbar will be moved to edit-toolbar-container) -->
+              <div id="vditor-editor"></div>
+            </div>
+
+            <!-- Preview container (always visible, full width in preview mode) -->
+            <div id="preview-container" class="preview-pane">
+              <div id="markdown-content"></div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
