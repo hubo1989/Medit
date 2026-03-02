@@ -11,7 +11,6 @@
   },
   "app": {
     "withGlobalTauri": true,
-    "icon": ["icons/icon.png", "icons/icon.icns"],
     "windows": [
       {
         "title": "Medit",
