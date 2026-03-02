@@ -92,3 +92,6 @@ tauri/public/vditor/
 
 # Ralph TUI session files (developer-specific)
 .ralph-tui/
+
+# Oh My Droid config (developer-specific)
+.omd/
